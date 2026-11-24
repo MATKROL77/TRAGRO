@@ -62,7 +62,7 @@ function StudioFloor() {
 export function StudioScene() {
   const { scene } = useThree();
   useEffect(() => {
-    scene.fog = new THREE.Fog('#ebe6de', 26, 85);
+    scene.fog = new THREE.Fog('#eee6d9', 26, 85);
     return () => {
       scene.fog = null;
     };
@@ -73,7 +73,7 @@ export function StudioScene() {
   const base = import.meta.env.BASE_URL;
   return (
     <>
-      <color attach="background" args={['#ebe6de']} />
+      <color attach="background" args={['#eee6d9']} />
       <Environment files={`${base}hdri/studio.hdr`} environmentIntensity={0.9} environmentRotation={[0, Math.PI / 3, 0]}>
         <Lightformer form="rect" intensity={2.2} position={[0, 6, 4]} scale={[12, 3, 1]} target={[0, 0, 0]} />
         <Lightformer form="rect" intensity={1.2} position={[-8, 3, -2]} scale={[6, 4, 1]} target={[0, 0, 0]} />
