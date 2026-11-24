@@ -33,11 +33,6 @@ export const Tractor = forwardRef<THREE.Group, { wheelRefs?: React.MutableRefObj
     if (o && wheelRefs && !wheelRefs.current.includes(o)) wheelRefs.current.push(o);
   };
   const wb = 2.75; // distancia entre ejes
-  const fenderMat = useMemo(() => {
-    const f = body.clone();
-    f.side = THREE.DoubleSide;
-    return f;
-  }, [body]);
   const geo = useMemo(
     () => ({
       hood: roundedBox(0.95, 0.85, 2.3, 0.12, 3),
@@ -48,10 +43,21 @@ export const Tractor = forwardRef<THREE.Group, { wheelRefs?: React.MutableRefObj
       post: roundedBox(0.07, 1.4, 0.07, 0.02),
       glassSide: new THREE.PlaneGeometry(1.4, 1.25),
       glassFront: new THREE.PlaneGeometry(1.32, 1.3),
+      // guardabarros macizo: sector de anillo extruido (con espesor) + reborde, sobre la rueda trasera
       fender: (() => {
-        const g = new THREE.CylinderGeometry(1.1, 1.1, 0.68, 32, 1, true, Math.PI * 0.95, Math.PI * 0.62);
+        const sh = new THREE.Shape();
+        const r0 = 1.03;
+        const r1 = 1.09;
+        const a0 = Math.PI * 0.12;
+        const a1 = Math.PI * 0.82;
+        sh.absarc(0, 0, r1, a0, a1, false);
+        sh.absarc(0, 0, r0, a1, a0, true);
+        const g = new THREE.ExtrudeGeometry(sh, { depth: 0.7, bevelEnabled: true, bevelSize: 0.012, bevelThickness: 0.012, bevelSegments: 2, curveSegments: 32 });
+        g.translate(0, 0, -0.35);
+        g.rotateY(Math.PI / 2);
         return g;
       })(),
+      fenderBracket: roundedBox(0.4, 0.08, 0.5, 0.02),
       exhaust: new THREE.CylinderGeometry(0.06, 0.06, 1.2, 12),
       tank: roundedBox(0.35, 0.5, 0.9, 0.06),
       step: roundedBox(0.3, 0.03, 0.22, 0.01),
@@ -98,7 +104,9 @@ export const Tractor = forwardRef<THREE.Group, { wheelRefs?: React.MutableRefObj
       {/* guardabarros y escalones */}
       {[-1, 1].map((s) => (
         <group key={s}>
-          <mesh geometry={geo.fender} material={fenderMat} position={[s * 1.0, p.RR, 0]} rotation={[0, 0, Math.PI / 2]} castShadow />
+          <mesh geometry={geo.fender} material={body} position={[s * 1.0, p.RR, 0]} castShadow receiveShadow />
+          {/* soporte del guardabarros a la cabina */}
+          <mesh geometry={geo.fenderBracket} material={dark} position={[s * 0.78, p.RR + 0.62, -0.1]} castShadow />
           <mesh geometry={geo.step} material={m.plate} position={[s * 0.62, 0.55, 0.65]} />
           <mesh geometry={geo.step} material={m.plate} position={[s * 0.62, 0.9, 0.65]} />
           <mesh geometry={geo.lamp} material={m.lightRed} position={[s * 0.55, 1.2, -0.95]} />

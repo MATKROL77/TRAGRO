@@ -444,6 +444,7 @@
     "hotspots": "Tech points",
     "autoFocus": "Zoom in on option changes",
     "stubble": {
+      "wheat": "Wheat stubble",
       "soy": "Soybean stubble",
       "maize": "Corn stubble"
     },

@@ -444,6 +444,7 @@
     "hotspots": "Puntos técnicos",
     "autoFocus": "Acercar al cambiar opciones",
     "stubble": {
+      "wheat": "Rastrojo de trigo",
       "soy": "Rastrojo de soja",
       "maize": "Rastrojo de maíz"
     },

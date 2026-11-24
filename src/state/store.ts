@@ -35,7 +35,7 @@ export interface AppState {
   autoFocus: boolean;
   showTractor: boolean;
   showHotspots: boolean;
-  stubble: 'soy' | 'maize';
+  stubble: 'wheat' | 'soy' | 'maize';
   quality: Quality;
   modal: ModalId;
   slots: { A?: Configuration; B?: Configuration };
@@ -74,7 +74,7 @@ export interface AppState {
   requestCam: (p: CamPreset, instant?: boolean) => void;
   focus: (zone: string) => void;
   toggle: (k: 'autoFocus' | 'showTractor' | 'showHotspots' | 'hidePrices') => void;
-  setStubble: (s: 'soy' | 'maize') => void;
+  setStubble: (s: 'wheat' | 'soy' | 'maize') => void;
   setQuality: (q: Quality) => void;
   openModal: (m: ModalId) => void;
   saveSlot: (s: 'A' | 'B') => void;
@@ -114,7 +114,7 @@ export const useStore = create<AppState>((set, get) => ({
   autoFocus: true,
   showTractor: true,
   showHotspots: true,
-  stubble: 'soy',
+  stubble: 'wheat',
   quality: 'high',
   modal: null,
   slots: {},

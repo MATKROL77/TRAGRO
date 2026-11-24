@@ -61,10 +61,10 @@ describe('reglas de compatibilidad', () => {
     expect(r.notices.some((n) => n.ruleId === 'longitudinalAboveWidth')).toBe(true);
     expect(optionStatus(r.config, 'transport', 'fold').state).toBe('disabled');
   });
-  it('compacta sólo pliega', () => {
+  it('la compacta puede plegar o ir longitudinal', () => {
     const c = resolve({ ...base(), model: 'sp10c', rows: 10 }).config;
-    expect(c.selections.transport).toBe('fold');
-    expect(optionStatus(c, 'transport', 'longitudinal').state).toBe('disabled');
+    expect(optionStatus(c, 'transport', 'fold').state).toBe('ok');
+    expect(optionStatus(c, 'transport', 'longitudinal').state).toBe('ok');
   });
   it('tolva central exige dosificación neumática o eléctrica', () => {
     let c = withSel(base(), { metering: 'chain' });

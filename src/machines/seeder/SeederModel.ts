@@ -414,25 +414,35 @@ export class SeederModel {
     for (const x of [-span, -span / 3, span / 3, span]) {
       this.mesh(barBetween(V(x, py, wz - 0.2), V(x, py + 1.0, wz - 0.2), 0.02, 8), mats.paintAccent, this.chassis);
     }
-    for (const y of [0.55, 1.0]) this.mesh(barBetween(V(-span, py + y, wz - 0.2), V(span, py + y, wz - 0.2), 0.02, 8), mats.paintAccent, this.chassis);
+    const lgx = span - 0.35; // abertura de la baranda para la escalera
+    for (const y of [0.55, 1.0]) {
+      this.mesh(barBetween(V(-span, py + y, wz - 0.2), V(lgx - 0.26, py + y, wz - 0.2), 0.02, 8), mats.paintAccent, this.chassis);
+      this.mesh(barBetween(V(lgx + 0.26, py + y, wz - 0.2), V(span, py + y, wz - 0.2), 0.02, 8), mats.paintAccent, this.chassis);
+    }
+    for (const dx of [-0.26, 0.26]) this.mesh(barBetween(V(lgx + dx, py, wz - 0.2), V(lgx + dx, py + 1.0, wz - 0.2), 0.02, 8), mats.paintAccent, this.chassis);
     for (const sx of [-1, 1]) {
       this.mesh(barBetween(V(sx * span, py + 1.0, wz - 0.2), V(sx * span, py + 1.0, wz + 0.2), 0.02, 8), mats.paintAccent, this.chassis);
       this.mesh(barBetween(V(sx * span, py + 0.55, wz - 0.2), V(sx * span, py + 0.55, wz + 0.2), 0.02, 8), mats.paintAccent, this.chassis);
     }
-    // escalera: baja por detrás de la pasarela hasta el suelo (fuera de los cuerpos de siembra)
-    const lx = span - 0.35;
+    // escalera: sale por la abertura de la baranda y baja por detrás de los cuerpos hasta el suelo
+    const lx = lgx;
     const ladder = new THREE.Group();
-    ladder.position.set(lx, 0, wz - 0.23);
+    ladder.position.set(lx, 0, wz - 0.2);
     this.chassis.add(ladder);
-    const bottomY = 0.22;
-    const run = 0.55;
-    for (const dx of [-0.2, 0.2]) this.mesh(barBetween(V(dx, py + 0.02, 0), V(dx, bottomY, -run), 0.02, 6, true), mats.paintMain, ladder);
-    const steps = 5;
+    const bottomY = 0.04;
+    const run = 0.62;
+    for (const dx of [-0.2, 0.2]) {
+      this.mesh(barBetween(V(dx, py + 0.02, 0), V(dx, bottomY, -run), 0.022, 6, true), mats.paintMain, ladder);
+      this.mesh(roundedBox(0.08, 0.02, 0.1, 0.004), mats.paintDark, ladder, V(dx, bottomY, -run));
+      // pasamanos que siguen la escalera
+      this.mesh(barBetween(V(dx * 1.15, py + 1.0, 0), V(dx * 1.15, bottomY + 0.95, -run - 0.05), 0.015, 8), mats.paintAccent, ladder);
+      this.mesh(barBetween(V(dx * 1.15, bottomY + 0.95, -run - 0.05), V(dx * 1.15, bottomY + 0.35, -run - 0.07), 0.015, 8), mats.paintAccent, ladder);
+    }
+    const steps = 6;
     for (let i = 1; i <= steps; i++) {
       const t = i / (steps + 1);
-      this.mesh(roundedBox(0.4, 0.02, 0.1, 0.004), mats.plate, ladder, V(0, py + (bottomY - py) * t, -run * t));
+      this.mesh(roundedBox(0.4, 0.025, 0.11, 0.004), mats.plate, ladder, V(0, py + (bottomY - py) * t, -run * t));
     }
-    for (const dx of [-0.2, 0.2]) this.mesh(barBetween(V(dx, py + 0.02, 0), V(dx, py + 0.9, 0.02), 0.016, 8), mats.paintAccent, ladder);
   }
 
   private parentOf(sectionId: string): THREE.Object3D {
@@ -529,32 +539,35 @@ export class SeederModel {
     const mats = this.mats;
     const by = DIM.barY;
     const top = by + DIM.barSize / 2;
+    const pv = top + DIM.foldRise; // altura de la bisagra elevada
     for (const sid of ['L', 'R'] as const) {
       const side = sid === 'L' ? -1 : 1;
       const wp = this.wingPivots[sid];
       if (!wp) continue;
-      // torre en la sección central y oreja en el ala
+      // torre de la sección central: poste hasta la bisagra + diagonal + apoyo del cilindro
       const tower = new THREE.Group();
       tower.name = `tower-${sid}`;
       this.chassis.add(tower);
-      this.mesh(roundedBox(0.16, 0.46, 0.14, 0.012), mats.paintMain, tower, V(0, top + 0.23, 0));
-      this.mesh(barBetween(V(0, top + 0.4, 0), V(-side * 0.45, top, 0), 0.03, 6, true), mats.paintMain, tower);
+      this.mesh(roundedBox(0.14, pv - top + 0.08, 0.16, 0.012), mats.paintMain, tower, V(side * 0.55, top + (pv - top) / 2, 0));
+      this.mesh(barBetween(V(side * 0.55, pv - 0.05, 0), V(side * 0.05, top + 0.02, 0), 0.035, 6, true), mats.paintMain, tower);
+      this.mesh(roundedBox(0.2, 0.12, 0.2, 0.012), mats.paintMain, tower, V(side * 0.6, pv, 0));
+      this.mesh(roundedBox(0.16, 0.16, 0.14, 0.012), mats.paintMain, tower, V(0, pv - 0.05, 0));
+      // poste del ala hasta la bisagra + palanca para el cilindro
       const lug = new THREE.Group();
       wp.inner.add(lug);
-      this.mesh(roundedBox(0.16, 0.26, 0.14, 0.012), mats.paintMain, lug, V(0, top + 0.13, 0));
-      // bisagras
+      this.mesh(roundedBox(0.14, pv - top + 0.08, 0.16, 0.012), mats.paintMain, lug, V(0, top + (pv - top) / 2, 0));
+      this.mesh(barBetween(V(0, top + 0.05, 0), V(side * 0.45, top + 0.02, 0), 0.03, 6, true), mats.paintMain, lug);
+      this.mesh(roundedBox(0.12, 0.3, 0.12, 0.01), mats.paintMain, lug, V(0, pv + 0.15, 0.1));
+      // bisagra (charnela) a la altura elevada
       const knuckle = new THREE.Group();
       wp.inner.add(knuckle);
-      for (const dz of [-0.07, 0.07]) this.mesh(cylinderZ(0.05, 0.05, 16), mats.paintMain, knuckle, V(0, top, dz));
-      this.mesh(cylinderZ(0.022, 0.24, 10), mats.chrome, knuckle, V(0, top, 0));
-      const a = this.anchor(`cylA-${sid}`, tower, V(0, top + 0.42, 0.1));
-      const b = this.anchor(`cylB-${sid}`, lug, V(0, top + 0.22, 0.1));
-      const cyl = new HydCylinder(a, b, mats, this.geoms, 0.33, 0.045);
+      for (const dz of [-0.09, 0.09]) this.mesh(cylinderZ(0.06, 0.06, 16), mats.paintMain, knuckle, V(0, pv, dz));
+      this.mesh(cylinderZ(0.025, 0.3, 10), mats.chrome, knuckle, V(0, pv, 0));
+      const a = this.anchor(`cylA-${sid}`, tower, V(0, pv + 0.04, 0.1));
+      const b = this.anchor(`cylB-${sid}`, lug, V(0, pv + 0.28, 0.1));
+      const cyl = new HydCylinder(a, b, mats, this.geoms, 0.3, 0.045);
       this.chassis.add(cyl.group);
       this.cylinders.push(cyl);
-      (tower.userData as { side: number }).side = side;
-      (lug.userData as { side: number }).side = side;
-      (knuckle.userData as { knuckle: number }).knuckle = side;
       this.foldParts.push({ tower, lug, knuckle, side });
     }
   }
@@ -571,7 +584,7 @@ export class SeederModel {
     // prolongación del tubo hasta el tren
     this.mesh(roundedBox(CX + 0.1, DIM.barSize * 0.9, DIM.barSize * 0.9, 0.012).translate((CX + 0.1) / 2 - 0.05, 0, 0), mats.paintMain, group, V(0, by, 0));
     this.mesh(barBetween(V(0, by - 0.05, -0.05), V(CX, by - 0.05, zc - 0.6), 0.04, 6, true), mats.paintMain, group);
-    this.mesh(roundedBox(0.22, 0.22, 2.6, 0.015), mats.paintMain, group, V(CX, by, zc));
+    this.mesh(roundedBox(0.22, 0.22, 1.4, 0.015), mats.paintMain, group, V(CX, by, zc)); // entre las ruedas: no las atraviesa
     const arm = new THREE.Group();
     arm.position.set(CX, by - 0.05, zc);
     group.add(arm);
@@ -581,7 +594,8 @@ export class SeederModel {
     const wheels: THREE.Group[] = [];
     const armLen = by - 0.05 + DIM.lift - R;
     this.mesh(roundedBox(0.14, armLen, 0.14, 0.012), mats.paintMain, arm, V(0, -armLen / 2, 0));
-    this.mesh(roundedBox(0.12, 0.12, 2.25, 0.012), mats.paintMain, arm, V(0, -armLen, 0));
+    this.mesh(roundedBox(0.12, 0.12, 1.7, 0.012), mats.paintMain, arm, V(0, -armLen, 0));
+    for (const dz of [-1, 1]) this.mesh(cylinderZ(0.035, 0.5, 12), mats.steel, arm, V(0, -armLen, dz * 0.95));
     for (const dz of [-1.05, 1.05]) {
       const w = new THREE.Group();
       w.position.set(0, -armLen, dz);
@@ -729,15 +743,16 @@ export class SeederModel {
       this.setBar('R', hr, right);
       for (const fp of this.foldParts) {
         const hx = fp.side * this.hingeX;
-        fp.tower.position.set(hx - fp.side * 0.65, 0, 0.0);
-        fp.lug.position.set(hx + fp.side * 0.3, 0, 0.0);
+        // torre: del lado central de la bisagra; poste del ala: del lado del ala
+        fp.tower.position.set(hx - fp.side * 0.62, 0, 0.0);
+        fp.lug.position.set(hx + fp.side * 0.08, 0, 0.0);
         fp.knuckle.position.set(hx, 0, 0);
       }
       for (const sid of ['L', 'R'] as const) {
         const wp = this.wingPivots[sid];
         if (!wp) continue;
         const side = sid === 'L' ? -1 : 1;
-        const py = DIM.barY + DIM.barSize / 2;
+        const py = DIM.barY + DIM.barSize / 2 + DIM.foldRise;
         wp.pivot.position.set(side * this.hingeX, py, 0);
         wp.inner.position.set(-side * this.hingeX, -py, 0);
       }

@@ -137,7 +137,7 @@ export function ViewerToolbar() {
               <label className="pop-check"><input type="checkbox" checked={showHotspots} onChange={() => st().toggle('showHotspots')} /> {t('toolbar.hotspots')}</label>
               <label className="pop-check"><input type="checkbox" checked={autoFocus} onChange={() => st().toggle('autoFocus')} /> {t('toolbar.autoFocus')}</label>
               <div className="pop-sep" />
-              {(['soy', 'maize'] as const).map((k) => (
+              {(['wheat', 'soy', 'maize'] as const).map((k) => (
                 <label key={k} className="pop-check"><input type="radio" name="stubble" checked={stubble === k} onChange={() => st().setStubble(k)} /> {t(`toolbar.stubble.${k}`)}</label>
               ))}
             </div>

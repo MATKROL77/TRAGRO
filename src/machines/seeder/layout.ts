@@ -17,7 +17,9 @@ export const DIM = {
   rowFrontZ: 0.62, // frente de la cuchilla
   unitTuck: 0.72, // cuánto sobresale el cuerpo (hacia abajo) con el bastidor levantado
   foldAngle: Math.PI / 2,
-  centerTargetM: 3.1,
+  centerTargetM: 2.4,
+  /** la bisagra de las alas va elevada sobre torres (a la altura del tope de las tolvas): al plegar, nada del ala invade la sección central */
+  foldRise: 0.66,
   transportDrawbar: 2.7,
   carriageTrack: 2.5,
   carriageOffset: 0.6, // tren longitudinal separado del extremo del tubo
@@ -90,7 +92,7 @@ export function computeLayout(cfg: Configuration): SeederLayout {
   if (transport === 'fold') {
     let center = Math.max(2, Math.round(DIM.centerTargetM / spacing));
     if (center > rows) center = rows;
-    if ((rows - center) % 2 !== 0) center = center + 1 <= rows ? center + 1 : center - 1;
+    if ((rows - center) % 2 !== 0) center = center - 1 >= 2 ? center - 1 : center + 1;
     const wing = (rows - center) / 2;
     hingeX = (center * spacing) / 2;
     const idx = (a: number, b: number) => Array.from({ length: b - a }, (_, k) => a + k);
@@ -125,8 +127,10 @@ export function computeLayout(cfg: Configuration): SeederLayout {
 
   let transportDims: SeederLayout['transportDims'];
   if (transport === 'fold') {
-    const halfW = hingeX + DIM.barSize / 2 + DIM.unitTuck;
-    const height = DIM.barY + DIM.lift + DIM.barSize / 2 + wingLength;
+    // con la bisagra elevada, lo más bajo del ala (ruedas de los cuerpos) queda hacia afuera a la altura de la bisagra
+    const pivotY = DIM.barY + DIM.barSize / 2 + DIM.foldRise;
+    const halfW = hingeX + pivotY + 0.05;
+    const height = pivotY + DIM.lift + wingLength + DIM.barSize / 2;
     transportDims = {
       width: Math.max(2 * halfW, DIM.carriageTrack * 0.9),
       height: Math.max(height, topY + DIM.lift),

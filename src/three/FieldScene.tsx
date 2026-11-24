@@ -11,13 +11,14 @@ import { Tractor, TRACTOR } from './Tractor';
 import { getCrop } from '../domain/agronomy';
 import { computeLayout } from '../machines/seeder/layout';
 import { getMaterials } from './materials';
+import { mergeAll } from '../machines/seeder/parts';
 import { createTrees, treeLine } from './trees';
 
 const TILE_Z = 44;
 const Z_MIN = -26;
 
 /** Rastrojo instanciado cerca de la cámara; el shader lo recicla en loop según el avance. */
-function Stubble({ kind, width, count }: { kind: 'soy' | 'maize'; width: number; count: number }) {
+function Stubble({ kind, width, count }: { kind: 'wheat' | 'soy' | 'maize'; width: number; count: number }) {
   const offset = useRef({ value: 0 });
   const meshes = useMemo(() => {
     const rnd = (() => {
@@ -57,12 +58,30 @@ function Stubble({ kind, width, count }: { kind: 'soy' | 'maize'; width: number;
     const q = new THREE.Quaternion();
     const sc = new THREE.Vector3();
     const e = new THREE.Euler();
-    const base = new THREE.Color(kind === 'soy' ? '#a89270' : '#b49f78');
+    const base = new THREE.Color(kind === 'soy' ? '#a89270' : kind === 'wheat' ? '#c4ab72' : '#b49f78');
     const tint = (c: THREE.Color) => c.copy(base).offsetHSL((rnd() - 0.5) * 0.03, (rnd() - 0.5) * 0.1, (rnd() - 0.5) * 0.16);
     // tallos en pie, en las hileras del cultivo anterior (cruzadas en diagonal)
-    const prevSpacing = kind === 'soy' ? 0.42 : 0.7;
-    const standGeo = kind === 'soy' ? new THREE.CylinderGeometry(0.003, 0.0045, 0.09, 3, 1, true).translate(0, 0.045, 0) : new THREE.CylinderGeometry(0.009, 0.013, 0.24, 5, 1, true).translate(0, 0.12, 0);
-    const nStand = Math.round(count * (kind === 'soy' ? 0.25 : 0.18));
+    const prevSpacing = kind === 'soy' ? 0.42 : kind === 'wheat' ? 0.175 : 0.7;
+    // trigo: macollos de 6 cañas finas y altas (rastrojo en pie tras la cosecha)
+    const wheatTuft = () => {
+      const parts: THREE.BufferGeometry[] = [];
+      for (let k = 0; k < 6; k++) {
+        const h = 0.15 + rnd() * 0.09;
+        const g = new THREE.CylinderGeometry(0.0016, 0.0026, h, 3, 1, true).translate(0, h / 2, 0);
+        g.rotateZ((rnd() - 0.5) * 0.5);
+        g.rotateX((rnd() - 0.5) * 0.5);
+        g.translate((rnd() - 0.5) * 0.035, 0, (rnd() - 0.5) * 0.035);
+        parts.push(g);
+      }
+      return mergeAll(parts);
+    };
+    const standGeo =
+      kind === 'wheat'
+        ? wheatTuft()
+        : kind === 'soy'
+          ? new THREE.CylinderGeometry(0.003, 0.0045, 0.09, 3, 1, true).translate(0, 0.045, 0)
+          : new THREE.CylinderGeometry(0.009, 0.013, 0.24, 5, 1, true).translate(0, 0.12, 0);
+    const nStand = Math.round(count * (kind === 'wheat' ? 0.55 : kind === 'soy' ? 0.25 : 0.18));
     const ang = 0.5;
     const standing = make(standGeo, '#ffffff', nStand, (_, m, c) => {
       const row = Math.floor(rnd() * ((2 * half) / prevSpacing));
@@ -183,8 +202,6 @@ function Horizon() {
   useFrame((_, dt) => {
     const fan = (g.userData.mill as THREE.Group).userData.fan as THREE.Group;
     fan.rotation.z += dt * 1.2;
-    // paralaje sutil: el horizonte se mueve muy lento con el avance
-    g.position.z = -((runtime.distance * 0.25) % 600);
   });
   return <primitive object={g} />;
 }
@@ -256,7 +273,7 @@ export default function FieldScene() {
   const stubble = useStore((s) => s.stubble);
   const config = useStore((s) => s.config);
   const width = useMemo(() => computeLayout(config).barLength, [config]);
-  const ground = useMemo(() => createGroundMaterial({ straw: stubble === 'soy' ? 0.75 : 0.9 }), [stubble]);
+  const ground = useMemo(() => createGroundMaterial({ straw: stubble === 'soy' ? 0.75 : 0.95 }), [stubble]);
   useEffect(() => () => ground.material.dispose(), [ground]);
   useEffect(() => {
     scene.fog = new THREE.Fog('#c9d3db', 70, 430);

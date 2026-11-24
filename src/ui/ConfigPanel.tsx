@@ -4,7 +4,7 @@ import { useStore } from '../state/store';
 import { useT } from '../i18n/useT';
 import { useFmt } from './format';
 import { catalog, getGroup, getModel, rowsRange, widthM } from '../domain/catalog';
-import { isGroupVisible, optionStatus } from '../domain/rules';
+import { isGroupVisible, optionStatus, resolve } from '../domain/rules';
 import { computePrice, optionPrice } from '../domain/pricing';
 import { createDefaultConfig } from '../domain/catalog';
 import { IconBack, IconChevron, IconInfo, IconWarn, IconCheck } from './icons';
@@ -97,7 +97,7 @@ function StepModel() {
     <div className="models" role="radiogroup" aria-label={t('steps.model.name')}>
       {catalog.models.map((m) => {
         const base = createDefaultConfig();
-        const from = computePrice({ ...base, model: m.id, rows: m.rowsMin, selections: { ...base.selections, transport: m.tier === 'compact' ? 'fold' : 'longitudinal' } }).total;
+        const from = computePrice(resolve({ ...base, model: m.id, rows: m.rowsMin, selections: { ...base.selections, transport: 'fold' } }).config).total;
         const sel = config.model === m.id;
         const range = rowsRange(m, config.spacingCm);
         return (
