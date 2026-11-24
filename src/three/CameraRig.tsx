@@ -32,7 +32,7 @@ export function presetShot(p: CamPreset, aspect: number, scene: string): Shot {
   const { c, s } = machineBox();
   const span = Math.max(s.x, s.z * 0.8);
   const fit = (span / 2 / Math.tan(THREE.MathUtils.degToRad(20))) / Math.min(1.25, Math.max(0.55, aspect));
-  const d = Math.max(6.5, fit * 1.05 + 1.5);
+  const d = Math.max(6.5, fit * 1.12 + 2);
   const midRowX = (() => {
     const m = runtime.model;
     if (!m) return 0;

@@ -49,7 +49,7 @@ export function formatQty(value: number, q: Quantity, sys: UnitSystem, lang: Lan
 export function formatMoney(value: number, lang: Lang, currency = 'USD'): string {
   return new Intl.NumberFormat(LOCALE[lang], { style: 'currency', currency, maximumFractionDigits: 0, currencyDisplay: 'code' })
     .format(value)
-    .replace(/ /g, ' ');
+    .replace(/[\u00a0\u202f]/g, ' ');
 }
 
 export function formatDate(d: Date, lang: Lang): string {

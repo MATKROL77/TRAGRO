@@ -606,9 +606,11 @@ export class SeederModel {
   private buildHotspotAnchors() {
     // cuerpo del surco central (o el más cercano al centro, en la sección central)
     const c = this.batches.find((b) => b.id === 'C');
-    const mid = c ? c.rows[Math.floor(c.rows.length / 2)] : 0;
-    const x = this.layout.rowX[mid] ?? 0;
-    for (const [k, p] of Object.entries(ROW_HOTSPOTS)) this.anchor(`hs-${k}`, this.chassis, p.clone().add(V(x, 0, 0)));
+    const rowsC = c ? c.rows : [0];
+    const pick = (k: number) => rowsC[Math.max(0, Math.min(rowsC.length - 1, Math.floor(rowsC.length / 2) + k))];
+    const offsets: Record<string, number> = { coulter: 1, discs: 0, gauge: 2, meter: -1, closing: -2 };
+    for (const [k, p] of Object.entries(ROW_HOTSPOTS)) this.anchor(`hs-${k}`, this.chassis, p.clone().add(V(this.layout.rowX[pick(offsets[k] ?? 0)] ?? 0, 0, 0)));
+    const x = this.layout.rowX[pick(-1)] ?? 0;
     const tank = this.layout.tanks[0];
     if (tank) this.anchors['hs-hoppers'] = this.anchors[`tank-${tank.kind}`];
     else this.anchor('hs-hoppers', this.chassis, V(x, ROW.meter.pos.y + 0.75, ROW.meter.pos.z));

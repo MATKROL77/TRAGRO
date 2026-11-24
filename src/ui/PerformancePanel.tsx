@@ -95,7 +95,7 @@ export function PerformancePanel({ collapsible }: { collapsible: boolean }) {
         <span className="perf-kpis">
           <span><strong>{f.q(p.haPerHour, 'areaRate', 2)}</strong></span>
           <span className="sep">·</span>
-          <span><strong>{f.q(p.haPerDay, 'area', 0)}</strong>/{t('perf.haDay').toLowerCase()}</span>
+          <span><strong>{f.q(p.haPerDay, 'area', 0)}</strong> <span className="muted">{t('perf.haDay').toLowerCase()}</span></span>
         </span>
         <span className={`chev${open ? ' up' : ''}`}><IconChevron size={16} /></span>
       </button>

@@ -13,7 +13,7 @@ function detectWebGL(): boolean {
   }
 }
 
-function browserLang(): Lang | null {
+export function browserLang(): Lang | null {
   const enabled = brand.languages as Lang[];
   for (const l of navigator.languages ?? [navigator.language]) {
     const low = l.toLowerCase();
@@ -38,8 +38,8 @@ export async function bootstrap() {
   st.setWebgl(detectWebGL());
   const q = url.searchParams.get('q');
   if (q === 'low' || q === 'medium' || q === 'high') st.setQuality(q);
-  let lang: Lang | null = shared.lang ?? null;
-  if (!lang) lang = browserLang();
+  const lang: Lang | null = shared.lang ?? null;
+  // Español (Argentina) por defecto; el idioma se elige en el selector o con ?lang=
   if (lang && (LANGS as string[]).includes(lang) && lang !== 'es-AR') {
     try {
       await loadLang(lang);

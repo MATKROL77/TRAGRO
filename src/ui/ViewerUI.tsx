@@ -70,14 +70,15 @@ export function ViewerToolbar() {
   };
   const scenes: SceneId[] = ['studio', 'field', 'road'];
   return (
-    <div className="toolbar" ref={wrap} role="toolbar" aria-label={t('toolbar.scenes')}>
-      <div className="seg" role="radiogroup" aria-label={t('toolbar.scenes')}>
+    <>
+    <div className="scene-switch seg" role="radiogroup" aria-label={t('toolbar.scenes')}>
         {scenes.map((s) => (
           <button key={s} type="button" role="radio" aria-checked={scene === s && !detail} className={scene === s && !detail ? 'is-selected' : ''} onClick={() => { st().setDetail(false); st().setScene(s); }}>
             {t(`toolbar.env.${s}`)}
           </button>
         ))}
-      </div>
+    </div>
+    <div className="toolbar" ref={wrap} role="toolbar" aria-label={t('toolbar.cameras')}>
       <div className="tb-group">
         <button type="button" className={`tb-btn${sowing ? ' is-on' : ''}`} onClick={() => st().setSowing(!sowing)} disabled={pose === 'transport'}>
           {sowing ? <IconPause size={18} /> : <IconPlay size={18} />}
@@ -137,6 +138,7 @@ export function ViewerToolbar() {
         </div>
       </div>
     </div>
+    </>
   );
 }
 
