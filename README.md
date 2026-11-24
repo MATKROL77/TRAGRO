@@ -54,7 +54,11 @@ npm run build && npm run preview
 npm run e2e
 ```
 
-Generan las capturas en `screenshots/` y los resultados en `tests/e2e/out/`. En una máquina con GPU usá `E2E_GPU=1 npm run e2e` para que las mediciones de fps sean reales (sin esa variable Chromium dibuja por software).
+Generan las capturas en `screenshots/` y los resultados en `tests/e2e/out/`. Se puede correr una sola suite: `npm run e2e flujo`, `npm run e2e capturas` o `npm run e2e rendimiento`.
+
+En una máquina con GPU usá `E2E_GPU=1 npm run e2e` para que las mediciones de fps sean reales. Sin esa variable Chromium dibuja por software: sirve para verificar el flujo y las fugas de memoria, pero es lento (cada suite tarda varios minutos) y sus fps no significan nada.
+
+Otros scripts: `node scripts/fallback.cjs` regenera las imágenes que se muestran cuando no hay WebGL (`public/fallback/`) y `scripts/assets/` documenta cómo se bajaron y convirtieron a KTX2 las texturas CC0.
 
 ## Cómo editar catálogo, precios y reglas (sin tocar código)
 

@@ -14,12 +14,9 @@ usar comercialmente, modificar y redistribuir sin atribución. Se los acredita i
 
 | Archivo final | Original | Autor | Origen | Licencia | Proceso |
 |---|---|---|---|---|---|
-| `public/assets/hdri/studio_1k.hdr` | Studio Small 08 (`studio_small_08`, 1K) | Sergej Majboroda | https://polyhaven.com/a/studio_small_08 | CC0 1.0 | Sin cambios (reescrito como RGBE) |
-| `public/assets/hdri/studio_512.hdr` | Studio Small 08 (`studio_small_08`, 1K) | Sergej Majboroda | https://polyhaven.com/a/studio_small_08 | CC0 1.0 | Reducido a 512×256 con filtro de área |
+| `public/assets/hdri/studio_512.hdr` | Studio Small 08 (`studio_small_08`, 1K) | Sergej Majboroda | https://polyhaven.com/a/studio_small_08 | CC0 1.0 | Reducido a 512×256 con filtro de área (liviano para la primera carga) |
 | `public/assets/hdri/sky_1k.hdr` | Sunflowers (Pure Sky) (`sunflowers_puresky`, 1K) | Sergej Majboroda (original), Jarod Guest (edición de cielo) | https://polyhaven.com/a/sunflowers_puresky | CC0 1.0 | Disco solar recortado a radiancia 30 (el sol lo aporta una luz direccional) y hemisferio inferior reemplazado por rebote de suelo |
 | `public/assets/hdri/sky_4k.jpg` | Sunflowers (Pure Sky), JPG tonemapped 8K | Sergej Majboroda, Jarod Guest | https://polyhaven.com/a/sunflowers_puresky | CC0 1.0 | Reducido a 4096×2048; bajo el horizonte se extiende la bruma |
-| `public/assets/hdri/sky_golden_1k.hdr` *(alternativa opcional)* | Table Mountain 1 (Pure Sky) (`table_mountain_1_puresky`, 1K) | Greg Zaal (original), Jarod Guest (edición de cielo) | https://polyhaven.com/a/table_mountain_1_puresky | CC0 1.0 | Igual que `sky_1k.hdr` |
-| `public/assets/hdri/sky_golden_4k.jpg` *(alternativa opcional)* | Table Mountain 1 (Pure Sky), JPG tonemapped 8K | Greg Zaal, Jarod Guest | https://polyhaven.com/a/table_mountain_1_puresky | CC0 1.0 | Igual que `sky_4k.jpg` |
 
 `public/assets/hdri/sky_info.json` guarda los datos medidos de cada cielo (dirección y color del sol, color del
 horizonte) que usa la escena exterior.
@@ -49,7 +46,7 @@ No son assets gráficos, pero se distribuyen con el build:
 ## Tipografías
 
 Se incluyen localmente vía paquetes [Fontsource](https://fontsource.org) (no se cargan desde ningún CDN):
-Manrope, Inter, Barlow Condensed y Roboto Slab, todas bajo **SIL Open Font License 1.1**.
+Manrope (interfaz), Barlow Condensed y Roboto Slab (rotulado sobre la caja), todas bajo **SIL Open Font License 1.1**.
 
 ## Cómo se regeneran
 

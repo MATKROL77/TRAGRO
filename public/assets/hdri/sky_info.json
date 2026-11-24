@@ -31,38 +31,5 @@
       0.1229
     ],
     "horizon_color_srgb_hex": "#a1aaa3"
-  },
-  "sky_golden": {
-    "id": "table_mountain_1_puresky",
-    "sun_uv": [
-      0.6375,
-      0.4288
-    ],
-    "sun_elevation_deg": 12.82,
-    "sun_azimuth_deg_from_plusX_towards_plusZ": 49.49,
-    "sun_direction_three": [
-      0.6333,
-      0.2219,
-      0.7414
-    ],
-    "sun_peak_radiance_original": 65539.6,
-    "sun_clamp": 30.0,
-    "directional_light_irradiance_rgb": [
-      4.085,
-      3.638,
-      2.35
-    ],
-    "directional_light_color_srgb_hex": "#fff2c8",
-    "sky_horizontal_irradiance_rgb": [
-      0.483,
-      0.544,
-      0.718
-    ],
-    "ground_fill_radiance_rgb": [
-      0.0654,
-      0.0624,
-      0.0433
-    ],
-    "horizon_color_srgb_hex": "#c4cfce"
   }
 }

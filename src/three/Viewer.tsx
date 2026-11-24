@@ -172,11 +172,19 @@ function AdaptiveQuality({ mobile }: { mobile: boolean }) {
   const setDpr = useThree((s) => s.setDpr);
   const perf = useRef({ run: 0, sum: 0, slow: 0, fast: 0, raises: 0 });
 
+  const size = useThree((s) => s.size);
+  const invalidate = useThree((s) => s.invalidate);
   useEffect(() => {
     const device = window.devicePixelRatio || 1;
     const cap = calidad === 'alta' ? (mobile ? 1.75 : 2) : calidad === 'media' ? 1.4 : 1;
     setDpr(Math.min(device, cap));
-  }, [calidad, mobile, setDpr]);
+    // El compositor de postprocesado tiene que tomar la nueva resolución.
+    const id = requestAnimationFrame(() => {
+      composerRef.current?.setSize(size.width, size.height);
+      invalidate();
+    });
+    return () => cancelAnimationFrame(id);
+  }, [calidad, mobile, setDpr, size.width, size.height, invalidate]);
 
   useFrame((_, rawDt) => {
     const p = perf.current;
