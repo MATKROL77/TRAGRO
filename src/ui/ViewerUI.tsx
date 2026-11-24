@@ -69,83 +69,78 @@ export function ViewerToolbar() {
     a.click();
   };
   const scenes: SceneId[] = ['studio', 'field', 'road'];
+  const isRoad = scene === 'road';
   return (
-    <>
-    <div className="scene-switch seg" role="radiogroup" aria-label={t('toolbar.scenes')}>
+    <div className="topbar" ref={wrap} role="toolbar" aria-label={t('toolbar.cameras')}>
+      <div className="pop-wrap">
+        <button type="button" className="tb-btn" aria-haspopup="menu" aria-expanded={camOpen} onClick={() => { setCamOpen(!camOpen); setMoreOpen(false); }}>
+          <IconCamera size={17} />
+          <span className="tb-label">{t('toolbar.cameras')}</span>
+        </button>
+        {camOpen && (
+          <div className="pop pop-down" role="menu">
+            {PRESETS.filter((p) => p !== 'ground' || scene === 'field').map((p) => (
+              <button key={p} role="menuitem" type="button" onClick={() => { st().requestCam(p); setCamOpen(false); touchInteraction(); }}>
+                {t(`toolbar.cam.${p}`)}
+              </button>
+            ))}
+          </div>
+        )}
+      </div>
+      <span className="tb-sep" aria-hidden />
+      <div className="tb-scenes" role="radiogroup" aria-label={t('toolbar.scenes')}>
         {scenes.map((s) => (
-          <button key={s} type="button" role="radio" aria-checked={scene === s && !detail} className={scene === s && !detail ? 'is-selected' : ''} onClick={() => { st().setDetail(false); st().setScene(s); }}>
+          <button key={s} type="button" role="radio" aria-checked={scene === s && !detail} className={`tb-btn${scene === s && !detail ? ' is-sel' : ''}`} onClick={() => { st().setDetail(false); st().setScene(s); }}>
             {t(`toolbar.env.${s}`)}
           </button>
         ))}
-    </div>
-    <div className="toolbar" ref={wrap} role="toolbar" aria-label={t('toolbar.cameras')}>
-      <div className="tb-group">
-        {scene === 'road' ? (
-          <button type="button" className={`tb-btn${sowing ? ' is-on' : ''}`} onClick={() => st().setSowing(!sowing)} disabled={pose !== 'transport'}>
-            {sowing ? <IconPause size={18} /> : <IconPlay size={18} />}
-            <span>{sowing ? t('toolbar.stopSow') : t('toolbar.drive')}</span>
-          </button>
-        ) : (
-          <button type="button" className={`tb-btn${sowing ? ' is-on' : ''}`} onClick={() => st().setSowing(!sowing)} disabled={pose === 'transport'}>
-            {sowing ? <IconPause size={18} /> : <IconPlay size={18} />}
-            <span>{sowing ? t('toolbar.stopSow') : t('toolbar.sow')}</span>
-          </button>
-        )}
-        <button type="button" className={`tb-btn${pose === 'transport' ? ' is-on' : ''}`} onClick={fold}>
-          <IconFold size={18} />
-          <span>{pose === 'work' ? t('toolbar.fold') : t('toolbar.unfold')}</span>
+      </div>
+      <button
+        type="button"
+        className={`tb-btn tb-primary${sowing ? ' is-on' : ''}`}
+        onClick={() => st().setSowing(!sowing)}
+        disabled={isRoad ? pose !== 'transport' : pose === 'transport'}
+      >
+        {sowing ? <IconPause size={16} /> : <IconPlay size={16} />}
+        <span className="tb-label">{sowing ? t('toolbar.stopSow') : isRoad ? t('toolbar.drive') : t('toolbar.sow')}</span>
+      </button>
+      <button type="button" className={`tb-btn${pose === 'transport' ? ' is-sel' : ''}`} onClick={fold} title={pose === 'work' ? t('toolbar.fold') : t('toolbar.unfold')}>
+        <IconFold size={17} />
+        <span className="tb-label tb-label-wide">{pose === 'work' ? t('toolbar.fold') : t('toolbar.unfold')}</span>
+      </button>
+      <button type="button" className={`tb-btn${detail ? ' is-sel' : ''}`} onClick={() => st().setDetail(!detail)} title={detail ? t('toolbar.exitDetail') : t('toolbar.detail')}>
+        <IconUnit size={17} />
+        <span className="tb-label tb-label-wide">{detail ? t('toolbar.exitDetail') : t('toolbar.detail')}</span>
+      </button>
+      {detail && (
+        <button type="button" className={`tb-btn${exploded ? ' is-sel' : ''}`} onClick={() => st().setExploded(!exploded)}>
+          <span>{exploded ? t('toolbar.assemble') : t('toolbar.explode')}</span>
         </button>
-        <button type="button" className={`tb-btn${detail ? ' is-on' : ''}`} onClick={() => st().setDetail(!detail)}>
-          <IconUnit size={18} />
-          <span>{detail ? t('toolbar.exitDetail') : t('toolbar.detail')}</span>
+      )}
+      <span className="tb-sep" aria-hidden />
+      <div className="pop-wrap">
+        <button type="button" className="tb-btn tb-icon" aria-haspopup="menu" aria-expanded={moreOpen} aria-label={t('toolbar.more')} title={t('toolbar.more')} onClick={() => { setMoreOpen(!moreOpen); setCamOpen(false); }}>
+          <IconMore size={17} />
         </button>
-        {detail && (
-          <button type="button" className={`tb-btn${exploded ? ' is-on' : ''}`} onClick={() => st().setExploded(!exploded)}>
-            <span>{exploded ? t('toolbar.assemble') : t('toolbar.explode')}</span>
-          </button>
+        {moreOpen && (
+          <div className="pop pop-down pop-right" role="menu">
+            <label className="pop-check"><input type="checkbox" checked={showTractor} onChange={() => st().toggle('showTractor')} /> {t('toolbar.tractor')}</label>
+            <label className="pop-check"><input type="checkbox" checked={showHotspots} onChange={() => st().toggle('showHotspots')} /> {t('toolbar.hotspots')}</label>
+            <label className="pop-check"><input type="checkbox" checked={autoFocus} onChange={() => st().toggle('autoFocus')} /> {t('toolbar.autoFocus')}</label>
+            <div className="pop-sep" />
+            {(['wheat', 'soy', 'maize'] as const).map((k) => (
+              <label key={k} className="pop-check"><input type="radio" name="stubble" checked={stubble === k} onChange={() => st().setStubble(k)} /> {t(`toolbar.stubble.${k}`)}</label>
+            ))}
+          </div>
         )}
       </div>
-      <div className="tb-group">
-        <div className="pop-wrap">
-          <button type="button" className="tb-btn" aria-haspopup="menu" aria-expanded={camOpen} onClick={() => { setCamOpen(!camOpen); setMoreOpen(false); }}>
-            <IconCamera size={18} />
-            <span className="hide-xs">{t('toolbar.cameras')}</span>
-          </button>
-          {camOpen && (
-            <div className="pop" role="menu">
-              {PRESETS.filter((p) => p !== 'ground' || scene === 'field').map((p) => (
-                <button key={p} role="menuitem" type="button" onClick={() => { st().requestCam(p); setCamOpen(false); touchInteraction(); }}>
-                  {t(`toolbar.cam.${p}`)}
-                </button>
-              ))}
-            </div>
-          )}
-        </div>
-        <button type="button" className="tb-btn tb-icon" aria-label={fs ? t('toolbar.exitFullscreen') : t('toolbar.fullscreen')} title={fs ? t('toolbar.exitFullscreen') : t('toolbar.fullscreen')} onClick={fullscreen}>
-          <IconFull size={18} />
-        </button>
-        <button type="button" className="tb-btn tb-icon" aria-label={t('toolbar.screenshot')} title={t('toolbar.screenshot')} onClick={shot}>
-          <IconShot size={18} />
-        </button>
-        <div className="pop-wrap">
-          <button type="button" className="tb-btn tb-icon" aria-haspopup="menu" aria-expanded={moreOpen} aria-label={t('toolbar.more')} onClick={() => { setMoreOpen(!moreOpen); setCamOpen(false); }}>
-            <IconMore size={18} />
-          </button>
-          {moreOpen && (
-            <div className="pop pop-right" role="menu">
-              <label className="pop-check"><input type="checkbox" checked={showTractor} onChange={() => st().toggle('showTractor')} /> {t('toolbar.tractor')}</label>
-              <label className="pop-check"><input type="checkbox" checked={showHotspots} onChange={() => st().toggle('showHotspots')} /> {t('toolbar.hotspots')}</label>
-              <label className="pop-check"><input type="checkbox" checked={autoFocus} onChange={() => st().toggle('autoFocus')} /> {t('toolbar.autoFocus')}</label>
-              <div className="pop-sep" />
-              {(['wheat', 'soy', 'maize'] as const).map((k) => (
-                <label key={k} className="pop-check"><input type="radio" name="stubble" checked={stubble === k} onChange={() => st().setStubble(k)} /> {t(`toolbar.stubble.${k}`)}</label>
-              ))}
-            </div>
-          )}
-        </div>
-      </div>
+      <button type="button" className="tb-btn tb-icon hide-sm" aria-label={t('toolbar.screenshot')} title={t('toolbar.screenshot')} onClick={shot}>
+        <IconShot size={17} />
+      </button>
+      <button type="button" className="tb-btn tb-icon hide-sm" aria-label={fs ? t('toolbar.exitFullscreen') : t('toolbar.fullscreen')} title={fs ? t('toolbar.exitFullscreen') : t('toolbar.fullscreen')} onClick={fullscreen}>
+        <IconFull size={17} />
+      </button>
     </div>
-    </>
   );
 }
 

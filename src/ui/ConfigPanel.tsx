@@ -279,6 +279,7 @@ export function ConfigPanel() {
         </ol>
       </nav>
       <div className="step-head">
+        <span className="step-kicker">{t('nav.step', { n: step + 1, total: steps.length })}</span>
         <h2 className="step-title">{t(`steps.${cur.id}.name`)}</h2>
         <p className="step-hint">{t(`steps.${cur.id}.hint`)}</p>
       </div>
@@ -298,10 +299,9 @@ export function ConfigPanel() {
         <button type="button" className="btn btn-ghost" onClick={() => go(Math.max(0, step - 1))} disabled={step === 0}>
           <IconBack size={18} /> {t('nav.back')}
         </button>
-        <span className="muted small">{t('nav.step', { n: step + 1, total: steps.length })}</span>
         {step < steps.length - 1 ? (
-          <button type="button" className="btn btn-primary" onClick={() => go(step + 1)}>
-            {t('nav.next')} <IconChevron size={18} />
+          <button type="button" className="btn btn-next" onClick={() => go(step + 1)}>
+            {t('nav.next')}: {t(`steps.${steps[step + 1].id}.name`)} <IconChevron size={16} />
           </button>
         ) : (
           <button type="button" className="btn btn-primary" onClick={() => useStore.getState().openModal('summary')}>

@@ -4,7 +4,7 @@ import { useT } from '../i18n/useT';
 import { loadLang } from '../i18n';
 import brand from '../config/brand.json';
 import type { Lang } from '../domain/types';
-import { IconCompare, IconGlobe, IconMore, IconReset, IconShare } from './icons';
+import { IconCompare, IconMore, IconReset, IconShare } from './icons';
 import { shareCurrent } from './share';
 
 export function LangUnitControls() {
@@ -24,15 +24,13 @@ export function LangUnitControls() {
   };
   return (
     <div className="lu">
-      <label className="lu-lang">
-        <IconGlobe size={16} />
-        <span className="sr-only">{t('actions.language')}</span>
-        <select className="select select-bare" value={lang} onChange={(e) => changeLang(e.target.value as Lang)} aria-label={t('actions.language')}>
-          {(brand.languages as Lang[]).map((l) => (
-            <option key={l} value={l}>{t(`langNames.${l}`)}</option>
-          ))}
-        </select>
-      </label>
+      <div className="seg seg-mini lu-langs" role="radiogroup" aria-label={t('actions.language')}>
+        {(brand.languages as Lang[]).map((l) => (
+          <button key={l} type="button" role="radio" aria-checked={lang === l} aria-label={t(`langNames.${l}`)} title={t(`langNames.${l}`)} className={lang === l ? 'is-selected' : ''} onClick={() => changeLang(l)}>
+            {l.slice(0, 2).toUpperCase()}
+          </button>
+        ))}
+      </div>
       <div className="seg seg-mini" role="radiogroup" aria-label={t('actions.units')}>
         {(['metric', 'imperial'] as const).map((u) => (
           <button key={u} type="button" role="radio" aria-checked={units === u} aria-label={t(`units.${u}`)} title={t(`units.${u}`)} className={units === u ? 'is-selected' : ''} onClick={() => setUnits(u)}>
@@ -70,7 +68,7 @@ export function Header() {
   return (
     <header className="header">
       <a className="brand" href="./" aria-label={brand.name}>
-        <img src={`${import.meta.env.BASE_URL}brand/logo.svg`} alt="" width={34} height={34} />
+        <img src={`${import.meta.env.BASE_URL}brand/logo.svg`} alt="" width={34} height={22} />
         <span className="brand-text">
           <span className="brand-name">{brand.name}</span>
           <span className="brand-tag">{(brand.tagline as Record<string, string>)[lang]}</span>
@@ -79,8 +77,11 @@ export function Header() {
       <span className="demo-badge">{t('app.demoBadge')}</span>
       <div className="header-right">
         <LangUnitControls />
-        <button type="button" className="btn btn-ghost btn-sm hide-sm" onClick={share}>
-          <IconShare size={16} /> {copied ? t('actions.copied') : t('actions.share')}
+        <button type="button" className="btn-icon btn-icon-plain hide-sm" onClick={() => { const st = useStore.getState(); if (!st.slots.A) st.saveSlot('A'); st.openModal('compare'); }} aria-label={t('actions.compare')} title={t('actions.compare')}>
+          <IconCompare size={18} />
+        </button>
+        <button type="button" className="btn-icon btn-icon-plain" onClick={share} aria-label={t('actions.share')} title={copied ? t('actions.copied') : t('actions.share')}>
+          <IconShare size={18} />
         </button>
         <div className="menu-wrap" ref={ref}>
           <button type="button" className="btn-icon" aria-haspopup="menu" aria-expanded={menu} aria-label={t('actions.menu')} onClick={() => setMenu(!menu)}>
