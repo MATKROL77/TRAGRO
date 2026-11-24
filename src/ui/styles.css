@@ -373,8 +373,9 @@ kbd { display: inline-grid; place-items: center; min-width: 1.6em; padding: 0.05
 /* ---------- Celular y tablet vertical ---------- */
 @media (max-width: 900px) {
   :root { font-size: 16px; --top-h: 50px; --bar-h: 68px; }
-  .app { grid-template-columns: minmax(0, 1fr); grid-template-rows: var(--top-h) 55fr 45fr var(--bar-h); grid-template-areas: 'top' 'stage' 'panel' 'bar'; }
-  .app.embed { grid-template-rows: 0 55fr 45fr var(--bar-h); }
+  /* Encabezado + visor ocupan el 55 % superior; el panel es una hoja que se puede desplegar. */
+  .app { grid-template-columns: minmax(0, 1fr); grid-template-rows: var(--top-h) calc(55dvh - var(--top-h)) minmax(0, 1fr) var(--bar-h); grid-template-areas: 'top' 'stage' 'panel' 'bar'; }
+  .app.embed { grid-template-rows: 0 55dvh minmax(0, 1fr) var(--bar-h); }
   .topbar { padding: 0 0.5rem 0 0.8rem; gap: 0.3rem; }
   .topbar .lema, .topbar .solo-escritorio { display: none; }
   .topbar .brand img { height: 26px; }
@@ -394,9 +395,10 @@ kbd { display: inline-grid; place-items: center; min-width: 1.6em; padding: 0.05
   .bar .cta .btn { padding: 0 0.9rem; }
   .toolbar { top: 0.5rem; gap: 0.1rem; padding: 0.2rem; }
   .toolbar .tb-btn span { display: none; }
-  .toolbar .tb-btn { padding: 0; width: 44px; justify-content: center; }
+  .toolbar .tb-btn { padding: 0; width: 44px; min-width: 44px; flex: none; justify-content: center; }
   .toolbar .tb-btn.is-accent span { display: inline; }
-  .toolbar .tb-btn.is-accent { width: auto; padding: 0 0.7rem; }
+  .toolbar .tb-btn.is-accent { width: auto; padding: 0 0.7rem; flex: 0 1 auto; }
+  .toolbar .icon-btn { flex: none; }
   .toolbar .div, .toolbar .solo-escritorio { display: none; }
   .popover { max-height: calc(55dvh - 9.5rem); overflow-y: auto; }
   .tech { left: 0.5rem; bottom: 1.3rem; width: auto; border-radius: 999px; }

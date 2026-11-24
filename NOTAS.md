@@ -99,12 +99,12 @@ Ver los resultados completos en `tests/e2e/out/`. Resumen al cierre:
 | Cuadro completo | 122 draw calls (sombras + AO + escena + postprocesado) | — | — |
 | Reconstrucción del modelo | promedio 63 ms, p95 125 ms (software, máquina cargada) | "que no se trabe la UI" | Sin medir en hardware real |
 | Estrés: 200 cambios de opción | geometrías 73 → 76, texturas 46 → 51, memoria JS 22 → 40 MB | sin fugas | Cumple |
-| Primer cuadro interactivo | FPS_CARGA | < 3 s en 4G rápido | **Sin verificar** (ver abajo) |
-| Fps rotando / animando | FPS_ROT | 60 fps notebook, 30 fps celular | **Sin verificar** (ver abajo) |
+| Primer cuadro interactivo | 9–11 s en este contenedor (software) | < 3 s en 4G rápido | **Sin verificar** (ver abajo) |
+| Fps rotando / animando | ≈ 0,5 fps en este contenedor (software) | 60 fps notebook, 30 fps celular | **Sin verificar** (ver abajo) |
 
 Sobre lo que no pude verificar acá:
 
-- **Fps.** Con render por software se obtienen FPS_ROT_CORTO, un número que no dice nada de una GPU. El diseño apunta a los objetivos (pocas mallas, instancing, render a demanda, calidad adaptativa en tres niveles), pero **hay que medirlo** en una notebook con Iris Xe y en un Android de gama media: `E2E_GPU=1 npm run e2e rendimiento`.
+- **Fps.** Con render por software se obtienen ≈ 0,5 fps a 1440×900, un número que no dice nada de una GPU. El diseño apunta a los objetivos (pocas mallas, instancing, render a demanda, calidad adaptativa en tres niveles), pero **hay que medirlo** en una notebook con Iris Xe y en un Android de gama media: `E2E_GPU=1 npm run e2e rendimiento`.
 - **Tiempo de carga.** Lo que se descarga para la primera vista es ≈ 1 MB; en 4G rápido (≈ 10 Mbps) son menos de 1 s de red. El resto es compilar shaders y armar el modelo, que depende del dispositivo. Medirlo con Lighthouse o WebPageTest sobre el deploy real.
 - **La fuga que sí encontré y corregí:** la sombra de contacto de drei no libera sus render targets al desmontarse; la reemplacé por una propia que reutiliza los buffers.
 

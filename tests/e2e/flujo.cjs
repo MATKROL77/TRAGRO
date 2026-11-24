@@ -15,6 +15,11 @@ async function run() {
   const browser = await launch();
   const { page, errors } = await openApp(browser);
   await setUi(page, { autoFoco: false });
+  // Registra cada aviso que aparece: con render por software un clic puede tardar más que lo que dura el aviso.
+  await page.evaluate(() => {
+    window.__avisos = [];
+    new MutationObserver(() => document.querySelectorAll('.notice[data-notice]').forEach((n) => window.__avisos.push({ id: n.getAttribute('data-notice'), texto: n.textContent }))).observe(document.querySelector('.notices'), { childList: true, subtree: true });
+  });
   const price = () => page.evaluate(() => Number((document.querySelector('[data-testid="precio-total"]').textContent.match(/US\$\s*([\d.]+)/) || [])[1].replace(/\./g, '')));
 
   // --- Paso 1: tipo -------------------------------------------------------------
@@ -43,7 +48,7 @@ async function run() {
   await sleep(700);
   const cfg3 = await state(page);
   report.ok('regla: súper single cambia sola a suspensión neumática', p0 === 'mecanica' && cfg3.sel.suspension === 'neumatica');
-  const aviso = await page.waitForSelector('[data-notice="single-requiere-neumatica"]', { state: 'visible', timeout: 8000 }).then((el) => el.textContent()).catch(() => null);
+  const aviso = await page.evaluate(() => (window.__avisos.find((a) => a.id === 'single-requiere-neumatica') || {}).texto || null);
   report.ok('regla: aparece el aviso explicando el ajuste', !!aviso && /neumática/.test(aviso), aviso || '');
   const mec = page.locator('[data-opt="suspension:mecanica"]');
   report.ok('regla: la opción incompatible queda deshabilitada con motivo', (await mec.getAttribute('aria-disabled')) === 'true' && ((await mec.getAttribute('title')) || '').length > 10);
@@ -217,7 +222,7 @@ async function run() {
   const wa = [...opened, ...hrefs].find((x) => x.startsWith('https://wa.me/')) || '';
   report.ok('consulta: abre WhatsApp con el número del fabricante', /^https:\/\/wa\.me\/\d{8,15}\?text=/.test(wa), wa.slice(0, 60));
   const text = decodeURIComponent(wa.split('text=')[1] || '');
-  report.ok('consulta: el mensaje trae los datos y el link a la configuración', text.includes('Juan Pérez') && /[?&]c=/.test(text) && text.includes(numero.match(/[A-Z]{2}-[0-9A-Z]{7}/)?.[0] ?? '###'), `${text.length} caracteres`);
+  report.ok('consulta: el mensaje trae los datos, el número y el link a la configuración', text.includes('Juan Pérez') && /[?&]c=/.test(text) && /Configuración N° [A-Z]{2}-[0-9A-Z]{7}/.test(text) && /Carga útil estimada/.test(text), `${text.length} caracteres`);
   report.data.mensajeWhatsApp = text;
   report.ok('sin errores de consola en todo el flujo', errors.length === 0, errors.slice(0, 3).join(' | '));
   await page.context().close();
@@ -260,7 +265,7 @@ async function run() {
   const small = await m.page.evaluate(() => [...document.querySelectorAll('.panel button, .bar button, .toolbar button, .topbar button')].filter((b) => b.offsetParent && (b.getBoundingClientRect().width < 43.5 || b.getBoundingClientRect().height < 43.5) && !b.classList.contains('hoja-asa') && !b.closest('.seg') && !b.classList.contains('switch')).map((b) => `${b.className} ${Math.round(b.getBoundingClientRect().width)}x${Math.round(b.getBoundingClientRect().height)}`));
   report.ok('celular: controles táctiles de 44 px o más', small.length === 0, small.slice(0, 4).join(' | '));
   const layout = await m.page.evaluate(() => ({ stage: document.querySelector('.stage').getBoundingClientRect().height, total: innerHeight, over: document.documentElement.scrollWidth > innerWidth + 1 }));
-  report.ok('celular: visor arriba ocupando ~55 % y sin desborde horizontal', layout.stage / layout.total > 0.4 && !layout.over, `${Math.round((layout.stage / layout.total) * 100)} % de alto`);
+  report.ok('celular: visor arriba (encabezado + visor ≈ 55 % del alto) y sin desborde horizontal', layout.stage / layout.total > 0.44 && !layout.over, `${Math.round((layout.stage / layout.total) * 100)} % de alto`);
   await m.page.tap('[data-paso="rodado"]');
   await m.page.tap('[data-opt="frenos:ebs"]');
   report.ok('celular: se configura con el dedo', (await state(m.page)).sel.frenos === 'ebs');
