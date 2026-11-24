@@ -2,7 +2,8 @@ import { useEffect, useMemo, useRef } from 'react';
 import { useFrame, useThree } from '@react-three/fiber';
 import * as THREE from 'three';
 import { useStore } from '../state/store';
-import { SeederModel, geometricSignature } from '../machines/seeder/SeederModel';
+import { getFamily } from '../machines/registry';
+import type { SeederModel } from '../machines/seeder/SeederModel';
 import { applyPlateTextures, getMaterials, setMachineColors } from './materials';
 import { brandDecal } from './textures';
 import { runtime } from './runtime';
@@ -24,7 +25,8 @@ export function MachineView() {
   const lang = useStore((s) => s.lang);
   const group = useRef<THREE.Group>(null);
   const { invalidate } = useThree();
-  const sig = geometricSignature(config);
+  const family = getFamily(config.family);
+  const sig = `${family.id}:${family.signature(config)}`;
   const mats = useMemo(() => getMaterials(), []);
 
   useEffect(() => {
@@ -34,7 +36,7 @@ export function MachineView() {
   // Reconstrucción geométrica (los cuerpos se deslizan desde su posición anterior)
   useEffect(() => {
     const prev = runtime.model;
-    const m = new SeederModel(useStore.getState().config, mats, prev);
+    const m = family.create(useStore.getState().config, mats, prev) as SeederModel;
     group.current?.add(m.root);
     if (prev) {
       // pasar la calcomanía actual al modelo nuevo

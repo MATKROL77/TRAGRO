@@ -32,7 +32,7 @@ export function presetShot(p: CamPreset, aspect: number, scene: string): Shot {
   const { c, s } = machineBox();
   const span = Math.max(s.x, s.z * 0.8);
   const fit = (span / 2 / Math.tan(THREE.MathUtils.degToRad(20))) / Math.min(1.25, Math.max(0.55, aspect));
-  const d = Math.max(6.5, fit * 1.12 + 2);
+  const d = Math.max(6.5, fit * 1.12 + 2) * (aspect < 1 ? 1.3 : 1);
   const midRowX = (() => {
     const m = runtime.model;
     if (!m) return 0;
@@ -48,7 +48,10 @@ export function presetShot(p: CamPreset, aspect: number, scene: string): Shot {
       return { pos: new THREE.Vector3(c.x, d * 1.25 + 2, c.z + 0.01), target: new THREE.Vector3(c.x, 0, c.z) };
     case 'rowUnit': {
       const t = new THREE.Vector3(midRowX, 0.48, -0.42);
-      if (useStore.getState().detail) return { pos: new THREE.Vector3(3.3, 1.5, 1.9), target: new THREE.Vector3(0, 0.55, -0.35) };
+      if (useStore.getState().detail) {
+        const k = aspect < 1 ? 1.45 : 1;
+        return { pos: new THREE.Vector3(3.3 * k, 1.5 * k, 1.9 * k), target: new THREE.Vector3(0, 0.55, -0.35) };
+      }
       return { pos: t.clone().add(new THREE.Vector3(1.9, 0.55, 1.2)), target: t };
     }
     case 'hoppers': {
