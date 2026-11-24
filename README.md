@@ -86,6 +86,8 @@ La guía paso a paso y una plantilla mínima están en [`src/machines/_template/
 
 - Comando de build: `npm run build`. Directorio de salida: `dist`. Node 20 o superior.
 - `public/_redirects` sirve `/embed` con la misma app; `public/_headers` define la caché de assets y permite el embebido por iframe en `/embed`.
+- **Proyecto ya creado**: `surco-configurador` (Direct Upload) → https://surco-configurador.pages.dev
+- **Deploy automático**: `.github/workflows/deploy-pages.yml` compila, corre lint y tests y deploya en cada push. Requiere dos secretos en GitHub (Settings → Secrets and variables → Actions): `CLOUDFLARE_API_TOKEN` (permiso "Cloudflare Pages: Edit") y `CLOUDFLARE_ACCOUNT_ID`. Sin secretos, el workflow solo compila y testea.
 - Para un deploy manual con Wrangler:
 
 ```bash

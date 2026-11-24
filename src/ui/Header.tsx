@@ -35,8 +35,8 @@ export function LangUnitControls() {
       </label>
       <div className="seg seg-mini" role="radiogroup" aria-label={t('actions.units')}>
         {(['metric', 'imperial'] as const).map((u) => (
-          <button key={u} type="button" role="radio" aria-checked={units === u} className={units === u ? 'is-selected' : ''} onClick={() => setUnits(u)}>
-            {t(`units.${u}`)}
+          <button key={u} type="button" role="radio" aria-checked={units === u} aria-label={t(`units.${u}`)} title={t(`units.${u}`)} className={units === u ? 'is-selected' : ''} onClick={() => setUnits(u)}>
+            {u === 'metric' ? 'm · kg' : 'ft · lb'}
           </button>
         ))}
       </div>
