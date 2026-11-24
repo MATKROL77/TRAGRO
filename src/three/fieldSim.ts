@@ -48,13 +48,13 @@ function furrowMaterial(uOffset: { value: number }): THREE.MeshStandardMaterial 
         float g = vG.y + uOffset;
         float n = fh(floor(vec2(vG.x * 120.0, g * 80.0)));
         float n2 = fh(floor(vec2(vG.x * 30.0, g * 14.0)));
-        vec3 soil = vec3(0.2, 0.155, 0.115) * (0.82 + 0.3 * n) * (0.9 + 0.2 * n2);
+        vec3 soil = vec3(0.12, 0.09, 0.065) * (0.8 + 0.35 * n) * (0.9 + 0.2 * n2);
         float ridge = 1.0 - smoothstep(0.0, 0.2, abs(ax - 0.6));
-        soil = mix(soil, vec3(0.3, 0.24, 0.18), ridge * 0.45);
+        soil = mix(soil, vec3(0.24, 0.19, 0.14), ridge * 0.5);
         float press = 1.0 - smoothstep(0.0, 0.18, ax); // marca de las tapadoras
         soil *= 1.0 - press * 0.25;
         diffuseColor.rgb = soil * diffuseColor.rgb;
-        diffuseColor.a = (1.0 - smoothstep(0.65, 1.0, ax)) * opacity;`);
+        diffuseColor.a = (1.0 - smoothstep(0.55, 1.0, ax)) * opacity;`);
   };
   return m;
 }
@@ -73,8 +73,8 @@ function headlandMaterial(): THREE.MeshStandardMaterial {
         float line = 1.0 - smoothstep(0.0, 0.2, d - 0.75);
         float edge = smoothstep(0.0, 0.6, vL.y + ${'{H}'} * 0.5) * smoothstep(0.0, 0.6, ${'{H}'} * 0.5 - vL.y);
         vec3 c = mix(vec3(0.34, 0.27, 0.2), vec3(0.17, 0.13, 0.1), line * 0.9);
-        diffuseColor.rgb = c * 1.5;
-        diffuseColor.a = 0.82 * edge;`);
+        diffuseColor.rgb = c * 1.05;
+        diffuseColor.a = 0.6 * edge;`);
   };
   return m;
 }
@@ -111,7 +111,7 @@ export class FieldSim {
     this.furrows.frustumCulled = false;
     this.furrows.receiveShadow = true;
     this.furrows.instanceColor = new THREE.InstancedBufferAttribute(new Float32Array(MAX_SEG * 3).fill(1), 3);
-    this.furrows.position.y = 0.006;
+    this.furrows.position.y = 0.01;
     this.seedGeo = new THREE.SphereGeometry(0.0065, 8, 6);
     this.seedMat = new THREE.MeshStandardMaterial({ color: '#E9B949', roughness: 0.45 });
     this.seeds = new THREE.InstancedMesh(this.seedGeo, this.seedMat, MAX_SEEDS);
@@ -244,7 +244,7 @@ export class FieldSim {
     const gClose = distance + ROW.closing.z;
     // surcos: desde la tapadora hacia atrás (cerrado) + tramo abierto entre discos y tapadoras
     let k = 0;
-    const w = 0.11;
+    const w = 0.17;
     for (let i = 0; i < p.rowX.length && k < MAX_SEG - 2; i++) {
       const x = p.rowX[i];
       for (const s of this.segs[i]) {

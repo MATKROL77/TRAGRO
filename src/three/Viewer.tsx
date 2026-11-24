@@ -23,7 +23,10 @@ function StoreInvalidator() {
   useEffect(() => {
     runtime.invalidate = invalidate;
     const dbg = (window as unknown as { __sp?: Record<string, unknown> }).__sp;
-    if (dbg) dbg.scene = scene;
+    if (dbg) {
+      dbg.scene = scene;
+      dbg.gl = gl;
+    }
     const unsub = useStore.subscribe(() => invalidate());
     const lost = (e: Event) => {
       e.preventDefault();

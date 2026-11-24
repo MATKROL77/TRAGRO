@@ -48,7 +48,7 @@ export function presetShot(p: CamPreset, aspect: number, scene: string): Shot {
       return { pos: new THREE.Vector3(c.x, d * 1.25 + 2, c.z + 0.01), target: new THREE.Vector3(c.x, 0, c.z) };
     case 'rowUnit': {
       const t = new THREE.Vector3(midRowX, 0.48, -0.42);
-      if (useStore.getState().detail) return { pos: new THREE.Vector3(2.4, 1.1, 0.9), target: new THREE.Vector3(0, 0.5, -0.4) };
+      if (useStore.getState().detail) return { pos: new THREE.Vector3(3.3, 1.5, 1.9), target: new THREE.Vector3(0, 0.55, -0.35) };
       return { pos: t.clone().add(new THREE.Vector3(1.9, 0.55, 1.2)), target: t };
     }
     case 'hoppers': {
@@ -62,8 +62,10 @@ export function presetShot(p: CamPreset, aspect: number, scene: string): Shot {
     case 'front34':
     default: {
       const k = scene === 'field' ? 1.05 : 1;
+      // en ruta, el tractor va adelante: mirar desde atrás en 3/4 para no taparlo
+      const zs = scene === 'road' ? -0.9 : scene === 'field' ? -0.75 : 1;
       return {
-        pos: new THREE.Vector3(c.x + d * 0.6 * k, Math.max(2.2, d * 0.34), c.z + d * 0.82 * k),
+        pos: new THREE.Vector3(c.x + d * 0.6 * k, Math.max(2.2, d * 0.34), c.z + d * 0.82 * k * zs),
         target: new THREE.Vector3(c.x, Math.min(1.0, s.y * 0.4), c.z + 0.2),
       };
     }

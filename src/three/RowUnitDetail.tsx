@@ -74,9 +74,9 @@ export default function RowUnitDetail() {
     if (Math.abs(target - k.current) < 0.001) k.current = target;
     for (const [id, g] of data.groups) {
       const ref = groupRefs.current[id];
-      if (ref) ref.position.copy(g.explode).multiplyScalar(k.current * 1.6);
+      if (ref) ref.position.copy(g.explode).multiplyScalar(k.current * 1.1);
       const lab = labelRefs.current[id];
-      if (lab) lab.position.copy(g.center).addScaledVector(g.explode, k.current * 1.6);
+      if (lab) lab.position.copy(g.center).addScaledVector(g.explode, k.current * 1.1);
     }
     if (prev !== k.current) state.invalidate();
   });

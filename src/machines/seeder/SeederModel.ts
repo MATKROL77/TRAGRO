@@ -265,7 +265,8 @@ export class SeederModel {
       bar.position.set(0, DIM.barY, 0);
       this.bars.push({ id: sec.id, mesh: bar });
     }
-    parts.forEach((p) => p.geometry.dispose());
+    // las piezas estáticas ya se fusionaron (se liberan sus originales); las que giran se usan tal cual y se liberan al desmontar
+    parts.forEach((p) => (p.spin ? this.geoms.push(p.geometry) : p.geometry.dispose()));
 
     this.buildDrawbar();
     this.buildMainWheels();

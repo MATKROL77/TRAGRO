@@ -330,6 +330,7 @@ input[type='range'] { width: 100%; accent-color: var(--primary); min-height: 32p
 
 /* ---------- responsive ---------- */
 @media (max-width: 1180px) {
+  .perf-kpis { display: none; }
   .bb-kpi-hide-sm { display: none; }
   .bb-legend { max-width: 30ch; }
   .kpi-grid { grid-template-columns: repeat(2, 1fr); }

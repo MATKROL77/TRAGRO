@@ -234,12 +234,13 @@ export function SimPanel() {
         {sc ? (
           <span>
             {t('sim.sectionOn')}
-            {runtime.sim.savedM2 > 0 && (
+            {runtime.sim.headlandActive && (
               <>
                 {' · '}
-                {t('sim.saving')}: <strong>{f.n(saving * 100, 0)} %</strong> ({f.n(seedsSaved, 0)} {t('perf.seedsPerHa').split(' ')[0].toLowerCase()})
+                {t('sim.saving')}: <strong>{f.n(saving * 100, 0)} %</strong>
               </>
             )}
+            {seedsSaved > 0 && <> · <strong>{f.n(seedsSaved, 0)}</strong> {t('perf.seedsPerHa').split(' ')[0].toLowerCase()} ✓</>}
           </span>
         ) : (
           <span>

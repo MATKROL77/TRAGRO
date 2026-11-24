@@ -33,6 +33,11 @@ export const Tractor = forwardRef<THREE.Group, { wheelRefs?: React.MutableRefObj
     if (o && wheelRefs && !wheelRefs.current.includes(o)) wheelRefs.current.push(o);
   };
   const wb = 2.75; // distancia entre ejes
+  const fenderMat = useMemo(() => {
+    const f = body.clone();
+    f.side = THREE.DoubleSide;
+    return f;
+  }, [body]);
   const geo = useMemo(
     () => ({
       hood: roundedBox(0.95, 0.85, 2.3, 0.12, 3),
@@ -43,7 +48,10 @@ export const Tractor = forwardRef<THREE.Group, { wheelRefs?: React.MutableRefObj
       post: roundedBox(0.07, 1.4, 0.07, 0.02),
       glassSide: new THREE.PlaneGeometry(1.4, 1.25),
       glassFront: new THREE.PlaneGeometry(1.32, 1.3),
-      fender: new THREE.CylinderGeometry(1.08, 1.08, 0.66, 32, 1, true, -Math.PI * 0.05, Math.PI * 0.62),
+      fender: (() => {
+        const g = new THREE.CylinderGeometry(1.1, 1.1, 0.68, 32, 1, true, Math.PI * 0.95, Math.PI * 0.62);
+        return g;
+      })(),
       exhaust: new THREE.CylinderGeometry(0.06, 0.06, 1.2, 12),
       tank: roundedBox(0.35, 0.5, 0.9, 0.06),
       step: roundedBox(0.3, 0.03, 0.22, 0.01),
@@ -90,7 +98,7 @@ export const Tractor = forwardRef<THREE.Group, { wheelRefs?: React.MutableRefObj
       {/* guardabarros y escalones */}
       {[-1, 1].map((s) => (
         <group key={s}>
-          <mesh geometry={geo.fender} material={body} position={[s * 0.98, 0, 0]} rotation={[Math.PI / 2, 0, Math.PI / 2]} castShadow />
+          <mesh geometry={geo.fender} material={fenderMat} position={[s * 1.0, p.RR, 0]} rotation={[0, 0, Math.PI / 2]} castShadow />
           <mesh geometry={geo.step} material={m.plate} position={[s * 0.62, 0.55, 0.65]} />
           <mesh geometry={geo.step} material={m.plate} position={[s * 0.62, 0.9, 0.65]} />
           <mesh geometry={geo.lamp} material={m.lightRed} position={[s * 0.55, 1.2, -0.95]} />
