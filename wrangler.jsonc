@@ -1,0 +1,10 @@
+{
+  // Deploy como sitio estático en Cloudflare (Workers con assets): `npm run build && npx wrangler deploy`.
+  // En Cloudflare Pages no hace falta este archivo: comando de build `npm run build`, directorio de salida `dist`.
+  "name": "configurador-semirremolques",
+  "compatibility_date": "2026-01-01",
+  "assets": {
+    "directory": "./dist",
+    "not_found_handling": "single-page-application"
+  }
+}

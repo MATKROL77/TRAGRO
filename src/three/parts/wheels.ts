@@ -3,7 +3,7 @@
  * Las geometrías se generan una vez y se dibujan con InstancedMesh.
  */
 import * as THREE from 'three';
-import { mergeGeometries } from 'three/examples/jsm/utils/BufferGeometryUtils.js';
+import { mergeGeometries, mergeVertices } from 'three/examples/jsm/utils/BufferGeometryUtils.js';
 import type { MaterialSet } from '../materials';
 
 export interface WheelGeometry {
@@ -90,43 +90,69 @@ function rimGeometry(w: number, mount: number): THREE.BufferGeometry {
   );
   barrel.rotateX(Math.PI / 2);
 
-  // Disco con 10 agujeros de ventilación, embutido en cono.
-  const shape = new THREE.Shape();
-  shape.absarc(0, 0, 0.27, 0, Math.PI * 2, false);
-  const bore = new THREE.Path();
-  bore.absarc(0, 0, 0.098, 0, Math.PI * 2, true);
-  shape.holes.push(bore);
-  for (let i = 0; i < 10; i++) {
-    const a = (i / 10) * Math.PI * 2 + Math.PI / 10;
-    const hole = new THREE.Path();
-    hole.absellipse(Math.cos(a) * 0.226, Math.sin(a) * 0.226, 0.03, 0.024, 0, Math.PI * 2, true, a);
-    shape.holes.push(hole);
-  }
-  const disc = new THREE.ExtrudeGeometry(shape, { depth: 0.012, bevelEnabled: false, curveSegments: 20 });
-  const pos = disc.getAttribute('position') as THREE.BufferAttribute;
-  const nor = disc.getAttribute('normal') as THREE.BufferAttribute;
-  const dir = mount < 0 ? 1 : -1;
-  const R0 = 0.185;
-  const R1 = 0.266;
-  for (let i = 0; i < pos.count; i++) {
-    const x = pos.getX(i);
-    const y = pos.getY(i);
-    const r = Math.hypot(x, y);
-    pos.setZ(i, pos.getZ(i) - 0.006 + mount + dir * 0.1 * smoothstep(R0, R1, r));
-    // Normales analíticas del cono en las caras del disco: sombreado liso aunque la malla sea gruesa.
-    const nz = nor.getZ(i);
-    if (Math.abs(nz) > 0.9 && r > 1e-4) {
-      const t = Math.min(1, Math.max(0, (r - R0) / (R1 - R0)));
-      const slope = (dir * 0.1 * 6 * t * (1 - t)) / (R1 - R0);
-      const sgn = Math.sign(nz);
-      const inv = 1 / Math.hypot(slope, 1);
-      nor.setXYZ(i, (-slope * (x / r) * sgn) * inv, (-slope * (y / r) * sgn) * inv, sgn * inv);
-    }
-  }
-  const merged = mergeGeometries([barrel.toNonIndexed(), disc.index ? disc.toNonIndexed() : disc], false)!;
+  // Disco embutido con 10 agujeros de ventilación. Malla polar fina: el cono queda liso
+  // y los agujeros son reales (se ve el tambor de freno a través).
+  const disc = discGeometry(mount);
+  const merged = mergeGeometries([barrel.toNonIndexed(), disc.toNonIndexed()], false)!;
   barrel.dispose();
   disc.dispose();
   return merged;
+}
+
+function discGeometry(mount: number): THREE.BufferGeometry {
+  const R0 = 0.098;
+  const R1 = 0.271;
+  const HOLES = 10;
+  const NR = 13;
+  const NT = 12;
+  const rc = 0.226;
+  const ha = 0.027; // semieje radial del agujero
+  const hb = 0.034; // semieje tangencial
+  const dir = mount < 0 ? 1 : -1;
+  const profile = (r: number) => mount + dir * 0.1 * smoothstep(0.185, 0.266, r);
+  const pos: number[] = [];
+  const idx: number[] = [];
+  const sector = (Math.PI * 2) / HOLES;
+  for (let h = 0; h < HOLES; h++) {
+    const tc = (h + 0.5) * sector;
+    const base = pos.length / 3;
+    const inside: boolean[] = [];
+    for (let i = 0; i <= NR; i++) {
+      for (let j = 0; j <= NT; j++) {
+        let r = R0 + ((R1 - R0) * i) / NR;
+        let t = h * sector + (sector * j) / NT;
+        // Distancia normalizada al centro del agujero (elipse).
+        const dr = (r - rc) / ha;
+        const dt = ((t - tc) * rc) / hb;
+        const d = Math.hypot(dr, dt);
+        inside.push(d < 1);
+        if (d < 1 && d > 1e-6) {
+          // Los vértices que caen dentro se llevan al borde: contorno limpio.
+          r = rc + (dr / d) * ha;
+          t = tc + ((dt / d) * hb) / rc;
+        }
+        pos.push(Math.cos(t) * r, Math.sin(t) * r, profile(r));
+      }
+    }
+    for (let i = 0; i < NR; i++) {
+      for (let j = 0; j < NT; j++) {
+        const a = i * (NT + 1) + j;
+        const b = a + 1;
+        const c = a + NT + 1;
+        const d = c + 1;
+        if (inside[a] && inside[b] && inside[c] && inside[d]) continue;
+        idx.push(base + a, base + c, base + b, base + b, base + c, base + d);
+      }
+    }
+  }
+  const g = new THREE.BufferGeometry();
+  g.setAttribute('position', new THREE.Float32BufferAttribute(pos, 3));
+  g.setAttribute('uv', new THREE.Float32BufferAttribute(new Array((pos.length / 3) * 2).fill(0.5), 2));
+  g.setIndex(idx);
+  const welded = mergeVertices(g, 1e-5);
+  g.dispose();
+  welded.computeVertexNormals();
+  return welded;
 }
 
 function hubGeometry(mount: number): THREE.BufferGeometry {

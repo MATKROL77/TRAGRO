@@ -81,7 +81,7 @@ export function ViewerToolbar() {
         <Icon name="estudio" size={18} />
         <span>{t('visor.estudio')}</span>
       </button>
-      <button type="button" className={`tb-btn ${ui.env === 'exterior' ? 'is-active' : ''}`} aria-pressed={ui.env === 'exterior'} onClick={() => setUi({ env: 'exterior' })} data-testid="tb-exterior">
+      <button type="button" className={`tb-btn ${ui.env === 'exterior' ? 'is-active' : ''} ${ui.cargandoEntorno ? 'is-loading' : ''}`} aria-pressed={ui.env === 'exterior'} aria-busy={ui.cargandoEntorno} onClick={() => setUi({ env: 'exterior' })} data-testid="tb-exterior">
         <Icon name="exterior" size={18} />
         <span>{t('visor.exterior')}</span>
       </button>

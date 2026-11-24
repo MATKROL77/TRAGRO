@@ -97,7 +97,7 @@ export function StepPersonalizacion() {
       <section className="group">
         <div className="group-head">
           <h3>{t(part === 'caja' ? 'pers.colorCaja' : 'pers.colorChasis')}</h3>
-          <Segmented size="sm" label={t('pers.colorCaja')} value={part} onChange={setPart} options={[{ value: 'caja', label: t('pers.colorCaja').replace(/^Color de |^Cor d[ao] /i, '') }, { value: 'chasis', label: t('pers.colorChasis').replace(/^Color de |^Cor d[ao] /i, '') }]} />
+          <Segmented size="sm" label={t('pers.colorCaja')} value={part} onChange={setPart} options={[{ value: 'caja', label: t('pers.caja') }, { value: 'chasis', label: t('pers.chasis') }]} />
         </div>
         <RalPicker part={part} key={part} />
       </section>

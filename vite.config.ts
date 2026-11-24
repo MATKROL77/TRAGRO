@@ -9,6 +9,8 @@ export default defineConfig({
   },
   build: {
     target: 'es2022',
+    // Los archivos con hash van a /static (caché inmutable); /assets queda para HDRI y texturas.
+    assetsDir: 'static',
     chunkSizeWarningLimit: 900,
     rollupOptions: {
       output: {

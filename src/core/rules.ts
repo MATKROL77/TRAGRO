@@ -68,8 +68,8 @@ export function defaultConfig(tipo: TypeId = 'tolva'): Config {
     tipo,
     sel,
     colores: { ...t.colores },
-    logo: { data: null, escala: 0.6, x: 0, y: 0, frente: false },
-    texto: { valor: '', fuente: 'manrope', escala: 0.5, x: 0, y: -0.6, color: 'auto' },
+    logo: { data: null, escala: 0.55, x: 0, y: 0.4, frente: false },
+    texto: { valor: '', fuente: 'manrope', escala: 0.4, x: 0, y: -0.85, color: 'auto' },
   };
   return resolve(cfg).config;
 }
@@ -230,18 +230,18 @@ export function sanitize(raw: unknown): Config {
   const logo = (typeof r.logo === 'object' && r.logo !== null ? r.logo : {}) as Record<string, unknown>;
   base.logo = {
     data: typeof logo.data === 'string' && /^data:image\/(png|svg\+xml|jpeg|webp);/.test(logo.data) ? logo.data : null,
-    escala: num(logo.escala, 0.2, 1, 0.6),
+    escala: num(logo.escala, 0.2, 1, 0.55),
     x: num(logo.x, -1, 1, 0),
-    y: num(logo.y, -1, 1, 0),
+    y: num(logo.y, -1, 1, 0.4),
     frente: logo.frente === true,
   };
   const texto = (typeof r.texto === 'object' && r.texto !== null ? r.texto : {}) as Record<string, unknown>;
   base.texto = {
     valor: typeof texto.valor === 'string' ? texto.valor.slice(0, 40) : '',
     fuente: FONTS.includes(texto.fuente as FontId) ? (texto.fuente as FontId) : 'manrope',
-    escala: num(texto.escala, 0.2, 1, 0.5),
+    escala: num(texto.escala, 0.2, 1, 0.4),
     x: num(texto.x, -1, 1, 0),
-    y: num(texto.y, -1, 1, -0.6),
+    y: num(texto.y, -1, 1, -0.85),
     color: texto.color === 'blanco' || texto.color === 'negro' ? texto.color : 'auto',
   };
   return resolve(base).config;

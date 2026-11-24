@@ -1,5 +1,5 @@
 import { groupDef, optionsFor } from '@/core/catalog';
-import type { Specs } from '@/core/specs';
+import type { LegalCheck, Specs } from '@/core/specs';
 import { useI18n } from '@/i18n';
 import { useSpecs } from '@/state/derived';
 import { useStore } from '@/state/store';
@@ -7,6 +7,19 @@ import { Icon } from './Icon';
 import { Modal, StatusDot } from './primitives';
 
 const CHECK_TITLE: Record<string, string> = { ancho: 'tec.ancho', alto: 'tec.alto', largo: 'tec.largoConjunto', peso: 'tec.pbt', carga: 'tec.cajaLlena' };
+
+/** Parámetros de los mensajes de validación con números en formato local. */
+export function checkParams(c: LegalCheck, n: (v: number, d?: number) => string, producto: string): Record<string, string | number> {
+  const p: Record<string, string | number> = { ...c.params, tractor: String(c.params.tractor ?? ''), producto };
+  if (c.id === 'largo') {
+    p.margen = n(Number(c.params.margen) / 100, 2);
+    p.exceso = n(Number(c.params.exceso) / 100, 2);
+  } else if (c.id === 'carga') {
+    p.margen = n(Number(c.params.margen), 1);
+    p.exceso = n(Number(c.params.exceso), 1);
+  }
+  return p;
+}
 
 function Select({ id }: { id: 'tractor' | 'carga' }) {
   const { tx } = useI18n();
@@ -48,7 +61,7 @@ export function TechBody({ s }: { s: Specs }) {
               {n(c.value, c.unit === 'm' ? 2 : 1)} {c.unit}
               {c.id === 'peso' ? '' : ` / ${n(c.limit, c.unit === 'm' ? 2 : 1)} ${c.unit}`}
             </span>
-            <span className="msg">{t(c.msg, { ...c.params, tractor: String(c.params.tractor ?? ''), producto })}</span>
+            <span className="msg">{t(c.msg, checkParams(c, n, producto))}</span>
           </div>
         ))}
       </div>

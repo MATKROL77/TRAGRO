@@ -148,4 +148,20 @@ export function buildAccessories(ctx: BuildCtx): void {
       hangers(p.x, 0.2, p.side, frameY, y0 + 0.6, z);
     }
   }
+
+  // --- Defensas laterales (protección ciclista) en los tramos largos que quedan libres ----
+  if (L.tipo === 'plataforma' || L.tipo === 'furgon') {
+    for (const f of free) {
+      const len = f.x1 - f.x0 - 0.16;
+      if (len < 1.1) continue;
+      const xc = (f.x0 + f.x1) / 2;
+      const z = f.side * (zFace - 0.02);
+      for (const y of [0.56, 0.86]) asm.add('aluBrushed', rbox(len, 0.1, 0.028, xc, y, z, 0.008));
+      const posts = Math.max(2, Math.round(len / 1.3) + 1);
+      for (let i = 0; i < posts; i++) {
+        const x = xc - len / 2 + 0.12 + ((len - 0.24) * i) / (posts - 1);
+        asm.add('chassisPaint', rbox(0.05, frameY - 0.48, 0.04, x, (frameY + 0.48) / 2, z - f.side * 0.035, 0.005));
+      }
+    }
+  }
 }

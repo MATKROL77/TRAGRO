@@ -1,6 +1,8 @@
 import { useMemo } from 'react';
 import * as THREE from 'three';
 import { Environment, Lightformer } from '@react-three/drei';
+import { ContactShadow } from './ContactShadow';
+import { useStore } from '@/state/store';
 
 export const STUDIO_BG_TOP = '#b9bec5';
 export const STUDIO_BG_BOTTOM = '#dfe1e4';
@@ -47,24 +49,31 @@ function Floor({ color }: { color: string }) {
 }
 
 export function Studio() {
+  // La sombra de contacto se recalcula solo cuando cambia el modelo (un único render).
+  const version = useStore((s) => s.modelVersion);
+  const calidad = useStore((s) => s.ui.calidad);
+  const shadowSize = calidad === 'baja' ? 1024 : 2048;
   return (
     <>
+      <ContactShadow version={version} />
       <Backdrop top={STUDIO_BG_TOP} bottom={STUDIO_BG_BOTTOM} />
       <Floor color="#c9ccd0" />
       {/* HDRI de estudio local + softboxes para dibujar reflejos largos sobre la caja. */}
       <Environment files="/assets/hdri/studio_512.hdr" resolution={512} frames={1} environmentIntensity={0.62} environmentRotation={[0, Math.PI * 0.62, 0]}>
         <Lightformer form="rect" intensity={5} color="#ffffff" position={[0, 14, 0]} rotation-x={Math.PI / 2} scale={[34, 5, 1]} />
-        <Lightformer form="rect" intensity={2.2} color="#fff4e6" position={[10, 5, 22]} rotation-y={Math.PI} scale={[30, 7, 1]} />
+        <Lightformer form="rect" intensity={1.15} color="#fff4e6" position={[10, 6, 22]} rotation-y={Math.PI} scale={[26, 6, 1]} />
         <Lightformer form="rect" intensity={1.3} color="#e6eeff" position={[-24, 6, -4]} rotation-y={Math.PI / 2} scale={[16, 8, 1]} />
         <Lightformer form="rect" intensity={0.9} color="#ffffff" position={[26, 4, -6]} rotation-y={-Math.PI / 2} scale={[14, 6, 1]} />
-        <Lightformer form="rect" intensity={0.0} color="#000000" position={[0, -6, 0]} rotation-x={-Math.PI / 2} scale={[80, 80, 1]} />
+        {/* Rebote del piso claro: da algo de luz a la parte de abajo del chasis. */}
+        <Lightformer form="rect" intensity={0.5} color="#b9bdc3" position={[0, -6, 0]} rotation-x={-Math.PI / 2} scale={[80, 80, 1]} />
       </Environment>
       <directionalLight
+        key={shadowSize}
         position={[10, 17, 12]}
         intensity={2.9}
         color="#fff3e2"
         castShadow
-        shadow-mapSize={[2048, 2048]}
+        shadow-mapSize={[shadowSize, shadowSize]}
         shadow-bias={-0.0002}
         shadow-normalBias={0.03}
         shadow-radius={6}

@@ -158,7 +158,8 @@ export const useStore = create<AppState>()(
     setUi: (patch) => set((s) => ({ ui: { ...s.ui, ...patch } })),
     setAnim: (id, value) => set((s) => ({ anim: { ...s.anim, [id]: value } })),
     toggleAnim: (id) => set((s) => ({ anim: { ...s.anim, [id]: (s.anim[id] ?? 0) > 0.5 ? 0 : 1 } })),
-    setPreset: (preset) => set({ camera: { preset, nonce: nonce++ } }),
+    // La vista interior destapa la lona para que se vea adentro.
+    setPreset: (preset) => set((s) => ({ camera: { preset, nonce: nonce++ }, anim: preset === 'interior' ? { ...s.anim, lona: 1 } : s.anim })),
     setHotspot: (id) => set({ activeHotspot: id }),
     saveSnapshot: (slot, snap) => set((s) => ({ compare: { ...s.compare, [slot]: snap } })),
     setReady: (v) => set({ ready: v }),

@@ -123,9 +123,9 @@ export function buildPerimeterFrame(asm: Assembly, L: Layout): ChassisInfo {
 
 function buildKingpin(asm: Assembly, L: Layout, width: number): void {
   const y = L.kingpinY;
-  asm.add('blackSteel', rbox(1.25, 0.012, width, L.kingpinX + 0.05, y + 0.006, 0, 0.004));
+  asm.add('galvanized', rbox(1.25, 0.012, width, L.kingpinX + 0.05, y + 0.006, 0, 0.004));
   asm.add('chrome', cyl(0.0254, 0.05, 'y', L.kingpinX, y - 0.025, 0, 20), cyl(0.036, 0.022, 'y', L.kingpinX, y - 0.061, 0, 20), cyl(0.03, 0.014, 'y', L.kingpinX, y - 0.079, 0, 20));
-  asm.add('galvanized', cyl(0.07, 0.008, 'y', L.kingpinX, y - 0.004, 0, 24));
+  asm.add('blackSteel', cyl(0.085, 0.01, 'y', L.kingpinX, y - 0.005, 0, 24));
   for (let i = 0; i < 8; i++) {
     const a = (i / 8) * Math.PI * 2;
     asm.add('galvanized', cyl(0.009, 0.01, 'y', L.kingpinX + Math.cos(a) * 0.055, y - 0.012, Math.sin(a) * 0.055, 6));

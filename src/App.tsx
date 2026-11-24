@@ -68,15 +68,39 @@ function ViewerError() {
   );
 }
 
+/** Ayuda breve de uso del visor: desaparece con la primera interacción. */
+function ViewerHint() {
+  const { t } = useI18n();
+  const ready = useStore((s) => s.ready);
+  const [gone, setGone] = useState(false);
+  useEffect(() => {
+    if (!ready || gone) return;
+    const hide = () => setGone(true);
+    const id = window.setTimeout(hide, 9000);
+    window.addEventListener('pointerdown', hide, { once: true });
+    window.addEventListener('wheel', hide, { once: true, passive: true });
+    return () => {
+      window.clearTimeout(id);
+      window.removeEventListener('pointerdown', hide);
+      window.removeEventListener('wheel', hide);
+    };
+  }, [ready, gone]);
+  return (
+    <div className="ayuda-visor" style={{ opacity: ready && !gone ? 1 : 0 }} aria-hidden="true">
+      {t('visor.ayuda')}
+    </div>
+  );
+}
+
 function Loader() {
   const ready = useStore((s) => s.ready);
-  const { progress, active } = useProgress();
-  const [shown, setShown] = useState(4);
+  const { progress, active, total } = useProgress();
+  const [shown, setShown] = useState(5);
   useEffect(() => {
-    // Progreso real de los assets (hasta 85 %) + construcción del modelo y primer cuadro.
-    const target = ready ? 100 : active ? 6 + progress * 0.8 : 90;
+    // Progreso real: descarga de assets (hasta 88 %), construcción del modelo y primer cuadro.
+    const target = ready ? 100 : total === 0 ? 8 : active ? 8 + progress * 0.8 : 92;
     setShown((p) => Math.max(p, target));
-  }, [progress, active, ready]);
+  }, [progress, active, total, ready]);
   return <LoadingScreen progress={shown} done={ready} />;
 }
 
@@ -127,6 +151,7 @@ export function App() {
           <Notices />
           <HotspotCard />
           <TechPanel />
+          <ViewerHint />
           <Loader />
         </main>
         <aside className="panel" aria-label="Configuración">

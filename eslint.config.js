@@ -21,4 +21,10 @@ export default tseslint.config(
     files: ['tests/**/*.{js,mjs,ts}', '*.config.{js,ts}'],
     languageOptions: { globals: { ...globals.node, ...globals.browser } },
   },
+  {
+    // Pruebas de punta a punta: scripts CommonJS de Node que también evalúan código en la página.
+    files: ['**/*.cjs'],
+    languageOptions: { sourceType: 'commonjs', globals: { ...globals.node, ...globals.browser, gc: 'readonly' } },
+    rules: { '@typescript-eslint/no-require-imports': 'off' },
+  },
 );

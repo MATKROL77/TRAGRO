@@ -1,7 +1,7 @@
 import { Suspense, useEffect, useRef } from 'react';
 import * as THREE from 'three';
 import { Canvas, useFrame, useThree } from '@react-three/fiber';
-import { PerformanceMonitor, useProgress } from '@react-three/drei';
+import { useProgress } from '@react-three/drei';
 import type { OrbitControls as OrbitImpl } from 'three-stdlib';
 import { useStore } from '@/state/store';
 import { poseFor } from './camera';
@@ -19,12 +19,23 @@ function Bridge({ overlay }: { overlay: React.RefObject<HTMLCanvasElement> }) {
   const state = useThree();
   const ref = useRef(state);
   ref.current = state;
-  const fps = useRef({ frames: 0, last: performance.now(), value: 0 });
+  const fps = useRef({ frames: 0, last: performance.now(), value: 0, total: 0 });
   useGeometryCrossfade();
+
+  // Estadísticas por cuadro completo (sombras + escena + postprocesado), no por pasada.
+  useEffect(() => {
+    state.gl.info.autoReset = false;
+  }, [state.gl]);
+  const lastInfo = useRef({ calls: 0, triangles: 0 });
+  useFrame(({ gl }) => {
+    lastInfo.current = { calls: gl.info.render.calls, triangles: gl.info.render.triangles };
+    gl.info.reset();
+  }, -100);
 
   useFrame(() => {
     const f = fps.current;
     f.frames++;
+    f.total++;
     const now = performance.now();
     if (now - f.last >= 500) {
       f.value = (f.frames * 1000) / (now - f.last);
@@ -50,6 +61,8 @@ function Bridge({ overlay }: { overlay: React.RefObject<HTMLCanvasElement> }) {
       const cropH = cropAspect < canvasAspect ? size.height : size.width / cropAspect;
       let dpr = Math.max(1, o.width / cropW);
       dpr = Math.min(dpr, 4, Math.sqrt(MAX_PIXELS / (size.width * size.height)));
+      const view = cam.view?.enabled ? { ...cam.view } : null;
+      if (view) cam.clearViewOffset();
       rigLock.locked = true;
       c.enableDamping = false;
       c.autoRotate = false;
@@ -85,6 +98,7 @@ function Bridge({ overlay }: { overlay: React.RefObject<HTMLCanvasElement> }) {
         cam.quaternion.copy(saved.quat);
         c.target.copy(saved.target);
         cam.updateMatrixWorld();
+        if (view) cam.setViewOffset(view.fullWidth, view.fullHeight, view.offsetX, view.offsetY, view.width, view.height);
         c.enableDamping = saved.damping;
         c.autoRotate = saved.auto;
         rigLock.locked = false;
@@ -119,9 +133,14 @@ function Bridge({ overlay }: { overlay: React.RefObject<HTMLCanvasElement> }) {
         );
       },
       snapshot,
+      camera: () => {
+        const { camera, controls } = get();
+        const t = (controls as unknown as OrbitImpl | null)?.target;
+        return { position: camera.position.toArray() as [number, number, number], target: (t ? t.toArray() : [0, 0, 0]) as [number, number, number] };
+      },
       stats: () => {
         const i = get().gl.info;
-        return { triangles: i.render.triangles, calls: i.render.calls, geometries: i.memory.geometries, textures: i.memory.textures, fps: fps.current.value };
+        return { triangles: lastInfo.current.triangles, calls: lastInfo.current.calls, geometries: i.memory.geometries, textures: i.memory.textures, fps: fps.current.value };
       },
     });
     (window as unknown as { __cam: unknown }).__cam = (x: number, y: number, z: number, tx: number, ty: number, tz: number) => {
@@ -132,8 +151,65 @@ function Bridge({ overlay }: { overlay: React.RefObject<HTMLCanvasElement> }) {
       c?.update();
       invalidate();
     };
+    (window as unknown as { __viewer: unknown }).__viewer = { stats: () => ({ ...get().gl.info.memory, ...lastInfo.current, fps: fps.current.value, frames: fps.current.total, programs: get().gl.info.programs?.length ?? 0 }), camera: () => ({ position: get().camera.position.toArray(), target: (get().controls as unknown as OrbitImpl | null)?.target.toArray() }) };
     return () => registerViewer(null);
   }, [overlay]);
+  return null;
+}
+
+const TIERS = ['baja', 'media', 'alta'] as const;
+
+/**
+ * Calidad adaptativa. Equivale al PerformanceMonitor de drei, pero pensado para
+ * frameloop="demand": solo mide ráfagas de cuadros continuos (girar la cámara,
+ * animaciones) y descarta las pausas, que no son caídas de fps.
+ * Si el promedio baja de ~27 fps se reduce resolución, AO, antialiasing y sombras.
+ */
+function AdaptiveQuality({ mobile }: { mobile: boolean }) {
+  const calidad = useStore((s) => s.ui.calidad);
+  const setDpr = useThree((s) => s.setDpr);
+  const perf = useRef({ run: 0, sum: 0, slow: 0, fast: 0, raises: 0 });
+
+  useEffect(() => {
+    const device = window.devicePixelRatio || 1;
+    const cap = calidad === 'alta' ? (mobile ? 1.75 : 2) : calidad === 'media' ? 1.4 : 1;
+    setDpr(Math.min(device, cap));
+  }, [calidad, mobile, setDpr]);
+
+  useFrame((_, dt) => {
+    const p = perf.current;
+    if (dt > 0.25) {
+      // Pausa del render a demanda: empieza una ráfaga nueva.
+      p.run = 0;
+      p.sum = 0;
+      return;
+    }
+    p.run++;
+    p.sum += dt;
+    if (p.run < 50) return;
+    const fps = p.run / p.sum;
+    p.run = 0;
+    p.sum = 0;
+    const tier = TIERS.indexOf(useStore.getState().ui.calidad);
+    if (fps < 27) {
+      p.fast = 0;
+      if (++p.slow >= 2 && tier > 0) {
+        p.slow = 0;
+        useStore.getState().setUi({ calidad: TIERS[tier - 1] });
+      }
+    } else if (fps > 57) {
+      p.slow = 0;
+      // Subir es más conservador (y limitado) para no oscilar.
+      if (++p.fast >= 8 && tier < 2 && p.raises < 2) {
+        p.fast = 0;
+        p.raises++;
+        useStore.getState().setUi({ calidad: TIERS[tier + 1] });
+      }
+    } else {
+      p.slow = 0;
+      p.fast = 0;
+    }
+  });
   return null;
 }
 
@@ -155,7 +231,6 @@ function ReadySignal() {
 
 export function Viewer() {
   const overlay = useRef<HTMLCanvasElement>(null);
-  const setUi = useStore((s) => s.setUi);
   const mobile = typeof window !== 'undefined' && window.matchMedia('(max-width: 900px)').matches;
   return (
     <div className="viewer">
@@ -167,13 +242,7 @@ export function Viewer() {
         camera={{ fov: FOV, near: 0.25, far: 900, position: [12, 4.2, 12.5] }}
         onCreated={({ gl }) => gl.setClearColor('#cfd2d6')}
       >
-        {/* Calidad adaptativa: si caen los fps se baja AO, MSAA y resolución. */}
-        <PerformanceMonitor
-          bounds={() => [28, 50]}
-          flipflops={2}
-          onDecline={() => setUi({ calidad: useStore.getState().ui.calidad === 'alta' ? 'media' : 'baja' })}
-          onIncline={() => useStore.getState().ui.calidad === 'baja' && setUi({ calidad: 'media' })}
-        />
+        <AdaptiveQuality mobile={mobile} />
         <Suspense fallback={null}>
           <Scene />
           <TrailerObject />

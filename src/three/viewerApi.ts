@@ -22,6 +22,8 @@ export interface ViewerApi {
   snapshot: (o: SnapshotOptions) => string | null;
   invalidate: () => void;
   stats: () => { triangles: number; calls: number; geometries: number; textures: number; fps: number };
+  /** Posición y objetivo actuales de la cámara (para pruebas). */
+  camera: () => { position: [number, number, number]; target: [number, number, number] };
 }
 
 let api: ViewerApi | null = null;

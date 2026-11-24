@@ -94,7 +94,7 @@ export function poseFor(id: string, model: TrailerModel, f: Framing): Pose {
       return close(anchor('suspension', [0, 0.7, 0.8]), new THREE.Vector3(-0.55, -0.02, 1), 2.6);
     case 'cuello':
     case 'pernoRey':
-      return close(anchor('pernoRey', [L.kingpinX, 1.2, 0]), new THREE.Vector3(0.85, -0.2, 0.8), 3.6);
+      return close(anchor('pernoRey', [L.kingpinX, 1.2, 0]), new THREE.Vector3(0.38, -0.2, 1), 2.4);
     case 'chasis':
       return close(anchor('chasis', [0, 1, 0.6]), new THREE.Vector3(0.3, -0.05, 1), 3.4);
     case 'bocas':
@@ -116,7 +116,7 @@ export function poseFor(id: string, model: TrailerModel, f: Framing): Pose {
         const y = L.floorY + Math.min(1.6, L.H * 0.62);
         return { position: new THREE.Vector3(L.rearX + 0.9, y, 0.25), target: new THREE.Vector3(L.frontX - 2, y - 0.25, 0) };
       }
-      return fit(new THREE.Vector3(0.38, 0.9, 0.5), new THREE.Vector3(0, L.floorY + 0.3, 0));
+      return fit(new THREE.Vector3(0.06, 1, 0.34), new THREE.Vector3(0, L.floorY + 0.3, 0));
     }
     case 'tresCuartos':
     default:

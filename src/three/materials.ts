@@ -213,8 +213,8 @@ export function createMaterials(): MaterialLibrary {
     speed: std({ color: '#ffffff', map: speedSign(), roughness: 0.5, metalness: 0.1, transparent: true, alphaTest: 0.5 }),
     tireDual: tire('295/80 R22.5'),
     tireSingle: tire('385/65 R22.5'),
-    rimSteel: phys({ color: '#b9bcc0', roughness: 0.42, metalness: 0.55, clearcoat: 0.4, clearcoatRoughness: 0.3, roughnessMap: wear }),
-    rimAlu: std({ color: '#e3e5e7', roughness: 0.14, metalness: 1 }),
+    rimSteel: phys({ color: '#b9bcc0', roughness: 0.42, metalness: 0.55, clearcoat: 0.4, clearcoatRoughness: 0.3, roughnessMap: wear, side: THREE.DoubleSide }),
+    rimAlu: std({ color: '#e3e5e7', roughness: 0.14, metalness: 1, side: THREE.DoubleSide }),
     flapPrint: std({ color: '#ffffff', roughness: 0.9, metalness: 0, transparent: true, alphaTest: 0.35 }),
     glass: phys({ color: '#aab7bf', roughness: 0.05, metalness: 0, transmission: 0, transparent: true, opacity: 0.35 }),
   };

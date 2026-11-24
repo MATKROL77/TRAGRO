@@ -36,12 +36,21 @@ export function CameraRig() {
   const rotating = useRef(false);
   const clock = useRef(0);
 
-  const aspect = size.width / Math.max(1, size.height);
+  // Con la ficha técnica abierta (escritorio) el equipo se encuadra en el espacio libre.
+  const tecAbierto = useStore((s) => s.ui.tecAbierto);
+  const inset = tecAbierto && size.width > 900 ? Math.min(380, size.width * 0.38) : 0;
+  const aspect = (size.width - inset) / Math.max(1, size.height);
+  useEffect(() => {
+    const cam = camera as THREE.PerspectiveCamera;
+    if (inset > 0) cam.setViewOffset(size.width, size.height, -inset / 2, 0, size.width, size.height);
+    else cam.clearViewOffset();
+    invalidate();
+  }, [inset, size.width, size.height, camera, invalidate]);
 
   const goTo = (pose: Pose, dur = 1.0) => {
     const c = controls.current;
     if (!c) return;
-    const reduced = useStore.getState().ui.reducedMotion;
+    const reduced = useStore.getState().ui.reducedMotion || (window as unknown as { __fast?: boolean }).__fast === true;
     transition.current = { fromPos: camera.position.clone(), fromTarget: c.target.clone(), to: pose, t: 0, dur: reduced ? 0.01 : dur };
     invalidate();
   };
@@ -236,7 +245,7 @@ export function CameraRig() {
       minDistance={2.2}
       maxDistance={62}
       minPolarAngle={0.12}
-      maxPolarAngle={Math.PI / 2 - 0.035}
+      maxPolarAngle={Math.PI * 0.64}
       onChange={() => {
         const c = controls.current;
         if (!c) return;
@@ -244,6 +253,11 @@ export function CameraRig() {
         c.target.x = THREE.MathUtils.clamp(c.target.x, -9, 12);
         c.target.y = THREE.MathUtils.clamp(c.target.y, 0.2, 4.2);
         c.target.z = THREE.MathUtils.clamp(c.target.z, -3, 3);
+        // Se puede mirar desde abajo (perno rey, ejes) pero nunca atravesar el piso.
+        if (camera.position.y < 0.22) {
+          camera.position.y = 0.22;
+          camera.lookAt(c.target);
+        }
       }}
     />
   );
