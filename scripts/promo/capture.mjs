@@ -39,25 +39,29 @@ const SHOTS = {
   sow_ground: {
     frames: 120,
     setup: "window.__sp.store.getState().setScene('field');",
-    warm: 4000,
+    warm: 450,
+    warmScale: 25,
     cam: `(i,n)=>{const L=__L(); const x=L.rowX[Math.floor(L.rowX.length/2)]+L.spacing*0.5; const k=i/(n-1); __cam([x+__lerp(0.9,0.35,k), __lerp(0.42,0.55,k), -1.46-__lerp(3.6,5.0,k)],[x-0.25,0.3,-0.2]);}`,
   },
   sow_wide: {
     frames: 90,
     setup: "window.__sp.store.getState().setScene('field');",
-    warm: 4000,
+    warm: 450,
+    warmScale: 25,
     cam: `(i,n)=>{const k=__ease(i/(n-1)); const a=__lerp(2.35,2.9,k); const r=__lerp(16,13,k); __cam([Math.sin(a)*r, __lerp(5.5,3.2,k), Math.cos(a)*r],[0,0.6,1.0]);}`,
   },
   fold: {
     frames: 150,
-    setup: "window.__sp.store.getState().select('transport','longitudinal'); window.__sp.runtime.timeScale=" + (TS * 1.6) + ";",
+    setup: "window.__sp.store.getState().select('transport','longitudinal');",
+    shotScale: 0.75,
     actions: { 10: "window.__sp.store.getState().setPose('transport')" },
-    cam: `(i,n)=>{const k=__ease(i/(n-1)); const a=__lerp(0.75,1.75,k); const r=__lerp(9.2,10.8,k); __cam([Math.sin(a)*r-0.4, __lerp(4.6,3.4,k), Math.cos(a)*r+0.5],[-0.4,0.85,__lerp(0.6,1.2,k)]);}`,
+    cam: `(i,n)=>{const k=__ease(i/(n-1)); const a=__lerp(0.7,1.2,k); const r=__lerp(9.5,13.5,k); __cam([Math.sin(a)*r-0.4, __lerp(4.4,5.2,k), Math.cos(a)*r+0.5],[-0.4,0.85,__lerp(0.6,0.9,k)]);}`,
   },
   road: {
     frames: 105,
     setup: "window.__sp.store.getState().setScene('road');",
-    warm: 9000,
+    warm: 500,
+    warmScale: 40,
     cam: `(i,n)=>{const k=i/(n-1); __cam([__lerp(9,6.5,k), __lerp(3.2,2.3,k), __lerp(-11,-4,k)],[ -0.4,1.0,__lerp(3,6,k)]);}`,
   },
   explode: {
@@ -102,7 +106,12 @@ for (const name of names) {
   await page.evaluate("window.__sp.store.setState({ showHotspots: false, autoFocus: false }); window.__sp.runtime.timeScale = " + TS + ";");
   await page.clock.runFor(1500);
   await page.evaluate(shot.setup || '');
+  // precalentamiento acelerado (pocos cuadros de render, mucho tiempo de simulación)
+  const ts = await page.evaluate(() => window.__sp.runtime.timeScale);
+  if (shot.warmScale) await page.evaluate((k) => (window.__sp.runtime.timeScale = k), shot.warmScale);
   await page.clock.runFor(shot.warm ?? 800);
+  await page.evaluate((k) => (window.__sp.runtime.timeScale = k), ts);
+  if (shot.shotScale) await page.evaluate((k) => (window.__sp.runtime.timeScale = k), TS * shot.shotScale);
   await page.evaluate(`window.__shotCam = ${shot.cam};`);
   const dir = `${OUT}/${name}`;
   mkdirSync(dir, { recursive: true });
