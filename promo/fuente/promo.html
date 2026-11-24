@@ -1,0 +1,653 @@
+<!doctype html>
+<html lang="es-AR">
+<head>
+<meta charset="utf-8" />
+<title>Promo Umbral_exp</title>
+<style>
+  html, body { margin: 0; background: #000; }
+  canvas { display: block; }
+</style>
+</head>
+<body>
+<canvas id="c" width="1920" height="1080"></canvas>
+<script>
+/* Video promocional: composición 100 % determinística. renderAt(t) dibuja el cuadro del segundo t. */
+const W = 1920, H = 1080, FPS = 30;
+const NAVY = '#1b2747', NAVY2 = '#111a33', CREAM = '#f4f1eb', BEIGE = '#ebe6de', SAND = '#dcd6cc', INK = '#1a1f2b', ORANGE = '#e0661f', GREEN = '#22a05a';
+const cv = document.getElementById('c');
+const ctx = cv.getContext('2d');
+const off = [0, 1].map(() => { const c = document.createElement('canvas'); c.width = W; c.height = H; return c; });
+
+// ---------------------------------------------------------------- utilidades
+const clamp = (x, a = 0, b = 1) => Math.max(a, Math.min(b, x));
+const lerp = (a, b, k) => a + (b - a) * k;
+const prog = (t, a, b) => clamp((t - a) / (b - a));
+const eOut = (x) => 1 - Math.pow(1 - x, 3);
+const eIn = (x) => x * x * x;
+const eIO = (x) => (x < 0.5 ? 4 * x * x * x : 1 - Math.pow(-2 * x + 2, 3) / 2);
+const eBack = (x) => { const c1 = 1.70158, c3 = c1 + 1; return 1 + c3 * Math.pow(x - 1, 3) + c1 * Math.pow(x - 1, 2); };
+const pad = (i) => String(i).padStart(4, '0');
+
+const cache = new Map();
+window.cacheKeys = () => [...cache.entries()].map(([k, e]) => k + " " + e.im.naturalWidth + " " + e.im.complete);
+function img(src) {
+  let e = cache.get(src);
+  if (!e) {
+    const im = new Image();
+    const loaded = new Promise((r) => { im.onload = () => r(); im.onerror = () => r(); });
+    im.src = src;
+    e = { im, p: loaded.then(() => im.decode().catch(() => null)) };
+    cache.set(src, e);
+  }
+  return e;
+}
+const pending = [];
+function need(src) { const e = img(src); pending.push(e.p); return e.im; }
+const seq = (name, i, n) => need(`raw/${name}/${pad(clamp(Math.floor(i), 0, n - 1))}.jpg`);
+
+function cover(g, im, zoom = 1, ox = 0, oy = 0, alpha = 1) {
+  if (!im || !im.naturalWidth) return;
+  const s = Math.max(W / im.naturalWidth, H / im.naturalHeight) * zoom;
+  const w = im.naturalWidth * s, h = im.naturalHeight * s;
+  g.globalAlpha = alpha;
+  g.drawImage(im, (W - w) / 2 + ox, (H - h) / 2 + oy, w, h);
+  g.globalAlpha = 1;
+}
+/** Dibuja la región (sx,sy,sw,sh) de la imagen ocupando el cuadro. */
+function region(g, im, sx, sy, sw, sh, dx = 0, dy = 0, dw = W, dh = H) {
+  if (!im || !im.naturalWidth) return;
+  g.drawImage(im, sx, sy, sw, sh, dx, dy, dw, dh);
+}
+function rr(g, x, y, w, h, r) {
+  g.beginPath();
+  g.moveTo(x + r, y);
+  g.arcTo(x + w, y, x + w, y + h, r);
+  g.arcTo(x + w, y + h, x, y + h, r);
+  g.arcTo(x, y + h, x, y, r);
+  g.arcTo(x, y, x + w, y, r);
+  g.closePath();
+}
+function font(g, size, weight = 800, fam = 'Manrope') { g.font = `${weight} ${size}px "${fam}"`; }
+function text(g, s, x, y, size, color = '#fff', weight = 800, align = 'center', fam = 'Manrope') {
+  font(g, size, weight, fam);
+  g.fillStyle = color;
+  g.textAlign = align;
+  g.textBaseline = 'middle';
+  g.fillText(s, x, y);
+}
+/** Texto que "salta" (escala con rebote y fundido). */
+function popText(g, s, x, y, size, t0, t, color = '#fff', weight = 800, fam = 'Manrope', align = 'center') {
+  const k = prog(t, t0, t0 + 0.35);
+  if (k <= 0) return;
+  const sc = lerp(0.55, 1, eBack(k));
+  g.save();
+  g.globalAlpha = clamp(k * 2.2);
+  g.translate(x, y);
+  g.scale(sc, sc);
+  text(g, s, 0, 0, size, color, weight, align, fam);
+  g.restore();
+}
+/** Tarjeta / píldora con texto. */
+function chip(g, s, x, y, size, bg, fg, padX = 28, padY = 16, r = 999, weight = 800, fam = 'Manrope') {
+  font(g, size, weight, fam);
+  const w = g.measureText(s).width + padX * 2, h = size + padY * 2;
+  g.fillStyle = bg;
+  rr(g, x - w / 2, y - h / 2, w, h, Math.min(r, h / 2));
+  g.fill();
+  text(g, s, x, y + 1, size, fg, weight, 'center', fam);
+  return w;
+}
+function shadow(g, blur = 40, oy = 16, a = 0.25) { g.shadowColor = `rgba(17,26,51,${a})`; g.shadowBlur = blur; g.shadowOffsetY = oy; }
+function noShadow(g) { g.shadowColor = 'transparent'; g.shadowBlur = 0; g.shadowOffsetY = 0; }
+
+/** Barras diagonales de la marca (///) como fondo animado. */
+function stripes(g, t, color, alpha = 0.08, speed = 220, gap = 180) {
+  g.save();
+  g.globalAlpha = alpha;
+  g.fillStyle = color;
+  const shift = (t * speed) % gap;
+  for (let x = -H - gap; x < W + gap; x += gap) {
+    g.beginPath();
+    g.moveTo(x + shift, H);
+    g.lineTo(x + shift + 46, H);
+    g.lineTo(x + shift + 46 + H * 0.55, 0);
+    g.lineTo(x + shift + H * 0.55, 0);
+    g.closePath();
+    g.fill();
+  }
+  g.restore();
+}
+function brandMark(g, x, y, s, t0 = -9, t = 0, color = NAVY) {
+  const paths = [[14, 2, 23, 2, 11, 38, 2, 38], [33, 2, 42, 2, 30, 38, 21, 38], [52, 2, 61, 2, 49, 38, 40, 38]];
+  paths.forEach((p, i) => {
+    const k = eBack(prog(t, t0 + i * 0.09, t0 + i * 0.09 + 0.3));
+    if (k <= 0) return;
+    g.save();
+    g.globalAlpha = (i === 2 ? 0.55 : 1) * clamp(k);
+    g.translate(x, y - (1 - k) * 60 * s / 20);
+    g.scale(s / 40, s / 40);
+    g.fillStyle = color;
+    g.beginPath();
+    g.moveTo(p[0], p[1]); g.lineTo(p[2], p[3]); g.lineTo(p[4], p[5]); g.lineTo(p[6], p[7]);
+    g.closePath();
+    g.fill();
+    g.restore();
+  });
+}
+/** Leyenda inferior izquierda (tipo "lower third"). */
+function lower(g, title, sub, t, t0, t1, accent = NAVY) {
+  const kin = eBack(prog(t, t0, t0 + 0.45));
+  const kout = eIn(prog(t, t1 - 0.3, t1));
+  if (kin <= 0 || kout >= 1) return;
+  const x = lerp(-700, 70, kin) - kout * 800;
+  const y = H - 190;
+  font(g, 54, 800);
+  const w1 = g.measureText(title).width;
+  font(g, 30, 600, 'Inter');
+  const w2 = sub ? g.measureText(sub).width : 0;
+  const w = Math.max(w1, w2) + 90;
+  shadow(g, 40, 14, 0.22);
+  g.fillStyle = 'rgba(244,241,235,0.97)';
+  rr(g, x, y, w, sub ? 128 : 92, 22);
+  g.fill();
+  noShadow(g);
+  g.fillStyle = accent;
+  rr(g, x, y, 12, sub ? 128 : 92, 6);
+  g.fill();
+  text(g, title, x + 44, y + (sub ? 46 : 47), 54, INK, 800, 'left');
+  if (sub) text(g, sub, x + 44, y + 94, 30, '#4b4f58', 600, 'left', 'Inter');
+}
+/** Título grande arriba al centro con fondo azul. */
+function topTitle(g, s, t, t0, t1, size = 64, bg = NAVY, fg = '#fff') {
+  const kin = eBack(prog(t, t0, t0 + 0.4));
+  const kout = eIn(prog(t, t1 - 0.25, t1));
+  if (kin <= 0 || kout >= 1) return;
+  g.save();
+  g.translate(W / 2, lerp(-80, 110, kin) - kout * 220);
+  g.rotate(-0.02);
+  shadow(g, 30, 12, 0.3);
+  chip(g, s, 0, 0, size, bg, fg, 44, 22);
+  noShadow(g);
+  g.restore();
+}
+function flash(g, t, t0, dur = 0.3, color = '#fff') {
+  const k = prog(t, t0, t0 + dur);
+  if (k <= 0 || k >= 1) return;
+  g.fillStyle = color;
+  g.globalAlpha = Math.pow(1 - k, 2) * 0.85;
+  g.fillRect(0, 0, W, H);
+  g.globalAlpha = 1;
+}
+function vignette(g, a = 0.28) {
+  const gr = g.createRadialGradient(W / 2, H / 2, H * 0.35, W / 2, H / 2, H * 0.95);
+  gr.addColorStop(0, 'rgba(0,0,0,0)');
+  gr.addColorStop(1, `rgba(17,26,51,${a})`);
+  g.fillStyle = gr;
+  g.fillRect(0, 0, W, H);
+}
+
+// ---------------------------------------------------------------- escenas
+const TIPOS = [['tolva', 'Tolva cerealera'], ['batea', 'Batea volcadora'], ['plataforma', 'Plataforma con barandas'], ['furgon', 'Furgón / Sider']];
+const COLORES = [['RAL3020', '#BB1E10', 'Rojo tráfico'], ['RAL5015', '#007CB0', 'Azul celeste'], ['RAL1023', '#F0CA00', 'Amarillo tráfico'], ['RAL6018', '#48A43F', 'Verde amarillento'], ['RAL2004', '#E25303', 'Naranja puro'], ['RAL9010', '#F1ECE1', 'Blanco puro'], ['RAL7016', '#383E42', 'Gris antracita'], ['RAL5010', '#004F7C', 'Azul genciana']];
+const LANGS = [['es', 'Español'], ['en', 'English'], ['pt', 'Português'], ['ru', 'Русский']];
+
+const SCENES = [
+  { a: 0, b: 4, draw: intro },
+  { a: 4, b: 8, draw: hero, cut: 'flash' },
+  ...TIPOS.map(([id, name], i) => ({ a: 8 + i, b: 9 + i, draw: (g, lt, t) => tipo(g, lt, t, id, name, i), cut: 'whip' })),
+  { a: 12, b: 14.5, draw: batea, cut: 'whip' },
+  { a: 14.5, b: 17, draw: sider, cut: 'whip' },
+  { a: 17, b: 18, draw: lona, cut: 'whip' },
+  { a: 18, b: 22, draw: colores, cut: 'whip' },
+  { a: 22, b: 24, draw: marca, cut: 'whip' },
+  { a: 24, b: 26, draw: precio, cut: 'whip' },
+  { a: 26, b: 28, draw: legal, cut: 'whip' },
+  { a: 28, b: 30, draw: exterior, cut: 'whip' },
+  { a: 30, b: 32, draw: cotizacion, cut: 'whip' },
+  { a: 32, b: 34, draw: dispositivos, cut: 'whip' },
+  { a: 34, b: 40, draw: outro, cut: 'flash' },
+];
+
+function intro(g, lt, t) {
+  const bg = g.createLinearGradient(0, 0, W, H);
+  bg.addColorStop(0, NAVY);
+  bg.addColorStop(1, NAVY2);
+  g.fillStyle = bg;
+  g.fillRect(0, 0, W, H);
+  // las barras aceleran con la subida
+  stripes(g, lt + Math.pow(prog(lt, 2, 4), 3) * 3, '#ffffff', 0.05 + 0.06 * prog(lt, 2, 4), 260);
+  brandMark(g, 120, 90, 46, 0, lt, '#ffffff');
+  const z = 1 + eIn(prog(lt, 3.55, 4)) * 2.2;
+  const fade = 1 - prog(lt, 3.75, 4);
+  g.save();
+  g.translate(W / 2, H / 2);
+  g.scale(z, z);
+  g.translate(-W / 2, -H / 2);
+  g.globalAlpha = fade;
+  if (lt < 1.95) {
+    const out = eIn(prog(lt, 1.75, 1.95));
+    g.save();
+    g.translate(0, -out * 60);
+    g.globalAlpha = 1 - out;
+    popText(g, '¿Vendés', W / 2, H / 2 - 95, 120, 0.1, lt);
+    popText(g, 'semirremolques?', W / 2, H / 2 + 60, 150, 0.55, lt, '#ffffff');
+    g.restore();
+  } else {
+    popText(g, '¡Mostralos', W / 2, H / 2 - 95, 130, 2.0, lt);
+    const k = prog(lt, 2.5, 2.85);
+    if (k > 0) {
+      g.save();
+      g.translate(W / 2, H / 2 + 80);
+      const sc = lerp(0.4, 1, eBack(k));
+      g.scale(sc, sc);
+      g.rotate(-0.04);
+      chip(g, 'en 3D!', 0, 0, 150, ORANGE, '#fff', 50, 18, 34);
+      g.restore();
+    }
+  }
+  g.restore();
+}
+
+function hero(g, lt, t) {
+  cover(g, seq('hero', lt * FPS, 120), 1.02 + lt * 0.01);
+  vignette(g, 0.18);
+  lower(g, 'Configurador 3D', 'de semirremolques · Umbral_exp', lt, 0.25, 3.85);
+  // marca chica arriba a la izquierda
+  const k = eOut(prog(lt, 0.4, 0.9));
+  if (k > 0) {
+    g.globalAlpha = k;
+    shadow(g, 20, 8, 0.15);
+    g.fillStyle = 'rgba(244,241,235,0.95)';
+    rr(g, 60, 52, 330, 76, 18);
+    g.fill();
+    noShadow(g);
+    brandMark(g, 84, 70, 40, -9, 1, NAVY);
+    text(g, 'Umbral_exp', 160, 91, 34, INK, 800, 'left', 'Inter');
+    g.globalAlpha = 1;
+  }
+}
+
+function tipo(g, lt, t, id, name, i) {
+  const f = Math.min(lt * 30, 23);
+  const pulse = 1 + 0.035 * (1 - eOut(prog(lt, 0, 0.35)));
+  cover(g, seq(`tipo-${id}`, f, 24), pulse);
+  vignette(g, 0.15);
+  topTitle(g, '4 tipos de equipo', t, 8.05, 12.1, 46, NAVY);
+  // nombre del tipo desde abajo
+  const k = eBack(prog(lt, 0.08, 0.45));
+  g.save();
+  g.translate(W / 2, lerp(H + 120, H - 150, k));
+  shadow(g, 30, 12, 0.25);
+  const w = chip(g, name, 0, 0, 66, 'rgba(244,241,235,0.97)', INK, 46, 24, 26);
+  noShadow(g);
+  chip(g, `${i + 1}/4`, -w / 2 + 52, -74, 32, ORANGE, '#fff', 20, 10);
+  g.restore();
+}
+
+function action(g, lt, name, n, speed, title, sub, showTitle) {
+  cover(g, seq(name, lt * speed, n), 1.0);
+  vignette(g, 0.16);
+  if (showTitle) topTitle(g, '¡Miralo en acción!', lt, 0.0, 2.4, 64, ORANGE);
+  lower(g, title, sub, lt, showTitle ? 0.35 : 0.12, 99);
+}
+function batea(g, lt) { action(g, lt, 'batea', 84, 26, 'Batea volcadora', 'Cilindro telescópico y vuelco trasero', true); }
+function sider(g, lt) { action(g, lt, 'sider', 78, 31, 'Sider', 'Puertas traseras y lona corrediza', false); }
+function lona(g, lt) { action(g, lt, 'lona', 54, 54, 'Tolva', 'Lona enrollable', false); }
+
+function colores(g, lt, t) {
+  const i = Math.min(7, Math.floor(lt / 0.5));
+  const k = (lt - i * 0.5) / 0.5;
+  const [code, hex, nombre] = COLORES[i];
+  const z = 1.0 + 0.05 * (1 - eOut(clamp(k * 2.2)));
+  cover(g, need(`raw/colores/${code}.jpg`), z * 1.08, 0, 40);
+  vignette(g, 0.12);
+  // destello del color nuevo
+  g.globalAlpha = (1 - eOut(clamp(k * 3))) * 0.25;
+  g.fillStyle = hex;
+  g.fillRect(0, 0, W, H);
+  g.globalAlpha = 1;
+  topTitle(g, 'Elegí tu color', lt, 0.0, 4.2, 60, NAVY);
+  // muestra RAL
+  const y = H - 150;
+  const s = eBack(clamp(k * 2.6));
+  g.save();
+  g.translate(W / 2, y);
+  g.scale(lerp(0.7, 1, s), lerp(0.7, 1, s));
+  shadow(g, 30, 12, 0.25);
+  g.fillStyle = 'rgba(244,241,235,0.97)';
+  rr(g, -330, -62, 660, 124, 62);
+  g.fill();
+  noShadow(g);
+  g.fillStyle = hex;
+  g.beginPath();
+  g.arc(-268, 0, 44, 0, Math.PI * 2);
+  g.fill();
+  g.strokeStyle = 'rgba(0,0,0,0.15)';
+  g.lineWidth = 2;
+  g.stroke();
+  text(g, code.replace('RAL', 'RAL '), -200, -16, 44, INK, 800, 'left');
+  text(g, nombre, -200, 26, 30, '#4b4f58', 600, 'left', 'Inter');
+  g.restore();
+  // contador
+  chip(g, '49 colores RAL', W - 230, H - 150, 34, NAVY, '#fff', 30, 16);
+}
+
+function marca(g, lt) {
+  cover(g, seq('marca', lt * 30, 60), 1.0);
+  vignette(g, 0.15);
+  popText(g, 'Tu logo.', W / 2 - 250, 150, 96, 0.15, lt, NAVY);
+  popText(g, 'Tu nombre.', W / 2 + 250, 150, 96, 0.45, lt, ORANGE);
+  lower(g, 'Pintado en la caja', 'Subís tu logo y escribís tu texto', lt, 0.6, 99, ORANGE);
+}
+
+/** Captura de la app dentro de una ventana, sobre fondo beige. */
+function appWindow(g, im, x, y, w, alpha = 1) {
+  const h = w * 9 / 16;
+  g.globalAlpha = alpha;
+  shadow(g, 60, 24, 0.28);
+  g.fillStyle = '#fff';
+  rr(g, x, y - 38, w, h + 38, 18);
+  g.fill();
+  noShadow(g);
+  g.fillStyle = '#e8e3da';
+  rr(g, x, y - 38, w, 38, 18);
+  g.fill();
+  g.fillRect(x, y - 10, w, 10);
+  ['#e0664f', '#e7b340', '#4fb06a'].forEach((c, i) => { g.fillStyle = c; g.beginPath(); g.arc(x + 26 + i * 22, y - 19, 7, 0, Math.PI * 2); g.fill(); });
+  g.save();
+  rr(g, x, y, w, h, 0);
+  g.clip();
+  if (im && im.naturalWidth) g.drawImage(im, x, y, w, h);
+  g.restore();
+  g.globalAlpha = 1;
+}
+function beigeBg(g, t) {
+  const bg = g.createLinearGradient(0, 0, 0, H);
+  bg.addColorStop(0, BEIGE);
+  bg.addColorStop(1, SAND);
+  g.fillStyle = bg;
+  g.fillRect(0, 0, W, H);
+  stripes(g, t, NAVY, 0.035, 60, 220);
+}
+function precio(g, lt, t) {
+  beigeBg(g, t);
+  const im = need('raw/ui/app-es.jpg');
+  // ventana que entra y después zoom a la tarjeta de precio (x 14..414, y 72..232 de la captura)
+  const kin = eBack(prog(lt, 0, 0.4));
+  const k = eIO(prog(lt, 0.5, 1.2));
+  const sc0 = 1500 / 1920, x0 = 210, y0 = lerp(H, 160, kin);
+  const s = lerp(1, 2.6, k);
+  const cx = x0 + 214 * sc0, cy = y0 + 152 * sc0;
+  g.save();
+  g.translate(lerp(cx, W * 0.36, k), lerp(cy, H * 0.47, k));
+  g.scale(s, s);
+  g.translate(-cx, -cy);
+  appWindow(g, im, x0, y0, 1500);
+  g.restore();
+  topTitle(g, 'Precio en vivo', lt, 0.35, 2.3, 60, NAVY);
+  // al cambiar una opción, el precio salta
+  const kc = eBack(prog(lt, 0.55, 0.9));
+  if (kc > 0) {
+    g.save();
+    g.translate(W * 0.74, H * 0.42 - eOut(prog(lt, 0.55, 2)) * 40);
+    g.rotate(0.05);
+    g.scale(kc, kc);
+    shadow(g, 30, 12, 0.28);
+    chip(g, '+USD 3.750', 0, 0, 58, GREEN, '#fff', 36, 20);
+    noShadow(g);
+    g.restore();
+    const kt = eOut(prog(lt, 0.7, 1.1));
+    g.globalAlpha = kt;
+    text(g, 'Suspensión neumática', W * 0.74, H * 0.42 + 90, 36, INK, 700, 'center', 'Inter');
+    text(g, 'Tara, carga útil y volumen al instante', W * 0.74, H * 0.42 + 140, 30, '#4b4f58', 600, 'center', 'Inter');
+    g.globalAlpha = 1;
+  }
+}
+function legal(g, lt, t) {
+  beigeBg(g, t);
+  const im = need('raw/ui/tecnico.jpg');
+  // región de los chequeos en la captura: x 1340..1920, y 120..470
+  const kin = eOut(prog(lt, 0, 0.3));
+  g.save();
+  g.globalAlpha = kin;
+  shadow(g, 50, 20, 0.25);
+  g.fillStyle = '#fff';
+  rr(g, 140, 170, 980, 640, 24);
+  g.fill();
+  noShadow(g);
+  g.save();
+  rr(g, 140, 170, 980, 640, 24);
+  g.clip();
+  region(g, im, 1336, 120, 584, 381, 140, 170, 980, 640);
+  g.restore();
+  g.restore();
+  topTitle(g, 'Semáforo de medidas y pesos', lt, 0.05, 2.3, 56, NAVY);
+  const items = [['Ancho', 0.5], ['Alto', 0.85], ['Largo y peso', 1.2]];
+  items.forEach(([s, t0], i) => {
+    const k = eBack(prog(lt, t0, t0 + 0.3));
+    if (k <= 0) return;
+    const y = 330 + i * 150;
+    g.save();
+    g.translate(1420, y);
+    g.scale(k, k);
+    g.fillStyle = GREEN;
+    g.beginPath();
+    g.arc(-150, 0, 46, 0, Math.PI * 2);
+    g.fill();
+    g.strokeStyle = '#fff';
+    g.lineWidth = 11;
+    g.lineCap = 'round';
+    g.lineJoin = 'round';
+    g.beginPath();
+    g.moveTo(-172, 2);
+    g.lineTo(-156, 18);
+    g.lineTo(-126, -14);
+    g.stroke();
+    text(g, s, -80, 0, 54, INK, 800, 'left');
+    g.restore();
+  });
+  const kn = eOut(prog(lt, 1.5, 1.8));
+  g.globalAlpha = kn;
+  text(g, 'Referencia: Ley 24.449 · cálculos orientativos', 1420, 800, 28, '#4b4f58', 600, 'center', 'Inter');
+  g.globalAlpha = 1;
+}
+
+function exterior(g, lt) {
+  cover(g, seq('exterior', lt * 36, 72), 1.0);
+  vignette(g, 0.18);
+  lower(g, 'Del estudio a la ruta', 'Escena exterior con tractor', lt, 0.12, 99);
+}
+
+function cotizacion(g, lt, t) {
+  beigeBg(g, t);
+  topTitle(g, 'Cotización en PDF + WhatsApp', lt, 0.0, 2.3, 56, NAVY);
+  // hoja PDF
+  const pdf = need('raw/ui/pdf-1.png');
+  const k = eBack(prog(lt, 0.35, 0.8));
+  if (k > 0) {
+    g.save();
+    g.translate(lerp(W * 0.3, W * 0.33, k), lerp(H + 600, H * 0.56, k));
+    g.rotate(lerp(0.25, -0.05, k));
+    shadow(g, 50, 24, 0.3);
+    g.fillStyle = '#fff';
+    g.fillRect(-310, -438, 620, 876);
+    noShadow(g);
+    if (pdf.naturalWidth) g.drawImage(pdf, -310, -438, 620, 876);
+    g.restore();
+  }
+  // burbuja de chat
+  const kb = eBack(prog(lt, 1.0, 1.35));
+  if (kb > 0) {
+    g.save();
+    g.translate(W * 0.68, H * 0.55);
+    g.scale(kb, kb);
+    shadow(g, 40, 16, 0.25);
+    g.fillStyle = '#dcf8c6';
+    rr(g, -330, -190, 660, 380, 30);
+    g.fill();
+    g.beginPath();
+    g.moveTo(300, 170); g.lineTo(360, 210); g.lineTo(250, 190);
+    g.fill();
+    noShadow(g);
+    const lines = [['Hola, quiero cotizar este equipo', 700], ['que armé en el configurador.', 700], ['', 400], ['Tolva cerealera · 10,00 m · 1+1+1', 500], ['Configuración N° TO-0ZVTWGQ', 500], ['USD 65.505 (orientativo)', 500]];
+    lines.forEach(([s, w], i) => text(g, s, -290, -140 + i * 54, 32, '#1a2a1a', w, 'left', 'Inter'));
+    g.fillStyle = '#25a35a';
+    rr(g, 150, 130, 160, 40, 20);
+    g.fill();
+    text(g, 'Enviar', 230, 151, 24, '#fff', 700, 'center', 'Inter');
+    g.restore();
+  }
+}
+
+function phone(g, im, cx, cy, h) {
+  const w = h * 1170 / 1992 + 28;
+  const hh = h + 28;
+  shadow(g, 60, 26, 0.32);
+  g.fillStyle = '#111';
+  rr(g, cx - w / 2, cy - hh / 2, w, hh, 54);
+  g.fill();
+  noShadow(g);
+  g.save();
+  rr(g, cx - w / 2 + 14, cy - hh / 2 + 14, w - 28, hh - 28, 42);
+  g.clip();
+  if (im && im.naturalWidth) g.drawImage(im, cx - w / 2 + 14, cy - hh / 2 + 14, w - 28, hh - 28);
+  g.restore();
+  g.fillStyle = '#111';
+  rr(g, cx - 70, cy - hh / 2 + 22, 140, 30, 15);
+  g.fill();
+}
+function dispositivos(g, lt, t) {
+  beigeBg(g, t);
+  topTitle(g, 'En la compu y en el celu', lt, 0.0, 2.3, 56, NAVY);
+  const i = clamp(Math.floor((lt - 0.1) / 0.45), 0, 3);
+  const [code, nombre] = LANGS[i];
+  const k = eOut(prog(lt, 0.0, 0.35));
+  appWindow(g, need(`raw/ui/app-${code}.jpg`), lerp(-1200, 110, k), 250, 1180);
+  // idioma actual
+  const kp = eBack(clamp(((lt - 0.1) % 0.45) / 0.2));
+  g.save();
+  g.translate(700, 1000);
+  g.scale(lerp(0.75, 1, kp), lerp(0.75, 1, kp));
+  shadow(g, 24, 10, 0.25);
+  chip(g, nombre, 0, 0, 44, NAVY, '#fff', 40, 16, 999, 800, 'Inter');
+  noShadow(g);
+  g.restore();
+  const kph = eBack(prog(lt, 0.25, 0.7));
+  if (kph > 0) {
+    g.save();
+    g.translate(lerp(W + 400, 1560, kph), 600);
+    g.rotate(lerp(0.3, 0.06, kph));
+    phone(g, need('raw/ui/celular.png'), 0, 0, 760);
+    g.restore();
+  }
+}
+
+function outro(g, lt, t) {
+  const bg = g.createLinearGradient(0, 0, W, H);
+  bg.addColorStop(0, NAVY);
+  bg.addColorStop(1, NAVY2);
+  g.fillStyle = bg;
+  g.fillRect(0, 0, W, H);
+  stripes(g, lt, '#ffffff', 0.05, 90);
+  const bump = 1 + 0.06 * (1 - eOut(prog(lt, 4.0, 4.4))) * (lt >= 4 ? 1 : 0);
+  g.save();
+  g.translate(W / 2, H / 2);
+  g.scale(bump, bump);
+  g.translate(-W / 2, -H / 2);
+  font(g, 120, 800, 'Inter');
+  const tw = g.measureText('Umbral_exp').width;
+  const mw = 61 * 120 / 40;
+  const x0 = W / 2 - (mw + 44 + tw) / 2;
+  brandMark(g, x0, 262, 120, 0.1, lt, '#ffffff');
+  popText(g, 'Umbral_exp', x0 + mw + 44 + tw / 2, 322, 120, 0.45, lt, '#fff', 800, 'Inter');
+  const k = eOut(prog(lt, 0.8, 1.2));
+  g.globalAlpha = k;
+  text(g, 'By Matias Colimodio', W / 2, 430, 40, '#c9c3b8', 500, 'center', 'Inter');
+  g.globalAlpha = 1;
+  popText(g, 'Configurador 3D de semirremolques', W / 2, 560, 64, 1.1, lt, '#fff');
+  const ku = eBack(prog(lt, 1.6, 2.0));
+  if (ku > 0) {
+    g.save();
+    g.translate(W / 2, 690);
+    g.scale(ku, ku);
+    chip(g, 'configurador-semirremolques.matiascolimodio.workers.dev', 0, 0, 38, '#f4f1eb', NAVY, 40, 22, 999, 700, 'Inter');
+    g.restore();
+  }
+  const kc = eBack(prog(lt, 2.2, 2.6));
+  if (kc > 0) {
+    const pulse = 1 + 0.04 * Math.sin((lt - 2.6) * Math.PI * 4) * (lt > 2.6 ? 1 : 0);
+    g.save();
+    g.translate(W / 2, 830);
+    g.scale(kc * pulse, kc * pulse);
+    chip(g, 'Probá la demo  →', 0, 0, 56, ORANGE, '#fff', 54, 26);
+    g.restore();
+  }
+  g.restore();
+  const kd = eOut(prog(lt, 2.4, 2.9));
+  g.globalAlpha = kd * 0.8;
+  text(g, 'Precios y datos técnicos de demostración. Modelos generados en código.', W / 2, H - 50, 24, '#c9c3b8', 500, 'center', 'Inter');
+  g.globalAlpha = 1;
+  // fundido final
+  const kf = prog(lt, 5.4, 6);
+  if (kf > 0) { g.fillStyle = `rgba(10,14,28,${kf})`; g.fillRect(0, 0, W, H); }
+}
+
+// ---------------------------------------------------------------- render
+function drawScene(g, s, t) {
+  g.save();
+  g.clearRect(0, 0, W, H);
+  s.draw(g, clamp(t - s.a, 0, s.b - s.a - 1e-6), t);
+  g.restore();
+}
+const WHIP = 0.12;
+window.renderAt = async function (t) {
+  pending.length = 0;
+  const i = SCENES.findIndex((s) => t >= s.a && t < s.b);
+  const s = SCENES[i < 0 ? SCENES.length - 1 : i];
+  const prev = SCENES[i - 1];
+  const next = SCENES[i + 1];
+  // transición barrida alrededor del corte
+  let mode = null, k = 0, A = null, B = null;
+  if (s.cut === 'whip' && prev && t - s.a < WHIP) { mode = 'whip'; A = prev; B = s; k = 0.5 + (t - s.a) / (2 * WHIP); }
+  else if (next && next.cut === 'whip' && next.a - t < WHIP) { mode = 'whip'; A = s; B = next; k = 0.5 - (next.a - t) / (2 * WHIP); }
+  if (mode === 'whip') {
+    drawScene(off[0].getContext('2d'), A, Math.min(t, A.b - 1e-6));
+    drawScene(off[1].getContext('2d'), B, Math.max(t, B.a));
+  } else {
+    drawScene(off[0].getContext('2d'), s, t);
+  }
+  await Promise.all(pending);
+  // redibujar ya con las imágenes decodificadas
+  pending.length = 0;
+  if (mode === 'whip') {
+    drawScene(off[0].getContext('2d'), A, Math.min(t, A.b - 1e-6));
+    drawScene(off[1].getContext('2d'), B, Math.max(t, B.a));
+    const e = eIO(k);
+    ctx.fillStyle = '#000';
+    ctx.fillRect(0, 0, W, H);
+    for (const [dx, a] of [[0, 1], [-28, 0.1], [28, 0.1]]) {
+      ctx.globalAlpha = a;
+      ctx.drawImage(off[0], -W * e + dx, 0);
+      ctx.drawImage(off[1], W * (1 - e) + dx, 0);
+    }
+    ctx.globalAlpha = 1;
+  } else {
+    drawScene(off[0].getContext('2d'), s, t);
+    ctx.drawImage(off[0], 0, 0);
+  }
+  if (s.cut === 'flash') flash(ctx, t, s.a, 0.35);
+  return true;
+};
+
+window.fontsReady = (async () => {
+  const faces = [
+    new FontFace('Manrope', 'url(fonts/manrope-latin-wght-normal.woff2)', { weight: '200 800' }),
+    new FontFace('Inter', 'url(fonts/inter-latin-wght-normal.woff2)', { weight: '100 900' }),
+    new FontFace('Inter', 'url(fonts/inter-cyrillic-wght-normal.woff2)', { weight: '100 900', unicodeRange: 'U+0400-045F, U+0490-0491, U+04B0-04B1, U+2116' }),
+  ];
+  for (const f of faces) document.fonts.add(await f.load());
+  return true;
+})();
+</script>
+</body>
+</html>

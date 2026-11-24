@@ -4,3 +4,7 @@ dist
 .DS_Store
 tests/e2e/out
 .vite
+promo/fuente/raw
+promo/fuente/frames
+promo/fuente/preview
+promo/fuente/*.wav
