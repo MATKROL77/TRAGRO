@@ -1,0 +1,10 @@
+import { chromium } from 'playwright';
+const browser = await chromium.launch({ args: ['--use-gl=angle', '--use-angle=swiftshader', '--enable-unsafe-swiftshader'] });
+const page = await browser.newPage({ viewport: { width: 1440, height: 900 } });
+page.on('requestfailed', (r) => console.log('FAILED', r.url(), r.failure()?.errorText));
+page.on('response', (r) => { if (r.status() >= 400) console.log('HTTP', r.status(), r.url()); });
+await page.goto('http://localhost:5173/');
+await page.waitForTimeout(4000);
+console.log(await page.evaluate(() => import('/src/three/FieldScene.tsx').then(() => 'ok', (e) => 'ERR ' + e.message)));
+console.log(await page.evaluate(() => fetch('/hdri/sky.hdr').then(r => r.status + ' ' + r.headers.get('content-length'))));
+await browser.close();

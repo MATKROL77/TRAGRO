@@ -1,0 +1,28 @@
+{
+  "_demo": "Parámetros y fórmulas DEMO. Cálculos orientativos. Editables.",
+  "formulas": {
+    "workingWidthM": "rows × spacingM",
+    "capacityHaH": "workingWidthM × speedKmh × efficiency / 10",
+    "haPerDay": "capacityHaH × hoursPerDay",
+    "seedsPerHa": "seedsPerM × 10000 / spacingM",
+    "seedKgPerHa": "seedsPerHa × tswG / 1e6",
+    "autonomyHa": "hopperKg / kgPerHa"
+  },
+  "speed": { "min": 4, "max": 10, "step": 0.5, "default": 7 },
+  "efficiency": { "min": 0.4, "max": 0.95, "step": 0.01, "default": 0.7 },
+  "hoursPerDay": { "min": 4, "max": 24, "step": 1, "default": 12 },
+  "crops": [
+    { "id": "maize", "seedsPerM": 4.2, "tswG": 320, "bulkKgL": 0.72, "color": "#E9B949", "shape": "kernel", "minSeedsPerM": 2, "maxSeedsPerM": 8 },
+    { "id": "soy", "seedsPerM": 19, "tswG": 165, "bulkKgL": 0.75, "color": "#D9C08A", "shape": "sphere", "minSeedsPerM": 8, "maxSeedsPerM": 35 },
+    { "id": "sunflower", "seedsPerM": 3.2, "tswG": 60, "bulkKgL": 0.42, "color": "#3A3A3A", "shape": "sunflower", "minSeedsPerM": 1.5, "maxSeedsPerM": 7 },
+    { "id": "sorghum", "seedsPerM": 13, "tswG": 28, "bulkKgL": 0.72, "color": "#A65A3A", "shape": "sphere", "minSeedsPerM": 5, "maxSeedsPerM": 25 }
+  ],
+  "defaultCrop": "maize",
+  "fertilizer": { "defaultKgHa": 120, "minKgHa": 0, "maxKgHa": 400, "bulkKgL": 1.0 },
+  "hp": {
+    "perRowByTier": { "compact": 7.5, "medium": 8.5, "large": 8.8, "xl": 9.0 },
+    "perRowAdds": { "fertilizer.side": 1.2, "fertilizer.inline": 0.6, "downforce.pneumatic": 0.5, "closing.castiron": 0.2 },
+    "fixedAdds": { "seedHopper.central": 15, "metering.pneumatic": 10, "transport.longitudinal": 5 },
+    "rangeFactor": [1.0, 1.25]
+  }
+}

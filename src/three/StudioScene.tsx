@@ -1,0 +1,88 @@
+import { useEffect, useMemo, useRef } from 'react';
+import { useFrame, useThree } from '@react-three/fiber';
+import { Environment, Lightformer } from '@react-three/drei';
+import * as THREE from 'three';
+import { runtime } from './runtime';
+import { useStore } from '../state/store';
+
+/** Luz principal con sombra ajustada al tamaño de la máquina. */
+export function KeyLight({ intensity = 2.2, position = [6, 11, 7] as [number, number, number], color = '#fff6ea' }) {
+  const light = useRef<THREE.DirectionalLight>(null);
+  const quality = useStore((s) => s.quality);
+  const config = useStore((s) => s.config);
+  const pose = useStore((s) => s.pose);
+  useEffect(() => {
+    const l = light.current;
+    if (!l) return;
+    const m = runtime.model;
+    const w = m ? Math.max(m.layout.barLength, m.layout.transportDims.length) : 10;
+    const half = w / 2 + 3;
+    const cam = l.shadow.camera;
+    cam.left = -half;
+    cam.right = half;
+    cam.top = half;
+    cam.bottom = -half;
+    cam.near = 1;
+    cam.far = 60;
+    cam.updateProjectionMatrix();
+    const res = quality === 'high' ? 4096 : quality === 'medium' ? 2048 : 1024;
+    if (l.shadow.mapSize.x !== res) {
+      l.shadow.mapSize.set(res, res);
+      l.shadow.map?.dispose();
+      (l.shadow as unknown as { map: null }).map = null;
+    }
+    l.shadow.needsUpdate = true;
+  }, [config.rows, config.spacingCm, config.model, pose, quality]);
+  return (
+    <directionalLight
+      ref={light}
+      position={position}
+      intensity={intensity}
+      color={color}
+      castShadow
+      shadow-bias={-0.0004}
+      shadow-normalBias={0.025}
+      shadow-radius={4}
+    />
+  );
+}
+
+function StudioFloor() {
+  const mat = useMemo(() => {
+    const m = new THREE.MeshStandardMaterial({ color: '#cfd0cf', roughness: 0.92, metalness: 0 });
+    return m;
+  }, []);
+  return (
+    <mesh rotation-x={-Math.PI / 2} receiveShadow material={mat}>
+      <circleGeometry args={[90, 64]} />
+    </mesh>
+  );
+}
+
+export function StudioScene() {
+  const { scene } = useThree();
+  useEffect(() => {
+    scene.fog = new THREE.Fog('#e4e4e2', 26, 85);
+    return () => {
+      scene.fog = null;
+    };
+  }, [scene]);
+  useFrame(() => {
+    runtime.frames++;
+  });
+  const base = import.meta.env.BASE_URL;
+  return (
+    <>
+      <color attach="background" args={['#e4e4e2']} />
+      <Environment files={`${base}hdri/studio.hdr`} environmentIntensity={0.9} environmentRotation={[0, Math.PI / 3, 0]}>
+        <Lightformer form="rect" intensity={2.2} position={[0, 6, 4]} scale={[12, 3, 1]} target={[0, 0, 0]} />
+        <Lightformer form="rect" intensity={1.2} position={[-8, 3, -2]} scale={[6, 4, 1]} target={[0, 0, 0]} />
+        <Lightformer form="ring" intensity={1.5} position={[8, 4, -6]} scale={3} target={[0, 0, 0]} />
+      </Environment>
+      <hemisphereLight args={['#ffffff', '#b9b5ad', 0.35]} />
+      <KeyLight />
+      <directionalLight position={[-8, 5, -6]} intensity={0.55} color="#dfe8ff" />
+      <StudioFloor />
+    </>
+  );
+}

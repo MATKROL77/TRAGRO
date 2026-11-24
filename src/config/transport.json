@@ -1,0 +1,9 @@
+{
+  "_warning": "LÍMITES DE REFERENCIA (DEMO). Deben ser confirmados por el fabricante contra la normativa vigente del país de destino. La maquinaria agrícola especial tiene requisitos particulares (balizamiento, horarios, permisos, escolta).",
+  "defaultProfile": "AR",
+  "profiles": [
+    { "id": "AR", "general": { "widthM": 2.6, "heightM": 4.1, "lengthM": 20.5 }, "special": { "widthM": 4.8, "heightM": 4.3, "lengthM": 26.0 } },
+    { "id": "INT", "general": { "widthM": 2.55, "heightM": 4.0, "lengthM": 18.75 }, "special": { "widthM": 3.5, "heightM": 4.0, "lengthM": 25.0 } }
+  ],
+  "tractorLengthM": 5.6
+}

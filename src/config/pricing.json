@@ -1,0 +1,38 @@
+{
+  "_demo": "Precios DEMO en USD. Editables. No representan precios reales de ningún fabricante.",
+  "currency": "USD",
+  "exportFactor": 1.0,
+  "localFactor": 1.0,
+  "models": {
+    "sp10c": { "base": 28000, "perRow": 2300 },
+    "sp16m": { "base": 36000, "perRow": 2500 },
+    "sp24g": { "base": 52000, "perRow": 2700 },
+    "sp36xg": { "base": 78000, "perRow": 2850 }
+  },
+  "options": {
+    "transport.fold": { "base": 0, "perRow": 0 },
+    "transport.longitudinal": { "base": 8800, "perRow": 0 },
+    "transportWheels.flotation": { "base": 2400, "perRow": 0 },
+    "seedHopper.central": { "base": 12500, "perRow": 0 },
+    "seedCapacity.large": { "base": 0, "perRow": 45, "ifSel": { "seedHopper": "individual" } },
+    "seedCapacity.large@central": { "base": 2800, "perRow": 0, "ifSel": { "seedHopper": "central" } },
+    "fertilizer.inline": { "base": 6000, "perRow": 380 },
+    "fertilizer.side": { "base": 7500, "perRow": 620 },
+    "fertCapacity.large": { "base": 3400, "perRow": 0 },
+    "coulter.wavy": { "base": 0, "perRow": 40 },
+    "closing.castiron": { "base": 0, "perRow": 120 },
+    "closing.spiked": { "base": 0, "perRow": 160 },
+    "firmer.on": { "base": 0, "perRow": 95 },
+    "downforce.pneumatic": { "base": 6200, "perRow": 690 },
+    "metering.shaft": { "base": 1800, "perRow": 0 },
+    "metering.pneumatic": { "base": 3900, "perRow": 520 },
+    "metering.electric": { "base": 6500, "perRow": 1150 },
+    "monitor.advanced": { "base": 4200, "perRow": 0 },
+    "sectionControl.on": { "base": 2800, "perRow": 0 },
+    "variableRate.on": { "base": 1900, "perRow": 0 },
+    "isobus.on": { "base": 3600, "perRow": 0 },
+    "autosteer.on": { "base": 2100, "perRow": 0 }
+  },
+  "customPaint": { "base": 950, "perRow": 0 },
+  "customText": { "base": 180, "perRow": 0 }
+}

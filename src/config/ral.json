@@ -1,0 +1,445 @@
+{
+ "_note": "Aproximaciones sRGB de colores RAL Classic para visualización en pantalla. Confirmar con carta física.",
+ "colors": [
+  {
+   "ral": "RAL 1003",
+   "hex": "#F9A900",
+   "names": {
+    "es-AR": "Amarillo señales",
+    "en": "Signal yellow",
+    "pt-BR": "Amarelo sinal",
+    "ru": "Сигнальный жёлтый"
+   }
+  },
+  {
+   "ral": "RAL 1013",
+   "hex": "#EAE6CA",
+   "names": {
+    "es-AR": "Blanco perla",
+    "en": "Oyster white",
+    "pt-BR": "Branco pérola",
+    "ru": "Жемчужно-белый"
+   }
+  },
+  {
+   "ral": "RAL 1015",
+   "hex": "#E6D2B5",
+   "names": {
+    "es-AR": "Marfil claro",
+    "en": "Light ivory",
+    "pt-BR": "Marfim claro",
+    "ru": "Светлая слоновая кость"
+   }
+  },
+  {
+   "ral": "RAL 1018",
+   "hex": "#F8F32B",
+   "names": {
+    "es-AR": "Amarillo zinc",
+    "en": "Zinc yellow",
+    "pt-BR": "Amarelo zinco",
+    "ru": "Цинково-жёлтый"
+   }
+  },
+  {
+   "ral": "RAL 1021",
+   "hex": "#F6B600",
+   "names": {
+    "es-AR": "Amarillo colza",
+    "en": "Rape yellow",
+    "pt-BR": "Amarelo colza",
+    "ru": "Рапсово-жёлтый"
+   }
+  },
+  {
+   "ral": "RAL 1023",
+   "hex": "#F7B500",
+   "names": {
+    "es-AR": "Amarillo tráfico",
+    "en": "Traffic yellow",
+    "pt-BR": "Amarelo tráfego",
+    "ru": "Транспортный жёлтый"
+   }
+  },
+  {
+   "ral": "RAL 2000",
+   "hex": "#DD7907",
+   "names": {
+    "es-AR": "Amarillo naranja",
+    "en": "Yellow orange",
+    "pt-BR": "Amarelo alaranjado",
+    "ru": "Жёлто-оранжевый"
+   }
+  },
+  {
+   "ral": "RAL 2004",
+   "hex": "#E25303",
+   "names": {
+    "es-AR": "Naranja puro",
+    "en": "Pure orange",
+    "pt-BR": "Laranja puro",
+    "ru": "Чистый оранжевый"
+   }
+  },
+  {
+   "ral": "RAL 2009",
+   "hex": "#DE5308",
+   "names": {
+    "es-AR": "Naranja tráfico",
+    "en": "Traffic orange",
+    "pt-BR": "Laranja tráfego",
+    "ru": "Транспортный оранжевый"
+   }
+  },
+  {
+   "ral": "RAL 2011",
+   "hex": "#EC7C25",
+   "names": {
+    "es-AR": "Naranja intenso",
+    "en": "Deep orange",
+    "pt-BR": "Laranja profundo",
+    "ru": "Насыщенный оранжевый"
+   }
+  },
+  {
+   "ral": "RAL 3000",
+   "hex": "#A72920",
+   "names": {
+    "es-AR": "Rojo vivo",
+    "en": "Flame red",
+    "pt-BR": "Vermelho fogo",
+    "ru": "Огненно-красный"
+   }
+  },
+  {
+   "ral": "RAL 3002",
+   "hex": "#A2231D",
+   "names": {
+    "es-AR": "Rojo carmín",
+    "en": "Carmine red",
+    "pt-BR": "Vermelho carmim",
+    "ru": "Карминно-красный"
+   }
+  },
+  {
+   "ral": "RAL 3003",
+   "hex": "#8D1D2C",
+   "names": {
+    "es-AR": "Rojo rubí",
+    "en": "Ruby red",
+    "pt-BR": "Vermelho rubi",
+    "ru": "Рубиново-красный"
+   }
+  },
+  {
+   "ral": "RAL 3020",
+   "hex": "#C1121C",
+   "names": {
+    "es-AR": "Rojo tráfico",
+    "en": "Traffic red",
+    "pt-BR": "Vermelho tráfego",
+    "ru": "Транспортный красный"
+   }
+  },
+  {
+   "ral": "RAL 5001",
+   "hex": "#1F4764",
+   "names": {
+    "es-AR": "Azul verdoso",
+    "en": "Green blue",
+    "pt-BR": "Azul esverdeado",
+    "ru": "Зелёно-синий"
+   }
+  },
+  {
+   "ral": "RAL 5002",
+   "hex": "#20214F",
+   "names": {
+    "es-AR": "Azul ultramar",
+    "en": "Ultramarine blue",
+    "pt-BR": "Azul ultramarino",
+    "ru": "Ультрамариново-синий"
+   }
+  },
+  {
+   "ral": "RAL 5005",
+   "hex": "#154889",
+   "names": {
+    "es-AR": "Azul señales",
+    "en": "Signal blue",
+    "pt-BR": "Azul sinal",
+    "ru": "Сигнальный синий"
+   }
+  },
+  {
+   "ral": "RAL 5009",
+   "hex": "#025669",
+   "names": {
+    "es-AR": "Azul azur",
+    "en": "Azure blue",
+    "pt-BR": "Azul celeste",
+    "ru": "Лазурно-синий"
+   }
+  },
+  {
+   "ral": "RAL 5010",
+   "hex": "#13447C",
+   "names": {
+    "es-AR": "Azul genciana",
+    "en": "Gentian blue",
+    "pt-BR": "Azul genciana",
+    "ru": "Горечавково-синий"
+   }
+  },
+  {
+   "ral": "RAL 5012",
+   "hex": "#3B83BD",
+   "names": {
+    "es-AR": "Azul luminoso",
+    "en": "Light blue",
+    "pt-BR": "Azul claro",
+    "ru": "Голубой"
+   }
+  },
+  {
+   "ral": "RAL 5015",
+   "hex": "#2271B3",
+   "names": {
+    "es-AR": "Azul celeste",
+    "en": "Sky blue",
+    "pt-BR": "Azul céu",
+    "ru": "Небесно-синий"
+   }
+  },
+  {
+   "ral": "RAL 5017",
+   "hex": "#063971",
+   "names": {
+    "es-AR": "Azul tráfico",
+    "en": "Traffic blue",
+    "pt-BR": "Azul tráfego",
+    "ru": "Транспортный синий"
+   }
+  },
+  {
+   "ral": "RAL 5020",
+   "hex": "#1D334A",
+   "names": {
+    "es-AR": "Azul océano",
+    "en": "Ocean blue",
+    "pt-BR": "Azul oceano",
+    "ru": "Океанская синь"
+   }
+  },
+  {
+   "ral": "RAL 5021",
+   "hex": "#256D7B",
+   "names": {
+    "es-AR": "Azul agua",
+    "en": "Water blue",
+    "pt-BR": "Azul água",
+    "ru": "Водная синь"
+   }
+  },
+  {
+   "ral": "RAL 5024",
+   "hex": "#5D9B9B",
+   "names": {
+    "es-AR": "Azul pastel",
+    "en": "Pastel blue",
+    "pt-BR": "Azul pastel",
+    "ru": "Пастельно-синий"
+   }
+  },
+  {
+   "ral": "RAL 6004",
+   "hex": "#1F3A3D",
+   "names": {
+    "es-AR": "Verde azulado",
+    "en": "Blue green",
+    "pt-BR": "Verde azulado",
+    "ru": "Сине-зелёный"
+   }
+  },
+  {
+   "ral": "RAL 6005",
+   "hex": "#2F4538",
+   "names": {
+    "es-AR": "Verde musgo",
+    "en": "Moss green",
+    "pt-BR": "Verde musgo",
+    "ru": "Зелёный мох"
+   }
+  },
+  {
+   "ral": "RAL 6011",
+   "hex": "#587246",
+   "names": {
+    "es-AR": "Verde reseda",
+    "en": "Reseda green",
+    "pt-BR": "Verde reseda",
+    "ru": "Резедово-зелёный"
+   }
+  },
+  {
+   "ral": "RAL 6018",
+   "hex": "#57A639",
+   "names": {
+    "es-AR": "Verde amarillento",
+    "en": "Yellow green",
+    "pt-BR": "Verde amarelado",
+    "ru": "Жёлто-зелёный"
+   }
+  },
+  {
+   "ral": "RAL 6026",
+   "hex": "#015D52",
+   "names": {
+    "es-AR": "Verde ópalo",
+    "en": "Opal green",
+    "pt-BR": "Verde opala",
+    "ru": "Опаловый зелёный"
+   }
+  },
+  {
+   "ral": "RAL 6029",
+   "hex": "#20603D",
+   "names": {
+    "es-AR": "Verde menta",
+    "en": "Mint green",
+    "pt-BR": "Verde menta",
+    "ru": "Мятно-зелёный"
+   }
+  },
+  {
+   "ral": "RAL 6032",
+   "hex": "#317F43",
+   "names": {
+    "es-AR": "Verde señales",
+    "en": "Signal green",
+    "pt-BR": "Verde sinal",
+    "ru": "Сигнальный зелёный"
+   }
+  },
+  {
+   "ral": "RAL 7016",
+   "hex": "#293133",
+   "names": {
+    "es-AR": "Gris antracita",
+    "en": "Anthracite grey",
+    "pt-BR": "Cinza antracite",
+    "ru": "Антрацитово-серый"
+   }
+  },
+  {
+   "ral": "RAL 7021",
+   "hex": "#23282B",
+   "names": {
+    "es-AR": "Gris negruzco",
+    "en": "Black grey",
+    "pt-BR": "Cinza negro",
+    "ru": "Чёрно-серый"
+   }
+  },
+  {
+   "ral": "RAL 7024",
+   "hex": "#474A51",
+   "names": {
+    "es-AR": "Gris grafito",
+    "en": "Graphite grey",
+    "pt-BR": "Cinza grafite",
+    "ru": "Графитовый серый"
+   }
+  },
+  {
+   "ral": "RAL 7035",
+   "hex": "#D7D7D7",
+   "names": {
+    "es-AR": "Gris luminoso",
+    "en": "Light grey",
+    "pt-BR": "Cinza claro",
+    "ru": "Светло-серый"
+   }
+  },
+  {
+   "ral": "RAL 7040",
+   "hex": "#9DA1AA",
+   "names": {
+    "es-AR": "Gris ventana",
+    "en": "Window grey",
+    "pt-BR": "Cinza janela",
+    "ru": "Серое окно"
+   }
+  },
+  {
+   "ral": "RAL 7042",
+   "hex": "#8D948D",
+   "names": {
+    "es-AR": "Gris tráfico A",
+    "en": "Traffic grey A",
+    "pt-BR": "Cinza tráfego A",
+    "ru": "Транспортный серый A"
+   }
+  },
+  {
+   "ral": "RAL 8004",
+   "hex": "#8E402A",
+   "names": {
+    "es-AR": "Pardo cobrizo",
+    "en": "Copper brown",
+    "pt-BR": "Castanho cobre",
+    "ru": "Медно-коричневый"
+   }
+  },
+  {
+   "ral": "RAL 8017",
+   "hex": "#45322E",
+   "names": {
+    "es-AR": "Marrón chocolate",
+    "en": "Chocolate brown",
+    "pt-BR": "Castanho chocolate",
+    "ru": "Шоколадно-коричневый"
+   }
+  },
+  {
+   "ral": "RAL 9005",
+   "hex": "#0A0A0A",
+   "names": {
+    "es-AR": "Negro intenso",
+    "en": "Jet black",
+    "pt-BR": "Preto intenso",
+    "ru": "Чёрный янтарь"
+   }
+  },
+  {
+   "ral": "RAL 9006",
+   "hex": "#A5A5A5",
+   "names": {
+    "es-AR": "Aluminio blanco",
+    "en": "White aluminium",
+    "pt-BR": "Alumínio branco",
+    "ru": "Бело-алюминиевый"
+   }
+  },
+  {
+   "ral": "RAL 9010",
+   "hex": "#F7F7F2",
+   "names": {
+    "es-AR": "Blanco puro",
+    "en": "Pure white",
+    "pt-BR": "Branco puro",
+    "ru": "Чистый белый"
+   }
+  },
+  {
+   "ral": "RAL 9016",
+   "hex": "#F6F6F6",
+   "names": {
+    "es-AR": "Blanco tráfico",
+    "en": "Traffic white",
+    "pt-BR": "Branco tráfego",
+    "ru": "Транспортный белый"
+   }
+  }
+ ]
+}

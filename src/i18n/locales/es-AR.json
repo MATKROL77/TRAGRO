@@ -1,0 +1,393 @@
+{
+  "app": {
+    "title": "Configurador 3D de sembradoras",
+    "loading": "Preparando tu sembradora…",
+    "demoBadge": "Valores de demostración",
+    "noWebglTitle": "Tu navegador no puede mostrar el 3D",
+    "noWebglBody": "Igual podés configurar la máquina, ver el precio, calcular el rendimiento y pedir la cotización. Para ver el 3D, probá con Chrome, Edge, Safari o Firefox actualizados.",
+    "contextLost": "El visor 3D se reinició para liberar memoria.",
+    "error": "Algo salió mal en el visor. Recargá la página para seguir.",
+    "skipToPanel": "Ir al panel de configuración"
+  },
+  "steps": {
+    "model": { "name": "Modelo", "hint": "Elegí el modelo según el ancho que necesitás." },
+    "rows": { "name": "Surcos", "hint": "Cantidad de surcos y distancia entre hileras." },
+    "transport": { "name": "Transporte", "hint": "Cómo viaja por la ruta." },
+    "hoppers": { "name": "Tolvas", "hint": "Semilla y fertilización." },
+    "rowUnit": { "name": "Tren de siembra", "hint": "Lo que trabaja en el surco." },
+    "tech": { "name": "Tecnología", "hint": "Dosificación, monitor y agricultura de precisión." },
+    "custom": { "name": "Personalizar", "hint": "Colores, logo y texto." }
+  },
+  "nav": { "next": "Siguiente", "back": "Anterior", "step": "Paso {n} de {total}" },
+  "models": {
+    "sp10c": { "name": "SP 10C", "tier": "Compacta", "desc": "Para lotes chicos y contratistas que se mueven mucho." },
+    "sp16m": { "name": "SP 16M", "tier": "Mediana", "desc": "La más elegida: equilibrio entre capacidad y tractor." },
+    "sp24g": { "name": "SP 24G", "tier": "Grande", "desc": "Alta capacidad para productores de escala." },
+    "sp36xg": { "name": "SP 36XG", "tier": "Gran ancho", "desc": "Máxima capacidad de trabajo por jornada." },
+    "rowsRange": "{min}–{max} surcos",
+    "from": "desde"
+  },
+  "rows": {
+    "count": "Cantidad de surcos",
+    "spacing": "Distancia entre hileras",
+    "width": "Ancho de labor",
+    "decrease": "Quitar un surco",
+    "increase": "Agregar un surco",
+    "formula": "{rows} surcos × {spacing}"
+  },
+  "groups": {
+    "transport": { "name": "Sistema de transporte" },
+    "transportWheels": { "name": "Ruedas de transporte" },
+    "seedHopper": { "name": "Tolvas de semilla" },
+    "seedCapacity": { "name": "Capacidad de semilla" },
+    "fertilizer": { "name": "Fertilización" },
+    "fertCapacity": { "name": "Capacidad de fertilizante" },
+    "coulter": { "name": "Cuchilla de corte" },
+    "closing": { "name": "Ruedas tapadoras" },
+    "firmer": { "name": "Apretador de semilla" },
+    "downforce": { "name": "Presión descendente" },
+    "metering": { "name": "Dosificación" },
+    "monitor": { "name": "Monitor de siembra" },
+    "sectionControl": { "name": "Corte surco a surco" },
+    "variableRate": { "name": "Dosis variable" },
+    "isobus": { "name": "Compatibilidad ISOBUS" },
+    "autosteer": { "name": "Piloto automático" }
+  },
+  "options": {
+    "transport": {
+      "fold": { "name": "Plegado de alas", "desc": "Las alas se pliegan hacia arriba con cilindros hidráulicos." },
+      "longitudinal": { "name": "Transporte longitudinal", "desc": "La máquina gira 90° sobre su tren de ruedas y viaja de punta. Angosta y segura en la ruta." }
+    },
+    "transportWheels": {
+      "standard": { "name": "Estándar", "desc": "Neumáticos agrícolas de taco alto." },
+      "flotation": { "name": "Alta flotación", "desc": "Neumáticos anchos: menos compactación y mejor piso en lotes húmedos." }
+    },
+    "seedHopper": {
+      "individual": { "name": "Tolvas individuales", "desc": "Una tolva por surco, simple y robusta." },
+      "central": { "name": "Tolva central neumática", "desc": "Una sola tolva grande y distribución por aire a cada surco. Cargás más rápido." }
+    },
+    "seedCapacity": {
+      "std": { "name": "Estándar", "desc": "60 L por surco o 1.800 L central." },
+      "large": { "name": "Grande", "desc": "80 L por surco o 2.600 L central. Más hectáreas entre cargas." }
+    },
+    "fertilizer": {
+      "none": { "name": "Sin fertilización", "desc": "Sólo semilla." },
+      "inline": { "name": "Fertilización en línea", "desc": "El fertilizante cae en el mismo surco, detrás de la cuchilla." },
+      "side": { "name": "Fertilización al costado", "desc": "Un disco aparte deja el fertilizante a 5 cm de la semilla, sin quemarla." }
+    },
+    "fertCapacity": {
+      "std": { "name": "1.800 L", "desc": "Tolva central con tapa, escalera y pasarela." },
+      "large": { "name": "2.800 L", "desc": "Menos paradas para cargar en lotes grandes." }
+    },
+    "coulter": {
+      "turbo": { "name": "Turbo", "desc": "Corta el rastrojo y remueve poco el suelo. Ideal en siembra directa." },
+      "wavy": { "name": "Ondulada", "desc": "Prepara una franja más ancha. Ayuda en suelos fríos o con mucho rastrojo." }
+    },
+    "closing": {
+      "rubber": { "name": "De goma", "desc": "Cierre suave, para suelos livianos." },
+      "castiron": { "name": "De fundición", "desc": "Más peso para cerrar bien el surco en suelos pesados." },
+      "spiked": { "name": "Con dientes", "desc": "Desmenuzan la pared del surco y evitan bolsas de aire." }
+    },
+    "firmer": {
+      "off": { "name": "Sin apretador", "desc": "" },
+      "on": { "name": "Con apretador", "desc": "Asienta la semilla en el fondo del surco: emergencia más pareja." }
+    },
+    "downforce": {
+      "spring": { "name": "Resortes", "desc": "Presión mecánica regulable por cuerpo." },
+      "pneumatic": { "name": "Neumática (bolsas de aire)", "desc": "Presión pareja en todo el ancho, regulable desde la cabina." }
+    },
+    "metering": {
+      "chain": { "name": "Mecánica por cadena", "desc": "Simple, probada y fácil de reparar en el campo." },
+      "shaft": { "name": "Mecánica por cardán", "desc": "Sin cadenas expuestas, menos mantenimiento." },
+      "pneumatic": { "name": "Neumática de vacío", "desc": "Placas de vacío: distribución muy precisa, semilla por semilla." },
+      "electric": { "name": "Eléctrica, motor por surco", "desc": "Cada surco tiene su motor: permite corte surco a surco y dosis variable." }
+    },
+    "monitor": {
+      "basic": { "name": "Básico", "desc": "Fallas y densidad por surco." },
+      "advanced": { "name": "Avanzado", "desc": "Pantalla táctil con mapas, cortes y registro de lotes." }
+    },
+    "sectionControl": {
+      "off": { "name": "No", "desc": "" },
+      "on": { "name": "Sí", "desc": "Apaga cada surco al entrar en una cabecera ya sembrada: menos superposición y ahorro de semilla." }
+    },
+    "variableRate": {
+      "off": { "name": "No", "desc": "" },
+      "on": { "name": "Preparada", "desc": "Cambia la densidad según el ambiente del lote, a partir de un mapa de prescripción." }
+    },
+    "isobus": {
+      "off": { "name": "No", "desc": "" },
+      "on": { "name": "Preparada", "desc": "Se maneja desde la terminal compatible del tractor." }
+    },
+    "autosteer": {
+      "off": { "name": "No", "desc": "" },
+      "on": { "name": "Preparada", "desc": "Lista para trabajar con piloto automático: pasadas paralelas y sin solapes." }
+    }
+  },
+  "status": {
+    "standard": "Estándar",
+    "optional": "Opcional",
+    "included": "Incluido",
+    "selected": "Elegido",
+    "disabled": "No disponible",
+    "adjusts": "Al elegirlo se ajusta:",
+    "leadTime": "+{days} días de entrega"
+  },
+  "rules": {
+    "compactFold": "La compacta viaja con las alas plegadas.",
+    "longitudinalAboveWidth": "Con más de 10,5 m de ancho, la máquina sólo puede viajar en transporte longitudinal.",
+    "centralNeedsAirMeter": "La tolva central necesita dosificación neumática o eléctrica.",
+    "sectionNeedsElectric": "El corte surco a surco necesita dosificación eléctrica.",
+    "sectionNeedsAdvancedMonitor": "El corte surco a surco necesita el monitor avanzado.",
+    "variableRateNeedsElectric": "La dosis variable necesita dosificación eléctrica.",
+    "isobusNeedsAdvancedMonitor": "ISOBUS necesita el monitor avanzado.",
+    "pneumaticDownforceTiers": "La presión neumática está disponible en los modelos Grande y Gran ancho.",
+    "rowsRange": "La cantidad de surcos se ajustó al rango del modelo.",
+    "noticeTitle": "Ajustamos tu configuración",
+    "changed": "{group}: {from} → {to}"
+  },
+  "custom": {
+    "mainColor": "Color principal",
+    "accentColor": "Color de detalles",
+    "brandColors": "Colores de la marca",
+    "ralSearch": "Buscar RAL (por ejemplo, 5010 o «azul»)",
+    "noResults": "Sin resultados",
+    "customPaintNote": "Los colores fuera de la paleta de la marca suman pintura especial.",
+    "logo": "Logo del concesionario o marca blanca",
+    "logoHint": "PNG o SVG. Se aplica como calcomanía en tolvas y bastidor.",
+    "uploadLogo": "Subir logo",
+    "removeLogo": "Quitar logo",
+    "logoError": "No pudimos leer ese archivo. Probá con un PNG o SVG de menos de 2 MB.",
+    "text": "Texto en la máquina (opcional)",
+    "textPlaceholder": "Ej.: Agro Los Talas",
+    "logoNotShared": "El logo no viaja en el link compartido."
+  },
+  "price": {
+    "label": "Precio orientativo",
+    "legendExport": "Precio orientativo FOB, sin impuestos. Sujeto a confirmación del fabricante.",
+    "legendLocal": "Precio orientativo en USD, puesto en fábrica, sin IVA. Sujeto a confirmación del fabricante.",
+    "destination": "Destino",
+    "local": "Comprar en Argentina",
+    "export": "Exportación",
+    "hidden": "Precio a consultar",
+    "breakdown": "Detalle del precio",
+    "base": "Modelo base",
+    "rowsLine": "{rows} surcos",
+    "customPaint": "Pintura especial",
+    "customText": "Ploteo personalizado",
+    "leadTime": "Entrega estimada: {days} días"
+  },
+  "perf": {
+    "title": "Rendimiento",
+    "legend": "Cálculos orientativos.",
+    "width": "Ancho de labor",
+    "speed": "Velocidad",
+    "efficiency": "Eficiencia de campo",
+    "hours": "Horas por jornada",
+    "haH": "Capacidad",
+    "haDay": "Por jornada",
+    "crop": "Cultivo",
+    "seedsPerM": "Semillas por metro",
+    "seedsPerHa": "Semillas por hectárea",
+    "seedKgHa": "Semilla",
+    "fertDose": "Dosis de fertilizante",
+    "seedAutonomy": "Autonomía de semilla",
+    "fertAutonomy": "Autonomía de fertilizante",
+    "weightEmpty": "Peso vacía",
+    "weightLoaded": "Peso cargada",
+    "hp": "Tractor sugerido",
+    "hpUnit": "HP",
+    "perLoad": "por carga",
+    "expand": "Ver más datos",
+    "collapse": "Ver menos",
+    "inputs": "Condiciones de trabajo",
+    "results": "Resultados"
+  },
+  "crops": { "maize": "Maíz", "soy": "Soja", "sunflower": "Girasol", "sorghum": "Sorgo" },
+  "transport": {
+    "title": "Transporte por ruta",
+    "width": "Ancho",
+    "height": "Alto",
+    "length": "Largo del tren (con tractor)",
+    "machineLength": "Largo de la sembradora",
+    "limit": "Límite general {general} · especial {special}",
+    "profile": "Referencia",
+    "profiles": { "AR": "Argentina (referencia)", "INT": "Internacional (referencia)" },
+    "green": "Dentro de los límites generales de circulación.",
+    "yellow": "Supera los límites generales: circula como maquinaria agrícola especial (balizamiento, horarios y permisos).",
+    "red": "Supera los límites de referencia: requiere permiso especial y escolta, o cambiar el sistema de transporte.",
+    "disclaimer": "Límites de referencia de demostración. El fabricante debe confirmarlos con la normativa vigente del país de destino.",
+    "mode": { "fold": "Alas plegadas", "longitudinal": "Longitudinal" }
+  },
+  "toolbar": {
+    "cameras": "Cámaras",
+    "scenes": "Escenas",
+    "cam": {
+      "front34": "3/4 delantero",
+      "side": "Lateral",
+      "rear": "Trasera",
+      "top": "Superior",
+      "rowUnit": "Cuerpo de siembra",
+      "hoppers": "Tolvas",
+      "ground": "A ras del suelo"
+    },
+    "env": { "studio": "Estudio", "field": "Campo", "road": "Ruta" },
+    "sow": "Ver sembrando",
+    "stopSow": "Detener",
+    "fold": "Plegar para transporte",
+    "unfold": "Posición de trabajo",
+    "toTransport": "Pasar a transporte",
+    "detail": "Ver cuerpo de siembra",
+    "exitDetail": "Volver a la máquina",
+    "explode": "Despiece",
+    "assemble": "Armar",
+    "fullscreen": "Pantalla completa",
+    "exitFullscreen": "Salir de pantalla completa",
+    "screenshot": "Captura PNG",
+    "tractor": "Tractor",
+    "hotspots": "Puntos técnicos",
+    "autoFocus": "Acercar al cambiar opciones",
+    "stubble": { "soy": "Rastrojo de soja", "maize": "Rastrojo de maíz" },
+    "more": "Más"
+  },
+  "hotspots": {
+    "coulter": { "title": "Cuchilla de corte", "body": "Corta el rastrojo antes de que lleguen los discos: el surco queda limpio y la semilla no se mezcla con la paja." },
+    "discs": { "title": "Doble disco desencontrado", "body": "Abre un surco en V parejo, aun con mucho rastrojo, y deja la semilla a la profundidad justa." },
+    "gauge": { "title": "Ruedas limitadoras", "body": "Copian el terreno a los dos lados del surco. Así la profundidad es la misma en lomas y bajos." },
+    "meter": { "title": "Dosificador", "body": "Pone cada semilla a la distancia elegida. Con dosificación eléctrica permite corte surco a surco y dosis variable." },
+    "closing": { "title": "Ruedas tapadoras", "body": "Cierran el surco y aseguran el contacto entre la semilla y el suelo para una emergencia pareja." },
+    "hoppers": { "title": "Tolvas", "body": "Más capacidad significa menos paradas para cargar y más hectáreas por jornada." },
+    "transport": { "title": "Sistema de transporte", "body": "Pasa de trabajo a ruta en minutos, sin herramientas, desde la cabina del tractor." },
+    "monitor": { "title": "Monitor de siembra", "body": "Avisa al instante si un surco falla o se tapa. Ves la densidad real en cada surco." }
+  },
+  "detail": {
+    "title": "Cuerpo de siembra",
+    "subtitle": "De adelante hacia atrás",
+    "coulter": "Cuchilla de corte",
+    "coulterSpring": "Resorte de la cuchilla",
+    "fertOpener": "Abresurco de fertilizante",
+    "discs": "Doble disco desencontrado",
+    "gauge": "Ruedas limitadoras",
+    "meter": "Dosificador",
+    "seedTube": "Tubo de bajada",
+    "hopper": "Tolva",
+    "firmer": "Apretador de semilla",
+    "closing": "Ruedas tapadoras",
+    "downforce": "Presión descendente",
+    "linkage": "Paralelogramo"
+  },
+  "sim": {
+    "title": "Sembrando",
+    "speed": "Velocidad",
+    "haH": "Capacidad",
+    "seedsPerM": "Semillas/m",
+    "rowsActive": "Surcos activos",
+    "headland": "Cabecera ya sembrada",
+    "saving": "Ahorro en esta cabecera",
+    "overlap": "Superposición",
+    "sectionOn": "Corte surco a surco activo",
+    "sectionOff": "Sin corte surco a surco: hay superposición",
+    "tryIt": "Activá el corte surco a surco para ver el ahorro"
+  },
+  "actions": {
+    "summary": "Resumen",
+    "quote": "Pedir cotización",
+    "compare": "Comparar A/B",
+    "share": "Compartir",
+    "copyLink": "Copiar link",
+    "copied": "¡Link copiado!",
+    "pdf": "Descargar PDF",
+    "pdfWorking": "Generando PDF…",
+    "close": "Cerrar",
+    "resetDemo": "Reiniciar demo",
+    "reset": "Volver a la configuración inicial",
+    "saveA": "Guardar como A",
+    "saveB": "Guardar como B",
+    "loadThis": "Usar esta",
+    "hidePrices": "Ocultar precios",
+    "showPrices": "Mostrar precios",
+    "menu": "Menú",
+    "language": "Idioma",
+    "units": "Unidades"
+  },
+  "units": { "metric": "Métrico", "imperial": "Imperial" },
+  "langNames": { "es-AR": "Español", "en": "English", "pt-BR": "Português", "ru": "Русский" },
+  "summary": {
+    "title": "Resumen de tu sembradora",
+    "configNumber": "Configuración n.º",
+    "choices": "Configuración",
+    "performance": "Rendimiento",
+    "transport": "Transporte",
+    "renders": "Vistas",
+    "rendering": "Generando vistas…",
+    "date": "Fecha",
+    "views": { "front34": "3/4 delantero", "top": "Superior", "transport": "Transporte" }
+  },
+  "compare": {
+    "title": "Comparar configuraciones",
+    "empty": "Guardá la configuración actual como A o B para compararlas.",
+    "slotA": "Opción A",
+    "slotB": "Opción B",
+    "current": "Actual",
+    "price": "Precio",
+    "width": "Ancho de labor",
+    "haH": "Capacidad",
+    "weight": "Peso vacía",
+    "hp": "Tractor sugerido",
+    "transport": "Transporte",
+    "better": "mejor"
+  },
+  "quote": {
+    "title": "Pedir cotización",
+    "intro": "Te respondemos con la cotización formal y las condiciones de entrega a tu país.",
+    "name": "Nombre y apellido",
+    "company": "Empresa o establecimiento",
+    "country": "País",
+    "region": "Provincia, estado o región",
+    "hectares": "Hectáreas que siembra por año (opcional)",
+    "phone": "Teléfono (con código de país)",
+    "email": "Email",
+    "message": "Comentarios (opcional)",
+    "sendWhatsapp": "Enviar por WhatsApp",
+    "sendEmail": "Enviar por email",
+    "required": "Completá este dato.",
+    "invalidEmail": "Revisá el email.",
+    "invalidPhone": "Incluí el código de país, por ejemplo +54 9 341 555 0000.",
+    "sent": "¡Listo! Se abrió {channel} con tu consulta.",
+    "privacy": "Usamos estos datos sólo para responder tu consulta.",
+    "waGreeting": "Hola, quiero cotizar esta sembradora:",
+    "waFooter": "Ver la configuración en 3D:",
+    "subject": "Cotización sembradora {model} — {number}"
+  },
+  "pdf": {
+    "title": "Cotización orientativa",
+    "subtitle": "Sembradora de siembra directa de precisión",
+    "number": "Configuración n.º",
+    "date": "Fecha",
+    "validity": "Validez de la propuesta: 15 días",
+    "configuration": "Configuración",
+    "performance": "Rendimiento estimado",
+    "transport": "Transporte",
+    "price": "Precio orientativo",
+    "item": "Ítem",
+    "selection": "Elección",
+    "amount": "Importe",
+    "total": "Total",
+    "contact": "Contacto",
+    "conditions": "Condiciones",
+    "demoNote": "Documento de demostración. Valores técnicos y precios de ejemplo, sujetos a confirmación del fabricante.",
+    "page": "Página {n} de {total}",
+    "link": "Configuración en línea"
+  },
+  "feria": {
+    "attract": "Tocá la pantalla para armar tu sembradora",
+    "demo": "Demostración automática",
+    "shortcuts": "Atajos: 1–7 cámaras · C campo · E estudio · R ruta · T transporte · D cuerpo · P precios · 0 reiniciar"
+  },
+  "a11y": {
+    "viewer": "Visor 3D de la sembradora",
+    "panel": "Panel de configuración",
+    "priceLive": "Precio actualizado",
+    "close": "Cerrar",
+    "open": "Abrir"
+  }
+}

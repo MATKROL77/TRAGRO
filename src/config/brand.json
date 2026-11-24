@@ -1,0 +1,26 @@
+{
+  "_demo": "Marca FICTICIA de demostración. Reemplazar por la del fabricante.",
+  "name": "Surco Pampeano",
+  "short": "SP",
+  "tagline": { "es-AR": "Sembradoras de siembra directa", "en": "No-till precision planters", "pt-BR": "Plantadeiras de plantio direto", "ru": "Сеялки прямого посева" },
+  "logo": "/brand/logo.svg",
+  "colors": {
+    "primary": "#1E4D5C",
+    "primaryDark": "#123440",
+    "accent": "#E8792B",
+    "ink": "#14212B",
+    "paper": "#F4F2EE"
+  },
+  "machinePalette": [
+    { "ral": "brand", "hex": "#1E4D5C", "name": "Azul petróleo SP" },
+    { "ral": "brand-accent", "hex": "#E8792B", "name": "Naranja SP" }
+  ],
+  "whatsapp": "5493424000000",
+  "email": "ventas@surcopampeano.example",
+  "phone": "+54 342 400-0000",
+  "web": "surcopampeano.example",
+  "address": "Parque Industrial (demo) · Santa Fe · Argentina",
+  "pdfFooter": { "es-AR": "Surco Pampeano es una marca ficticia de demostración.", "en": "Surco Pampeano is a fictitious demo brand.", "pt-BR": "Surco Pampeano é uma marca fictícia de demonstração.", "ru": "Surco Pampeano — вымышленная демонстрационная марка." },
+  "languages": ["es-AR", "en", "pt-BR", "ru"],
+  "defaultLanguage": "es-AR"
+}

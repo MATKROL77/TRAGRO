@@ -1,0 +1,103 @@
+{
+  "_demo": "Catálogo DEMO. Los ids son estables: los nombres y descripciones visibles están en src/i18n/locales/*.json bajo catalog.*",
+  "family": "seeder",
+  "spacingsCm": [35, 38, 42, 52.5, 70],
+  "models": [
+    { "id": "sp10c", "tier": "compact", "rowsMin": 7, "rowsMax": 13, "defaultRows": 10, "defaultSpacingCm": 52.5, "maxWidthM": 7.0, "baseWeightKg": 2400, "weightPerRowKg": 210, "leadTimeDays": 45 },
+    { "id": "sp16m", "tier": "medium", "rowsMin": 12, "rowsMax": 20, "defaultRows": 16, "defaultSpacingCm": 52.5, "maxWidthM": 10.5, "baseWeightKg": 3100, "weightPerRowKg": 230, "leadTimeDays": 60 },
+    { "id": "sp24g", "tier": "large", "rowsMin": 18, "rowsMax": 28, "defaultRows": 22, "defaultSpacingCm": 52.5, "maxWidthM": 13.7, "baseWeightKg": 4300, "weightPerRowKg": 245, "leadTimeDays": 75 },
+    { "id": "sp36xg", "tier": "xl", "rowsMin": 26, "rowsMax": 42, "defaultRows": 32, "defaultSpacingCm": 52.5, "maxWidthM": 18.5, "baseWeightKg": 6200, "weightPerRowKg": 255, "leadTimeDays": 90 }
+  ],
+  "steps": [
+    { "id": "model", "groups": [] },
+    { "id": "rows", "groups": [] },
+    { "id": "transport", "groups": ["transport", "transportWheels"], "focus": "transport" },
+    { "id": "hoppers", "groups": ["seedHopper", "seedCapacity", "fertilizer", "fertCapacity"], "focus": "hoppers" },
+    { "id": "rowUnit", "groups": ["coulter", "closing", "firmer", "downforce"], "focus": "rowUnit" },
+    { "id": "tech", "groups": ["metering", "monitor", "sectionControl", "variableRate", "isobus", "autosteer"], "focus": "meter" },
+    { "id": "custom", "groups": [] }
+  ],
+  "groups": [
+    { "id": "transport", "type": "single", "default": "longitudinal", "geometric": true, "focus": "transport",
+      "options": [
+        { "id": "fold", "standard": true, "weightKg": 600 },
+        { "id": "longitudinal", "standard": false, "weightKg": 950, "leadTimeDays": 10 }
+      ] },
+    { "id": "transportWheels", "type": "single", "default": "standard", "geometric": true, "focus": "wheels",
+      "options": [
+        { "id": "standard", "standard": true, "weightKg": 0 },
+        { "id": "flotation", "standard": false, "weightKg": 120 }
+      ] },
+    { "id": "seedHopper", "type": "single", "default": "individual", "geometric": true, "focus": "hoppers",
+      "options": [
+        { "id": "individual", "standard": true, "weightKg": 0 },
+        { "id": "central", "standard": false, "weightKg": 650, "leadTimeDays": 7 }
+      ] },
+    { "id": "seedCapacity", "type": "single", "default": "std", "geometric": true, "focus": "hoppers",
+      "options": [
+        { "id": "std", "standard": true, "weightKg": 0, "attrs": { "individualL": 60, "centralL": 1800 } },
+        { "id": "large", "standard": false, "weightKg": 0, "weightPerRowKg": 3, "attrs": { "individualL": 80, "centralL": 2600 } }
+      ] },
+    { "id": "fertilizer", "type": "single", "default": "side", "geometric": true, "focus": "fert",
+      "options": [
+        { "id": "none", "standard": true, "weightKg": 0 },
+        { "id": "inline", "standard": false, "weightKg": 450, "weightPerRowKg": 18 },
+        { "id": "side", "standard": false, "weightKg": 450, "weightPerRowKg": 45 }
+      ] },
+    { "id": "fertCapacity", "type": "single", "default": "std", "geometric": true, "focus": "fert",
+      "visibleIf": { "sel": { "fertilizer": ["inline", "side"] } },
+      "options": [
+        { "id": "std", "standard": true, "weightKg": 0, "attrs": { "liters": 1800 } },
+        { "id": "large", "standard": false, "weightKg": 260, "attrs": { "liters": 2800 } }
+      ] },
+    { "id": "coulter", "type": "single", "default": "turbo", "geometric": true, "focus": "coulter",
+      "options": [
+        { "id": "turbo", "standard": true, "weightKg": 0 },
+        { "id": "wavy", "standard": false, "weightKg": 0, "weightPerRowKg": 1 }
+      ] },
+    { "id": "closing", "type": "single", "default": "castiron", "geometric": true, "focus": "closing",
+      "options": [
+        { "id": "rubber", "standard": true, "weightKg": 0 },
+        { "id": "castiron", "standard": false, "weightKg": 0, "weightPerRowKg": 22 },
+        { "id": "spiked", "standard": false, "weightKg": 0, "weightPerRowKg": 18 }
+      ] },
+    { "id": "firmer", "type": "toggle", "default": "off", "geometric": true, "focus": "rowUnit",
+      "options": [
+        { "id": "off", "standard": true, "weightKg": 0 },
+        { "id": "on", "standard": false, "weightKg": 0, "weightPerRowKg": 3 }
+      ] },
+    { "id": "downforce", "type": "single", "default": "spring", "geometric": true, "focus": "downforce",
+      "options": [
+        { "id": "spring", "standard": true, "weightKg": 0 },
+        { "id": "pneumatic", "standard": false, "weightKg": 350, "weightPerRowKg": 12, "leadTimeDays": 15 }
+      ] },
+    { "id": "metering", "type": "single", "default": "pneumatic", "geometric": true, "focus": "meter",
+      "options": [
+        { "id": "chain", "standard": true, "weightKg": 0 },
+        { "id": "shaft", "standard": false, "weightKg": 60 },
+        { "id": "pneumatic", "standard": false, "weightKg": 180, "weightPerRowKg": 6 },
+        { "id": "electric", "standard": false, "weightKg": 80, "weightPerRowKg": 9, "leadTimeDays": 10 }
+      ] },
+    { "id": "monitor", "type": "single", "default": "basic", "geometric": false, "focus": "monitor",
+      "options": [
+        { "id": "basic", "standard": true, "weightKg": 0 },
+        { "id": "advanced", "standard": false, "weightKg": 4 }
+      ] },
+    { "id": "sectionControl", "type": "toggle", "default": "off", "geometric": false, "focus": "meter",
+      "options": [ { "id": "off", "standard": true, "weightKg": 0 }, { "id": "on", "standard": false, "weightKg": 0 } ] },
+    { "id": "variableRate", "type": "toggle", "default": "off", "geometric": false, "focus": "meter",
+      "options": [ { "id": "off", "standard": true, "weightKg": 0 }, { "id": "on", "standard": false, "weightKg": 0 } ] },
+    { "id": "isobus", "type": "toggle", "default": "off", "geometric": false, "focus": "monitor",
+      "options": [ { "id": "off", "standard": true, "weightKg": 0 }, { "id": "on", "standard": false, "weightKg": 2 } ] },
+    { "id": "autosteer", "type": "toggle", "default": "off", "geometric": false, "focus": "monitor",
+      "options": [ { "id": "off", "standard": true, "weightKg": 0 }, { "id": "on", "standard": false, "weightKg": 0 } ] }
+  ],
+  "defaultConfig": {
+    "model": "sp16m",
+    "rows": 16,
+    "spacingCm": 52.5,
+    "selections": {},
+    "colors": { "main": "#1E4D5C", "accent": "#E8792B", "mainRal": "brand", "accentRal": "brand" },
+    "text": ""
+  }
+}

@@ -1,0 +1,13 @@
+{
+  "_doc": "Reglas de compatibilidad. if = condición (model/tier/widthGt/widthLte/rowsGt/sel). then = grupo y opciones permitidas. revert = qué se cambia si el usuario elige una opción del grupo 'then' que contradice la regla (la última elección del usuario gana). messageKey en i18n: rules.<id>",
+  "rules": [
+    { "id": "compactFold", "if": { "tier": ["compact"] }, "then": { "group": "transport", "allowed": ["fold"] } },
+    { "id": "longitudinalAboveWidth", "if": { "widthGt": 10.5 }, "then": { "group": "transport", "allowed": ["longitudinal"] } },
+    { "id": "centralNeedsAirMeter", "if": { "sel": { "seedHopper": ["central"] } }, "then": { "group": "metering", "allowed": ["pneumatic", "electric"] }, "revert": { "group": "seedHopper", "to": "individual" } },
+    { "id": "sectionNeedsElectric", "if": { "sel": { "sectionControl": ["on"] } }, "then": { "group": "metering", "allowed": ["electric"] }, "revert": { "group": "sectionControl", "to": "off" } },
+    { "id": "sectionNeedsAdvancedMonitor", "if": { "sel": { "sectionControl": ["on"] } }, "then": { "group": "monitor", "allowed": ["advanced"] }, "revert": { "group": "sectionControl", "to": "off" } },
+    { "id": "variableRateNeedsElectric", "if": { "sel": { "variableRate": ["on"] } }, "then": { "group": "metering", "allowed": ["electric"] }, "revert": { "group": "variableRate", "to": "off" } },
+    { "id": "isobusNeedsAdvancedMonitor", "if": { "sel": { "isobus": ["on"] } }, "then": { "group": "monitor", "allowed": ["advanced"] }, "revert": { "group": "isobus", "to": "off" } },
+    { "id": "pneumaticDownforceTiers", "if": { "tier": ["compact", "medium"] }, "then": { "group": "downforce", "allowed": ["spring"] } }
+  ]
+}
