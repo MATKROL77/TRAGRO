@@ -85,8 +85,8 @@ export function parseShareUrl(href: string): Partial<SharedState> {
   return out;
 }
 
-/** Número de configuración estable (hash FNV-1a corto), estilo "SP-26-7F3K2Q". */
-export function configNumber(cfg: Configuration, prefix = 'SP'): string {
+/** Número de configuración estable (hash FNV-1a corto), estilo "UX-26-7F3K2Q". */
+export function configNumber(cfg: Configuration, prefix = 'UX'): string {
   const s = encodeConfig(cfg);
   let h = 0x811c9dc5;
   for (let i = 0; i < s.length; i++) {

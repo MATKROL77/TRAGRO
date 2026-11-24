@@ -47,22 +47,22 @@
   },
   "models": {
     "sp10c": {
-      "name": "SP 10C",
+      "name": "UX 10C",
       "tier": "Compacta",
       "desc": "Para lotes chicos y contratistas que se mueven mucho."
     },
     "sp16m": {
-      "name": "SP 16M",
+      "name": "UX 16M",
       "tier": "Mediana",
       "desc": "La más elegida: equilibrio entre capacidad y tractor."
     },
     "sp24g": {
-      "name": "SP 24G",
+      "name": "UX 24G",
       "tier": "Grande",
       "desc": "Alta capacidad para productores de escala."
     },
     "sp36xg": {
-      "name": "SP 36XG",
+      "name": "UX 36XG",
       "tier": "Gran ancho",
       "desc": "Máxima capacidad de trabajo por jornada."
     },

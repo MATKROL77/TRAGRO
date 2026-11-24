@@ -47,22 +47,22 @@
   },
   "models": {
     "sp10c": {
-      "name": "SP 10C",
+      "name": "UX 10C",
       "tier": "Compact",
       "desc": "For smaller fields and contractors on the move."
     },
     "sp16m": {
-      "name": "SP 16M",
+      "name": "UX 16M",
       "tier": "Mid-size",
       "desc": "Our best seller: the right balance of capacity and tractor size."
     },
     "sp24g": {
-      "name": "SP 24G",
+      "name": "UX 24G",
       "tier": "Large",
       "desc": "High capacity for large-scale growers."
     },
     "sp36xg": {
-      "name": "SP 36XG",
+      "name": "UX 36XG",
       "tier": "Wide",
       "desc": "Maximum acres per day."
     },

@@ -225,7 +225,7 @@ export function brandDecal(opts: {
   ctx.fillStyle = fg;
   ctx.textBaseline = 'alphabetic';
   ctx.font = `800 ${Math.round(H * 0.2)}px Manrope, Inter, system-ui, sans-serif`;
-  ctx.fillText(opts.brandName.toUpperCase(), x, H * 0.3, W - x - 20);
+  ctx.fillText(opts.brandName, x, H * 0.3, W - x - 20);
   ctx.font = `800 ${Math.round(H * 0.25)}px Manrope, Inter, system-ui, sans-serif`;
   ctx.fillStyle = opts.accent;
   ctx.fillText(opts.model, x, H * 0.58, W - x - 20);

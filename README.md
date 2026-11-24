@@ -1,8 +1,8 @@
-# Configurador 3D de sembradoras — Surco Pampeano (demo)
+# Configurador 3D de sembradoras — Umbral_exp (demo)
 
 Configurador 3D en tiempo real de una **sembradora de grano grueso de precisión para siembra directa**, generada 100 % en código (sin modelos descargados). Incluye reglas de compatibilidad, precio en vivo, animación de plegado o giro a transporte longitudinal, simulación de siembra sobre rastrojo con corte surco a surco, calculadoras agronómicas, validación de transporte por ruta, resumen con renders, PDF de cotización, consulta por WhatsApp o email, comparación A/B, link compartible, 4 idiomas, modo feria y modo embebido.
 
-> **Marca y valores de demostración.** "Surco Pampeano" es una marca ficticia. Todos los precios, pesos, fórmulas y límites de transporte son de demo y se editan en JSON (ver `NOTAS.md`).
+> **Marca y valores de demostración.** "Umbral_exp" es una marca ficticia. Todos los precios, pesos, fórmulas y límites de transporte son de demo y se editan en JSON (ver `NOTAS.md`).
 
 ## Correr en local
 

@@ -1,7 +1,7 @@
 {
   "_demo": "Marca FICTICIA de demostración. Reemplazar por la del fabricante.",
-  "name": "Surco Pampeano",
-  "short": "SP",
+  "name": "Umbral_exp",
+  "short": "UX",
   "tagline": { "es-AR": "Sembradoras de siembra directa", "en": "No-till precision planters", "pt-BR": "Plantadeiras de plantio direto", "ru": "Сеялки прямого посева" },
   "logo": "/brand/logo.svg",
   "colors": {
@@ -16,11 +16,11 @@
     { "ral": "brand-accent", "hex": "#E8792B", "name": "Naranja SP" }
   ],
   "whatsapp": "5493424000000",
-  "email": "ventas@surcopampeano.example",
+  "email": "ventas@umbralexp.example",
   "phone": "+54 342 400-0000",
-  "web": "surcopampeano.example",
+  "web": "umbralexp.example",
   "address": "Parque Industrial (demo) · Santa Fe · Argentina",
-  "pdfFooter": { "es-AR": "Surco Pampeano es una marca ficticia de demostración.", "en": "Surco Pampeano is a fictitious demo brand.", "pt-BR": "Surco Pampeano é uma marca fictícia de demonstração.", "ru": "Surco Pampeano — вымышленная демонстрационная марка." },
+  "pdfFooter": { "es-AR": "Umbral_exp es una marca ficticia de demostración.", "en": "Umbral_exp is a fictitious demo brand.", "pt-BR": "Umbral_exp é uma marca fictícia de demonstração.", "ru": "Umbral_exp — вымышленная демонстрационная марка." },
   "languages": ["es-AR", "en", "pt-BR", "ru"],
   "defaultLanguage": "es-AR"
 }

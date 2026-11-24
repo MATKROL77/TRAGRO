@@ -68,7 +68,7 @@ export function App() {
   useShortcuts();
   useEmbedBridge();
   useEffect(() => {
-    document.title = `${t('app.title')} · Surco Pampeano`;
+    document.title = `${t('app.title')} · Umbral_exp`;
   }, [t, lang]);
   return (
     <div className={`app${feria ? ' is-feria' : ''}${embed ? ' is-embed' : ''}`} onPointerDown={touchInteraction}>

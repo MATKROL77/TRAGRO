@@ -14,7 +14,7 @@ test.describe('flujo completo', () => {
     const price0 = await page.locator('.bb-amount').innerText();
 
     // Paso 1: modelo grande → transporte longitudinal obligatorio
-    await page.getByRole('radio', { name: /SP 24G/ }).click();
+    await page.getByRole('radio', { name: /UX 24G/ }).click();
     await page.waitForTimeout(1500);
     expect(await page.locator('.bb-amount').innerText()).not.toBe(price0);
 
@@ -61,7 +61,7 @@ test.describe('flujo completo', () => {
     await page.getByRole('button', { name: 'Summary' }).click();
     await expect(page.locator('.sum-render img').first()).toBeVisible({ timeout: 180_000 });
     const [download] = await Promise.all([page.waitForEvent('download', { timeout: 120_000 }), page.getByTestId('pdf-btn').click()]);
-    expect(download.suggestedFilename()).toMatch(/^SP-\d\d-[A-Z0-9]+\.pdf$/);
+    expect(download.suggestedFilename()).toMatch(/^UX-\d\d-[A-Z0-9]+\.pdf$/);
     const number = await page.locator('.sum-meta strong').innerText();
 
     // Link compartido reconstruye la configuración exacta (incluye idioma y unidades)
