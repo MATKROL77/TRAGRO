@@ -82,6 +82,7 @@ Son reglas de demo, aunque varias salen de la geometría del modelo:
 - **PDF.** Tipografía Helvetica incorporada (no la de la interfaz), para no sumar peso.
 - **Idiomas.** El portugués fue traducido sin revisión de un hablante nativo.
 - **Accesibilidad.** Contraste AA verificado por test sobre los colores de marca, navegación por teclado y labels en el panel. El visor 3D en sí no es operable con lector de pantalla (la información equivalente está en el resumen y la ficha técnica).
+- **Publicación.** Está publicado como Worker + KV (`deploy/publicar.py`), no en Pages: desde el entorno donde se armó, la subida directa a Pages falla porque usa un token temporal propio que el proxy de red reemplaza. Para deploy automático en cada push conviene conectar el repo a Cloudflare Pages desde el panel (ver README). `wrangler.jsonc` queda como alternativa para quien use Wrangler desde su máquina.
 - **Sin persistencia.** No hay login, base de datos ni panel de administración, por diseño.
 
 ## 4. Qué se verificó y cómo

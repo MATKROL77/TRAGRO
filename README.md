@@ -155,13 +155,27 @@ window.addEventListener('message', (e) => {
 Hoy la consulta abre WhatsApp (`wa.me`) o el programa de mail con todo precargado; no hay servidor ni claves.
 El único punto a tocar para integrar un CRM o un webhook es `submitLead()` en `src/lead/submitLead.ts` (está documentado ahí).
 
-## Deploy en Cloudflare Pages
+## Deploy en Cloudflare
 
-1. Conectá el repo en Cloudflare Pages.
+**Publicado en:** https://configurador-semirremolques.matiascolimodio.workers.dev (y `/embed` para iframe).
+
+### Opción A — Workers + KV con token de API (la que está en uso)
+
+```bash
+npm run build
+```
+
+```bash
+CLOUDFLARE_API_TOKEN=tu_token python3 deploy/publicar.py
+```
+
+`deploy/publicar.py` sube `dist/` a un namespace de KV (solo los archivos que cambiaron) y publica el Worker de `deploy/worker.js`, que los sirve con caché, compresión y la ruta `/embed`. No usa Wrangler. El token necesita permisos de edición sobre *Workers Scripts* y *Workers KV Storage*. Con `--limpiar` borra de KV los archivos de versiones anteriores.
+
+### Opción B — Cloudflare Pages conectado al repo (deploy automático en cada push)
+
+1. En el panel de Cloudflare: Workers & Pages → Create → Pages → Connect to Git, y elegí este repo.
 2. Comando de build: `npm run build`. Directorio de salida: `dist`. (El repo trae `.nvmrc` con Node 22.)
 3. Listo: `/embed` funciona con el mismo `index.html` (`public/_redirects`) y `public/_headers` configura la caché.
-
-Alternativa con Workers (assets estáticos): `npm run build` y `npx wrangler deploy` usan `wrangler.jsonc`.
 
 El build es 100 % estático: se puede servir desde cualquier hosting de archivos.
 
@@ -178,6 +192,7 @@ src/three/    generadores paramétricos, materiales, escenas, cámaras, capturas
 src/ui/       paneles, pasos, barra de precio, ficha técnica, modales
 src/pdf/      PDF de cotización (se descarga aparte, bajo demanda)
 src/lead/     armado y envío de la consulta
+deploy/       Worker y script de publicación en Cloudflare (Workers + KV)
 src/i18n/     textos en español y portugués
 tests/        unitarios (Vitest) y de punta a punta (Playwright)
 ```
