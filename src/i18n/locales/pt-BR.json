@@ -571,7 +571,9 @@
     "weight": "Peso vazia",
     "hp": "Trator sugerido",
     "transport": "Transporte",
-    "better": "melhor"
+    "better": "melhor",
+    "cta": "Comparar",
+    "hint": "Salvamos sua configuração atual como A. Mude o que quiser (modelo, linhas, opções) e salve como B para vê-las lado a lado."
   },
   "quote": {
     "title": "Pedir cotação",

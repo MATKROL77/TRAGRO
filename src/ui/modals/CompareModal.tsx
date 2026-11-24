@@ -39,6 +39,7 @@ export default function CompareModal() {
       </>
     }>
       {!s.slots.A && !s.slots.B && <p className="muted">{t('compare.empty')}</p>}
+      {s.slots.A && !s.slots.B && <p className="cmp-hint">{t('compare.hint')}</p>}
       <div className="cmp-wrap">
         <table className="cmp">
           <thead>

@@ -18,7 +18,7 @@
   --shadow: 0 6px 24px rgba(20, 33, 43, 0.12);
   --font: 'Inter Variable', system-ui, -apple-system, 'Segoe UI', sans-serif;
   --display: 'Manrope Variable', 'Inter Variable', system-ui, sans-serif;
-  --side-w: clamp(360px, 30vw, 460px);
+  --side-w: clamp(440px, 34vw, 560px);
   --bar-h: 84px;
   --head-h: 58px;
   color-scheme: light;
@@ -452,3 +452,70 @@ body { background: var(--bg); }
 .loader-bar span { background: var(--primary); }
 .step-nav { border-top-color: var(--line); }
 input[type='range'] { accent-color: var(--primary); }
+
+/* ---------- precio flotante sobre el visor (sin fondo) ---------- */
+.price-float { position: absolute; top: 14px; right: 18px; z-index: 11; width: min(380px, 42%); pointer-events: none; }
+.price-float .price-head { background: transparent; border: 0; padding: 0; gap: 3px; pointer-events: none; text-shadow: 0 1px 2px rgba(255, 255, 255, 0.85), 0 0 12px rgba(239, 234, 225, 0.9); }
+.price-float .price-head button, .price-float .price-head .seg { pointer-events: auto; text-shadow: none; }
+.price-float .ph-top { justify-content: flex-end; gap: 10px; }
+.price-float .ph-main { justify-content: flex-end; align-items: baseline; }
+.price-float .ph-amount { font-size: 32px; }
+.price-float .ph-legend { text-align: right; }
+.price-float .ph-kpis { order: -1; }
+.price-float .ph-actions { margin-top: 6px; }
+.price-float .btn-secondary { background: rgba(250, 248, 244, 0.92); }
+.compare-fab { position: absolute; right: 18px; bottom: 78px; z-index: 11; display: inline-flex; align-items: center; gap: 8px; min-height: 46px; padding: 0 20px; border-radius: 999px; border: 0; background: var(--primary); color: #fff; font-weight: 700; font-size: 14.5px; box-shadow: 0 8px 24px rgba(27, 39, 71, 0.28); }
+.compare-fab:hover { background: var(--primary-d); }
+.cmp-hint { background: #efebe3; border-radius: 10px; padding: 10px 12px; font-size: 14px; }
+/* pasos: nombres completos, sin cortar palabras */
+.step-name { overflow-wrap: normal; word-break: normal; hyphens: none; }
+.step-tab { font-size: 11.5px; padding: 6px 1px; }
+.hs-card { top: 210px; }
+.toast-zone { top: 230px; }
+@media (max-width: 1180px) {
+  .price-float { width: min(340px, 48%); }
+  .price-float .ph-amount { font-size: 26px; }
+}
+@media (max-width: 900px) {
+  .compare-fab { bottom: auto; top: 60px; right: 10px; min-height: 40px; padding: 0 14px; font-size: 13.5px; }
+  .hs-card { top: auto; }
+  .toast-zone { top: 108px; }
+  .step-tab { font-size: 10.5px; }
+}
+
+/* ---------- ajustes de layout del visor ---------- */
+.scene-switch { left: 18px; right: auto; transform: none; top: 14px; }
+.sim, .hs-card, .detail-legend { top: 66px; }
+.compare-fab { bottom: 14px; right: 18px; }
+.toolbar { right: 190px; left: 12px; }
+:root { --side-w: clamp(460px, 36vw, 600px); }
+.step-tab { font-size: 11.5px; }
+:lang(ru) .step-tab, :lang(pt-BR) .step-tab { font-size: 10.5px; letter-spacing: -0.01em; }
+@media (max-width: 1100px) {
+  .toolbar { right: 12px; bottom: 70px; }
+}
+@media (max-width: 900px) {
+  .scene-switch { left: 10px; top: 10px; }
+  .toolbar { right: 0; left: 0; bottom: 26px; }
+  .compare-fab { top: 10px; bottom: auto; right: 10px; }
+  .stepper-nav ol { grid-template-columns: repeat(4, minmax(0, 1fr)); row-gap: 4px; }
+  .step-tab { font-size: 11px; min-height: 48px; }
+}
+
+/* ---------- precio: se acomoda en varias líneas cuando no entra ---------- */
+.ph-top { flex-wrap: wrap; row-gap: 6px; }
+.ph-main { flex-wrap: wrap; row-gap: 2px; }
+.ph-actions .btn { min-width: 0; }
+.price-float { width: auto; max-width: min(420px, calc(100% - 300px)); }
+.price-float .ph-top { flex-direction: column; align-items: flex-end; }
+.price-float .ph-amount { font-size: clamp(22px, 2.3vw, 32px); }
+.price-float .ph-main { justify-content: flex-end; }
+:lang(ru) .stepper-nav ol { grid-template-columns: repeat(4, minmax(0, 1fr)); row-gap: 4px; }
+:lang(ru) .step-tab { font-size: 11px; }
+@media (max-width: 1360px) {
+  .stepper-nav ol { grid-template-columns: repeat(4, minmax(0, 1fr)); row-gap: 4px; }
+}
+@media (max-width: 900px) {
+  .price-head .seg-mini button { padding: 0 8px; }
+  .ph-kpis { font-size: 12px; }
+}

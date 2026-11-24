@@ -571,7 +571,9 @@
     "weight": "Empty weight",
     "hp": "Suggested tractor",
     "transport": "Transport",
-    "better": "better"
+    "better": "better",
+    "cta": "Compare",
+    "hint": "Your current configuration was saved as A. Change anything you like (model, rows, options) and save it as B to see them side by side."
   },
   "quote": {
     "title": "Request a quote",

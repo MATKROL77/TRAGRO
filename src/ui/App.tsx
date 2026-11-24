@@ -6,6 +6,8 @@ import { Header, LangUnitControls } from './Header';
 import { ConfigPanel } from './ConfigPanel';
 import { PerformancePanel } from './PerformancePanel';
 import { PriceHeader } from './BottomBar';
+import { useMediaQuery } from './hooks';
+import { IconCompare } from './icons';
 import { DetailLegend, HotspotCard, LoadingScreen, NoWebGL, NoticeToast, SimPanel, ViewerToolbar } from './ViewerUI';
 import { restartDemo, useEmbedBridge, useFeriaMode, useShortcuts } from './feria';
 import { touchInteraction } from '../three/runtime';
@@ -63,6 +65,7 @@ export function App() {
   const embed = useStore((s) => s.embed);
   const lang = useStore((s) => s.lang);
   const tab = useStore((s) => s.panelTab);
+  const mobile = useMediaQuery('(max-width: 900px)');
   const setTab = useStore((s) => s.setPanelTab);
   useFeriaMode();
   useShortcuts();
@@ -93,9 +96,25 @@ export function App() {
           <HotspotCard />
           <NoticeToast />
           <FeriaOverlay />
+          {!mobile && (
+            <div className="price-float">
+              <PriceHeader />
+            </div>
+          )}
+          <button
+            type="button"
+            className="compare-fab"
+            onClick={() => {
+              const st = useStore.getState();
+              if (!st.slots.A) st.saveSlot('A');
+              st.openModal('compare');
+            }}
+          >
+            <IconCompare size={18} /> {t('compare.cta')}
+          </button>
         </div>
         <aside className="side">
-          <PriceHeader />
+          {mobile && <PriceHeader />}
           <div className="side-tabs seg" role="tablist" aria-label={t('a11y.panel')}>
             <button type="button" role="tab" aria-selected={tab === 'config'} className={tab === 'config' ? 'is-selected' : ''} onClick={() => setTab('config')}>{t('nav.configure')}</button>
             <button type="button" role="tab" aria-selected={tab === 'perf'} className={tab === 'perf' ? 'is-selected' : ''} onClick={() => setTab('perf')}>{t('perf.title')}</button>
