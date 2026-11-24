@@ -203,22 +203,29 @@ export function brandDecal(opts: {
     ctx.drawImage(opts.logo, x, H * 0.08, lw, lh);
     x += lw + 28;
   } else {
-    // logo por defecto: surcos estilizados
+    // logo por defecto: marca "///" blanca sobre círculo azul marino
     ctx.save();
     ctx.translate(x + 80, H * 0.33);
-    ctx.fillStyle = opts.accent;
+    ctx.fillStyle = '#1b2747';
     ctx.beginPath();
     ctx.arc(0, 0, 76, 0, Math.PI * 2);
     ctx.fill();
-    ctx.strokeStyle = '#ffffff';
-    ctx.lineWidth = 11;
-    ctx.lineCap = 'round';
-    for (let i = -1; i <= 1; i++) {
+    ctx.strokeStyle = 'rgba(255,255,255,0.9)';
+    ctx.lineWidth = 4;
+    ctx.stroke();
+    const bar = (bx: number, alpha: number) => {
+      ctx.fillStyle = `rgba(255,255,255,${alpha})`;
       ctx.beginPath();
-      ctx.moveTo(-44, 30 + i * 22);
-      ctx.quadraticCurveTo(0, -10 + i * 22, 44, 30 + i * 22);
-      ctx.stroke();
-    }
+      ctx.moveTo(bx + 10, -40);
+      ctx.lineTo(bx + 26, -40);
+      ctx.lineTo(bx - 4, 40);
+      ctx.lineTo(bx - 20, 40);
+      ctx.closePath();
+      ctx.fill();
+    };
+    bar(-30, 1);
+    bar(0, 1);
+    bar(30, 0.6);
     ctx.restore();
     x += 190;
   }

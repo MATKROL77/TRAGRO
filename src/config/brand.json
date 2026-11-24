@@ -10,8 +10,8 @@
   },
   "logo": "/brand/logo.svg",
   "colors": {
-    "primary": "#1E4D5C",
-    "primaryDark": "#123440",
+    "primary": "#1b2747",
+    "primaryDark": "#111a33",
     "accent": "#E8792B",
     "ink": "#14212B",
     "paper": "#F4F2EE"

@@ -633,3 +633,4 @@ input[type='range'] { accent-color: var(--primary); }
   .pcard .ph-amount { font-size: 20px !important; }
   .pcard .ph-actions { border-top: 0; padding: 6px 14px 10px; }
 }
+.price-float .price-head.pcard { background: rgba(247, 245, 241, 0.98); box-shadow: 0 6px 24px rgba(27, 39, 71, 0.12); }
