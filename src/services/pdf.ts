@@ -50,7 +50,7 @@ export async function generateQuotePdf(input: PdfInput): Promise<Blob> {
   const [reg, bold, logo] = await Promise.all([
     fontBase64(`${base}fonts/NotoSans-Regular.ttf`),
     fontBase64(`${base}fonts/NotoSans-Bold.ttf`),
-    svgToPng(input.logoUrl ?? `${base}brand/logo.svg`),
+    svgToPng(input.logoUrl ?? `${base}brand/logo-umbral.svg`),
   ]);
   const doc: JsPDF = new jsPDF({ unit: 'mm', format: 'a4', compress: true });
   doc.addFileToVFS('NotoSans-Regular.ttf', reg);

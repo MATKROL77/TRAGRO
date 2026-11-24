@@ -22,7 +22,7 @@ export default {
       'Content-Type': TYPES[ext] ?? 'application/octet-stream',
       'X-Content-Type-Options': 'nosniff',
       'Referrer-Policy': 'strict-origin-when-cross-origin',
-      'Cache-Control': path.startsWith('assets/') ? 'public, max-age=31536000, immutable' : path === 'index.html' ? 'no-cache' : 'public, max-age=604800',
+      'Cache-Control': path.startsWith('assets/') ? 'public, max-age=31536000, immutable' : path === 'index.html' ? 'no-cache' : 'public, max-age=3600',
     });
     if (isEmbed) headers.set('Content-Security-Policy', 'frame-ancestors *');
     return new Response(body, { headers });
