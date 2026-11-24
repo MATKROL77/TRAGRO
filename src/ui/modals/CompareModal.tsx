@@ -14,7 +14,7 @@ type Slot = 'a' | 'b';
 
 /** Comparador A/B: dos configuraciones lado a lado con sus diferencias. */
 export default function CompareModal() {
-  const { t, n, money, lang } = useI18n();
+  const { t, money, lang, units, kg } = useI18n();
   const compare = useStore((s) => s.compare);
   const config = useStore((s) => s.config);
   const hide = useStore((s) => s.ui.preciosOcultos);
@@ -24,7 +24,7 @@ export default function CompareModal() {
   const [onlyDiff, setOnlyDiff] = useState(false);
   const close = () => setUi({ modal: null });
 
-  const result = useMemo(() => (compare.a && compare.b ? compareConfigs(compare.a.config, compare.b.config, lang) : null), [compare.a, compare.b, lang]);
+  const result = useMemo(() => (compare.a && compare.b ? compareConfigs(compare.a.config, compare.b.config, lang, units) : null), [compare.a, compare.b, lang, units]);
 
   const saveCurrent = (slot: Slot) => saveSnapshot(slot, { config, thumb: captureThumb(), at: Date.now() });
   const view = (snap: Snapshot) => {
@@ -56,7 +56,7 @@ export default function CompareModal() {
         </div>
         <div className="cmp-info">
           <h3>{typeName(snap.config, lang)}</h3>
-          <p className="muted">{quoteSubtitle(snap.config, lang)}</p>
+          <p className="muted">{quoteSubtitle(snap.config, lang, units)}</p>
           <p className="nota tnum">{configHash(snap.config)}</p>
           <dl className="cmp-kpis">
             {hide ? null : (
@@ -67,11 +67,11 @@ export default function CompareModal() {
             )}
             <div>
               <dt>{t('comparar.tara')}</dt>
-              <dd>{n(specs.taraKg)} kg</dd>
+              <dd>{kg(specs.taraKg)}</dd>
             </div>
             <div>
               <dt>{t('comparar.cargaUtil')}</dt>
-              <dd>{n(specs.cargaUtilKg)} kg</dd>
+              <dd>{kg(specs.cargaUtilKg)}</dd>
             </div>
           </dl>
         </div>
@@ -89,7 +89,7 @@ export default function CompareModal() {
   };
 
   const empty = !compare.a && !compare.b;
-  const signed = (v: number, unit: string) => `${v > 0 ? '+ ' : v < 0 ? '− ' : ''}${n(Math.abs(v))} ${unit}`;
+  const signed = (v: number) => `${v > 0 ? '+ ' : v < 0 ? '− ' : ''}${kg(Math.abs(v))}`;
   /** Menor precio y menor tara son buenos; más carga útil es buena. */
   const tone = (v: number, lowerIsBetter: boolean) => (v === 0 ? '' : v < 0 === lowerIsBetter ? 'is-good' : 'is-bad');
 
@@ -126,11 +126,11 @@ export default function CompareModal() {
                 )}
                 <div className={tone(result.delta.taraKg, true)}>
                   <dt>{t('comparar.tara')}</dt>
-                  <dd data-testid="cmp-delta-tara">{result.delta.taraKg === 0 ? t('comparar.sinCambio') : signed(result.delta.taraKg, 'kg')}</dd>
+                  <dd data-testid="cmp-delta-tara">{result.delta.taraKg === 0 ? t('comparar.sinCambio') : signed(result.delta.taraKg)}</dd>
                 </div>
                 <div className={tone(result.delta.cargaUtilKg, false)}>
                   <dt>{t('comparar.cargaUtil')}</dt>
-                  <dd data-testid="cmp-delta-carga">{result.delta.cargaUtilKg === 0 ? t('comparar.sinCambio') : signed(result.delta.cargaUtilKg, 'kg')}</dd>
+                  <dd data-testid="cmp-delta-carga">{result.delta.cargaUtilKg === 0 ? t('comparar.sinCambio') : signed(result.delta.cargaUtilKg)}</dd>
                 </div>
               </dl>
             </section>

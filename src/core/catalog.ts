@@ -63,7 +63,11 @@ export const legal = legalJson as unknown as LegalFile;
 export interface BrandFile {
   nombre: string;
   nombreCorto: string;
+  /** Firma que acompaña al nombre en el encabezado. */
+  firma?: string;
   lema: Tx;
+  /** Isotipo cuadrado (encabezado). */
+  marca: string;
   logo: string;
   logoClaro: string;
   colores: Record<string, string>;

@@ -8,7 +8,8 @@ import { brand, pricing } from '@/core/catalog';
 import { priceBreakdown } from '@/core/pricing';
 import { configHash } from '@/core/serialize';
 import { computeSpecs } from '@/core/specs';
-import type { Config, Lang, Level } from '@/core/types';
+import type { Config, Lang, Level, Units } from '@/core/types';
+import { unitFormatters } from '@/core/units';
 import { formatMoney, formatNumber, translate } from '@/i18n';
 import { formatCuit, leadConfigUrl, type Lead } from '@/lead/message';
 import { checkTexts, formatDate, quoteGroups, quoteSubtitle, techRows, typeName } from '@/lead/quote';
@@ -18,6 +19,8 @@ export interface QuoteInput {
   config: Config;
   lang: Lang;
   moneda: 'USD' | 'ARS';
+  /** Sistema de unidades (métrico por defecto). */
+  units?: Units;
   /** Modo vendedor con precios ocultos: el PDF sale sin importes. */
   hidePrices: boolean;
   renders: RenderSet | null;
@@ -51,9 +54,13 @@ function hexToRgb(hex: string): RGB {
   return [parseInt(h.slice(0, 2), 16), parseInt(h.slice(2, 4), 16), parseInt(h.slice(4, 6), 16)];
 }
 
+/** Con la fuente Unicode (ruso) no hay que descartar lo que queda fuera de Latin-1. */
+let unicodeFont = false;
+
 /** Helvetica (WinAnsi) no tiene estos signos: se reemplazan por equivalentes seguros. */
 export function pdfSafe(s: string): string {
-  return s
+  // Noto Sans tiene №, ² y ³, pero no ≈.
+  const base = (unicodeFont ? s.replace(/\u2248\s?/g, '~') : s)
     .replace(/[\u2212\u2013\u2014]/g, '-')
     .replace(/\u2248\s?/g, 'aprox. ')
     .replace(/\u2192/g, '>')
@@ -61,9 +68,18 @@ export function pdfSafe(s: string): string {
     .replace(/[\u201C\u201D]/g, '"')
     .replace(/[\u2018\u2019]/g, "'")
     .replace(/\u2022/g, '\u00B7')
-    .replace(/[\u00A0\u202F\u2009]/g, ' ')
-    // Lo que quede fuera de Latin-1 no existe en Helvetica: se descarta.
-    .replace(/[\u0100-\uFFFF]/g, '');
+    .replace(/[\u00A0\u202F\u2009]/g, ' ');
+  if (unicodeFont) return base;
+  // Lo que quede fuera de Latin-1 no existe en Helvetica: se descarta.
+  return base.replace(/[\u0100-\uFFFF]/g, '');
+}
+
+/** Fuente con cirílico (Noto Sans, subconjunto) para el PDF en ruso. Se baja solo cuando hace falta. */
+async function fontBase64(url: string): Promise<string> {
+  const buf = new Uint8Array(await (await fetch(url)).arrayBuffer());
+  let bin = '';
+  for (let i = 0; i < buf.length; i += 0x8000) bin += String.fromCharCode(...buf.subarray(i, i + 0x8000));
+  return btoa(bin);
 }
 
 function loadImage(src: string): Promise<HTMLImageElement> {
@@ -96,7 +112,19 @@ async function rasterLogo(url: string): Promise<{ data: string; ratio: number } 
 export async function buildQuotePdf(input: QuoteInput): Promise<QuotePdf> {
   const { jsPDF: JsPDF } = await import('jspdf');
   const { config, lang, moneda, hidePrices } = input;
+  const units = input.units ?? 'metric';
   const now = input.now ?? new Date();
+  unicodeFont = false;
+  let fonts: [string, string] | null = null;
+  if (lang === 'ru') {
+    try {
+      fonts = await Promise.all([fontBase64(`${import.meta.env.BASE_URL}fonts/NotoSans-Regular.ttf`), fontBase64(`${import.meta.env.BASE_URL}fonts/NotoSans-Bold.ttf`)]);
+      unicodeFont = true;
+    } catch {
+      fonts = null;
+    }
+  }
+  const u = unitFormatters((v, d = 0) => formatNumber(lang, v, d), units);
   const t = (key: string, params?: Record<string, string | number>) => pdfSafe(translate(lang, key, params));
   const n = (v: number, d = 0) => formatNumber(lang, v, d);
   const money = (usd: number, signed = false) => pdfSafe(formatMoney(lang, usd, moneda, signed));
@@ -111,9 +139,16 @@ export async function buildQuotePdf(input: QuoteInput): Promise<QuotePdf> {
   const doc: jsPDF = new JsPDF({ unit: 'mm', format: 'a4', orientation: 'portrait', compress: true });
   doc.setProperties({ title: `${t('pdf.titulo')} ${numero}`, author: brand.nombre, subject: typeName(config, lang), creator: brand.nombre });
   let y = M;
+  if (fonts) {
+    doc.addFileToVFS('NotoSans-Regular.ttf', fonts[0]);
+    doc.addFont('NotoSans-Regular.ttf', 'Noto', 'normal');
+    doc.addFileToVFS('NotoSans-Bold.ttf', fonts[1]);
+    doc.addFont('NotoSans-Bold.ttf', 'Noto', 'bold');
+  }
+  const family = fonts ? 'Noto' : 'helvetica';
 
   const font = (size: number, bold = false, color: RGB = INK) => {
-    doc.setFont('helvetica', bold ? 'bold' : 'normal');
+    doc.setFont(family, bold ? 'bold' : 'normal');
     doc.setFontSize(size);
     doc.setTextColor(color[0], color[1], color[2]);
   };
@@ -126,15 +161,26 @@ export async function buildQuotePdf(input: QuoteInput): Promise<QuotePdf> {
   };
 
   const header = (first: boolean) => {
-    const lhgt = first ? 11 : 8;
-    if (logo) doc.addImage(logo.data, 'PNG', M, M - 1, lhgt * logo.ratio, lhgt, 'logo', 'FAST');
-    else {
+    const lhgt = first ? 9 : 7;
+    let logoW = 0;
+    if (logo) {
+      logoW = Math.min(lhgt * logo.ratio, CW * 0.4);
+      doc.addImage(logo.data, 'PNG', M, M - 1 + (lhgt - logoW / logo.ratio) / 2, logoW, logoW / logo.ratio, 'logo', 'FAST');
+    } else {
       font(first ? 15 : 11, true);
       doc.text(pdfSafe(brand.nombre), M, M + 6);
+      logoW = doc.getTextWidth(pdfSafe(brand.nombre));
     }
     if (first) {
-      font(15, true);
-      doc.text(t('pdf.titulo').toUpperCase(), W - M, M + 4, { align: 'right' });
+      // El título se achica si no entra al lado del logo (en ruso o inglés es más largo).
+      const title = t('pdf.titulo').toUpperCase();
+      let size = 15;
+      font(size, true);
+      while (size > 9 && doc.getTextWidth(title) > CW - logoW - 8) {
+        size -= 0.5;
+        font(size, true);
+      }
+      doc.text(title, W - M, M + 4, { align: 'right' });
       font(8.5, false, MUTED);
       doc.text(pdfSafe(brand.contacto.web), W - M, M + 9, { align: 'right' });
     } else {
@@ -189,7 +235,7 @@ export async function buildQuotePdf(input: QuoteInput): Promise<QuotePdf> {
   doc.text(pdfSafe(typeName(config, lang)), M, y + 5);
   y += 9;
   font(9.5, false, MUTED);
-  const sub = wrap(quoteSubtitle(config, lang), CW);
+  const sub = wrap(quoteSubtitle(config, lang, units), CW);
   doc.text(sub, M, y + 2);
   y += sub.length * lh(9.5) + 4;
 
@@ -222,9 +268,9 @@ export async function buildQuotePdf(input: QuoteInput): Promise<QuotePdf> {
   const hasVol = specs.volumenM3 !== null && config.tipo !== 'plataforma';
   const cards: { k: string; v: string; hi?: boolean }[] = [
     { k: t('pdf.total'), v: hidePrices ? t('resumen.aConsultar') : money(price.totalUsd), hi: true },
-    { k: t('tec.tara'), v: `${n(specs.taraKg)} kg` },
-    { k: t('tec.cargaUtil'), v: `${n(specs.cargaUtilKg)} kg` },
-    hasVol ? { k: t('tec.volumen'), v: `${n(specs.volumenM3 as number, 1)} m³` } : { k: t('tec.superficie'), v: `${n(specs.superficieM2, 1)} m²` },
+    { k: t('tec.tara'), v: pdfSafe(u.kg(specs.taraKg)) },
+    { k: t('tec.cargaUtil'), v: pdfSafe(u.kg(specs.cargaUtilKg)) },
+    hasVol ? { k: t('tec.volumen'), v: pdfSafe(u.vol(specs.volumenM3 as number)) } : { k: t('tec.superficie'), v: pdfSafe(u.area(specs.superficieM2)) },
   ];
   const cardH = 19;
   ensure(cardH + 2);
@@ -303,7 +349,7 @@ export async function buildQuotePdf(input: QuoteInput): Promise<QuotePdf> {
   y += 5.5;
   hline(y);
 
-  for (const g of quoteGroups(config, lang, price)) {
+  for (const g of quoteGroups(config, lang, price, units)) {
     ensure(15);
     doc.setFillColor(SOFT[0], SOFT[1], SOFT[2]);
     doc.rect(M, y, CW, 5.6, 'F');
@@ -360,7 +406,7 @@ export async function buildQuotePdf(input: QuoteInput): Promise<QuotePdf> {
 
   // Datos técnicos (dos columnas).
   section(t('pdf.tecnico'));
-  const tech = techRows(config, lang, specs);
+  const tech = techRows(config, lang, specs, units);
   const half = Math.ceil(tech.length / 2);
   const colW = (CW - 8) / 2;
   const rowH = 6.2;
@@ -384,7 +430,7 @@ export async function buildQuotePdf(input: QuoteInput): Promise<QuotePdf> {
 
   // Validación legal.
   section(t('pdf.legal'));
-  for (const c of checkTexts(config, lang, specs)) {
+  for (const c of checkTexts(config, lang, specs, units)) {
     font(8.5);
     const msg = wrap(c.message, CW - 9);
     const h = 6 + msg.length * lh(8.5) + 2.5;

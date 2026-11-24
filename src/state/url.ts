@@ -3,20 +3,23 @@
  *   ?c=<config comprimida>   link compartido
  *   ?modo=vendedor           modo presentación
  *   /embed                   sin encabezado, para iframe
- *   ?lang=es|pt  ?moneda=USD|ARS  ?tipo=tolva|batea|plataforma|furgon  ?precios=0
+ *   ?lang=es|en|pt|ru  ?unidades=imperial  ?moneda=USD|ARS  ?tipo=tolva|batea|plataforma|furgon  ?precios=0
  */
 import { isTypeId } from '@/core/catalog';
 import { priceBreakdown } from '@/core/pricing';
 import { configHash, decodeConfig, encodeConfig, linkOmittedLogo } from '@/core/serialize';
 import { computeSpecs } from '@/core/specs';
 import { defaultConfig } from '@/core/rules';
+import type { Lang } from '@/core/types';
+import { hasLang, isLang } from '@/i18n';
 import { useStore } from './store';
 
 export function isEmbedPath(pathname: string): boolean {
   return /\/embed\/?$/.test(pathname);
 }
 
-export function initFromUrl(): void {
+/** Devuelve el idioma pedido cuando todavía hay que cargarlo (inglés o ruso). */
+export function initFromUrl(): Lang | null {
   const url = new URL(window.location.href);
   const q = url.searchParams;
   const st = useStore.getState();
@@ -24,8 +27,16 @@ export function initFromUrl(): void {
 
   if (isEmbedPath(url.pathname) || q.get('embed') === '1') ui.embed = true;
   if (q.get('modo') === 'vendedor') ui.vendedor = true;
-  const lang = q.get('lang') ?? (navigator.language?.toLowerCase().startsWith('pt') ? 'pt' : null);
-  if (lang === 'es' || lang === 'pt') ui.lang = lang;
+  // Español por defecto; el idioma se elige en el selector o con ?lang=. Solo portugués y ruso se detectan del navegador.
+  const nav = navigator.language?.toLowerCase() ?? '';
+  const lang = q.get('lang')?.toLowerCase().slice(0, 2) ?? (nav.startsWith('pt') ? 'pt' : nav.startsWith('ru') ? 'ru' : null);
+  let pending: Lang | null = null;
+  if (isLang(lang)) {
+    if (hasLang(lang)) ui.lang = lang;
+    else pending = lang;
+  }
+  const unidades = (q.get('unidades') ?? q.get('units'))?.toLowerCase();
+  if (unidades === 'imperial' || unidades === 'metric') ui.unidades = unidades;
   const moneda = q.get('moneda')?.toUpperCase();
   if (moneda === 'USD' || moneda === 'ARS') ui.moneda = moneda;
   if (q.get('precios') === '0') ui.preciosOcultos = true;
@@ -44,14 +55,15 @@ export function initFromUrl(): void {
       // El link traía posición de logo pero no la imagen: era muy grande para viajar.
       if (linkOmittedLogo(code)) {
         useStore.setState({
-          notices: [{ id: 'logo-no-incluido', key: Date.now(), text: { es: 'El logo no viajó en el link porque era muy pesado. Volvé a subirlo en "Tu marca".', pt: 'O logo não veio no link porque era muito pesado. Envie-o novamente em "Sua marca".' } }],
+          notices: [{ id: 'logo-no-incluido', key: Date.now(), text: { es: 'El logo no viajó en el link porque era muy pesado. Volvé a subirlo en "Tu marca".', pt: 'O logo não veio no link porque era muito pesado. Envie-o novamente em "Sua marca".', en: 'The logo was too large to travel in the link. Upload it again under "Your brand".', ru: 'Логотип не поместился в ссылку. Загрузите его снова в разделе «Ваш бренд».' } }],
         });
       }
-      return;
+      return pending;
     }
   }
   const tipo = q.get('tipo');
   if (isTypeId(tipo) && tipo !== 'tolva') st.loadConfig(defaultConfig(tipo));
+  return pending;
 }
 
 /** Mantiene la barra de direcciones al día y avisa a la página contenedora (iframe). */

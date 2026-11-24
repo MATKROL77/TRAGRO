@@ -15,7 +15,8 @@ El comprador arma su equipo (tolva cerealera, batea volcadora, plataforma con ba
 - Estudio y exterior (ruta), cámaras predefinidas, puntos de interés, modo inactivo.
 - Resumen, comparador A/B, link compartible, PDF de cotización, consulta por WhatsApp o mail.
 - Modo vendedor (`?modo=vendedor`) y modo embebido (`/embed`).
-- Español rioplatense y portugués de Brasil.
+- Español rioplatense (por defecto), inglés, portugués de Brasil y ruso, con selector en el encabezado. Sistema métrico (m · kg) o imperial (ft · lb).
+- Mismo formato visual que los otros configuradores Umbral_exp (estilo ficha de producto): barra única arriba del visor (cámaras, escenario, "Ver en acción", pantalla completa), tarjeta de precio y datos abajo a la izquierda, botón Comparar, pestañas Configurar / Datos técnicos e idiomas ES · EN · PT · RU en el encabezado.
 
 ## Cómo correrlo
 
@@ -108,8 +109,8 @@ Los tests (`npm run test`) verifican que las reglas apunten a opciones que exist
 
 ## Cómo cambiar la marca
 
-1. Editá `src/config/brand.json`: nombre, lema, colores, WhatsApp (con código de país, sin `+`), mail, dirección, pie y validez del PDF, idioma y moneda por defecto.
-2. Reemplazá `public/brand/logo.svg` (para fondo oscuro), `public/brand/logo-claro.svg` (para el PDF) y `public/favicon.svg`.
+1. Editá `src/config/brand.json`: nombre, firma ("By …"), lema, colores, WhatsApp (con código de país, sin `+`), mail, dirección, pie y validez del PDF, idioma y moneda por defecto.
+2. Reemplazá `public/brand/marca.svg` (isotipo del encabezado, 64 × 40), `public/brand/logo.svg` y `public/brand/logo-claro.svg` (logo completo: pantalla sin WebGL y PDF) y `public/favicon.svg`.
 3. Opcional: cambiá los colores sugeridos de cada tipo en `catalog.json` → `tipos[].colores`.
 
 No hay nombres ni logos de fabricantes reales en el repo.
@@ -121,12 +122,13 @@ No hay nombres ni logos de fabricantes reales en el repo.
 | `/?c=…` | Abre una configuración compartida (comprimida en el link) |
 | `/?modo=vendedor` | Modo presentación: interfaz más grande, ocultar precios, atajos, "Reiniciar demo" |
 | `/embed` | Sin encabezado, para usar en un iframe |
-| `?lang=es` / `?lang=pt` | Idioma |
+| `?lang=es` / `en` / `pt` / `ru` | Idioma (inglés y ruso se descargan solo si se piden) |
+| `?unidades=imperial` | Arranca en pies y libras |
 | `?moneda=ARS` | Moneda inicial |
 | `?tipo=batea` | Tipo inicial (`tolva`, `batea`, `plataforma`, `furgon`) |
 | `?precios=0` | Arranca con los precios ocultos |
 
-Atajos del modo vendedor: `1`–`7` cámaras, `A` o espacio "Ver en acción", `L` lona, `E` estudio/exterior, `T` tractor, `H` puntos de interés, `P` precios, `F` pantalla completa, `←` `→` pasos, `R` reiniciar.
+Atajos del modo vendedor: `1`–`7` cámaras, `A` o espacio "Ver en acción", `L` lona, `E` estudio/exterior, `T` tractor, `H` puntos de interés, `P` precios, `F` pantalla completa del visor, `←` `→` pasos, `R` reiniciar.
 
 ## Cómo embeberlo en la web del fabricante
 
@@ -193,7 +195,7 @@ src/ui/       paneles, pasos, barra de precio, ficha técnica, modales
 src/pdf/      PDF de cotización (se descarga aparte, bajo demanda)
 src/lead/     armado y envío de la consulta
 deploy/       Worker y script de publicación en Cloudflare (Workers + KV)
-src/i18n/     textos en español y portugués
+src/i18n/     textos en español, inglés, portugués y ruso (catalogo.*.json: catálogo en inglés y ruso)
 tests/        unitarios (Vitest) y de punta a punta (Playwright)
 ```
 

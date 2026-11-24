@@ -44,8 +44,9 @@ function RalPicker({ part }: { part: 'caja' | 'chasis' }) {
   const list = useMemo(() => {
     const k = q.trim().toLowerCase().replace(/^ral\s*/, '');
     if (!k) return ralColors;
-    return ralColors.filter((c) => c.codigo.toLowerCase().includes(k) || c.name.es.toLowerCase().includes(k) || c.name.pt.toLowerCase().includes(k));
-  }, [q]);
+    // Se busca por código, por el nombre en el idioma activo y por el nombre en español.
+    return ralColors.filter((c) => c.codigo.toLowerCase().includes(k) || c.name.es.toLowerCase().includes(k) || tx(c.name).toLowerCase().includes(k));
+  }, [q, tx]);
   return (
     <div>
       <div className="ral-current" aria-live="polite">

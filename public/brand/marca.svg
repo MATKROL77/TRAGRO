@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 40" role="img" aria-label="Umbral_exp">
+  <g fill="#1b2747">
+    <path d="M14 2h9L11 38H2z"/>
+    <path d="M33 2h9L30 38h-9z"/>
+    <path d="M52 2h9L49 38h-9z" opacity=".55"/>
+  </g>
+</svg>

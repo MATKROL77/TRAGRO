@@ -1,7 +1,8 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 260 56" role="img" aria-label="Umbral_exp">
-  <g fill="none" fill-rule="evenodd">
-    <path d="M4 44 22 12h10L20 34h12L44 12h10L36 44H26l6-11H20L14 44z" fill="#1B2A4A"/>
-    <path d="M50 44 68 12h8L58 44z" fill="#8A93A6"/>
-    <text x="86" y="37" font-family="Manrope, 'Segoe UI', Arial, sans-serif" font-weight="800" font-size="25" letter-spacing="0.4" fill="#1C2333">Umbral_exp</text>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 236 40" width="236" height="40" role="img" aria-label="Umbral_exp">
+  <g fill="#1b2747">
+    <path d="M14 2h9L11 38H2z"/>
+    <path d="M33 2h9L30 38h-9z"/>
+    <path d="M52 2h9L49 38h-9z" opacity=".55"/>
   </g>
+  <text x="74" y="29" font-family="Inter, 'Helvetica Neue', Arial, sans-serif" font-size="24" font-weight="800" letter-spacing="-0.3" fill="#1A1F2B">Umbral_exp</text>
 </svg>

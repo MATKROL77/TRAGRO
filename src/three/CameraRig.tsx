@@ -38,16 +38,7 @@ export function CameraRig() {
   const dragging = useRef(false);
   const clock = useRef(0);
 
-  // Con la ficha técnica abierta (escritorio) el equipo se encuadra en el espacio libre.
-  const tecAbierto = useStore((s) => s.ui.tecAbierto);
-  const inset = tecAbierto && size.width > 900 ? Math.min(380, size.width * 0.38) : 0;
-  const aspect = (size.width - inset) / Math.max(1, size.height);
-  useEffect(() => {
-    const cam = camera as THREE.PerspectiveCamera;
-    if (inset > 0) cam.setViewOffset(size.width, size.height, -inset / 2, 0, size.width, size.height);
-    else cam.clearViewOffset();
-    invalidate();
-  }, [inset, size.width, size.height, camera, invalidate]);
+  const aspect = size.width / Math.max(1, size.height);
 
   const goTo = (pose: Pose, dur = 1.0) => {
     const c = controls.current;

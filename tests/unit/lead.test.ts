@@ -7,6 +7,7 @@ import type { Config } from '@/core/types';
 import { compareConfigs } from '@/lead/compare';
 import { buildLeadLinks, buildLeadMessage, configSummaryLines, formatCuit, leadConfigUrl, mailtoUrl, PROVINCIAS, validateCuit, validateLead, whatsappUrl, type Lead, type LeadContext } from '@/lead/message';
 import { checkTexts, quoteGroups, techRows } from '@/lead/quote';
+import { loadLang } from '@/i18n';
 import { embedSnippet, embedUrl } from '@/lead/share';
 import { buildLeadPayload } from '@/lead/submitLead';
 import { pdfSafe } from '@/pdf/quotePdf';
@@ -81,11 +82,11 @@ describe('mensaje precargado', () => {
     const total = priceBreakdown(cfg).totalUsd;
     const shown = buildLeadMessage(lead, ctx(cfg));
     expect(shown).toContain('Precio orientativo');
-    expect(shown).toContain(`US$ ${new Intl.NumberFormat('es-AR').format(total)}`);
+    expect(shown).toContain(`USD ${new Intl.NumberFormat('es-AR').format(total)}`);
     const hidden = buildLeadMessage(lead, ctx(cfg, { hidePrices: true }));
     expect(hidden).not.toContain('Precio orientativo');
-    expect(hidden).not.toContain('US$');
-    expect(configSummaryLines(ctx(cfg, { hidePrices: true })).join('\n')).not.toMatch(/US\$|\$ \d/);
+    expect(hidden).not.toContain('USD');
+    expect(configSummaryLines(ctx(cfg, { hidePrices: true })).join('\n')).not.toMatch(/USD|ARS \d/);
   });
 
   it('no lista opcionales cuando todo es de serie y avisa logo y texto', () => {
@@ -181,13 +182,20 @@ describe('modelo de cotización y comparador', () => {
     expect(rows.find((r) => r.key === 'suspension')?.usd).toBe(1250 * 3);
   });
 
-  it('la ficha técnica y las validaciones salen traducidas y sin claves crudas', () => {
-    for (const lang of ['es', 'pt'] as const) {
-      const cfg = defaultConfig('batea');
-      const all = [...techRows(cfg, lang).flatMap((r) => [r.label, r.value]), ...checkTexts(cfg, lang).flatMap((c) => [c.title, c.message, c.status, c.value])];
-      for (const s of all) {
-        expect(s).not.toMatch(/^(tec|legal|comun)\./);
-        expect(s).not.toMatch(/\{\w+\}/);
+  it('la ficha técnica y las validaciones salen traducidas y sin claves crudas', async () => {
+    await loadLang('en');
+    await loadLang('ru');
+    for (const lang of ['es', 'pt', 'en', 'ru'] as const) {
+      for (const units of ['metric', 'imperial'] as const) {
+        const cfg = defaultConfig('batea');
+        const all = [...techRows(cfg, lang, undefined, units).flatMap((r) => [r.label, r.value]), ...checkTexts(cfg, lang, undefined, units).flatMap((c) => [c.title, c.message, c.status, c.value])];
+        for (const s of all) {
+          expect(s).not.toMatch(/^(tec|legal|comun)\./);
+          expect(s).not.toMatch(/\{\w+\}/);
+        }
+        const joined = all.join(' ');
+        if (units === 'imperial') expect(joined).toMatch(/ ft\b/);
+        else expect(joined).toMatch(/ m\b/);
       }
     }
   });

@@ -14,7 +14,7 @@ const VIEWS: (keyof RenderSet)[] = ['tresCuartos', 'lateral', 'trasero'];
 
 /** Resumen: renders automáticos, todas las elecciones con precio, ficha técnica y acciones. */
 export default function SummaryModal() {
-  const { t, n, money, moneyIn, lang } = useI18n();
+  const { t, n, money, moneyIn, lang, units } = useI18n();
   const config = useStore((s) => s.config);
   const hide = useStore((s) => s.ui.preciosOcultos);
   const moneda = useStore((s) => s.ui.moneda);
@@ -37,7 +37,7 @@ export default function SummaryModal() {
     return () => window.clearTimeout(id);
   }, []);
 
-  const groups = useMemo(() => quoteGroups(config, lang, price), [config, lang, price]);
+  const groups = useMemo(() => quoteGroups(config, lang, price, units), [config, lang, price, units]);
   const numero = useMemo(() => configHash(config), [config]);
   const other = moneda === 'USD' ? 'ARS' : 'USD';
   const hasRenders = !!renders && VIEWS.some((v) => renders[v]);
@@ -49,7 +49,7 @@ export default function SummaryModal() {
     try {
       const { downloadQuotePdf } = await import('@/pdf/quotePdf');
       const st = useStore.getState();
-      await downloadQuotePdf({ config: st.config, lang: st.ui.lang, moneda: st.ui.moneda, hidePrices: st.ui.preciosOcultos, renders: renders ?? captureRenderSet(), href: window.location.href });
+      await downloadQuotePdf({ config: st.config, lang: st.ui.lang, moneda: st.ui.moneda, units: st.ui.unidades, hidePrices: st.ui.preciosOcultos, renders: renders ?? captureRenderSet(), href: window.location.href });
     } catch (e) {
       console.error('[configurador] no se pudo generar el PDF', e);
       setPdfError(true);
@@ -89,7 +89,7 @@ export default function SummaryModal() {
         <header className="sum-head">
           <div>
             <h3>{typeName(config, lang)}</h3>
-            <p className="muted">{quoteSubtitle(config, lang)}</p>
+            <p className="muted">{quoteSubtitle(config, lang, units)}</p>
           </div>
           <dl className="sum-meta">
             <div>

@@ -4,7 +4,7 @@
  */
 import { priceBreakdown } from '@/core/pricing';
 import { computeSpecs } from '@/core/specs';
-import type { Config, Lang } from '@/core/types';
+import type { Config, Lang, Units } from '@/core/types';
 import { translate } from '@/i18n';
 import { quoteGroups, techRows, typeName } from './quote';
 
@@ -25,15 +25,15 @@ export interface CompareResult {
   identical: boolean;
 }
 
-export function compareConfigs(a: Config, b: Config, lang: Lang): CompareResult {
+export function compareConfigs(a: Config, b: Config, lang: Lang, units: Units = 'metric'): CompareResult {
   const t = (key: string) => translate(lang, key);
   const rows: CompareRow[] = [];
   const push = (key: string, section: string, label: string, va: string | null, vb: string | null) => rows.push({ key, section, label, a: va, b: vb, differs: va !== vb });
 
   push('tipo', t('comparar.tipo'), t('comparar.tipo'), typeName(a, lang), typeName(b, lang));
 
-  const ga = quoteGroups(a, lang);
-  const gb = quoteGroups(b, lang);
+  const ga = quoteGroups(a, lang, undefined, units);
+  const gb = quoteGroups(b, lang, undefined, units);
   // Unión ordenada de pasos y filas de ambas configuraciones.
   const pasos = [...new Set([...ga.map((g) => g.paso), ...gb.map((g) => g.paso)])];
   for (const paso of pasos) {
@@ -51,8 +51,8 @@ export function compareConfigs(a: Config, b: Config, lang: Lang): CompareResult 
 
   const sa = computeSpecs(a);
   const sb = computeSpecs(b);
-  const ta = techRows(a, lang, sa);
-  const tb = techRows(b, lang, sb);
+  const ta = techRows(a, lang, sa, units);
+  const tb = techRows(b, lang, sb, units);
   const techSection = t('tec.titulo');
   for (const key of [...new Set([...ta.map((r) => r.key), ...tb.map((r) => r.key)])]) {
     if (key === 'largoCaja') continue;

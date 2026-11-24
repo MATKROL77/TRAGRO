@@ -7,8 +7,9 @@ import { brand, ral, typeDef } from '@/core/catalog';
 import { priceBreakdown } from '@/core/pricing';
 import { configHash, shareUrl } from '@/core/serialize';
 import { computeSpecs } from '@/core/specs';
-import type { Config, Lang } from '@/core/types';
-import { formatMoney, formatNumber, translate } from '@/i18n';
+import type { Config, Lang, Tx, Units } from '@/core/types';
+import { unitFormatters } from '@/core/units';
+import { formatMoney, formatNumber, translate, translateTx } from '@/i18n';
 
 export interface Lead {
   nombre: string;
@@ -87,6 +88,8 @@ export interface LeadContext {
   config: Config;
   lang: Lang;
   moneda: 'USD' | 'ARS';
+  /** Sistema de unidades con el que el cliente vio el equipo (métrico por defecto). */
+  units?: Units;
   /** Modo vendedor con precios ocultos: el mensaje no lleva importe. */
   hidePrices: boolean;
   /** URL actual de la página (se usa para armar el link a la configuración). */
@@ -106,14 +109,15 @@ export function leadConfigUrl(config: Config, href: string): string {
 export function configSummaryLines(ctx: LeadContext): string[] {
   const { config, lang } = ctx;
   const t = (key: string, params?: Record<string, string | number>) => translate(lang, key, params);
-  const tx = (o: { es: string; pt: string }) => o[lang] ?? o.es;
+  const tx = (o: Tx) => translateTx(lang, o);
+  const u = unitFormatters((v, d = 0) => formatNumber(lang, v, d), ctx.units ?? 'metric');
   const price = priceBreakdown(config);
   const specs = computeSpecs(config);
   const tipo = typeDef(config.tipo);
   const line = (key: string) => price.lines.find((l) => l.key === key);
   const out: string[] = [];
 
-  out.push(`${tx(tipo.name)} · ${t('lead.msg.largo', { valor: formatNumber(lang, Number(config.sel.largo), 2) })} · ${tx(tipo.altoLabel)}: ${formatNumber(lang, Number(config.sel.alto), 2)} m`);
+  out.push(`${tx(tipo.name)} · ${t('lead.msg.largo', { valor: u.len(Number(config.sel.largo)) })} · ${tx(tipo.altoLabel)}: ${u.len(Number(config.sel.alto))}`);
   const ejes = line('ejes');
   const susp = line('suspension');
   const ruedas = line('ruedas');
@@ -126,7 +130,7 @@ export function configSummaryLines(ctx: LeadContext): string[] {
   out.push(t('lead.msg.colores', { caja: ral(config.colores.caja).codigo, chasis: ral(config.colores.chasis).codigo }));
   if (config.logo.data) out.push(t('lead.msg.logo'));
   if (config.texto.valor.trim()) out.push(t('lead.msg.texto', { texto: config.texto.valor.trim() }));
-  out.push(`${t('lead.msg.tara', { valor: formatNumber(lang, specs.taraKg) })} · ${t('lead.msg.cargaUtil', { valor: formatNumber(lang, specs.cargaUtilKg) })}`);
+  out.push(`${t('lead.msg.tara', { valor: u.kg(specs.taraKg) })} · ${t('lead.msg.cargaUtil', { valor: u.kg(specs.cargaUtilKg) })}`);
   if (!ctx.hidePrices) out.push(t('lead.msg.precio', { monto: formatMoney(lang, price.totalUsd, ctx.moneda) }));
   return out;
 }

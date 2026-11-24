@@ -4,7 +4,6 @@ import { useStore } from '@/state/store';
 import { PRESETS } from '@/three/camera';
 import { downloadCapture } from '@/three/capture';
 import { Icon } from './Icon';
-import { IconButton } from './primitives';
 
 function usePopover() {
   const [open, setOpen] = useState(false);
@@ -30,6 +29,15 @@ export function actionLabelKey(tipo: string, sider: boolean): string {
   return `visor.accion.${tipo}`;
 }
 
+/** Pantalla completa SOLO del visor 3D (el equipo), no de toda la página. */
+export function toggleViewerFullscreen(): void {
+  const stage = document.querySelector<HTMLElement>('.stage');
+  if (!stage) return;
+  if (document.fullscreenElement === stage) void document.exitFullscreen?.();
+  else void stage.requestFullscreen?.().catch(() => undefined);
+}
+
+/** Barra única arriba al centro del visor: cámaras | escenario | acción principal y animaciones | más, captura y pantalla completa. */
 export function ViewerToolbar() {
   const { t } = useI18n();
   const ui = useStore((s) => s.ui);
@@ -44,7 +52,7 @@ export function ViewerToolbar() {
   const [full, setFull] = useState(false);
 
   useEffect(() => {
-    const on = () => setFull(!!document.fullscreenElement);
+    const on = () => setFull(!!document.fullscreenElement && document.fullscreenElement.classList.contains('stage'));
     document.addEventListener('fullscreenchange', on);
     return () => document.removeEventListener('fullscreenchange', on);
   }, []);
@@ -53,20 +61,19 @@ export function ViewerToolbar() {
   const hasTarp = cfg.tipo === 'tolva' || (cfg.tipo === 'batea' && cfg.sel.cobertor === true);
   const hasLift = cfg.sel.ejeElevable === true;
   const tarpOpen = (anim.lona ?? 0) > 0.5;
-  const toggleFull = () => {
-    if (document.fullscreenElement) void document.exitFullscreen();
-    else void document.documentElement.requestFullscreen?.().catch(() => undefined);
-  };
+  const lifted = (anim.elevado ?? 1) > 0.5;
+  const actionLabel = t(actionLabelKey(cfg.tipo, cfg.sel.variante === 'sider'));
+  const tarpLabel = tarpOpen ? t('visor.accion.lonaCerrar') : t('visor.accion.lona');
 
   return (
-    <div className="toolbar" role="toolbar" aria-label={t('visor.camaras')}>
+    <div className="topbar" role="toolbar" aria-label={t('visor.camaras')}>
       <div className="pop-anchor" ref={cams.ref}>
-        <button type="button" className={`tb-btn ${cams.open ? 'is-active' : ''}`} aria-haspopup="menu" aria-expanded={cams.open} onClick={() => cams.setOpen(!cams.open)} data-testid="tb-camaras">
+        <button type="button" className="tb-btn" aria-haspopup="menu" aria-expanded={cams.open} onClick={() => { cams.setOpen(!cams.open); more.setOpen(false); }} data-testid="tb-camaras">
           <Icon name="camara" size={18} />
-          <span>{t('visor.camaras')}</span>
+          <span className="tb-label">{t('visor.camaras')}</span>
         </button>
         {cams.open ? (
-          <div className="popover" role="menu" style={{ left: 0 }}>
+          <div className="popover pop-down" role="menu">
             {PRESETS.map((p, i) => (
               <button key={p} type="button" role="menuitemradio" aria-checked={preset === p} className={preset === p ? 'is-on' : ''} data-cam={p} onClick={() => { setPreset(p); cams.setOpen(false); }}>
                 {t(`visor.cam.${p}`)}
@@ -76,50 +83,46 @@ export function ViewerToolbar() {
           </div>
         ) : null}
       </div>
-      <span className="div" />
-      <button type="button" className={`tb-btn ${ui.env === 'estudio' ? 'is-active' : ''}`} aria-pressed={ui.env === 'estudio'} onClick={() => setUi({ env: 'estudio', tractor: false })} data-testid="tb-estudio">
-        <Icon name="estudio" size={18} />
-        <span>{t('visor.estudio')}</span>
+      <span className="tb-sep" aria-hidden="true" />
+      <div className="tb-scenes" role="group" aria-label={t('visor.escenas')}>
+        <button type="button" aria-pressed={ui.env === 'estudio'} className={`tb-btn ${ui.env === 'estudio' ? 'is-sel' : ''}`} onClick={() => setUi({ env: 'estudio', tractor: false })} data-testid="tb-estudio">
+          {t('visor.estudio')}
+        </button>
+        <button type="button" aria-pressed={ui.env === 'exterior'} aria-busy={ui.cargandoEntorno} className={`tb-btn ${ui.env === 'exterior' ? 'is-sel' : ''} ${ui.cargandoEntorno ? 'is-loading' : ''}`} onClick={() => setUi({ env: 'exterior', tractor: true })} data-testid="tb-exterior">
+          {t('visor.exterior')}
+        </button>
+      </div>
+      <button type="button" className={`tb-btn tb-primary ${active ? 'is-on' : ''}`} aria-pressed={active} title={actionLabel} onClick={() => toggleAnim('accion')} data-testid="tb-accion">
+        <Icon name={active ? 'rebobinar' : 'play'} size={16} />
+        <span className="tb-label">{active ? t('visor.detener') : t('visor.accion')}</span>
       </button>
-      <button type="button" className={`tb-btn ${ui.env === 'exterior' ? 'is-active' : ''} ${ui.cargandoEntorno ? 'is-loading' : ''}`} aria-pressed={ui.env === 'exterior'} aria-busy={ui.cargandoEntorno} onClick={() => setUi({ env: 'exterior', tractor: true })} data-testid="tb-exterior">
-        <Icon name="exterior" size={18} />
-        <span>{t('visor.exterior')}</span>
-      </button>
-      <span className="div" />
-      <button type="button" className="tb-btn is-accent" aria-pressed={active} onClick={() => toggleAnim('accion')} data-testid="tb-accion">
-        <Icon name={active ? 'rebobinar' : 'play'} size={18} />
-        <span>{active ? t('visor.detener') : t('visor.accion')}</span>
-      </button>
+      {hasTarp ? (
+        <button type="button" className={`tb-btn tb-icon ${tarpOpen ? 'is-sel' : ''}`} aria-pressed={tarpOpen} aria-label={tarpLabel} title={tarpLabel} onClick={() => toggleAnim('lona')} data-testid="tb-lona">
+          <Icon name="lona" size={18} />
+          <span className="tb-label tb-label-wide">{tarpLabel}</span>
+        </button>
+      ) : null}
+      {hasLift ? (
+        <button type="button" className={`tb-btn tb-icon ${lifted ? 'is-sel' : ''}`} aria-pressed={lifted} aria-label={t('visor.accion.eje')} title={t('visor.accion.eje')} onClick={() => toggleAnim('elevado')} data-testid="tb-eje">
+          <Icon name="eje" size={18} />
+          <span className="tb-label tb-label-wide">{t('visor.accion.eje')}</span>
+        </button>
+      ) : null}
+      <span className="tb-sep" aria-hidden="true" />
       <div className="pop-anchor" ref={more.ref}>
-        <IconButton icon="chevronAbajo" label={t(actionLabelKey(cfg.tipo, cfg.sel.variante === 'sider'))} aria-haspopup="menu" aria-expanded={more.open} onClick={() => more.setOpen(!more.open)} data-testid="tb-mas" />
+        <button type="button" className="tb-btn tb-icon" aria-haspopup="menu" aria-expanded={more.open} aria-label={t('visor.mas')} title={t('visor.mas')} onClick={() => { more.setOpen(!more.open); cams.setOpen(false); }} data-testid="tb-mas">
+          <Icon name="puntos" size={18} />
+        </button>
         {more.open ? (
-          <div className="popover" role="menu" style={{ right: 0 }}>
-            <button type="button" role="menuitemcheckbox" aria-checked={active} className={active ? 'is-on' : ''} onClick={() => toggleAnim('accion')}>
-              <Icon name="play" size={16} />
-              {t(actionLabelKey(cfg.tipo, cfg.sel.variante === 'sider'))}
-              <kbd>A</kbd>
-            </button>
-            {hasTarp ? (
-              <button type="button" role="menuitemcheckbox" aria-checked={tarpOpen} className={tarpOpen ? 'is-on' : ''} onClick={() => toggleAnim('lona')} data-testid="tb-lona">
-                <Icon name="lona" size={16} />
-                {tarpOpen ? t('visor.accion.lonaCerrar') : t('visor.accion.lona')}
-                <kbd>L</kbd>
-              </button>
-            ) : null}
-            {hasLift ? (
-              <button type="button" role="menuitemcheckbox" aria-checked={(anim.elevado ?? 1) > 0.5} className={(anim.elevado ?? 1) > 0.5 ? 'is-on' : ''} onClick={() => toggleAnim('elevado')}>
-                <Icon name="eje" size={16} />
-                {t('visor.accion.eje')}
-              </button>
-            ) : null}
-            <button type="button" role="menuitemcheckbox" aria-checked={ui.luces} className={ui.luces ? 'is-on' : ''} onClick={() => setUi({ luces: !ui.luces })}>
-              <Icon name="luz" size={16} />
-              {t('visor.accion.luces')}
-            </button>
+          <div className="popover pop-down pop-right" role="menu">
             <button type="button" role="menuitemcheckbox" aria-checked={ui.tractor} className={ui.tractor ? 'is-on' : ''} onClick={() => setUi({ tractor: !ui.tractor })} data-testid="tb-tractor">
               <Icon name="camion" size={16} />
               {t('visor.accion.tractor')}
               <kbd>T</kbd>
+            </button>
+            <button type="button" role="menuitemcheckbox" aria-checked={ui.luces} className={ui.luces ? 'is-on' : ''} onClick={() => setUi({ luces: !ui.luces })}>
+              <Icon name="luz" size={16} />
+              {t('visor.accion.luces')}
             </button>
             <button type="button" role="menuitemcheckbox" aria-checked={ui.hotspots} className={ui.hotspots ? 'is-on' : ''} onClick={() => setUi({ hotspots: !ui.hotspots })}>
               <Icon name="punto" size={16} />
@@ -133,9 +136,12 @@ export function ViewerToolbar() {
           </div>
         ) : null}
       </div>
-      <span className="div" />
-      <IconButton icon="descargar" label={t('visor.captura')} onClick={() => downloadCapture()} data-testid="tb-captura" />
-      <IconButton icon="pantalla" label={t('visor.pantallaCompleta')} active={full ? true : undefined} className="solo-escritorio" onClick={toggleFull} />
+      <button type="button" className="tb-btn tb-icon hide-sm" aria-label={t('visor.captura')} title={t('visor.captura')} onClick={() => downloadCapture()} data-testid="tb-captura">
+        <Icon name="imagen" size={18} />
+      </button>
+      <button type="button" className={`tb-btn tb-icon hide-sm ${full ? 'is-sel' : ''}`} aria-pressed={full} aria-label={full ? t('visor.salirPantallaCompleta') : t('visor.pantallaCompleta')} title={full ? t('visor.salirPantallaCompleta') : t('visor.pantallaCompleta')} onClick={toggleViewerFullscreen} data-testid="tb-pantalla">
+        <Icon name="pantalla" size={18} />
+      </button>
     </div>
   );
 }

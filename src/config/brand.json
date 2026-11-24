@@ -1,22 +1,24 @@
 {
-  "_nota": "MARCA DEL CONFIGURADOR. Los datos de contacto (WhatsApp, mail, web, dirección) son de EJEMPLO: reemplazalos por los reales. Para adaptar el configurador a un fabricante alcanza con editar este archivo y reemplazar public/brand/logo.svg y public/brand/logo-claro.svg.",
+  "_nota": "MARCA DEL CONFIGURADOR. Los datos de contacto (WhatsApp, mail, web, dirección) son de EJEMPLO: reemplazalos por los reales. Para adaptar el configurador a un fabricante alcanza con editar este archivo y reemplazar public/brand/marca.svg (isotipo del encabezado), public/brand/logo.svg y public/brand/logo-claro.svg (logo completo, usado en el PDF).",
   "nombre": "Umbral_exp",
   "nombreCorto": "Umbral_exp",
+  "firma": "By Matias Colimodio",
   "lema": {
     "es": "Semirremolques hechos para tu campo y tu ruta",
     "pt": "Semirreboques feitos para o seu campo e a sua estrada"
   },
+  "marca": "/brand/marca.svg",
   "logo": "/brand/logo.svg",
   "logoClaro": "/brand/logo-claro.svg",
   "colores": {
-    "acento": "#1B2A4A",
+    "acento": "#1B2747",
     "acentoTexto": "#FFFFFF",
-    "fondo": "#E9E4DB",
-    "superficie": "#F4F1EA",
-    "superficie2": "#E8E2D8",
-    "borde": "#D5CDBF",
-    "texto": "#1C2333",
-    "textoSuave": "#565C68",
+    "fondo": "#DCD6CC",
+    "superficie": "#F4F1EB",
+    "superficie2": "#EBE6DE",
+    "borde": "#DDD7CC",
+    "texto": "#1A1F2B",
+    "textoSuave": "#4B4F58",
     "ok": "#22794B",
     "alerta": "#9A5C00",
     "error": "#C0352B"

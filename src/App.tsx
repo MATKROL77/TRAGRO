@@ -2,20 +2,21 @@ import { lazy, Suspense, useEffect, useMemo, useState } from 'react';
 import { LazyMotion, domAnimation } from 'framer-motion';
 import { useProgress } from '@react-three/drei';
 import { brand } from './core/catalog';
-import { useI18n } from './i18n';
+import { HTML_LANG, useI18n } from './i18n';
 import { useStore } from './state/store';
 import { startUrlSync } from './state/url';
 import { Viewer } from './three/Viewer';
-import { BottomBar } from './ui/BottomBar';
 import { ErrorBoundary } from './ui/ErrorBoundary';
+import { Header, LangUnitControls, openCompare } from './ui/Header';
 import { HotspotCard } from './ui/HotspotCard';
+import { Icon } from './ui/Icon';
 import { LoadingScreen } from './ui/LoadingScreen';
 import { Notices } from './ui/Notices';
+import { PriceHead } from './ui/PriceHead';
 import { Button } from './ui/primitives';
 import { ShortcutsModal } from './ui/ShortcutsModal';
 import { StepsPanel } from './ui/StepsPanel';
-import { TechPanel } from './ui/TechPanel';
-import { Topbar } from './ui/Topbar';
+import { TechTab } from './ui/TechPanel';
 import { useShortcuts } from './ui/useShortcuts';
 import { ViewerToolbar } from './ui/ViewerToolbar';
 
@@ -46,7 +47,51 @@ function hasWebGL(): boolean {
 function applyBrand(): void {
   const map: Record<string, string> = { acento: '--acento', acentoTexto: '--acento-texto', fondo: '--fondo', superficie: '--sup', superficie2: '--sup2', borde: '--borde', texto: '--texto', textoSuave: '--texto2', ok: '--ok', alerta: '--alerta', error: '--error' };
   for (const [k, v] of Object.entries(map)) if (brand.colores[k]) document.documentElement.style.setProperty(v, brand.colores[k]);
-  document.title = `${brand.nombre} · Configurador 3D`;
+}
+
+function useMediaQuery(q: string): boolean {
+  const [on, setOn] = useState(() => window.matchMedia?.(q).matches ?? false);
+  useEffect(() => {
+    const mq = window.matchMedia?.(q);
+    if (!mq) return;
+    const fn = () => setOn(mq.matches);
+    mq.addEventListener('change', fn);
+    return () => mq.removeEventListener('change', fn);
+  }, [q]);
+  return on;
+}
+
+/** Botón flotante "Comparar": guarda la configuración actual como A si todavía no hay ninguna y abre el comparador. */
+function CompareFab() {
+  const { t } = useI18n();
+  return (
+    <button
+      type="button"
+      className="compare-fab"
+      onClick={openCompare}
+      data-testid="btn-comparar"
+    >
+      <Icon name="comparar" size={18} />
+      <span>{t('top.comparar')}</span>
+    </button>
+  );
+}
+
+/** Pestañas del panel lateral: Configurar / Datos técnicos. */
+function SideTabs() {
+  const { t } = useI18n();
+  const tab = useStore((s) => s.ui.pestana);
+  const setUi = useStore((s) => s.setUi);
+  return (
+    <div className="side-tabs" role="tablist" aria-label={t('panel.pestanas')}>
+      <button type="button" role="tab" id="tab-config" aria-controls="panel-config" aria-selected={tab === 'config'} className={tab === 'config' ? 'is-on' : ''} onClick={() => setUi({ pestana: 'config' })} data-testid="tab-config">
+        {t('panel.configurar')}
+      </button>
+      <button type="button" role="tab" id="tab-tecnico" aria-controls="panel-tecnico" aria-selected={tab === 'tecnico'} className={tab === 'tecnico' ? 'is-on' : ''} onClick={() => setUi({ pestana: 'tecnico' })} data-testid="tec-toggle">
+        {t('tec.titulo')}
+      </button>
+    </div>
+  );
 }
 
 function ViewerError() {
@@ -105,11 +150,13 @@ function Loader() {
 }
 
 export function App() {
+  const { t } = useI18n();
   const vendedor = useStore((s) => s.ui.vendedor);
   const embed = useStore((s) => s.ui.embed);
-  const hoja = useStore((s) => s.ui.hojaExpandida);
   const lang = useStore((s) => s.ui.lang);
   const modal = useStore((s) => s.ui.modal);
+  const tab = useStore((s) => s.ui.pestana);
+  const mobile = useMediaQuery('(max-width: 900px)');
   const webgl = useMemo(() => hasWebGL(), []);
   useShortcuts(vendedor);
 
@@ -118,8 +165,9 @@ export function App() {
     return startUrlSync();
   }, []);
   useEffect(() => {
-    document.documentElement.lang = lang === 'pt' ? 'pt-BR' : 'es-AR';
-  }, [lang]);
+    document.documentElement.lang = HTML_LANG[lang];
+    document.title = `${brand.nombre} · ${t('app.titulo')}`;
+  }, [lang, t]);
   // Modo vendedor: pantalla completa al primer toque (el navegador exige un gesto).
   useEffect(() => {
     if (!vendedor) return;
@@ -141,23 +189,39 @@ export function App() {
 
   return (
     <LazyMotion features={domAnimation}>
-      <div className={`app ${vendedor ? 'vendedor' : ''} ${embed ? 'embed' : ''} ${hoja ? 'hoja-expandida' : ''}`}>
-        <Topbar />
-        <main className="stage">
-          <ErrorBoundary fallback={() => <ViewerError />}>
-            <Viewer />
-          </ErrorBoundary>
-          <ViewerToolbar />
-          <Notices />
-          <HotspotCard />
-          <TechPanel />
-          <ViewerHint />
-          <Loader />
+      <div className={`app ${vendedor ? 'vendedor' : ''} ${embed ? 'embed' : ''}`}>
+        <a className="skip" href="#panel-config">
+          {t('app.saltar')}
+        </a>
+        {embed ? null : <Header />}
+        <main className="main">
+          <div className="stage" role="region" aria-label={t('visor.region')}>
+            <ErrorBoundary fallback={() => <ViewerError />}>
+              <Viewer />
+            </ErrorBoundary>
+            {mobile ? null : (
+              <div className="price-float">
+                <PriceHead />
+              </div>
+            )}
+            <ViewerToolbar />
+            <CompareFab />
+            <Notices />
+            <HotspotCard />
+            <ViewerHint />
+            <Loader />
+          </div>
+          <aside className="side" aria-label={t('panel.configurar')}>
+            {embed ? (
+              <div className="embed-lu">
+                <LangUnitControls />
+              </div>
+            ) : null}
+            {mobile ? <PriceHead /> : null}
+            <SideTabs />
+            {tab === 'config' ? <StepsPanel /> : <TechTab />}
+          </aside>
         </main>
-        <aside className="panel" aria-label="Configuración">
-          <StepsPanel />
-        </aside>
-        <BottomBar />
         <ShortcutsModal />
         <Suspense fallback={null}>
           {modal === 'resumen' ? <SummaryModal /> : null}

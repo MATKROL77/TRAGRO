@@ -1,7 +1,9 @@
 /** Tipos de dominio compartidos por el núcleo, el estado, la UI y el 3D. */
 
-export type Lang = 'es' | 'pt';
-export type Tx = Record<Lang, string>;
+export type Lang = 'es' | 'en' | 'pt' | 'ru';
+/** Texto del catálogo. `es` es la fuente; `en` y `ru` se resuelven por diccionario (src/i18n/catalogo.*.json) si no están acá. */
+export type Tx = { es: string; pt?: string; en?: string; ru?: string };
+export type Units = 'metric' | 'imperial';
 export type TypeId = 'tolva' | 'batea' | 'plataforma' | 'furgon';
 export type Value = string | number | boolean;
 export type Per = 'unidad' | 'eje' | 'rueda';

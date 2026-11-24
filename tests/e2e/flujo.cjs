@@ -20,7 +20,7 @@ async function run() {
     window.__avisos = [];
     new MutationObserver(() => document.querySelectorAll('.notice[data-notice]').forEach((n) => window.__avisos.push({ id: n.getAttribute('data-notice'), texto: n.textContent }))).observe(document.querySelector('.notices'), { childList: true, subtree: true });
   });
-  const price = () => page.evaluate(() => Number((document.querySelector('[data-testid="precio-total"]').textContent.match(/US\$\s*([\d.]+)/) || [])[1].replace(/\./g, '')));
+  const price = () => page.evaluate(() => Number((document.querySelector('[data-testid="precio-total"]').textContent.match(/USD\s*([\d.]+)/) || [])[1].replace(/\./g, '')));
 
   // --- Paso 1: tipo -------------------------------------------------------------
   const tolva = await state(page);
@@ -88,8 +88,8 @@ async function run() {
   report.ok('personalización: color RAL, logo y texto', cfg6.colores.caja === 'RAL 1023' && /^data:image\/png/.test(cfg6.logo.data || '') && cfg6.texto.valor.startsWith('Agro'));
   report.ok('muestra el código RAL elegido', (await page.locator('[data-testid="ral-caja"]').textContent()) === 'RAL 1023');
   const total = await price();
-  report.ok('precio en vivo', total > 60000, `US$ ${total}`);
-  report.ok('leyenda de precio orientativo visible', await page.locator('.bar .leyenda').isVisible());
+  report.ok('precio en vivo', total > 60000, `USD ${total}`);
+  report.ok('leyenda de precio orientativo visible', /orientativo/i.test((await page.locator('.price-float .ph-label').textContent()) || '') && (await page.locator('.price-float .ph-label').isVisible()));
 
   // --- Visor: cámaras, acción, hotspots ---------------------------------------------------
   await page.click('[data-testid="tb-camaras"]');
@@ -144,8 +144,8 @@ async function run() {
   report.ok('resumen: 3 renders automáticos desde el canvas', renders.length === 3 && renders.every((w) => w > 300), renders.join(', '));
   const numero = ((await page.locator('[data-testid="sum-numero"]').textContent()) || '').trim();
   report.ok('resumen: número de configuración', /[A-Z]{2}-[0-9A-Z]{7}/.test(numero), numero);
-  const sumTotal = Number((((await page.locator('[data-testid="sum-total"]').textContent()) || '').match(/US\$\s*([\d.]+)/) || [])[1]?.replace(/\./g, '') ?? 0);
-  report.ok('resumen: el total coincide con la barra', sumTotal === (await price()), `US$ ${sumTotal}`);
+  const sumTotal = Number((((await page.locator('[data-testid="sum-total"]').textContent()) || '').match(/USD\s*([\d.]+)/) || [])[1]?.replace(/\./g, '') ?? 0);
+  report.ok('resumen: el total coincide con la barra', sumTotal === (await price()), `USD ${sumTotal}`);
   await page.screenshot({ path: path.join(OUT, 'resumen.png') });
 
   // --- PDF ------------------------------------------------------------------------------------
@@ -224,6 +224,44 @@ async function run() {
   const text = decodeURIComponent(wa.split('text=')[1] || '');
   report.ok('consulta: el mensaje trae los datos, el número y el link a la configuración', text.includes('Juan Pérez') && /[?&]c=/.test(text) && /Configuración N° [A-Z]{2}-[0-9A-Z]{7}/.test(text) && /Carga útil estimada/.test(text), `${text.length} caracteres`);
   report.data.mensajeWhatsApp = text;
+  await page.keyboard.press('Escape');
+  await sleep(400);
+
+  // --- Pantalla completa: solo el visor (equipo), no toda la página -------------------------------------
+  await page.click('[data-testid="tb-pantalla"]');
+  await sleep(1200);
+  const fsEl = await page.evaluate(() => (document.fullscreenElement ? document.fullscreenElement.className : null));
+  report.ok('pantalla completa amplía solo el visor 3D', fsEl === 'stage', String(fsEl));
+  const fsSide = await page.evaluate(() => !!document.fullscreenElement && document.fullscreenElement.contains(document.querySelector('.side')));
+  report.ok('pantalla completa: el panel de configuración queda afuera', !fsSide);
+  await page.evaluate(() => document.exitFullscreen && document.fullscreenElement && document.exitFullscreen());
+  await sleep(800);
+
+  // --- Idiomas y unidades ------------------------------------------------------------------------------------
+  const tabText = () => page.locator('[data-testid="tab-config"]').textContent();
+  await page.click('[data-testid="lang-en"]');
+  await page.waitForFunction(() => document.documentElement.lang === 'en', null, { timeout: 15000 }).catch(() => undefined);
+  const enTab = (await tabText()) || '';
+  await page.click('[data-paso="tipo"]');
+  const enTipo = ((await page.locator('[data-tipo="tolva"] .nombre').textContent()) || '').trim();
+  report.ok('idioma: inglés (interfaz y catálogo)', enTab !== 'Configurar' && enTab.length > 2 && enTipo !== 'Tolva cerealera', `${enTab} · ${enTipo}`);
+  await page.click('[data-testid="lang-ru"]');
+  await page.waitForFunction(() => document.documentElement.lang === 'ru', null, { timeout: 15000 }).catch(() => undefined);
+  const ruTab = (await tabText()) || '';
+  report.ok('idioma: ruso (cirílico)', /[\u0400-\u04FF]/.test(ruTab), ruTab);
+  await page.click('[data-testid="lang-pt"]');
+  await sleep(300);
+  report.ok('idioma: portugués', ((await tabText()) || '').trim() === 'Configurar' && (await page.evaluate(() => document.documentElement.lang)) === 'pt-BR');
+  await page.click('[data-testid="lang-es"]');
+  await page.click('[data-testid="unidades-imperial"]');
+  await sleep(300);
+  await page.click('[data-paso="dimensiones"]');
+  const valorLargo = ((await page.locator('.steps-body .group-head .valor').first().textContent()) || '').trim();
+  const kpis = ((await page.locator('.price-float [data-testid="kpis"]').textContent()) || '').trim();
+  report.ok('unidades: sistema imperial (ft · lb)', / ft$/.test(valorLargo) && / lb/.test(kpis), `${valorLargo} · ${kpis}`);
+  await page.click('[data-testid="unidades-metric"]');
+  await sleep(300);
+  report.ok('unidades: vuelve al métrico', / m$/.test(((await page.locator('.steps-body .group-head .valor').first().textContent()) || '').trim()));
   report.ok('sin errores de consola en todo el flujo', errors.length === 0, errors.slice(0, 3).join(' | '));
   await page.context().close();
 
@@ -240,6 +278,7 @@ async function run() {
   report.ok('vendedor: ocultar precios (P)', (await v.page.locator('[data-testid="precio-total"]').count()) === 0 && !(await v.page.locator('.option .precio').first().isVisible().catch(() => false)));
   v.page.on('dialog', (d) => d.accept());
   await v.page.evaluate(() => window.__store.getState().setTipo('furgon'));
+  await v.page.click('[data-testid="btn-menu"]');
   await v.page.click('[data-testid="btn-reiniciar"]');
   await sleep(600);
   report.ok('vendedor: "Reiniciar demo" vuelve al inicio', (await state(v.page)).tipo === 'tolva');
@@ -247,7 +286,8 @@ async function run() {
 
   // --- Embed --------------------------------------------------------------------------------------
   const e = await openApp(browser, { url: '/embed' });
-  report.ok('/embed: sin encabezado', !(await e.page.locator('.topbar').isVisible()));
+  report.ok('/embed: sin encabezado', (await e.page.locator('.header').count()) === 0);
+  report.ok('/embed: idioma y unidades dentro del panel', await e.page.locator('.embed-lu [data-testid="sel-idioma"]').isVisible());
   report.ok('/embed: el configurador funciona', (await e.page.locator('.viewer canvas').count()) >= 1 && (await e.page.locator('[data-testid="btn-cotizar"]').isVisible()));
   await e.page.context().close();
 
@@ -262,15 +302,15 @@ async function run() {
 
   // --- Celular -----------------------------------------------------------------------------------------
   const m = await openApp(browser, { mobile: true });
-  const small = await m.page.evaluate(() => [...document.querySelectorAll('.panel button, .bar button, .toolbar button, .topbar button')].filter((b) => b.offsetParent && (b.getBoundingClientRect().width < 43.5 || b.getBoundingClientRect().height < 43.5) && !b.classList.contains('hoja-asa') && !b.closest('.seg') && !b.classList.contains('switch')).map((b) => `${b.className} ${Math.round(b.getBoundingClientRect().width)}x${Math.round(b.getBoundingClientRect().height)}`));
+  const small = await m.page.evaluate(() => [...document.querySelectorAll('.side button, .topbar button, .header button, .compare-fab')].filter((b) => b.offsetParent && (b.getBoundingClientRect().width < 43.5 || b.getBoundingClientRect().height < 43.5) && !b.classList.contains('hoja-asa') && !b.closest('.seg') && !b.classList.contains('switch')).map((b) => `${b.className} ${Math.round(b.getBoundingClientRect().width)}x${Math.round(b.getBoundingClientRect().height)}`));
   report.ok('celular: controles táctiles de 44 px o más', small.length === 0, small.slice(0, 4).join(' | '));
   const layout = await m.page.evaluate(() => ({ stage: document.querySelector('.stage').getBoundingClientRect().height, total: innerHeight, over: document.documentElement.scrollWidth > innerWidth + 1 }));
-  report.ok('celular: visor arriba (encabezado + visor ≈ 55 % del alto) y sin desborde horizontal', layout.stage / layout.total > 0.44 && !layout.over, `${Math.round((layout.stage / layout.total) * 100)} % de alto`);
+  report.ok('celular: visor arriba (≈ 50 % del alto) y sin desborde horizontal', layout.stage / layout.total > 0.44 && !layout.over, `${Math.round((layout.stage / layout.total) * 100)} % de alto`);
   await m.page.tap('[data-paso="rodado"]');
   await m.page.tap('[data-opt="frenos:ebs"]');
   report.ok('celular: se configura con el dedo', (await state(m.page)).sel.frenos === 'ebs');
   await m.page.tap('[data-testid="tec-toggle"]');
-  report.ok('celular: datos técnicos en hoja desplegable', await m.page.waitForSelector('[data-testid="checks"]', { timeout: 10000 }).then(() => true).catch(() => false));
+  report.ok('celular: pestaña de datos técnicos', await m.page.waitForSelector('[data-testid="checks"]', { timeout: 10000 }).then(() => true).catch(() => false));
   report.ok('celular: sin errores de consola', m.errors.length === 0, m.errors.slice(0, 2).join(' | '));
   await m.page.context().close();
 

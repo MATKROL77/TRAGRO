@@ -6,10 +6,11 @@ import { create } from 'zustand';
 import { subscribeWithSelector } from 'zustand/middleware';
 import { brand } from '@/core/catalog';
 import { applyChange, changeType, defaultConfig } from '@/core/rules';
-import type { Config, Lang, LogoConfig, Notice, TextConfig, TypeId, Value } from '@/core/types';
+import type { Config, Lang, LogoConfig, Notice, TextConfig, TypeId, Units, Value } from '@/core/types';
 
 export type EnvId = 'estudio' | 'exterior';
 export type Quality = 'alta' | 'media' | 'baja';
+export type PanelTab = 'config' | 'tecnico';
 
 export interface Snapshot {
   config: Config;
@@ -20,6 +21,9 @@ export interface Snapshot {
 export interface UiState {
   lang: Lang;
   moneda: 'USD' | 'ARS';
+  unidades: Units;
+  /** Pestaña visible del panel lateral. */
+  pestana: PanelTab;
   paso: string;
   env: EnvId;
   tractor: boolean;
@@ -32,12 +36,10 @@ export interface UiState {
   calidad: Quality;
   reducedMotion: boolean;
   modal: ModalId;
-  tecAbierto: boolean;
-  hojaExpandida: boolean;
   cargandoEntorno: boolean;
 }
 
-export type ModalId = null | 'resumen' | 'cotizar' | 'comparar' | 'compartir' | 'atajos' | 'tecnico';
+export type ModalId = null | 'resumen' | 'cotizar' | 'comparar' | 'compartir' | 'atajos';
 
 export interface AppNotice extends Notice {
   key: number;
@@ -83,6 +85,8 @@ let nonce = 1;
 const initialUi: UiState = {
   lang: brand.idiomaPorDefecto,
   moneda: brand.monedaPorDefecto,
+  unidades: 'metric',
+  pestana: 'config',
   paso: 'tipo',
   env: 'estudio',
   tractor: false,
@@ -95,8 +99,6 @@ const initialUi: UiState = {
   calidad: 'alta',
   reducedMotion: false,
   modal: null,
-  tecAbierto: false,
-  hojaExpandida: false,
   cargandoEntorno: false,
 };
 
@@ -152,7 +154,7 @@ export const useStore = create<AppState>()(
         activeHotspot: null,
         compare: { a: null, b: null },
         camera: { preset: 'tresCuartos', nonce: nonce++ },
-        ui: { ...s.ui, paso: 'tipo', env: 'estudio', luces: false },
+        ui: { ...s.ui, paso: 'tipo', pestana: 'config', env: 'estudio', tractor: false, luces: false },
       })),
     dismissNotice: (key) => set((s) => ({ notices: s.notices.filter((n) => n.key !== key) })),
     setUi: (patch) => set((s) => ({ ui: { ...s.ui, ...patch } })),

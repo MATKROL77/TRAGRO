@@ -2,6 +2,7 @@ import { useEffect } from 'react';
 import { steps } from '@/core/catalog';
 import { translate } from '@/i18n';
 import { useStore } from '@/state/store';
+import { toggleViewerFullscreen } from './ViewerToolbar';
 import { PRESETS } from '@/three/camera';
 
 /** Atajos de teclado del modo vendedor (no actúan mientras se escribe en un campo). */
@@ -24,8 +25,7 @@ export function useShortcuts(enabled: boolean): void {
       else if (k === 'h') st.setUi({ hotspots: !st.ui.hotspots });
       else if (k === 'p') st.setUi({ preciosOcultos: !st.ui.preciosOcultos });
       else if (k === 'f') {
-        if (document.fullscreenElement) void document.exitFullscreen();
-        else void document.documentElement.requestFullscreen?.().catch(() => undefined);
+        toggleViewerFullscreen();
       } else if (k === 'r') {
         if (window.confirm(translate(st.ui.lang, 'vendedor.confirmarReinicio'))) st.reset();
       } else if (e.key === 'ArrowRight' || e.key === 'ArrowLeft') {

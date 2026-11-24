@@ -17,7 +17,7 @@ const ORDER: LeadField[] = ['nombre', 'empresa', 'cuit', 'provincia', 'telefono'
 
 /** Formulario de consulta: abre WhatsApp o el correo con todo precargado. No depende del visor 3D. */
 export default function LeadModal() {
-  const { t, money, lang } = useI18n();
+  const { t, money, lang, units } = useI18n();
   const config = useStore((s) => s.config);
   const hide = useStore((s) => s.ui.preciosOcultos);
   const moneda = useStore((s) => s.ui.moneda);
@@ -39,7 +39,7 @@ export default function LeadModal() {
     if (errors[field]) setErrors((e) => ({ ...e, [field]: undefined }));
   };
 
-  const context = (): LeadContext => ({ config, lang, moneda, hidePrices: hide, href: window.location.href });
+  const context = (): LeadContext => ({ config, lang, moneda, units, hidePrices: hide, href: window.location.href });
 
   const send = (canal: LeadChannel) => {
     const found = validateLead(lead);
@@ -67,7 +67,7 @@ export default function LeadModal() {
     setBusy(true);
     try {
       const { downloadQuotePdf } = await import('@/pdf/quotePdf');
-      await downloadQuotePdf({ config, lang, moneda, hidePrices: hide, renders: captureRenderSet(), lead, href: window.location.href });
+      await downloadQuotePdf({ config, lang, moneda, units, hidePrices: hide, renders: captureRenderSet(), lead, href: window.location.href });
     } catch (e) {
       console.error('[configurador] no se pudo generar el PDF', e);
     } finally {

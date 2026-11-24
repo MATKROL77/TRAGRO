@@ -79,8 +79,10 @@ Son reglas de demo, aunque varias salen de la geometría del modelo:
 - **Tolva.** Las bocas se ubican entre ejes y los embudos son pirámides truncadas; el volumen descuenta rampas interiores simplificadas.
 - **Accesorios.** Se ubican solos en los huecos libres del lateral. Si no hay lugar, la regla lo impide; si alguien edita las reglas sin cuidado, el accesorio se cotiza pero puede no dibujarse.
 - **Logo.** Viaja en el link solo si es chico (≈6 KB como data URL). Si no, se avisa y hay que volver a subirlo. No se guarda en ningún lado.
-- **PDF.** Tipografía Helvetica incorporada (no la de la interfaz), para no sumar peso.
-- **Idiomas.** El portugués fue traducido sin revisión de un hablante nativo.
+- **PDF.** Tipografía Helvetica incorporada (no la de la interfaz), para no sumar peso. En ruso usa Noto Sans (subconjunto con cirílico, ~30 KB por estilo) que se descarga solo al generar ese PDF.
+- **Idiomas.** Portugués, inglés y ruso fueron traducidos sin revisión de hablantes nativos; conviene que los revise alguien antes de mostrarlos a clientes de esos mercados. Los textos del catálogo en inglés y ruso están en `src/i18n/catalogo.en.json` y `catalogo.ru.json` (clave = texto en español): si se agrega una opción al catálogo hay que sumar su traducción ahí (hay un test que avisa si falta).
+- **Unidades imperiales.** Son solo de visualización (pies, pulgadas, libras, ft³). Los límites legales, precios por metro y reglas siguen en métrico porque así está la normativa argentina.
+- **Pantalla completa.** El botón amplía solo el visor 3D (el equipo); el panel, el precio y el botón Comparar quedan afuera.
 - **Accesibilidad.** Contraste AA verificado por test sobre los colores de marca, navegación por teclado y labels en el panel. El visor 3D en sí no es operable con lector de pantalla (la información equivalente está en el resumen y la ficha técnica).
 - **Publicación.** Está publicado como Worker + KV (`deploy/publicar.py`), no en Pages: desde el entorno donde se armó, la subida directa a Pages falla porque usa un token temporal propio que el proxy de red reemplaza. Para deploy automático en cada push conviene conectar el repo a Cloudflare Pages desde el panel (ver README). `wrangler.jsonc` queda como alternativa para quien use Wrangler desde su máquina.
 - **Sin persistencia.** No hay login, base de datos ni panel de administración, por diseño.

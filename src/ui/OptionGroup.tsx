@@ -10,7 +10,7 @@ import { Slider, Stepper, Switch } from './primitives';
 
 /** Dibuja un grupo de opciones del catálogo según su tipo. 100% guiado por datos. */
 export function OptionGroup({ group }: { group: GroupDef }) {
-  const { t, tx, n, money } = useI18n();
+  const { t, tx, len, money } = useI18n();
   const cfg = useStore((s) => s.config);
   const setOption = useStore((s) => s.setOption);
   const hidePrices = useStore((s) => s.ui.preciosOcultos);
@@ -18,11 +18,11 @@ export function OptionGroup({ group }: { group: GroupDef }) {
   const name = group.id === 'alto' ? tx(typeDef(cfg.tipo).altoLabel) : tx(group.name);
   const set = (v: string | number | boolean) => setOption(group.id, v, group.foco ?? 'ninguno');
 
+  // Etiqueta de precio en forma de píldora: diferencia contra la opción elegida.
   const priceTag = (usd: number, selected: boolean, estandar?: boolean) => {
-    if (hidePrices) return null;
-    if (selected) return <span className="precio">{estandar ? t('comun.estandar') : <Icon name="check" size={18} />}</span>;
-    if (usd === 0) return <span className="precio">{estandar ? t('comun.estandar') : '='}</span>;
-    return <span className="precio">{money(usd, true)}</span>;
+    if (hidePrices) return estandar ? <span className="tag tag-std">{t('comun.estandar')}</span> : null;
+    if (selected || usd === 0) return estandar ? <span className="tag tag-std">{t('comun.estandar')}</span> : selected ? null : <span className="tag tag-std">=</span>;
+    return <span className="tag tag-price">{money(usd, true)}</span>;
   };
 
   if (group.tipo === 'rango') {
@@ -34,10 +34,10 @@ export function OptionGroup({ group }: { group: GroupDef }) {
       <section className="group" aria-label={name}>
         <div className="group-head">
           <h3>{name}</h3>
-          <span className="valor">{n(Number(value), 2)} m</span>
+          <span className="valor">{len(Number(value))}</span>
         </div>
         {group.ayuda ? <p className="group-help">{tx(group.ayuda)}</p> : null}
-        <Slider value={Number(value)} min={eff.min} max={eff.max} hardMin={base.min} step={base.paso} label={name} format={(v) => `${n(v, 2)} m`} onChange={(v) => set(v)} />
+        <Slider value={Number(value)} min={eff.min} max={eff.max} hardMin={base.min} step={base.paso} label={name} format={(v) => len(v)} onChange={(v) => set(v)} />
         {eff.motivo && eff.min > base.min ? (
           <p className="group-help" style={{ color: 'var(--alerta)', marginTop: '0.4rem' }}>
             <Icon name="info" size={14} style={{ verticalAlign: '-2px', marginRight: 4 }} />
@@ -90,15 +90,20 @@ export function OptionGroup({ group }: { group: GroupDef }) {
                 data-opt={`${group.id}:${o.id}`}
                 onClick={() => !st.disabled && set(o.id)}
               >
-                <span className="nombre">{tx(o.name)}</span>
-                {st.disabled ? <span className="precio">{t('comun.noDisponible')}</span> : priceTag(delta, selected, o.estandar)}
-                {o.desc ? <span className="desc">{tx(o.desc)}</span> : null}
-                {st.disabled && st.motivo ? (
-                  <span className="motivo">
-                    <Icon name="info" size={14} />
-                    {tx(st.motivo)}
-                  </span>
-                ) : null}
+                <span className="opt-radio" aria-hidden="true">
+                  {selected ? <Icon name="check" size={14} /> : null}
+                </span>
+                <span className="opt-body">
+                  <span className="nombre">{tx(o.name)}</span>
+                  {o.desc ? <span className="desc">{tx(o.desc)}</span> : null}
+                  {st.disabled && st.motivo ? (
+                    <span className="motivo">
+                      <Icon name="info" size={14} />
+                      {tx(st.motivo)}
+                    </span>
+                  ) : null}
+                </span>
+                <span className="precio">{st.disabled ? <span className="tag tag-std">{t('comun.noDisponible')}</span> : priceTag(delta, selected, o.estandar)}</span>
               </button>
             );
           })}
@@ -124,7 +129,9 @@ export function OptionGroup({ group }: { group: GroupDef }) {
             {tx(st.motivo)}
           </span>
         ) : hidePrices ? null : (
-          <span className="precio">{money(usd, true)}</span>
+          <span className="precio">
+            <span className="tag tag-price">{money(usd, true)}</span>
+          </span>
         )}
       </div>
     );
@@ -148,7 +155,9 @@ export function OptionGroup({ group }: { group: GroupDef }) {
         </span>
       ) : hidePrices ? null : (
         <span className="precio">
-          {money(unit, true)} c/u
+          <span className="tag tag-price">
+            {money(unit, true)} {t('comun.cadaUno')}
+          </span>
         </span>
       )}
     </div>
