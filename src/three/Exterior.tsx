@@ -224,6 +224,8 @@ function makeGroundMaterial(a: Assets, macro: THREE.Texture, haze: HazeUniforms)
           vec3 crop = cF * tint * furrow * mix(0.9, 1.08, n1);
           float beyond = smoothstep(uRoad.w - 0.5, uRoad.w + 0.7, adz);
           cF = mix(road, crop, beyond);
+          // El postprocesado sube saturación y contraste: el pasto se apaga un poco para que no quede fluorescente.
+          cF = mix(vec3(dot(cF, vec3(0.3, 0.59, 0.11))), cF, 0.66) * 0.82;
 
           vec3 col = cA * gwAsph + cG * gwGrav + cF * gwGrass;
 
@@ -458,18 +460,28 @@ function buildTreeLines(haze: HazeUniforms): { objects: THREE.Object3D[]; dispos
   const [canvas, ctx] = makeCanvas(W, H);
   const rand = rng(77);
   ctx.clearRect(0, 0, W, H);
-  // Copas superpuestas con alturas irregulares; algún eucalipto más alto.
+  // Montes aislados: copas chicas e irregulares, claros entre grupos y algún eucalipto más alto.
   for (let pass = 0; pass < 3; pass++) {
-    for (let x = -40; x < W + 40; x += 14 + rand() * 26) {
-      const tall = rand() > 0.86;
-      const r = (tall ? 34 : 22) + rand() * 26;
-      const h = (tall ? 150 : 86) + rand() * 60 - pass * 14;
-      const g = 52 + rand() * 30 - pass * 6;
-      ctx.fillStyle = `rgb(${Math.round(g * 0.58)},${Math.round(g)},${Math.round(g * 0.42)})`;
-      ctx.beginPath();
-      ctx.ellipse(x, H - h * 0.55, r * (tall ? 0.7 : 1.15), h * 0.52, 0, 0, Math.PI * 2);
-      ctx.fill();
-      ctx.fillRect(x - r * 0.7, H - h * 0.4, r * 1.4, h * 0.4);
+    let x = -40;
+    while (x < W + 40) {
+      // Cada tanto, un claro: el monte no es una pared continua.
+      if (rand() > 0.9) x += 50 + rand() * 130;
+      const tall = rand() > 0.82;
+      const r = (tall ? 11 : 9) + rand() * 13;
+      const h = (tall ? 132 : 62) + rand() * 58 - pass * 10;
+      const g = 40 + rand() * 26 - pass * 5;
+      ctx.fillStyle = `rgb(${Math.round(g * 0.6)},${Math.round(g)},${Math.round(g * 0.46)})`;
+      // Copa formada por varios lóbulos para que el contorno no sea un óvalo liso.
+      for (let k = 0; k < 5; k++) {
+        const ox = (rand() - 0.5) * r * 1.3;
+        const oy = (rand() - 0.5) * h * 0.34;
+        ctx.beginPath();
+        ctx.ellipse(x + ox, H - h * 0.62 + oy, r * (0.55 + rand() * 0.5), h * (0.2 + rand() * 0.16), 0, 0, Math.PI * 2);
+        ctx.fill();
+      }
+      ctx.fillRect(x - 2.5, H - h * 0.55, 5, h * 0.55);
+      ctx.fillRect(x - r * 0.55, H - h * 0.3, r * 1.1, h * 0.3);
+      x += 9 + rand() * 17;
     }
   }
   const tex = new THREE.CanvasTexture(canvas);
@@ -480,13 +492,13 @@ function buildTreeLines(haze: HazeUniforms): { objects: THREE.Object3D[]; dispos
   const geos: THREE.BufferGeometry[] = [];
   // [centro x, centro z, largo, alto, giro en Y, desplazamiento u]
   const strips: [number, number, number, number, number, number][] = [
-    [140, -290, 420, 20, 0.06, 0.0],
-    [-330, -230, 260, 17, 0.5, 0.31],
-    [-110, 270, 340, 18, Math.PI - 0.1, 0.55],
-    [300, 235, 230, 16, Math.PI + 0.45, 0.12],
-    [470, -70, 220, 17, Math.PI / 2 + 0.2, 0.7],
-    [-500, 50, 260, 19, -Math.PI / 2 - 0.15, 0.43],
-    [-40, -520, 300, 22, 0.02, 0.2],
+    [160, -330, 300, 15, 0.06, 0.0],
+    [-340, -260, 200, 13, 0.5, 0.31],
+    [-120, 310, 260, 14, Math.PI - 0.1, 0.55],
+    [320, 270, 180, 13, Math.PI + 0.45, 0.12],
+    [500, -80, 170, 13, Math.PI / 2 + 0.2, 0.7],
+    [-540, 60, 200, 14, -Math.PI / 2 - 0.15, 0.43],
+    [-40, -560, 240, 16, 0.02, 0.2],
   ];
   for (const [cx, cz, len, h, rot, off] of strips) {
     const g = new THREE.PlaneGeometry(len, h, 28, 1);

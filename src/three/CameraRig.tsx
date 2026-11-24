@@ -4,6 +4,7 @@ import { useFrame, useThree } from '@react-three/fiber';
 import { OrbitControls } from '@react-three/drei';
 import type { OrbitControls as OrbitImpl } from 'three-stdlib';
 import { useStore } from '@/state/store';
+import { markActive } from './activity';
 import { poseFor, type Pose } from './camera';
 import { currentModel } from './TrailerObject';
 
@@ -34,6 +35,7 @@ export function CameraRig() {
   const home = useRef<{ pose: Pose; until: number } | null>(null);
   const idle = useRef(0);
   const rotating = useRef(false);
+  const dragging = useRef(false);
   const clock = useRef(0);
 
   // Con la ficha técnica abierta (escritorio) el equipo se encuadra en el espacio libre.
@@ -183,6 +185,8 @@ export function CameraRig() {
     const dt = Math.min(rawDt, 0.05);
     clock.current += wall;
 
+    if (dragging.current || rotating.current || transition.current) markActive();
+
     const tr = transition.current;
     if (tr) {
       tr.t = Math.min(1, tr.t + dt / tr.dur);
@@ -246,6 +250,12 @@ export function CameraRig() {
       maxDistance={62}
       minPolarAngle={0.12}
       maxPolarAngle={Math.PI * 0.64}
+      onStart={() => {
+        dragging.current = true;
+      }}
+      onEnd={() => {
+        dragging.current = false;
+      }}
       onChange={() => {
         const c = controls.current;
         if (!c) return;

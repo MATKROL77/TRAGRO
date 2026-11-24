@@ -77,11 +77,11 @@ export function ViewerToolbar() {
         ) : null}
       </div>
       <span className="div" />
-      <button type="button" className={`tb-btn ${ui.env === 'estudio' ? 'is-active' : ''}`} aria-pressed={ui.env === 'estudio'} onClick={() => setUi({ env: 'estudio' })} data-testid="tb-estudio">
+      <button type="button" className={`tb-btn ${ui.env === 'estudio' ? 'is-active' : ''}`} aria-pressed={ui.env === 'estudio'} onClick={() => setUi({ env: 'estudio', tractor: false })} data-testid="tb-estudio">
         <Icon name="estudio" size={18} />
         <span>{t('visor.estudio')}</span>
       </button>
-      <button type="button" className={`tb-btn ${ui.env === 'exterior' ? 'is-active' : ''} ${ui.cargandoEntorno ? 'is-loading' : ''}`} aria-pressed={ui.env === 'exterior'} aria-busy={ui.cargandoEntorno} onClick={() => setUi({ env: 'exterior' })} data-testid="tb-exterior">
+      <button type="button" className={`tb-btn ${ui.env === 'exterior' ? 'is-active' : ''} ${ui.cargandoEntorno ? 'is-loading' : ''}`} aria-pressed={ui.env === 'exterior'} aria-busy={ui.cargandoEntorno} onClick={() => setUi({ env: 'exterior', tractor: true })} data-testid="tb-exterior">
         <Icon name="exterior" size={18} />
         <span>{t('visor.exterior')}</span>
       </button>

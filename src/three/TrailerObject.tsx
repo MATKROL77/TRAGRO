@@ -3,6 +3,7 @@ import * as THREE from 'three';
 import { useFrame, useThree } from '@react-three/fiber';
 import { brand, groupDef, ral } from '@/core/catalog';
 import { useStore } from '@/state/store';
+import { markActive } from './activity';
 import type { AnimState } from './build';
 import { upgradeMaterials } from './ktx';
 import { composeFlapPrint, composeLivery, liveryTexture } from './livery';
@@ -171,7 +172,10 @@ export function TrailerObject() {
     lib.setLights(a.luces);
     const colors = lib.tick(dt);
     const busy = model.isBusy();
-    if (moving || busy) model.update(a);
+    if (moving || busy) {
+      model.update(a);
+      markActive();
+    }
     if (moving || colors || busy) invalidate();
   });
 

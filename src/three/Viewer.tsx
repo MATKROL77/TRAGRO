@@ -4,6 +4,7 @@ import { Canvas, useFrame, useThree } from '@react-three/fiber';
 import { useProgress } from '@react-three/drei';
 import type { OrbitControls as OrbitImpl } from 'three-stdlib';
 import { useStore } from '@/state/store';
+import { isActive } from './activity';
 import { poseFor } from './camera';
 import { CameraRig, FOV, rigLock } from './CameraRig';
 import { composerRef, Effects } from './Effects';
@@ -177,17 +178,20 @@ function AdaptiveQuality({ mobile }: { mobile: boolean }) {
     setDpr(Math.min(device, cap));
   }, [calidad, mobile, setDpr]);
 
-  useFrame((_, dt) => {
+  useFrame((_, rawDt) => {
     const p = perf.current;
-    if (dt > 0.25) {
+    const continuous = isActive();
+    if (!continuous && rawDt > 0.25) {
       // Pausa del render a demanda: empieza una ráfaga nueva.
       p.run = 0;
       p.sum = 0;
       return;
     }
     p.run++;
-    p.sum += dt;
-    if (p.run < 50) return;
+    p.sum += Math.min(rawDt, 1.5);
+    // Ventana de medición: 50 cuadros, o 2,5 s si el equipo es muy lento.
+    if (p.run < 50 && p.sum < 2.5) return;
+    if (p.run < 4) return;
     const fps = p.run / p.sum;
     p.run = 0;
     p.sum = 0;

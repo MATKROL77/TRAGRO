@@ -106,6 +106,12 @@ async function run() {
   report.ok('fps durante "Ver en acción"', fpsAnim > 0, `${fpsAnim} fps`);
   console.log(`  · cuadro completo: ${draw.calls} draw calls, ${draw.triangles} triángulos (incluye sombras y postprocesado); modelo: ${draw.modelMeshes} mallas, ${draw.modelTriangles} triángulos`);
 
+  if (process.env.SOLO_FPS === '1') {
+    await browser.close();
+    report.save();
+    return report;
+  }
+
   // --- Estrés: 200 cambios de opción -------------------------------------------------------
   await settle(page);
   const mem = () =>

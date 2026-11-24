@@ -43,7 +43,8 @@ async function run() {
   await sleep(700);
   const cfg3 = await state(page);
   report.ok('regla: súper single cambia sola a suspensión neumática', p0 === 'mecanica' && cfg3.sel.suspension === 'neumatica');
-  report.ok('regla: aparece el aviso explicando el ajuste', await page.locator('[data-notice="single-requiere-neumatica"]').isVisible());
+  const aviso = await page.waitForSelector('[data-notice="single-requiere-neumatica"]', { state: 'visible', timeout: 8000 }).then((el) => el.textContent()).catch(() => null);
+  report.ok('regla: aparece el aviso explicando el ajuste', !!aviso && /neumática/.test(aviso), aviso || '');
   const mec = page.locator('[data-opt="suspension:mecanica"]');
   report.ok('regla: la opción incompatible queda deshabilitada con motivo', (await mec.getAttribute('aria-disabled')) === 'true' && ((await mec.getAttribute('title')) || '').length > 10);
   await mec.click({ force: true });
