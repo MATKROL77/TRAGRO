@@ -10,20 +10,62 @@
     "skipToPanel": "Skip to configuration panel"
   },
   "steps": {
-    "model": { "name": "Model", "hint": "Choose the model for the working width you need." },
-    "rows": { "name": "Rows", "hint": "Number of rows and row spacing." },
-    "transport": { "name": "Transport", "hint": "How it travels on the road." },
-    "hoppers": { "name": "Hoppers", "hint": "Seed and fertilizer." },
-    "rowUnit": { "name": "Row unit", "hint": "Everything that works in the furrow." },
-    "tech": { "name": "Technology", "hint": "Metering, monitor and precision farming." },
-    "custom": { "name": "Customize", "hint": "Colors, logo and text." }
+    "model": {
+      "name": "Model",
+      "hint": "Choose the model for the working width you need."
+    },
+    "rows": {
+      "name": "Rows",
+      "hint": "Number of rows and row spacing."
+    },
+    "transport": {
+      "name": "Transport",
+      "hint": "How it travels on the road."
+    },
+    "hoppers": {
+      "name": "Hoppers",
+      "hint": "Seed and fertilizer."
+    },
+    "rowUnit": {
+      "name": "Row unit",
+      "hint": "Everything that works in the furrow."
+    },
+    "tech": {
+      "name": "Technology",
+      "hint": "Metering, monitor and precision farming."
+    },
+    "custom": {
+      "name": "Customize",
+      "hint": "Colors, logo and text."
+    }
   },
-  "nav": { "next": "Next", "back": "Back", "step": "Step {n} of {total}" },
+  "nav": {
+    "next": "Next",
+    "back": "Back",
+    "step": "Step {n} of {total}",
+    "configure": "Configure"
+  },
   "models": {
-    "sp10c": { "name": "SP 10C", "tier": "Compact", "desc": "For smaller fields and contractors on the move." },
-    "sp16m": { "name": "SP 16M", "tier": "Mid-size", "desc": "Our best seller: the right balance of capacity and tractor size." },
-    "sp24g": { "name": "SP 24G", "tier": "Large", "desc": "High capacity for large-scale growers." },
-    "sp36xg": { "name": "SP 36XG", "tier": "Wide", "desc": "Maximum acres per day." },
+    "sp10c": {
+      "name": "SP 10C",
+      "tier": "Compact",
+      "desc": "For smaller fields and contractors on the move."
+    },
+    "sp16m": {
+      "name": "SP 16M",
+      "tier": "Mid-size",
+      "desc": "Our best seller: the right balance of capacity and tractor size."
+    },
+    "sp24g": {
+      "name": "SP 24G",
+      "tier": "Large",
+      "desc": "High capacity for large-scale growers."
+    },
+    "sp36xg": {
+      "name": "SP 36XG",
+      "tier": "Wide",
+      "desc": "Maximum acres per day."
+    },
     "rowsRange": "{min}–{max} rows",
     "from": "from"
   },
@@ -36,91 +78,231 @@
     "formula": "{rows} rows × {spacing}"
   },
   "groups": {
-    "transport": { "name": "Transport system" },
-    "transportWheels": { "name": "Transport wheels" },
-    "seedHopper": { "name": "Seed hoppers" },
-    "seedCapacity": { "name": "Seed capacity" },
-    "fertilizer": { "name": "Fertilizer" },
-    "fertCapacity": { "name": "Fertilizer capacity" },
-    "coulter": { "name": "Residue coulter" },
-    "closing": { "name": "Closing wheels" },
-    "firmer": { "name": "Seed firmer" },
-    "downforce": { "name": "Downforce" },
-    "metering": { "name": "Seed metering" },
-    "monitor": { "name": "Planter monitor" },
-    "sectionControl": { "name": "Row-by-row shutoff" },
-    "variableRate": { "name": "Variable rate" },
-    "isobus": { "name": "ISOBUS compatibility" },
-    "autosteer": { "name": "Autosteer" }
+    "transport": {
+      "name": "Transport system"
+    },
+    "transportWheels": {
+      "name": "Transport wheels"
+    },
+    "seedHopper": {
+      "name": "Seed hoppers"
+    },
+    "seedCapacity": {
+      "name": "Seed capacity"
+    },
+    "fertilizer": {
+      "name": "Fertilizer"
+    },
+    "fertCapacity": {
+      "name": "Fertilizer capacity"
+    },
+    "coulter": {
+      "name": "Residue coulter"
+    },
+    "closing": {
+      "name": "Closing wheels"
+    },
+    "firmer": {
+      "name": "Seed firmer"
+    },
+    "downforce": {
+      "name": "Downforce"
+    },
+    "metering": {
+      "name": "Seed metering"
+    },
+    "monitor": {
+      "name": "Planter monitor"
+    },
+    "sectionControl": {
+      "name": "Row-by-row shutoff"
+    },
+    "variableRate": {
+      "name": "Variable rate"
+    },
+    "isobus": {
+      "name": "ISOBUS compatibility"
+    },
+    "autosteer": {
+      "name": "Autosteer"
+    }
   },
   "options": {
     "transport": {
-      "fold": { "name": "Wing fold", "desc": "Hydraulic cylinders fold the wings up." },
-      "longitudinal": { "name": "Endways transport", "desc": "The planter turns 90° on its transport wheels and is towed end-first. Narrow and safe on the road." }
+      "fold": {
+        "name": "Wing fold",
+        "desc": "Hydraulic cylinders fold the wings up."
+      },
+      "longitudinal": {
+        "name": "Endways transport",
+        "desc": "The planter turns 90° on its transport wheels and is towed end-first. Narrow and safe on the road."
+      }
     },
     "transportWheels": {
-      "standard": { "name": "Standard", "desc": "High-lug agricultural tires." },
-      "flotation": { "name": "High flotation", "desc": "Wide tires: less compaction and better traction in wet fields." }
+      "standard": {
+        "name": "Standard",
+        "desc": "High-lug agricultural tires."
+      },
+      "flotation": {
+        "name": "High flotation",
+        "desc": "Wide tires: less compaction and better traction in wet fields."
+      }
     },
     "seedHopper": {
-      "individual": { "name": "Individual hoppers", "desc": "One hopper per row: simple and rugged." },
-      "central": { "name": "Central air-delivery hopper", "desc": "One large tank with air delivery to every row. Faster refills." }
+      "individual": {
+        "name": "Individual hoppers",
+        "desc": "One hopper per row: simple and rugged."
+      },
+      "central": {
+        "name": "Central air-delivery hopper",
+        "desc": "One large tank with air delivery to every row. Faster refills."
+      }
     },
     "seedCapacity": {
-      "std": { "name": "Standard", "desc": "60 L per row or 1,800 L central." },
-      "large": { "name": "Large", "desc": "80 L per row or 2,600 L central. More acres between refills." }
+      "std": {
+        "name": "Standard",
+        "desc": "60 L per row or 1,800 L central."
+      },
+      "large": {
+        "name": "Large",
+        "desc": "80 L per row or 2,600 L central. More acres between refills."
+      }
     },
     "fertilizer": {
-      "none": { "name": "No fertilizer", "desc": "Seed only." },
-      "inline": { "name": "In-furrow fertilizer", "desc": "Fertilizer is placed in the seed furrow, right behind the coulter." },
-      "side": { "name": "Side-band fertilizer", "desc": "A separate disc places fertilizer 5 cm (2 in) from the seed, so it won't burn it." }
+      "none": {
+        "name": "No fertilizer",
+        "desc": "Seed only."
+      },
+      "inline": {
+        "name": "In-furrow fertilizer",
+        "desc": "Fertilizer is placed in the seed furrow, right behind the coulter."
+      },
+      "side": {
+        "name": "Side-band fertilizer",
+        "desc": "A separate disc places fertilizer 5 cm (2 in) from the seed, so it won't burn it."
+      }
     },
     "fertCapacity": {
-      "std": { "name": "1,800 L", "desc": "Central tank with lid, ladder and walkway." },
-      "large": { "name": "2,800 L", "desc": "Fewer refill stops in large fields." }
+      "std": {
+        "name": "1,800 L",
+        "desc": "Central tank with lid, ladder and walkway."
+      },
+      "large": {
+        "name": "2,800 L",
+        "desc": "Fewer refill stops in large fields."
+      }
     },
     "coulter": {
-      "turbo": { "name": "Turbo", "desc": "Cuts residue with minimal soil disturbance. Ideal for no-till." },
-      "wavy": { "name": "Wavy", "desc": "Tills a wider strip. Helps in cold soils or heavy residue." }
+      "turbo": {
+        "name": "Turbo",
+        "desc": "Cuts residue with minimal soil disturbance. Ideal for no-till."
+      },
+      "wavy": {
+        "name": "Wavy",
+        "desc": "Tills a wider strip. Helps in cold soils or heavy residue."
+      }
     },
     "closing": {
-      "rubber": { "name": "Rubber", "desc": "Gentle closing for light soils." },
-      "castiron": { "name": "Cast iron", "desc": "Extra weight to close the furrow in heavy soils." },
-      "spiked": { "name": "Spiked", "desc": "Crumble the sidewall and remove air pockets." }
+      "rubber": {
+        "name": "Rubber",
+        "desc": "Gentle closing for light soils."
+      },
+      "castiron": {
+        "name": "Cast iron",
+        "desc": "Extra weight to close the furrow in heavy soils."
+      },
+      "spiked": {
+        "name": "Spiked",
+        "desc": "Crumble the sidewall and remove air pockets."
+      }
     },
     "firmer": {
-      "off": { "name": "No firmer", "desc": "" },
-      "on": { "name": "With firmer", "desc": "Presses seed into the bottom of the furrow for more even emergence." }
+      "off": {
+        "name": "No firmer",
+        "desc": ""
+      },
+      "on": {
+        "name": "With firmer",
+        "desc": "Presses seed into the bottom of the furrow for more even emergence."
+      }
     },
     "downforce": {
-      "spring": { "name": "Springs", "desc": "Mechanical downforce, adjustable per row." },
-      "pneumatic": { "name": "Pneumatic (airbags)", "desc": "Even pressure across the whole width, adjustable from the cab." }
+      "spring": {
+        "name": "Springs",
+        "desc": "Mechanical downforce, adjustable per row."
+      },
+      "pneumatic": {
+        "name": "Pneumatic (airbags)",
+        "desc": "Even pressure across the whole width, adjustable from the cab."
+      }
     },
     "metering": {
-      "chain": { "name": "Mechanical, chain drive", "desc": "Simple, proven and easy to repair in the field." },
-      "shaft": { "name": "Mechanical, shaft drive", "desc": "No exposed chains, less maintenance." },
-      "pneumatic": { "name": "Vacuum meter", "desc": "Vacuum seed discs: very accurate singulation." },
-      "electric": { "name": "Electric drive, one motor per row", "desc": "Each row has its own motor: enables row-by-row shutoff and variable rate." }
+      "chain": {
+        "name": "Mechanical, chain drive",
+        "desc": "Simple, proven and easy to repair in the field."
+      },
+      "shaft": {
+        "name": "Mechanical, shaft drive",
+        "desc": "No exposed chains, less maintenance."
+      },
+      "pneumatic": {
+        "name": "Vacuum meter",
+        "desc": "Vacuum seed discs: very accurate singulation."
+      },
+      "electric": {
+        "name": "Electric drive, one motor per row",
+        "desc": "Each row has its own motor: enables row-by-row shutoff and variable rate."
+      }
     },
     "monitor": {
-      "basic": { "name": "Basic", "desc": "Blockages and population per row." },
-      "advanced": { "name": "Advanced", "desc": "Touchscreen with maps, shutoffs and field records." }
+      "basic": {
+        "name": "Basic",
+        "desc": "Blockages and population per row."
+      },
+      "advanced": {
+        "name": "Advanced",
+        "desc": "Touchscreen with maps, shutoffs and field records."
+      }
     },
     "sectionControl": {
-      "off": { "name": "No", "desc": "" },
-      "on": { "name": "Yes", "desc": "Shuts off each row when it enters an already planted headland: less overlap, less seed wasted." }
+      "off": {
+        "name": "No",
+        "desc": ""
+      },
+      "on": {
+        "name": "Yes",
+        "desc": "Shuts off each row when it enters an already planted headland: less overlap, less seed wasted."
+      }
     },
     "variableRate": {
-      "off": { "name": "No", "desc": "" },
-      "on": { "name": "Ready", "desc": "Changes population by management zone, from a prescription map." }
+      "off": {
+        "name": "No",
+        "desc": ""
+      },
+      "on": {
+        "name": "Ready",
+        "desc": "Changes population by management zone, from a prescription map."
+      }
     },
     "isobus": {
-      "off": { "name": "No", "desc": "" },
-      "on": { "name": "Ready", "desc": "Controlled from the tractor's compatible terminal." }
+      "off": {
+        "name": "No",
+        "desc": ""
+      },
+      "on": {
+        "name": "Ready",
+        "desc": "Controlled from the tractor's compatible terminal."
+      }
     },
     "autosteer": {
-      "off": { "name": "No", "desc": "" },
-      "on": { "name": "Ready", "desc": "Ready for autosteer: parallel passes with no overlaps." }
+      "off": {
+        "name": "No",
+        "desc": ""
+      },
+      "on": {
+        "name": "Ready",
+        "desc": "Ready for autosteer: parallel passes with no overlaps."
+      }
     }
   },
   "status": {
@@ -202,7 +384,12 @@
     "inputs": "Working conditions",
     "results": "Results"
   },
-  "crops": { "maize": "Corn", "soy": "Soybean", "sunflower": "Sunflower", "sorghum": "Sorghum" },
+  "crops": {
+    "maize": "Corn",
+    "soy": "Soybean",
+    "sunflower": "Sunflower",
+    "sorghum": "Sorghum"
+  },
   "transport": {
     "title": "Road transport",
     "width": "Width",
@@ -211,12 +398,18 @@
     "machineLength": "Planter length",
     "limit": "General limit {general} · special {special}",
     "profile": "Reference",
-    "profiles": { "AR": "Argentina (reference)", "INT": "International (reference)" },
+    "profiles": {
+      "AR": "Argentina (reference)",
+      "INT": "International (reference)"
+    },
     "green": "Within general road limits.",
     "yellow": "Above general limits: travels as special agricultural machinery (warning lights, time restrictions and permits).",
     "red": "Above reference limits: requires a special permit and escort, or a different transport system.",
     "disclaimer": "Demo reference limits. The manufacturer must confirm them against current regulations in the destination country.",
-    "mode": { "fold": "Wings folded", "longitudinal": "Endways" }
+    "mode": {
+      "fold": "Wings folded",
+      "longitudinal": "Endways"
+    }
   },
   "toolbar": {
     "cameras": "Cameras",
@@ -230,7 +423,11 @@
       "hoppers": "Hoppers",
       "ground": "Ground level"
     },
-    "env": { "studio": "Studio", "field": "Field", "road": "Road" },
+    "env": {
+      "studio": "Studio",
+      "field": "Field",
+      "road": "Road"
+    },
     "sow": "Watch it plant",
     "stopSow": "Stop",
     "fold": "Fold for transport",
@@ -246,18 +443,46 @@
     "tractor": "Tractor",
     "hotspots": "Tech points",
     "autoFocus": "Zoom in on option changes",
-    "stubble": { "soy": "Soybean stubble", "maize": "Corn stubble" },
-    "more": "More"
+    "stubble": {
+      "soy": "Soybean stubble",
+      "maize": "Corn stubble"
+    },
+    "more": "More",
+    "drive": "Drive on the road"
   },
   "hotspots": {
-    "coulter": { "title": "Residue coulter", "body": "Cuts residue ahead of the discs, so the furrow stays clean and seed doesn't get mixed with straw." },
-    "discs": { "title": "Offset double-disc opener", "body": "Opens an even V-furrow, even in heavy residue, and places seed at the right depth." },
-    "gauge": { "title": "Gauge wheels", "body": "Follow the ground on both sides of the furrow, so depth stays the same over hills and hollows." },
-    "meter": { "title": "Seed meter", "body": "Places every seed at the set spacing. With electric drive it enables row-by-row shutoff and variable rate." },
-    "closing": { "title": "Closing wheels", "body": "Close the furrow and ensure good seed-to-soil contact for even emergence." },
-    "hoppers": { "title": "Hoppers", "body": "More capacity means fewer refill stops and more acres per day." },
-    "transport": { "title": "Transport system", "body": "From field to road in minutes, without tools, from the tractor cab." },
-    "monitor": { "title": "Planter monitor", "body": "Alerts you instantly if a row fails or plugs. See the real population in every row." }
+    "coulter": {
+      "title": "Residue coulter",
+      "body": "Cuts residue ahead of the discs, so the furrow stays clean and seed doesn't get mixed with straw."
+    },
+    "discs": {
+      "title": "Offset double-disc opener",
+      "body": "Opens an even V-furrow, even in heavy residue, and places seed at the right depth."
+    },
+    "gauge": {
+      "title": "Gauge wheels",
+      "body": "Follow the ground on both sides of the furrow, so depth stays the same over hills and hollows."
+    },
+    "meter": {
+      "title": "Seed meter",
+      "body": "Places every seed at the set spacing. With electric drive it enables row-by-row shutoff and variable rate."
+    },
+    "closing": {
+      "title": "Closing wheels",
+      "body": "Close the furrow and ensure good seed-to-soil contact for even emergence."
+    },
+    "hoppers": {
+      "title": "Hoppers",
+      "body": "More capacity means fewer refill stops and more acres per day."
+    },
+    "transport": {
+      "title": "Transport system",
+      "body": "From field to road in minutes, without tools, from the tractor cab."
+    },
+    "monitor": {
+      "title": "Planter monitor",
+      "body": "Alerts you instantly if a row fails or plugs. See the real population in every row."
+    }
   },
   "detail": {
     "title": "Row unit",
@@ -309,8 +534,16 @@
     "language": "Language",
     "units": "Units"
   },
-  "units": { "metric": "Metric", "imperial": "Imperial" },
-  "langNames": { "es-AR": "Español", "en": "English", "pt-BR": "Português", "ru": "Русский" },
+  "units": {
+    "metric": "Metric",
+    "imperial": "Imperial"
+  },
+  "langNames": {
+    "es-AR": "Español",
+    "en": "English",
+    "pt-BR": "Português",
+    "ru": "Русский"
+  },
   "summary": {
     "title": "Your planter at a glance",
     "configNumber": "Configuration no.",
@@ -320,7 +553,11 @@
     "renders": "Views",
     "rendering": "Rendering views…",
     "date": "Date",
-    "views": { "front34": "Front 3/4", "top": "Top", "transport": "Transport" }
+    "views": {
+      "front34": "Front 3/4",
+      "top": "Top",
+      "transport": "Transport"
+    }
   },
   "compare": {
     "title": "Compare configurations",

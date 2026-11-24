@@ -1,7 +1,7 @@
 import { forwardRef, useMemo } from 'react';
 import * as THREE from 'three';
 import { getMaterials } from './materials';
-import { lugsGeo, rimGeo, roundedBox, tireGeo, cylinderX, barBetween, tube } from '../machines/seeder/parts';
+import { roundedBox, cylinderX, barBetween, tube, wheelSet, type WheelGeos } from '../machines/seeder/parts';
 
 /**
  * Tractor genérico SIN marca (no imita ningún modelo real): gris claro con detalles grafito.
@@ -14,13 +14,13 @@ function useTractorParts() {
     const m = getMaterials();
     const RR = 0.92;
     const RF = 0.62;
-    const rearTire = tireGeo(RR, 0.6, RR - 0.32, { segs: 64, squareness: 0.5 });
-    const rearLugs = lugsGeo(RR - 0.02, 0.56, 26, 0.06);
-    const rearRim = rimGeo(RR - 0.32, 0.55, 0.12);
-    const frontTire = tireGeo(RF, 0.42, RF - 0.24, { segs: 56, squareness: 0.5 });
-    const frontLugs = lugsGeo(RF - 0.015, 0.4, 20, 0.045);
-    const frontRim = rimGeo(RF - 0.24, 0.38, 0.08);
-    return { m, RR, RF, rearTire, rearLugs, rearRim, frontTire, frontLugs, frontRim };
+    const wheels: Record<string, WheelGeos> = {
+      r1: wheelSet(RR, 0.6, { rimR: RR * 0.62, outward: 1, lugH: 0.075 }),
+      r0: wheelSet(RR, 0.6, { rimR: RR * 0.62, outward: -1, lugH: 0.075 }),
+      f1: wheelSet(RF, 0.42, { rimR: RF * 0.6, outward: 1, lugH: 0.05 }),
+      f0: wheelSet(RF, 0.42, { rimR: RF * 0.6, outward: -1, lugH: 0.05 }),
+    };
+    return { m, RR, RF, wheels };
   }, []);
 }
 
@@ -109,20 +109,20 @@ export const Tractor = forwardRef<THREE.Group, { wheelRefs?: React.MutableRefObj
       <mesh geometry={geo.hitch} material={dark} castShadow />
       <mesh geometry={geo.hose} material={m.hose} />
       {/* ruedas */}
-      {[-1, 1].map((s) => (
-        <group key={`r${s}`} position={[s * 1.0, p.RR, 0]} ref={reg}>
-          <mesh geometry={p.rearTire} material={m.tire} castShadow receiveShadow />
-          <mesh geometry={p.rearLugs} material={m.rubber} castShadow />
-          <mesh geometry={p.rearRim} material={m.rimGrey} scale={[s, 1, 1]} />
-        </group>
-      ))}
-      {[-1, 1].map((s) => (
-        <group key={`f${s}`} position={[s * 0.92, p.RF, wb]} ref={reg}>
-          <mesh geometry={p.frontTire} material={m.tire} castShadow receiveShadow />
-          <mesh geometry={p.frontLugs} material={m.rubber} castShadow />
-          <mesh geometry={p.frontRim} material={m.rimGrey} scale={[s, 1, 1]} />
-        </group>
-      ))}
+      {([['r', p.RR, 1.0, 0], ['f', p.RF, 0.92, wb]] as const).map(([k, r, x, z]) =>
+        [-1, 1].map((sd) => {
+          const w = p.wheels[`${k}${sd > 0 ? 1 : 0}`];
+          return (
+            <group key={`${k}${sd}`} position={[sd * x, r, z]} ref={reg}>
+              <mesh geometry={w.tire} material={m.tire} castShadow receiveShadow />
+              <mesh geometry={w.lugs} material={m.rubber} castShadow />
+              <mesh geometry={w.rim} material={m.rimGrey} />
+              <mesh geometry={w.metal} material={m.steel} />
+              <mesh geometry={w.dark} material={m.paintDark} />
+            </group>
+          );
+        }),
+      )}
     </group>
   );
 });

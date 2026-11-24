@@ -10,20 +10,62 @@
     "skipToPanel": "Ir para o painel de configuração"
   },
   "steps": {
-    "model": { "name": "Modelo", "hint": "Escolha o modelo pela largura de trabalho que você precisa." },
-    "rows": { "name": "Linhas", "hint": "Número de linhas e espaçamento entre linhas." },
-    "transport": { "name": "Transporte", "hint": "Como ela viaja na estrada." },
-    "hoppers": { "name": "Reservatórios", "hint": "Sementes e adubo." },
-    "rowUnit": { "name": "Linha de plantio", "hint": "Tudo o que trabalha no sulco." },
-    "tech": { "name": "Tecnologia", "hint": "Dosagem, monitor e agricultura de precisão." },
-    "custom": { "name": "Personalizar", "hint": "Cores, logotipo e texto." }
+    "model": {
+      "name": "Modelo",
+      "hint": "Escolha o modelo pela largura de trabalho que você precisa."
+    },
+    "rows": {
+      "name": "Linhas",
+      "hint": "Número de linhas e espaçamento entre linhas."
+    },
+    "transport": {
+      "name": "Transporte",
+      "hint": "Como ela viaja na estrada."
+    },
+    "hoppers": {
+      "name": "Reservatórios",
+      "hint": "Sementes e adubo."
+    },
+    "rowUnit": {
+      "name": "Linha de plantio",
+      "hint": "Tudo o que trabalha no sulco."
+    },
+    "tech": {
+      "name": "Tecnologia",
+      "hint": "Dosagem, monitor e agricultura de precisão."
+    },
+    "custom": {
+      "name": "Personalizar",
+      "hint": "Cores, logotipo e texto."
+    }
   },
-  "nav": { "next": "Próximo", "back": "Voltar", "step": "Etapa {n} de {total}" },
+  "nav": {
+    "next": "Próximo",
+    "back": "Voltar",
+    "step": "Etapa {n} de {total}",
+    "configure": "Configurar"
+  },
   "models": {
-    "sp10c": { "name": "SP 10C", "tier": "Compacta", "desc": "Para áreas menores e prestadores de serviço que se deslocam muito." },
-    "sp16m": { "name": "SP 16M", "tier": "Média", "desc": "A mais vendida: equilíbrio entre capacidade e trator." },
-    "sp24g": { "name": "SP 24G", "tier": "Grande", "desc": "Alta capacidade para produtores de grande escala." },
-    "sp36xg": { "name": "SP 36XG", "tier": "Grande largura", "desc": "Máxima capacidade operacional por dia." },
+    "sp10c": {
+      "name": "SP 10C",
+      "tier": "Compacta",
+      "desc": "Para áreas menores e prestadores de serviço que se deslocam muito."
+    },
+    "sp16m": {
+      "name": "SP 16M",
+      "tier": "Média",
+      "desc": "A mais vendida: equilíbrio entre capacidade e trator."
+    },
+    "sp24g": {
+      "name": "SP 24G",
+      "tier": "Grande",
+      "desc": "Alta capacidade para produtores de grande escala."
+    },
+    "sp36xg": {
+      "name": "SP 36XG",
+      "tier": "Grande largura",
+      "desc": "Máxima capacidade operacional por dia."
+    },
     "rowsRange": "{min}–{max} linhas",
     "from": "a partir de"
   },
@@ -36,91 +78,231 @@
     "formula": "{rows} linhas × {spacing}"
   },
   "groups": {
-    "transport": { "name": "Sistema de transporte" },
-    "transportWheels": { "name": "Rodas de transporte" },
-    "seedHopper": { "name": "Reservatórios de sementes" },
-    "seedCapacity": { "name": "Capacidade de sementes" },
-    "fertilizer": { "name": "Adubação" },
-    "fertCapacity": { "name": "Capacidade de adubo" },
-    "coulter": { "name": "Disco de corte" },
-    "closing": { "name": "Rodas compactadoras" },
-    "firmer": { "name": "Firmador de sementes" },
-    "downforce": { "name": "Pressão sobre a linha" },
-    "metering": { "name": "Dosagem" },
-    "monitor": { "name": "Monitor de plantio" },
-    "sectionControl": { "name": "Corte linha a linha" },
-    "variableRate": { "name": "Taxa variável" },
-    "isobus": { "name": "Compatibilidade ISOBUS" },
-    "autosteer": { "name": "Piloto automático" }
+    "transport": {
+      "name": "Sistema de transporte"
+    },
+    "transportWheels": {
+      "name": "Rodas de transporte"
+    },
+    "seedHopper": {
+      "name": "Reservatórios de sementes"
+    },
+    "seedCapacity": {
+      "name": "Capacidade de sementes"
+    },
+    "fertilizer": {
+      "name": "Adubação"
+    },
+    "fertCapacity": {
+      "name": "Capacidade de adubo"
+    },
+    "coulter": {
+      "name": "Disco de corte"
+    },
+    "closing": {
+      "name": "Rodas compactadoras"
+    },
+    "firmer": {
+      "name": "Firmador de sementes"
+    },
+    "downforce": {
+      "name": "Pressão sobre a linha"
+    },
+    "metering": {
+      "name": "Dosagem"
+    },
+    "monitor": {
+      "name": "Monitor de plantio"
+    },
+    "sectionControl": {
+      "name": "Corte linha a linha"
+    },
+    "variableRate": {
+      "name": "Taxa variável"
+    },
+    "isobus": {
+      "name": "Compatibilidade ISOBUS"
+    },
+    "autosteer": {
+      "name": "Piloto automático"
+    }
   },
   "options": {
     "transport": {
-      "fold": { "name": "Asas dobráveis", "desc": "As asas se dobram para cima com cilindros hidráulicos." },
-      "longitudinal": { "name": "Transporte longitudinal", "desc": "A máquina gira 90° sobre o rodado e é rebocada de ponta. Estreita e segura na estrada." }
+      "fold": {
+        "name": "Asas dobráveis",
+        "desc": "As asas se dobram para cima com cilindros hidráulicos."
+      },
+      "longitudinal": {
+        "name": "Transporte longitudinal",
+        "desc": "A máquina gira 90° sobre o rodado e é rebocada de ponta. Estreita e segura na estrada."
+      }
     },
     "transportWheels": {
-      "standard": { "name": "Padrão", "desc": "Pneus agrícolas de garra alta." },
-      "flotation": { "name": "Alta flutuação", "desc": "Pneus largos: menos compactação e melhor tração em solo úmido." }
+      "standard": {
+        "name": "Padrão",
+        "desc": "Pneus agrícolas de garra alta."
+      },
+      "flotation": {
+        "name": "Alta flutuação",
+        "desc": "Pneus largos: menos compactação e melhor tração em solo úmido."
+      }
     },
     "seedHopper": {
-      "individual": { "name": "Reservatórios individuais", "desc": "Um reservatório por linha, simples e robusto." },
-      "central": { "name": "Reservatório central pneumático", "desc": "Um reservatório grande com distribuição a ar para cada linha. Abastecimento mais rápido." }
+      "individual": {
+        "name": "Reservatórios individuais",
+        "desc": "Um reservatório por linha, simples e robusto."
+      },
+      "central": {
+        "name": "Reservatório central pneumático",
+        "desc": "Um reservatório grande com distribuição a ar para cada linha. Abastecimento mais rápido."
+      }
     },
     "seedCapacity": {
-      "std": { "name": "Padrão", "desc": "60 L por linha ou 1.800 L central." },
-      "large": { "name": "Grande", "desc": "80 L por linha ou 2.600 L central. Mais hectares entre abastecimentos." }
+      "std": {
+        "name": "Padrão",
+        "desc": "60 L por linha ou 1.800 L central."
+      },
+      "large": {
+        "name": "Grande",
+        "desc": "80 L por linha ou 2.600 L central. Mais hectares entre abastecimentos."
+      }
     },
     "fertilizer": {
-      "none": { "name": "Sem adubação", "desc": "Somente sementes." },
-      "inline": { "name": "Adubação na linha", "desc": "O adubo cai no mesmo sulco, logo atrás do disco de corte." },
-      "side": { "name": "Adubação lateral", "desc": "Um disco separado deposita o adubo a 5 cm da semente, sem queimá-la." }
+      "none": {
+        "name": "Sem adubação",
+        "desc": "Somente sementes."
+      },
+      "inline": {
+        "name": "Adubação na linha",
+        "desc": "O adubo cai no mesmo sulco, logo atrás do disco de corte."
+      },
+      "side": {
+        "name": "Adubação lateral",
+        "desc": "Um disco separado deposita o adubo a 5 cm da semente, sem queimá-la."
+      }
     },
     "fertCapacity": {
-      "std": { "name": "1.800 L", "desc": "Reservatório central com tampa, escada e plataforma." },
-      "large": { "name": "2.800 L", "desc": "Menos paradas para abastecer em áreas grandes." }
+      "std": {
+        "name": "1.800 L",
+        "desc": "Reservatório central com tampa, escada e plataforma."
+      },
+      "large": {
+        "name": "2.800 L",
+        "desc": "Menos paradas para abastecer em áreas grandes."
+      }
     },
     "coulter": {
-      "turbo": { "name": "Turbo", "desc": "Corta a palhada mexendo pouco no solo. Ideal para plantio direto." },
-      "wavy": { "name": "Ondulado", "desc": "Prepara uma faixa mais larga. Ajuda em solos frios ou com muita palhada." }
+      "turbo": {
+        "name": "Turbo",
+        "desc": "Corta a palhada mexendo pouco no solo. Ideal para plantio direto."
+      },
+      "wavy": {
+        "name": "Ondulado",
+        "desc": "Prepara uma faixa mais larga. Ajuda em solos frios ou com muita palhada."
+      }
     },
     "closing": {
-      "rubber": { "name": "De borracha", "desc": "Fechamento suave, para solos leves." },
-      "castiron": { "name": "De ferro fundido", "desc": "Mais peso para fechar bem o sulco em solos pesados." },
-      "spiked": { "name": "Dentadas", "desc": "Desagregam a parede do sulco e eliminam bolsões de ar." }
+      "rubber": {
+        "name": "De borracha",
+        "desc": "Fechamento suave, para solos leves."
+      },
+      "castiron": {
+        "name": "De ferro fundido",
+        "desc": "Mais peso para fechar bem o sulco em solos pesados."
+      },
+      "spiked": {
+        "name": "Dentadas",
+        "desc": "Desagregam a parede do sulco e eliminam bolsões de ar."
+      }
     },
     "firmer": {
-      "off": { "name": "Sem firmador", "desc": "" },
-      "on": { "name": "Com firmador", "desc": "Assenta a semente no fundo do sulco: emergência mais uniforme." }
+      "off": {
+        "name": "Sem firmador",
+        "desc": ""
+      },
+      "on": {
+        "name": "Com firmador",
+        "desc": "Assenta a semente no fundo do sulco: emergência mais uniforme."
+      }
     },
     "downforce": {
-      "spring": { "name": "Molas", "desc": "Pressão mecânica regulável por linha." },
-      "pneumatic": { "name": "Pneumática (bolsas de ar)", "desc": "Pressão uniforme em toda a largura, regulável da cabine." }
+      "spring": {
+        "name": "Molas",
+        "desc": "Pressão mecânica regulável por linha."
+      },
+      "pneumatic": {
+        "name": "Pneumática (bolsas de ar)",
+        "desc": "Pressão uniforme em toda a largura, regulável da cabine."
+      }
     },
     "metering": {
-      "chain": { "name": "Mecânica por corrente", "desc": "Simples, comprovada e fácil de consertar no campo." },
-      "shaft": { "name": "Mecânica por cardã", "desc": "Sem correntes expostas, menos manutenção." },
-      "pneumatic": { "name": "Pneumática a vácuo", "desc": "Discos a vácuo: distribuição muito precisa, semente por semente." },
-      "electric": { "name": "Elétrica, motor por linha", "desc": "Cada linha tem seu motor: permite corte linha a linha e taxa variável." }
+      "chain": {
+        "name": "Mecânica por corrente",
+        "desc": "Simples, comprovada e fácil de consertar no campo."
+      },
+      "shaft": {
+        "name": "Mecânica por cardã",
+        "desc": "Sem correntes expostas, menos manutenção."
+      },
+      "pneumatic": {
+        "name": "Pneumática a vácuo",
+        "desc": "Discos a vácuo: distribuição muito precisa, semente por semente."
+      },
+      "electric": {
+        "name": "Elétrica, motor por linha",
+        "desc": "Cada linha tem seu motor: permite corte linha a linha e taxa variável."
+      }
     },
     "monitor": {
-      "basic": { "name": "Básico", "desc": "Falhas e população por linha." },
-      "advanced": { "name": "Avançado", "desc": "Tela sensível ao toque com mapas, cortes e registro de talhões." }
+      "basic": {
+        "name": "Básico",
+        "desc": "Falhas e população por linha."
+      },
+      "advanced": {
+        "name": "Avançado",
+        "desc": "Tela sensível ao toque com mapas, cortes e registro de talhões."
+      }
     },
     "sectionControl": {
-      "off": { "name": "Não", "desc": "" },
-      "on": { "name": "Sim", "desc": "Desliga cada linha ao entrar em uma cabeceira já plantada: menos sobreposição e economia de sementes." }
+      "off": {
+        "name": "Não",
+        "desc": ""
+      },
+      "on": {
+        "name": "Sim",
+        "desc": "Desliga cada linha ao entrar em uma cabeceira já plantada: menos sobreposição e economia de sementes."
+      }
     },
     "variableRate": {
-      "off": { "name": "Não", "desc": "" },
-      "on": { "name": "Preparada", "desc": "Varia a população conforme o ambiente do talhão, a partir de um mapa de prescrição." }
+      "off": {
+        "name": "Não",
+        "desc": ""
+      },
+      "on": {
+        "name": "Preparada",
+        "desc": "Varia a população conforme o ambiente do talhão, a partir de um mapa de prescrição."
+      }
     },
     "isobus": {
-      "off": { "name": "Não", "desc": "" },
-      "on": { "name": "Preparada", "desc": "Operada pelo terminal compatível do trator." }
+      "off": {
+        "name": "Não",
+        "desc": ""
+      },
+      "on": {
+        "name": "Preparada",
+        "desc": "Operada pelo terminal compatível do trator."
+      }
     },
     "autosteer": {
-      "off": { "name": "Não", "desc": "" },
-      "on": { "name": "Preparada", "desc": "Pronta para piloto automático: passadas paralelas e sem sobreposição." }
+      "off": {
+        "name": "Não",
+        "desc": ""
+      },
+      "on": {
+        "name": "Preparada",
+        "desc": "Pronta para piloto automático: passadas paralelas e sem sobreposição."
+      }
     }
   },
   "status": {
@@ -202,7 +384,12 @@
     "inputs": "Condições de trabalho",
     "results": "Resultados"
   },
-  "crops": { "maize": "Milho", "soy": "Soja", "sunflower": "Girassol", "sorghum": "Sorgo" },
+  "crops": {
+    "maize": "Milho",
+    "soy": "Soja",
+    "sunflower": "Girassol",
+    "sorghum": "Sorgo"
+  },
   "transport": {
     "title": "Transporte rodoviário",
     "width": "Largura",
@@ -211,12 +398,18 @@
     "machineLength": "Comprimento da plantadeira",
     "limit": "Limite geral {general} · especial {special}",
     "profile": "Referência",
-    "profiles": { "AR": "Argentina (referência)", "INT": "Internacional (referência)" },
+    "profiles": {
+      "AR": "Argentina (referência)",
+      "INT": "Internacional (referência)"
+    },
     "green": "Dentro dos limites gerais de circulação.",
     "yellow": "Acima dos limites gerais: circula como máquina agrícola especial (sinalização, horários e autorizações).",
     "red": "Acima dos limites de referência: exige autorização especial e escolta, ou outro sistema de transporte.",
     "disclaimer": "Limites de referência para demonstração. O fabricante deve confirmá-los conforme a legislação vigente do país de destino.",
-    "mode": { "fold": "Asas dobradas", "longitudinal": "Longitudinal" }
+    "mode": {
+      "fold": "Asas dobradas",
+      "longitudinal": "Longitudinal"
+    }
   },
   "toolbar": {
     "cameras": "Câmeras",
@@ -230,7 +423,11 @@
       "hoppers": "Reservatórios",
       "ground": "Rente ao solo"
     },
-    "env": { "studio": "Estúdio", "field": "Campo", "road": "Estrada" },
+    "env": {
+      "studio": "Estúdio",
+      "field": "Campo",
+      "road": "Estrada"
+    },
     "sow": "Ver plantando",
     "stopSow": "Parar",
     "fold": "Dobrar para transporte",
@@ -246,18 +443,46 @@
     "tractor": "Trator",
     "hotspots": "Pontos técnicos",
     "autoFocus": "Aproximar ao trocar opções",
-    "stubble": { "soy": "Palhada de soja", "maize": "Palhada de milho" },
-    "more": "Mais"
+    "stubble": {
+      "soy": "Palhada de soja",
+      "maize": "Palhada de milho"
+    },
+    "more": "Mais",
+    "drive": "Andar na estrada"
   },
   "hotspots": {
-    "coulter": { "title": "Disco de corte", "body": "Corta a palhada antes dos discos: o sulco fica limpo e a semente não se mistura com a palha." },
-    "discs": { "title": "Disco duplo defasado", "body": "Abre um sulco em V uniforme, mesmo com muita palhada, e deixa a semente na profundidade certa." },
-    "gauge": { "title": "Rodas limitadoras", "body": "Copiam o terreno dos dois lados do sulco. A profundidade é a mesma nas coxilhas e nas baixadas." },
-    "meter": { "title": "Dosador", "body": "Coloca cada semente no espaçamento escolhido. Com acionamento elétrico permite corte linha a linha e taxa variável." },
-    "closing": { "title": "Rodas compactadoras", "body": "Fecham o sulco e garantem o contato semente-solo para uma emergência uniforme." },
-    "hoppers": { "title": "Reservatórios", "body": "Mais capacidade significa menos paradas para abastecer e mais hectares por dia." },
-    "transport": { "title": "Sistema de transporte", "body": "Do trabalho para a estrada em minutos, sem ferramentas, da cabine do trator." },
-    "monitor": { "title": "Monitor de plantio", "body": "Avisa na hora se uma linha falha ou entope. Você vê a população real em cada linha." }
+    "coulter": {
+      "title": "Disco de corte",
+      "body": "Corta a palhada antes dos discos: o sulco fica limpo e a semente não se mistura com a palha."
+    },
+    "discs": {
+      "title": "Disco duplo defasado",
+      "body": "Abre um sulco em V uniforme, mesmo com muita palhada, e deixa a semente na profundidade certa."
+    },
+    "gauge": {
+      "title": "Rodas limitadoras",
+      "body": "Copiam o terreno dos dois lados do sulco. A profundidade é a mesma nas coxilhas e nas baixadas."
+    },
+    "meter": {
+      "title": "Dosador",
+      "body": "Coloca cada semente no espaçamento escolhido. Com acionamento elétrico permite corte linha a linha e taxa variável."
+    },
+    "closing": {
+      "title": "Rodas compactadoras",
+      "body": "Fecham o sulco e garantem o contato semente-solo para uma emergência uniforme."
+    },
+    "hoppers": {
+      "title": "Reservatórios",
+      "body": "Mais capacidade significa menos paradas para abastecer e mais hectares por dia."
+    },
+    "transport": {
+      "title": "Sistema de transporte",
+      "body": "Do trabalho para a estrada em minutos, sem ferramentas, da cabine do trator."
+    },
+    "monitor": {
+      "title": "Monitor de plantio",
+      "body": "Avisa na hora se uma linha falha ou entope. Você vê a população real em cada linha."
+    }
   },
   "detail": {
     "title": "Linha de plantio",
@@ -309,8 +534,16 @@
     "language": "Idioma",
     "units": "Unidades"
   },
-  "units": { "metric": "Métrico", "imperial": "Imperial" },
-  "langNames": { "es-AR": "Español", "en": "English", "pt-BR": "Português", "ru": "Русский" },
+  "units": {
+    "metric": "Métrico",
+    "imperial": "Imperial"
+  },
+  "langNames": {
+    "es-AR": "Español",
+    "en": "English",
+    "pt-BR": "Português",
+    "ru": "Русский"
+  },
   "summary": {
     "title": "Resumo da sua plantadeira",
     "configNumber": "Configuração nº",
@@ -320,7 +553,11 @@
     "renders": "Vistas",
     "rendering": "Gerando vistas…",
     "date": "Data",
-    "views": { "front34": "3/4 frontal", "top": "Superior", "transport": "Transporte" }
+    "views": {
+      "front34": "3/4 frontal",
+      "top": "Superior",
+      "transport": "Transporte"
+    }
   },
   "compare": {
     "title": "Comparar configurações",

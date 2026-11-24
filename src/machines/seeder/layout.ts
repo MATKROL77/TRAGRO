@@ -20,6 +20,7 @@ export const DIM = {
   centerTargetM: 3.1,
   transportDrawbar: 2.7,
   carriageTrack: 2.5,
+  carriageOffset: 0.6, // tren longitudinal separado del extremo del tubo
   platformY: 1.42,
   tankDepth: 1.1,
   tankZ: -0.78,
@@ -135,7 +136,7 @@ export function computeLayout(cfg: Configuration): SeederLayout {
     transportDims = {
       width: Math.max(depth + 0.35, DIM.carriageTrack),
       height: topY + DIM.lift,
-      length: barLength + DIM.transportDrawbar + 0.4,
+      length: barLength + DIM.transportDrawbar + DIM.carriageOffset + 0.45,
     };
   }
   const round = (v: number) => Math.round(v * 100) / 100;

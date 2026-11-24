@@ -46,6 +46,8 @@ export interface AppState {
   viewerReady: boolean;
   webgl: boolean;
   hotspot: string | null;
+  panelTab: 'config' | 'perf';
+  setPanelTab: (t: 'config' | 'perf') => void;
 
   setLang: (l: Lang) => void;
   setLangReady: (b: boolean) => void;
@@ -123,6 +125,8 @@ export const useStore = create<AppState>((set, get) => ({
   viewerReady: false,
   webgl: true,
   hotspot: null,
+  panelTab: 'config',
+  setPanelTab: (panelTab) => set({ panelTab }),
 
   setLang: (lang) => set({ lang }),
   setLangReady: (langReady) => set({ langReady }),
@@ -167,17 +171,20 @@ export const useStore = create<AppState>((set, get) => ({
   setStep: (step) => set({ step }),
   setScene: (scene) => {
     const s: Partial<AppState> = { scene, detail: false, exploded: false };
-    if (scene === 'road') s.pose = 'transport';
+    if (scene === 'road') {
+      s.pose = 'transport';
+      s.sowing = true; // en ruta, "sowing" = andando
+    }
     if (scene === 'field') {
       s.pose = 'work';
       s.sowing = true;
-    } else s.sowing = false;
+    } else if (scene !== 'road') s.sowing = false;
     set(s);
     get().requestCam(scene === 'field' ? 'ground' : 'front34');
   },
-  setPose: (pose) => set({ pose, sowing: pose === 'transport' ? false : get().sowing }),
+  setPose: (pose) => set({ pose, sowing: get().scene === 'road' ? pose === 'transport' && get().sowing : pose === 'transport' ? false : get().sowing }),
   setSowing: (sowing) => {
-    if (sowing && get().scene !== 'field') {
+    if (sowing && get().scene === 'studio') {
       get().setScene('field');
       return;
     }

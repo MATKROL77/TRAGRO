@@ -89,6 +89,7 @@ export function PerformancePanel({ collapsible }: { collapsible: boolean }) {
   const perLenUnit = 'perLength' as const;
   return (
     <section className={`perf${open ? ' is-open' : ''}`} aria-label={t('perf.title')}>
+      {collapsible && (
       <button type="button" className="perf-head" aria-expanded={open} onClick={() => setOpen(!open)}>
         <IconChart size={18} />
         <span className="perf-title">{t('perf.title')}</span>
@@ -99,6 +100,7 @@ export function PerformancePanel({ collapsible }: { collapsible: boolean }) {
         </span>
         <span className={`chev${open ? ' up' : ''}`}><IconChevron size={16} /></span>
       </button>
+      )}
       {open && (
         <div className="perf-body">
           <div className="kpi-grid">

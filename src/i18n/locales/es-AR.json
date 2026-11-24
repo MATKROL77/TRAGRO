@@ -10,20 +10,62 @@
     "skipToPanel": "Ir al panel de configuración"
   },
   "steps": {
-    "model": { "name": "Modelo", "hint": "Elegí el modelo según el ancho que necesitás." },
-    "rows": { "name": "Surcos", "hint": "Cantidad de surcos y distancia entre hileras." },
-    "transport": { "name": "Transporte", "hint": "Cómo viaja por la ruta." },
-    "hoppers": { "name": "Tolvas", "hint": "Semilla y fertilización." },
-    "rowUnit": { "name": "Tren de siembra", "hint": "Lo que trabaja en el surco." },
-    "tech": { "name": "Tecnología", "hint": "Dosificación, monitor y agricultura de precisión." },
-    "custom": { "name": "Personalizar", "hint": "Colores, logo y texto." }
+    "model": {
+      "name": "Modelo",
+      "hint": "Elegí el modelo según el ancho que necesitás."
+    },
+    "rows": {
+      "name": "Surcos",
+      "hint": "Cantidad de surcos y distancia entre hileras."
+    },
+    "transport": {
+      "name": "Transporte",
+      "hint": "Cómo viaja por la ruta."
+    },
+    "hoppers": {
+      "name": "Tolvas",
+      "hint": "Semilla y fertilización."
+    },
+    "rowUnit": {
+      "name": "Tren de siembra",
+      "hint": "Lo que trabaja en el surco."
+    },
+    "tech": {
+      "name": "Tecnología",
+      "hint": "Dosificación, monitor y agricultura de precisión."
+    },
+    "custom": {
+      "name": "Personalizar",
+      "hint": "Colores, logo y texto."
+    }
   },
-  "nav": { "next": "Siguiente", "back": "Anterior", "step": "Paso {n} de {total}" },
+  "nav": {
+    "next": "Siguiente",
+    "back": "Anterior",
+    "step": "Paso {n} de {total}",
+    "configure": "Configurar"
+  },
   "models": {
-    "sp10c": { "name": "SP 10C", "tier": "Compacta", "desc": "Para lotes chicos y contratistas que se mueven mucho." },
-    "sp16m": { "name": "SP 16M", "tier": "Mediana", "desc": "La más elegida: equilibrio entre capacidad y tractor." },
-    "sp24g": { "name": "SP 24G", "tier": "Grande", "desc": "Alta capacidad para productores de escala." },
-    "sp36xg": { "name": "SP 36XG", "tier": "Gran ancho", "desc": "Máxima capacidad de trabajo por jornada." },
+    "sp10c": {
+      "name": "SP 10C",
+      "tier": "Compacta",
+      "desc": "Para lotes chicos y contratistas que se mueven mucho."
+    },
+    "sp16m": {
+      "name": "SP 16M",
+      "tier": "Mediana",
+      "desc": "La más elegida: equilibrio entre capacidad y tractor."
+    },
+    "sp24g": {
+      "name": "SP 24G",
+      "tier": "Grande",
+      "desc": "Alta capacidad para productores de escala."
+    },
+    "sp36xg": {
+      "name": "SP 36XG",
+      "tier": "Gran ancho",
+      "desc": "Máxima capacidad de trabajo por jornada."
+    },
     "rowsRange": "{min}–{max} surcos",
     "from": "desde"
   },
@@ -36,91 +78,231 @@
     "formula": "{rows} surcos × {spacing}"
   },
   "groups": {
-    "transport": { "name": "Sistema de transporte" },
-    "transportWheels": { "name": "Ruedas de transporte" },
-    "seedHopper": { "name": "Tolvas de semilla" },
-    "seedCapacity": { "name": "Capacidad de semilla" },
-    "fertilizer": { "name": "Fertilización" },
-    "fertCapacity": { "name": "Capacidad de fertilizante" },
-    "coulter": { "name": "Cuchilla de corte" },
-    "closing": { "name": "Ruedas tapadoras" },
-    "firmer": { "name": "Apretador de semilla" },
-    "downforce": { "name": "Presión descendente" },
-    "metering": { "name": "Dosificación" },
-    "monitor": { "name": "Monitor de siembra" },
-    "sectionControl": { "name": "Corte surco a surco" },
-    "variableRate": { "name": "Dosis variable" },
-    "isobus": { "name": "Compatibilidad ISOBUS" },
-    "autosteer": { "name": "Piloto automático" }
+    "transport": {
+      "name": "Sistema de transporte"
+    },
+    "transportWheels": {
+      "name": "Ruedas de transporte"
+    },
+    "seedHopper": {
+      "name": "Tolvas de semilla"
+    },
+    "seedCapacity": {
+      "name": "Capacidad de semilla"
+    },
+    "fertilizer": {
+      "name": "Fertilización"
+    },
+    "fertCapacity": {
+      "name": "Capacidad de fertilizante"
+    },
+    "coulter": {
+      "name": "Cuchilla de corte"
+    },
+    "closing": {
+      "name": "Ruedas tapadoras"
+    },
+    "firmer": {
+      "name": "Apretador de semilla"
+    },
+    "downforce": {
+      "name": "Presión descendente"
+    },
+    "metering": {
+      "name": "Dosificación"
+    },
+    "monitor": {
+      "name": "Monitor de siembra"
+    },
+    "sectionControl": {
+      "name": "Corte surco a surco"
+    },
+    "variableRate": {
+      "name": "Dosis variable"
+    },
+    "isobus": {
+      "name": "Compatibilidad ISOBUS"
+    },
+    "autosteer": {
+      "name": "Piloto automático"
+    }
   },
   "options": {
     "transport": {
-      "fold": { "name": "Plegado de alas", "desc": "Las alas se pliegan hacia arriba con cilindros hidráulicos." },
-      "longitudinal": { "name": "Transporte longitudinal", "desc": "La máquina gira 90° sobre su tren de ruedas y viaja de punta. Angosta y segura en la ruta." }
+      "fold": {
+        "name": "Plegado de alas",
+        "desc": "Las alas se pliegan hacia arriba con cilindros hidráulicos."
+      },
+      "longitudinal": {
+        "name": "Transporte longitudinal",
+        "desc": "La máquina gira 90° sobre su tren de ruedas y viaja de punta. Angosta y segura en la ruta."
+      }
     },
     "transportWheels": {
-      "standard": { "name": "Estándar", "desc": "Neumáticos agrícolas de taco alto." },
-      "flotation": { "name": "Alta flotación", "desc": "Neumáticos anchos: menos compactación y mejor piso en lotes húmedos." }
+      "standard": {
+        "name": "Estándar",
+        "desc": "Neumáticos agrícolas de taco alto."
+      },
+      "flotation": {
+        "name": "Alta flotación",
+        "desc": "Neumáticos anchos: menos compactación y mejor piso en lotes húmedos."
+      }
     },
     "seedHopper": {
-      "individual": { "name": "Tolvas individuales", "desc": "Una tolva por surco, simple y robusta." },
-      "central": { "name": "Tolva central neumática", "desc": "Una sola tolva grande y distribución por aire a cada surco. Cargás más rápido." }
+      "individual": {
+        "name": "Tolvas individuales",
+        "desc": "Una tolva por surco, simple y robusta."
+      },
+      "central": {
+        "name": "Tolva central neumática",
+        "desc": "Una sola tolva grande y distribución por aire a cada surco. Cargás más rápido."
+      }
     },
     "seedCapacity": {
-      "std": { "name": "Estándar", "desc": "60 L por surco o 1.800 L central." },
-      "large": { "name": "Grande", "desc": "80 L por surco o 2.600 L central. Más hectáreas entre cargas." }
+      "std": {
+        "name": "Estándar",
+        "desc": "60 L por surco o 1.800 L central."
+      },
+      "large": {
+        "name": "Grande",
+        "desc": "80 L por surco o 2.600 L central. Más hectáreas entre cargas."
+      }
     },
     "fertilizer": {
-      "none": { "name": "Sin fertilización", "desc": "Sólo semilla." },
-      "inline": { "name": "Fertilización en línea", "desc": "El fertilizante cae en el mismo surco, detrás de la cuchilla." },
-      "side": { "name": "Fertilización al costado", "desc": "Un disco aparte deja el fertilizante a 5 cm de la semilla, sin quemarla." }
+      "none": {
+        "name": "Sin fertilización",
+        "desc": "Sólo semilla."
+      },
+      "inline": {
+        "name": "Fertilización en línea",
+        "desc": "El fertilizante cae en el mismo surco, detrás de la cuchilla."
+      },
+      "side": {
+        "name": "Fertilización al costado",
+        "desc": "Un disco aparte deja el fertilizante a 5 cm de la semilla, sin quemarla."
+      }
     },
     "fertCapacity": {
-      "std": { "name": "1.800 L", "desc": "Tolva central con tapa, escalera y pasarela." },
-      "large": { "name": "2.800 L", "desc": "Menos paradas para cargar en lotes grandes." }
+      "std": {
+        "name": "1.800 L",
+        "desc": "Tolva central con tapa, escalera y pasarela."
+      },
+      "large": {
+        "name": "2.800 L",
+        "desc": "Menos paradas para cargar en lotes grandes."
+      }
     },
     "coulter": {
-      "turbo": { "name": "Turbo", "desc": "Corta el rastrojo y remueve poco el suelo. Ideal en siembra directa." },
-      "wavy": { "name": "Ondulada", "desc": "Prepara una franja más ancha. Ayuda en suelos fríos o con mucho rastrojo." }
+      "turbo": {
+        "name": "Turbo",
+        "desc": "Corta el rastrojo y remueve poco el suelo. Ideal en siembra directa."
+      },
+      "wavy": {
+        "name": "Ondulada",
+        "desc": "Prepara una franja más ancha. Ayuda en suelos fríos o con mucho rastrojo."
+      }
     },
     "closing": {
-      "rubber": { "name": "De goma", "desc": "Cierre suave, para suelos livianos." },
-      "castiron": { "name": "De fundición", "desc": "Más peso para cerrar bien el surco en suelos pesados." },
-      "spiked": { "name": "Con dientes", "desc": "Desmenuzan la pared del surco y evitan bolsas de aire." }
+      "rubber": {
+        "name": "De goma",
+        "desc": "Cierre suave, para suelos livianos."
+      },
+      "castiron": {
+        "name": "De fundición",
+        "desc": "Más peso para cerrar bien el surco en suelos pesados."
+      },
+      "spiked": {
+        "name": "Con dientes",
+        "desc": "Desmenuzan la pared del surco y evitan bolsas de aire."
+      }
     },
     "firmer": {
-      "off": { "name": "Sin apretador", "desc": "" },
-      "on": { "name": "Con apretador", "desc": "Asienta la semilla en el fondo del surco: emergencia más pareja." }
+      "off": {
+        "name": "Sin apretador",
+        "desc": ""
+      },
+      "on": {
+        "name": "Con apretador",
+        "desc": "Asienta la semilla en el fondo del surco: emergencia más pareja."
+      }
     },
     "downforce": {
-      "spring": { "name": "Resortes", "desc": "Presión mecánica regulable por cuerpo." },
-      "pneumatic": { "name": "Neumática (bolsas de aire)", "desc": "Presión pareja en todo el ancho, regulable desde la cabina." }
+      "spring": {
+        "name": "Resortes",
+        "desc": "Presión mecánica regulable por cuerpo."
+      },
+      "pneumatic": {
+        "name": "Neumática (bolsas de aire)",
+        "desc": "Presión pareja en todo el ancho, regulable desde la cabina."
+      }
     },
     "metering": {
-      "chain": { "name": "Mecánica por cadena", "desc": "Simple, probada y fácil de reparar en el campo." },
-      "shaft": { "name": "Mecánica por cardán", "desc": "Sin cadenas expuestas, menos mantenimiento." },
-      "pneumatic": { "name": "Neumática de vacío", "desc": "Placas de vacío: distribución muy precisa, semilla por semilla." },
-      "electric": { "name": "Eléctrica, motor por surco", "desc": "Cada surco tiene su motor: permite corte surco a surco y dosis variable." }
+      "chain": {
+        "name": "Mecánica por cadena",
+        "desc": "Simple, probada y fácil de reparar en el campo."
+      },
+      "shaft": {
+        "name": "Mecánica por cardán",
+        "desc": "Sin cadenas expuestas, menos mantenimiento."
+      },
+      "pneumatic": {
+        "name": "Neumática de vacío",
+        "desc": "Placas de vacío: distribución muy precisa, semilla por semilla."
+      },
+      "electric": {
+        "name": "Eléctrica, motor por surco",
+        "desc": "Cada surco tiene su motor: permite corte surco a surco y dosis variable."
+      }
     },
     "monitor": {
-      "basic": { "name": "Básico", "desc": "Fallas y densidad por surco." },
-      "advanced": { "name": "Avanzado", "desc": "Pantalla táctil con mapas, cortes y registro de lotes." }
+      "basic": {
+        "name": "Básico",
+        "desc": "Fallas y densidad por surco."
+      },
+      "advanced": {
+        "name": "Avanzado",
+        "desc": "Pantalla táctil con mapas, cortes y registro de lotes."
+      }
     },
     "sectionControl": {
-      "off": { "name": "No", "desc": "" },
-      "on": { "name": "Sí", "desc": "Apaga cada surco al entrar en una cabecera ya sembrada: menos superposición y ahorro de semilla." }
+      "off": {
+        "name": "No",
+        "desc": ""
+      },
+      "on": {
+        "name": "Sí",
+        "desc": "Apaga cada surco al entrar en una cabecera ya sembrada: menos superposición y ahorro de semilla."
+      }
     },
     "variableRate": {
-      "off": { "name": "No", "desc": "" },
-      "on": { "name": "Preparada", "desc": "Cambia la densidad según el ambiente del lote, a partir de un mapa de prescripción." }
+      "off": {
+        "name": "No",
+        "desc": ""
+      },
+      "on": {
+        "name": "Preparada",
+        "desc": "Cambia la densidad según el ambiente del lote, a partir de un mapa de prescripción."
+      }
     },
     "isobus": {
-      "off": { "name": "No", "desc": "" },
-      "on": { "name": "Preparada", "desc": "Se maneja desde la terminal compatible del tractor." }
+      "off": {
+        "name": "No",
+        "desc": ""
+      },
+      "on": {
+        "name": "Preparada",
+        "desc": "Se maneja desde la terminal compatible del tractor."
+      }
     },
     "autosteer": {
-      "off": { "name": "No", "desc": "" },
-      "on": { "name": "Preparada", "desc": "Lista para trabajar con piloto automático: pasadas paralelas y sin solapes." }
+      "off": {
+        "name": "No",
+        "desc": ""
+      },
+      "on": {
+        "name": "Preparada",
+        "desc": "Lista para trabajar con piloto automático: pasadas paralelas y sin solapes."
+      }
     }
   },
   "status": {
@@ -202,7 +384,12 @@
     "inputs": "Condiciones de trabajo",
     "results": "Resultados"
   },
-  "crops": { "maize": "Maíz", "soy": "Soja", "sunflower": "Girasol", "sorghum": "Sorgo" },
+  "crops": {
+    "maize": "Maíz",
+    "soy": "Soja",
+    "sunflower": "Girasol",
+    "sorghum": "Sorgo"
+  },
   "transport": {
     "title": "Transporte por ruta",
     "width": "Ancho",
@@ -211,12 +398,18 @@
     "machineLength": "Largo de la sembradora",
     "limit": "Límite general {general} · especial {special}",
     "profile": "Referencia",
-    "profiles": { "AR": "Argentina (referencia)", "INT": "Internacional (referencia)" },
+    "profiles": {
+      "AR": "Argentina (referencia)",
+      "INT": "Internacional (referencia)"
+    },
     "green": "Dentro de los límites generales de circulación.",
     "yellow": "Supera los límites generales: circula como maquinaria agrícola especial (balizamiento, horarios y permisos).",
     "red": "Supera los límites de referencia: requiere permiso especial y escolta, o cambiar el sistema de transporte.",
     "disclaimer": "Límites de referencia de demostración. El fabricante debe confirmarlos con la normativa vigente del país de destino.",
-    "mode": { "fold": "Alas plegadas", "longitudinal": "Longitudinal" }
+    "mode": {
+      "fold": "Alas plegadas",
+      "longitudinal": "Longitudinal"
+    }
   },
   "toolbar": {
     "cameras": "Cámaras",
@@ -230,7 +423,11 @@
       "hoppers": "Tolvas",
       "ground": "A ras del suelo"
     },
-    "env": { "studio": "Estudio", "field": "Campo", "road": "Ruta" },
+    "env": {
+      "studio": "Estudio",
+      "field": "Campo",
+      "road": "Ruta"
+    },
     "sow": "Ver sembrando",
     "stopSow": "Detener",
     "fold": "Plegar para transporte",
@@ -246,18 +443,46 @@
     "tractor": "Tractor",
     "hotspots": "Puntos técnicos",
     "autoFocus": "Acercar al cambiar opciones",
-    "stubble": { "soy": "Rastrojo de soja", "maize": "Rastrojo de maíz" },
-    "more": "Más"
+    "stubble": {
+      "soy": "Rastrojo de soja",
+      "maize": "Rastrojo de maíz"
+    },
+    "more": "Más",
+    "drive": "Andar por la ruta"
   },
   "hotspots": {
-    "coulter": { "title": "Cuchilla de corte", "body": "Corta el rastrojo antes de que lleguen los discos: el surco queda limpio y la semilla no se mezcla con la paja." },
-    "discs": { "title": "Doble disco desencontrado", "body": "Abre un surco en V parejo, aun con mucho rastrojo, y deja la semilla a la profundidad justa." },
-    "gauge": { "title": "Ruedas limitadoras", "body": "Copian el terreno a los dos lados del surco. Así la profundidad es la misma en lomas y bajos." },
-    "meter": { "title": "Dosificador", "body": "Pone cada semilla a la distancia elegida. Con dosificación eléctrica permite corte surco a surco y dosis variable." },
-    "closing": { "title": "Ruedas tapadoras", "body": "Cierran el surco y aseguran el contacto entre la semilla y el suelo para una emergencia pareja." },
-    "hoppers": { "title": "Tolvas", "body": "Más capacidad significa menos paradas para cargar y más hectáreas por jornada." },
-    "transport": { "title": "Sistema de transporte", "body": "Pasa de trabajo a ruta en minutos, sin herramientas, desde la cabina del tractor." },
-    "monitor": { "title": "Monitor de siembra", "body": "Avisa al instante si un surco falla o se tapa. Ves la densidad real en cada surco." }
+    "coulter": {
+      "title": "Cuchilla de corte",
+      "body": "Corta el rastrojo antes de que lleguen los discos: el surco queda limpio y la semilla no se mezcla con la paja."
+    },
+    "discs": {
+      "title": "Doble disco desencontrado",
+      "body": "Abre un surco en V parejo, aun con mucho rastrojo, y deja la semilla a la profundidad justa."
+    },
+    "gauge": {
+      "title": "Ruedas limitadoras",
+      "body": "Copian el terreno a los dos lados del surco. Así la profundidad es la misma en lomas y bajos."
+    },
+    "meter": {
+      "title": "Dosificador",
+      "body": "Pone cada semilla a la distancia elegida. Con dosificación eléctrica permite corte surco a surco y dosis variable."
+    },
+    "closing": {
+      "title": "Ruedas tapadoras",
+      "body": "Cierran el surco y aseguran el contacto entre la semilla y el suelo para una emergencia pareja."
+    },
+    "hoppers": {
+      "title": "Tolvas",
+      "body": "Más capacidad significa menos paradas para cargar y más hectáreas por jornada."
+    },
+    "transport": {
+      "title": "Sistema de transporte",
+      "body": "Pasa de trabajo a ruta en minutos, sin herramientas, desde la cabina del tractor."
+    },
+    "monitor": {
+      "title": "Monitor de siembra",
+      "body": "Avisa al instante si un surco falla o se tapa. Ves la densidad real en cada surco."
+    }
   },
   "detail": {
     "title": "Cuerpo de siembra",
@@ -309,8 +534,16 @@
     "language": "Idioma",
     "units": "Unidades"
   },
-  "units": { "metric": "Métrico", "imperial": "Imperial" },
-  "langNames": { "es-AR": "Español", "en": "English", "pt-BR": "Português", "ru": "Русский" },
+  "units": {
+    "metric": "Métrico",
+    "imperial": "Imperial"
+  },
+  "langNames": {
+    "es-AR": "Español",
+    "en": "English",
+    "pt-BR": "Português",
+    "ru": "Русский"
+  },
   "summary": {
     "title": "Resumen de tu sembradora",
     "configNumber": "Configuración n.º",
@@ -320,7 +553,11 @@
     "renders": "Vistas",
     "rendering": "Generando vistas…",
     "date": "Fecha",
-    "views": { "front34": "3/4 delantero", "top": "Superior", "transport": "Transporte" }
+    "views": {
+      "front34": "3/4 delantero",
+      "top": "Superior",
+      "transport": "Transporte"
+    }
   },
   "compare": {
     "title": "Comparar configuraciones",

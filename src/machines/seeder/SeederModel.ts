@@ -4,7 +4,7 @@ import type { MaterialSet } from '../../three/materials';
 import { DIM, computeLayout, type SeederLayout } from './layout';
 import { ROW, ROW_HOTSPOTS, buildRowUnit, type MatKey, type Part, type RowUnitOptions } from './rowUnit';
 import {
-  barBetween, cylinderX, cylinderZ, frustumGeo, hexBolt, lugsGeo, mergeAll, rimGeo, roundedBox, sagHose, tireGeo, tube,
+  barBetween, cylinderX, cylinderZ, frustumGeo, hexBolt, mergeAll, roundedBox, sagHose, tube, wheelSet,
 } from './parts';
 import { warningStripes } from '../../three/textures';
 
@@ -322,14 +322,32 @@ export class SeederModel {
     this.anchor('hitch', inner, hitch);
   }
 
+  /** Rueda completa (cubierta, tacos, llanta, bulones) como grupo; eje X. */
+  private wheelGroup(R: number, W: number, outward: number, rimR?: number): THREE.Group {
+    const key = `${R}|${W}|${outward}|${rimR}`;
+    let w = this.wheelCache.get(key);
+    if (!w) {
+      w = wheelSet(R, W, { outward, rimR });
+      Object.values(w).forEach((g) => this.track(g));
+      this.wheelCache.set(key, w);
+    }
+    const g = new THREE.Group();
+    const darkMat = this.mats.paintDark;
+    for (const [geo, mat] of [[w.tire, this.mats.tire], [w.lugs, this.mats.rubber], [w.rim, this.mats.paintAccent], [w.metal, this.mats.steel], [w.dark, darkMat]] as const) {
+      const m = new THREE.Mesh(geo, mat);
+      m.castShadow = true;
+      m.receiveShadow = true;
+      g.add(m);
+    }
+    return g;
+  }
+  private wheelCache = new Map<string, ReturnType<typeof wheelSet>>();
+
   private buildMainWheels() {
     const mats = this.mats;
     const flot = this.cfg.selections.transportWheels === 'flotation';
     const R = flot ? 0.43 : 0.4;
     const W = flot ? 0.36 : 0.22;
-    const tireG = this.track(tireGeo(R, W, R - 0.14, { segs: 56, squareness: 0.55 }));
-    const lugG = this.track(lugsGeo(R - 0.012, W * 0.92, 22, flot ? 0.025 : 0.03));
-    const rimG = this.track(rimGeo(R - 0.14, W * 0.95, 0.05));
     for (const side of [-1, 1]) {
       const arm = new THREE.Group();
       arm.position.set(side * 0.95, DIM.barY - 0.06, 0.45);
@@ -341,14 +359,7 @@ export class SeederModel {
       this.mesh(barBetween(V(side * -0.15, 0, 0), V(side * -0.15, 0, 0.7), 0.05, 8, true), mats.paintMain, arm);
       this.mesh(cylinderX(0.035, 0.18), mats.steel, arm, V(side * -0.07, 0, 0.7));
       wheel.position.set(0, 0, 0.7);
-      const t = new THREE.Mesh(tireG, mats.tire);
-      const lugs = new THREE.Mesh(lugG, mats.rubber);
-      const rim = new THREE.Mesh(rimG, mats.paintAccent);
-      for (const m of [t, lugs, rim]) {
-        m.castShadow = true;
-        m.receiveShadow = true;
-        wheel.add(m);
-      }
+      wheel.add(this.wheelGroup(R, W, side, R * 0.55));
       this.mainWheels.push({ arm, wheel, side });
     }
     this.mainWheelR = R;
@@ -408,16 +419,20 @@ export class SeederModel {
       this.mesh(barBetween(V(sx * span, py + 1.0, wz - 0.2), V(sx * span, py + 1.0, wz + 0.2), 0.02, 8), mats.paintAccent, this.chassis);
       this.mesh(barBetween(V(sx * span, py + 0.55, wz - 0.2), V(sx * span, py + 0.55, wz + 0.2), 0.02, 8), mats.paintAccent, this.chassis);
     }
-    // escalera
-    const lx = span - 0.05;
+    // escalera: baja por detrás de la pasarela hasta el suelo (fuera de los cuerpos de siembra)
+    const lx = span - 0.35;
     const ladder = new THREE.Group();
-    ladder.position.set(lx, 0, wz - 0.25);
+    ladder.position.set(lx, 0, wz - 0.23);
     this.chassis.add(ladder);
-    for (const dz of [-0.2, 0.2]) this.mesh(barBetween(V(0, py, dz), V(0.12, 0.35, dz - 0.35), 0.022, 6, true), mats.paintMain, ladder);
-    for (let i = 1; i <= 4; i++) {
-      const t = i / 5;
-      this.mesh(roundedBox(0.09, 0.02, 0.4, 0.004), mats.plate, ladder, V(0.12 * t, py + (0.35 - py) * t, -0.35 * t));
+    const bottomY = 0.22;
+    const run = 0.55;
+    for (const dx of [-0.2, 0.2]) this.mesh(barBetween(V(dx, py + 0.02, 0), V(dx, bottomY, -run), 0.02, 6, true), mats.paintMain, ladder);
+    const steps = 5;
+    for (let i = 1; i <= steps; i++) {
+      const t = i / (steps + 1);
+      this.mesh(roundedBox(0.4, 0.02, 0.1, 0.004), mats.plate, ladder, V(0, py + (bottomY - py) * t, -run * t));
     }
+    for (const dx of [-0.2, 0.2]) this.mesh(barBetween(V(dx, py + 0.02, 0), V(dx, py + 0.9, 0.02), 0.016, 8), mats.paintAccent, ladder);
   }
 
   private parentOf(sectionId: string): THREE.Object3D {
@@ -552,14 +567,17 @@ export class SeederModel {
     // Tren de transporte en el extremo derecho (ruedas con eje en Z: ruedan a lo largo del tubo)
     const group = new THREE.Group();
     this.chassis.add(group);
-    this.mesh(roundedBox(0.22, 0.22, 2.6, 0.015), mats.paintMain, group, V(0.12, by, zc));
+    const CX = DIM.carriageOffset; // el tren queda afuera del último cuerpo: no se cruza con nada
+    // prolongación del tubo hasta el tren
+    this.mesh(roundedBox(CX + 0.1, DIM.barSize * 0.9, DIM.barSize * 0.9, 0.012).translate((CX + 0.1) / 2 - 0.05, 0, 0), mats.paintMain, group, V(0, by, 0));
+    this.mesh(barBetween(V(0, by - 0.05, -0.05), V(CX, by - 0.05, zc - 0.6), 0.04, 6, true), mats.paintMain, group);
+    this.mesh(roundedBox(0.22, 0.22, 2.6, 0.015), mats.paintMain, group, V(CX, by, zc));
     const arm = new THREE.Group();
-    arm.position.set(0.12, by - 0.05, zc);
+    arm.position.set(CX, by - 0.05, zc);
     group.add(arm);
-    const R = 0.38;
-    const tireG = this.track(tireGeo(R, 0.24, R - 0.13, { segs: 48, squareness: 0.55 }).rotateY(Math.PI / 2));
-    const lugG = this.track(lugsGeo(R - 0.012, 0.22, 20, 0.028).rotateY(Math.PI / 2));
-    const rimG = this.track(rimGeo(R - 0.13, 0.22, 0.05).rotateY(Math.PI / 2));
+    const flot = this.cfg.selections.transportWheels === 'flotation';
+    const R = flot ? 0.41 : 0.38;
+    const TW = flot ? 0.36 : 0.24;
     const wheels: THREE.Group[] = [];
     const armLen = by - 0.05 + DIM.lift - R;
     this.mesh(roundedBox(0.14, armLen, 0.14, 0.012), mats.paintMain, arm, V(0, -armLen / 2, 0));
@@ -568,25 +586,22 @@ export class SeederModel {
       const w = new THREE.Group();
       w.position.set(0, -armLen, dz);
       arm.add(w);
-      for (const [g, m] of [[tireG, mats.tire], [lugG, mats.rubber], [rimG, mats.paintAccent]] as const) {
-        const mesh = new THREE.Mesh(g, m);
-        mesh.castShadow = true;
-        mesh.receiveShadow = true;
-        w.add(mesh);
-      }
+      const wg = this.wheelGroup(R, TW, 1, R * 0.55);
+      wg.rotation.y = dz > 0 ? -Math.PI / 2 : Math.PI / 2;
+      w.add(wg);
       wheels.push(w);
     }
     // guía vertical y cilindro de levante del tren
-    this.mesh(roundedBox(0.16, 0.75, 0.16, 0.012), mats.paintMain, group, V(0.12, by + 0.42, zc + 0.3));
-    this.mesh(roundedBox(0.16, 0.75, 0.16, 0.012), mats.paintMain, group, V(0.12, by + 0.42, zc - 0.3));
-    this.mesh(roundedBox(0.2, 0.08, 0.8, 0.012), mats.paintMain, group, V(0.12, by + 0.8, zc));
-    const ca = this.anchor('carriageCylA', group, V(0.12, by + 0.78, zc));
+    this.mesh(roundedBox(0.16, 0.75, 0.16, 0.012), mats.paintMain, group, V(CX, by + 0.42, zc + 0.3));
+    this.mesh(roundedBox(0.16, 0.75, 0.16, 0.012), mats.paintMain, group, V(CX, by + 0.42, zc - 0.3));
+    this.mesh(roundedBox(0.2, 0.08, 0.8, 0.012), mats.paintMain, group, V(CX, by + 0.8, zc));
+    const ca = this.anchor('carriageCylA', group, V(CX, by + 0.78, zc));
     const cb = this.anchor('carriageCylB', arm, V(0, -0.05, 0));
     const cyl = new HydCylinder(ca, cb, mats, this.geoms, 0.4, 0.05);
     this.chassis.add(cyl.group);
     this.cylinders.push(cyl);
     this.carriage = { arm, wheels, group };
-    this.anchor('transport', group, V(0.2, by + 0.6, zc));
+    this.anchor('transport', group, V(CX + 0.1, by + 0.6, zc));
 
     // Lanza de transporte telescópica en el extremo izquierdo
     const th = new THREE.Group();
@@ -741,6 +756,12 @@ export class SeederModel {
     b.mesh.position.x = (x0 + x1) / 2;
   }
 
+  /** Giro de las ruedas del tren de transporte (andando por la ruta). */
+  spinTransportWheels(distance: number) {
+    if (this.carriage) for (const w of this.carriage.wheels) w.rotation.z = -distance / 0.4;
+    if (this.layout.transport === 'fold') for (const w of this.mainWheels) w.wheel.rotation.x = distance / this.mainWheelR;
+  }
+
   private spinWheels(distance: number) {
     for (const w of this.mainWheels) w.wheel.rotation.x = distance / this.mainWheelR;
   }
@@ -768,7 +789,7 @@ export class SeederModel {
       this.chassis.position.set(0, lift, 0);
       // ruedas centrales: apoyadas en trabajo, levantadas en transporte
       this.setMainWheelsGrounded(lift, p1);
-      if (this.carriage) this.carriage.arm.position.y = DIM.barY - 0.05 + (1 - p1) * 0.45;
+      if (this.carriage) this.carriage.arm.position.y = DIM.barY - 0.05 + (1 - p1) * 0.55;
       this.drawbar.rotation.y = p2 * (Math.PI / 2);
       if (this.tHitch && this.tHitchInner && this.tHitchEye) {
         const ext = 0.05 + p3 * (DIM.transportDrawbar - 0.05);

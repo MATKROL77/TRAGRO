@@ -8,9 +8,12 @@ import { KeyLight } from './StudioScene';
 import { createGroundMaterial, loadTex } from './ground';
 import { Tractor, TRACTOR } from './Tractor';
 import { computeLayout, DIM } from '../machines/seeder/layout';
+import { createTrees, treeLine } from './trees';
 
 const ROAD_W = 7.3;
 const SHOULDER = 1.6;
+/** velocidad y distancia en ruta (compartidas con el tractor) */
+const roadSpeed = { v: 0, d: 0 };
 
 function useRoadMaterials() {
   return useMemo(() => {
@@ -41,6 +44,7 @@ function RoadTractor() {
     m.getHitch(hitch);
     g.position.set(hitch.x, 0, hitch.z + TRACTOR.hitchBehindAxle);
     g.visible = show && m.state.poseT > 0.985;
+    wheels.current.forEach((w, i) => (w.rotation.x = roadSpeed.d / (i < 2 ? TRACTOR.rearR : TRACTOR.frontR)));
   });
   return <Tractor ref={ref} wheelRefs={wheels} />;
 }
@@ -57,12 +61,41 @@ export default function RoadScene() {
       scene.fog = null;
     };
   }, [scene]);
-  useFrame(() => {
+  // andando por la ruta: el mundo se desplaza (cinta), las ruedas giran
+  const road = useRef({ d: 0, v: 0 });
+  const dashGroup = useRef<THREE.Group>(null);
+  const signGroup = useRef<THREE.Group>(null);
+  useFrame((_, dt) => {
     runtime.frames++;
+    const st = useStore.getState();
+    const m = runtime.model;
+    const ready = !!m && m.state.poseT > 0.985;
+    const target = st.sowing && ready ? 22 / 3.6 : 0;
+    const step = Math.min(dt, 0.05) * runtime.timeScale;
+    const r = road.current;
+    r.v += (target - r.v) * (1 - Math.exp(-step * 0.8));
+    if (target === 0 && r.v < 0.01) r.v = 0;
+    if (r.v === 0) return;
+    r.d += r.v * step;
+    roadSpeed.v = r.v;
+    roadSpeed.d = r.d;
+    for (const t of [mats.asphalt.map, mats.asphalt.normalMap, mats.asphalt.roughnessMap]) if (t) t.offset.y = -r.d / 3;
+    for (const t of [mats.gravel.map, mats.gravel.normalMap]) if (t) t.offset.y = -r.d / 1.5;
+    ground.uniforms.uOffset.value = r.d;
+    if (dashGroup.current) dashGroup.current.position.z = -(r.d % 12);
+    if (signGroup.current) signGroup.current.position.z = 60 - (r.d % 140);
+    if (treeGroup.current) treeGroup.current.position.z = -(r.d % 320);
+    m?.spinTransportWheels(r.d);
+    runtime.invalidate();
   });
   const L = computeLayout(config);
   const machineX = L.transport === 'longitudinal' ? (DIM.rowFrontZ + DIM.rowRearZ) / 2 : 0;
   const roadX = machineX - ROAD_W / 4;
+  // cortina de eucaliptos al costado de la ruta (se recicla en loop con el avance)
+  const trees = useMemo(() => createTrees([...treeLine(-160, 160, 0, 6.5, 13, 22, 11, 'z')], 3), []);
+  useEffect(() => () => trees.dispose(), [trees]);
+  const treeCopies = useMemo(() => [0, 1, 2, 3, 4].map(() => trees.group.clone()), [trees]);
+  const treeGroup = useRef<THREE.Group>(null);
   const dashes = useMemo(() => {
     const out: number[] = [];
     for (let z = -300; z < 300; z += 12) out.push(z);
@@ -90,19 +123,33 @@ export default function RoadScene() {
           <planeGeometry args={[0.12, 600]} />
         </mesh>
       ))}
-      {dashes.map((z) => (
-        <mesh key={z} rotation-x={-Math.PI / 2} position={[roadX, 0.004, z]} material={mats.paint}>
-          <planeGeometry args={[0.12, 4.5]} />
-        </mesh>
-      ))}
+      <group ref={dashGroup}>
+        {dashes.map((z) => (
+          <mesh key={z} rotation-x={-Math.PI / 2} position={[roadX, 0.004, z]} material={mats.paint}>
+            <planeGeometry args={[0.12, 4.5]} />
+          </mesh>
+        ))}
+      </group>
       {/* cartel de advertencia genérico */}
-      <group position={[roadX + ROAD_W / 2 + SHOULDER + 0.8, 0, 14]}>
+      <group ref={signGroup} position={[roadX + ROAD_W / 2 + SHOULDER + 0.8, 0, 14]}>
         <mesh position={[0, 1.2, 0]} material={mats.gravel}>
           <cylinderGeometry args={[0.04, 0.04, 2.4, 8]} />
         </mesh>
         <mesh position={[0, 2.3, 0]} rotation={[0, -0.4, Math.PI / 4]} material={mats.yellow}>
           <boxGeometry args={[0.7, 0.7, 0.03]} />
         </mesh>
+      </group>
+      <group ref={treeGroup}>
+        <group position-x={roadX + ROAD_W / 2 + SHOULDER + 18}>
+          <primitive object={trees.group} />
+          <primitive object={treeCopies[0]} position-z={320} />
+          <primitive object={treeCopies[1]} position-z={-320} />
+        </group>
+        <group position-x={roadX - ROAD_W / 2 - SHOULDER - 26} rotation-y={Math.PI}>
+          <primitive object={treeCopies[2]} />
+          <primitive object={treeCopies[3]} position-z={320} />
+          <primitive object={treeCopies[4]} position-z={-320} />
+        </group>
       </group>
       <RoadTractor />
     </>

@@ -5,7 +5,7 @@ const browser = await chromium.launch({ args: ['--use-gl=angle', '--use-angle=sw
 const page = await browser.newPage({ viewport: { width: +(process.env.W || 1100), height: +(process.env.H || 700) } });
 page.on('pageerror', (e) => console.log('ERR', e.message));
 page.on('console', (m) => { if (m.type() === 'error') console.log('CONSOLE', m.text().slice(0, 300)); });
-await page.goto('http://localhost:5173/' + (process.env.QS || '?q=medium'));
+await page.goto((process.env.BASE || 'http://localhost:4173/') + (process.env.QS || '?q=medium'));
 await page.waitForTimeout(6000);
 let i = 0;
 for (const js of steps) {

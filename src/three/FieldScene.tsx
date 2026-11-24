@@ -11,6 +11,7 @@ import { Tractor, TRACTOR } from './Tractor';
 import { getCrop } from '../domain/agronomy';
 import { computeLayout } from '../machines/seeder/layout';
 import { getMaterials } from './materials';
+import { createTrees, treeLine } from './trees';
 
 const TILE_Z = 44;
 const Z_MIN = -26;
@@ -131,25 +132,14 @@ function Horizon() {
   const g = useMemo(() => {
     const group = new THREE.Group();
     const mats = getMaterials();
-    const tree = new THREE.IcosahedronGeometry(1, 1);
-    const treeMat = new THREE.MeshStandardMaterial({ color: '#46553a', roughness: 1, flatShading: true });
-    const trunkless = new THREE.InstancedMesh(tree, treeMat, 160);
-    const m4 = new THREE.Matrix4();
-    let k = 0;
-    const lines = [
-      { x0: -260, x1: 140, z: 330 },
-      { x0: 180, x1: 420, z: 250 },
-      { x0: -420, x1: -200, z: -280 },
-    ];
-    for (const l of lines) {
-      for (let x = l.x0; x < l.x1 && k < 160; x += 6 + Math.random() * 6) {
-        const h = 9 + Math.random() * 9;
-        m4.compose(new THREE.Vector3(x, h * 0.8, l.z + (Math.random() - 0.5) * 8), new THREE.Quaternion(), new THREE.Vector3(4 + Math.random() * 3, h, 4 + Math.random() * 3));
-        trunkless.setMatrixAt(k++, m4);
-      }
-    }
-    trunkless.count = k;
-    group.add(trunkless);
+    const trees = createTrees([
+      ...treeLine(-320, 160, 300, 7, 14, 24, 1),
+      ...treeLine(150, 460, 230, 7, 13, 22, 2),
+      ...treeLine(-460, -180, -260, 7, 14, 22, 3),
+      ...treeLine(-200, 200, 380, 6, 15, 26, 4, 'z').map((t) => ({ ...t, x: t.x - 380 })),
+    ]);
+    group.add(trees.group);
+    group.userData.dispose = trees.dispose;
     // silo
     const silo = new THREE.Group();
     for (let i = 0; i < 3; i++) {

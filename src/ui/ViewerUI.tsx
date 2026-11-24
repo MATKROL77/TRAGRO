@@ -80,10 +80,17 @@ export function ViewerToolbar() {
     </div>
     <div className="toolbar" ref={wrap} role="toolbar" aria-label={t('toolbar.cameras')}>
       <div className="tb-group">
-        <button type="button" className={`tb-btn${sowing ? ' is-on' : ''}`} onClick={() => st().setSowing(!sowing)} disabled={pose === 'transport'}>
-          {sowing ? <IconPause size={18} /> : <IconPlay size={18} />}
-          <span>{sowing ? t('toolbar.stopSow') : t('toolbar.sow')}</span>
-        </button>
+        {scene === 'road' ? (
+          <button type="button" className={`tb-btn${sowing ? ' is-on' : ''}`} onClick={() => st().setSowing(!sowing)} disabled={pose !== 'transport'}>
+            {sowing ? <IconPause size={18} /> : <IconPlay size={18} />}
+            <span>{sowing ? t('toolbar.stopSow') : t('toolbar.drive')}</span>
+          </button>
+        ) : (
+          <button type="button" className={`tb-btn${sowing ? ' is-on' : ''}`} onClick={() => st().setSowing(!sowing)} disabled={pose === 'transport'}>
+            {sowing ? <IconPause size={18} /> : <IconPlay size={18} />}
+            <span>{sowing ? t('toolbar.stopSow') : t('toolbar.sow')}</span>
+          </button>
+        )}
         <button type="button" className={`tb-btn${pose === 'transport' ? ' is-on' : ''}`} onClick={fold}>
           <IconFold size={18} />
           <span>{pose === 'work' ? t('toolbar.fold') : t('toolbar.unfold')}</span>

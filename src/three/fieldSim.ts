@@ -11,7 +11,9 @@ import { runtime } from './runtime';
  */
 
 const MAX_SEG = 900;
-const MAX_SEEDS = 2400;
+const MAX_SEEDS = 12000;
+/** metros detrás de las tapadoras en los que las semillas siguen visibles sobre el surco */
+const SEED_TRAIL = 9;
 const BACK = 70; // metros visibles detrás
 
 type Kind = 0 | 1 | 2; // 0 sembrado · 1 superposición · 2 apagado (corte)
@@ -284,13 +286,16 @@ export class FieldSim {
     const alive: Seed[] = [];
     for (const sd of this.pool) {
       const z = sd.g - distance;
-      if (z < ROW.closing.z + 0.06) continue; // cubierta por la tapadora
+      if (z < ROW.closing.z - SEED_TRAIL) continue; // ya tapada y fuera de la vista
       alive.push(sd);
       const age = this.time - sd.born;
-      const y = age < 0.08 ? 0.05 - (0.042 * age) / 0.08 : 0.008;
+      // cae del tubo, queda en el fondo del surco y, tras la tapadora, apenas asoma sobre la línea sembrada
+      const behind = z < ROW.closing.z;
+      const y = age < 0.08 ? 0.05 - (0.04 * age) / 0.08 : behind ? 0.011 : 0.012;
       this.v.set(sd.x, y, z);
       this.q.setFromEuler(new THREE.Euler(0.3, sd.rot, 0.2));
-      this.s.setScalar(1.35);
+      const fade = behind ? Math.max(0.35, 1 - (ROW.closing.z - z) / SEED_TRAIL) : 1;
+      this.s.setScalar(1.9 * fade);
       this.m4.compose(this.v, this.q, this.s);
       this.seeds.setMatrixAt(j++, this.m4);
       if (j >= MAX_SEEDS) break;

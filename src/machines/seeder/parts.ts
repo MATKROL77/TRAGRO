@@ -277,3 +277,90 @@ export function mergeAll(geos: THREE.BufferGeometry[]): THREE.BufferGeometry {
   if (!m) throw new Error('merge failed');
   return m;
 }
+
+export interface WheelGeos {
+  tire: THREE.BufferGeometry;
+  lugs: THREE.BufferGeometry;
+  rim: THREE.BufferGeometry;
+  metal: THREE.BufferGeometry;
+  dark: THREE.BufferGeometry;
+}
+
+/**
+ * Rueda agrícola completa (eje X): cubierta cerrada, tacos en V apoyados sobre la banda,
+ * llanta con aro, disco con agujeros, cubo, bulones y taza. `outward` = lado visible (+1 o -1).
+ */
+export function wheelSet(R: number, W: number, opts: { rimR?: number; lugs?: number; lugH?: number; outward?: number } = {}): WheelGeos {
+  const rimR = opts.rimR ?? R * 0.6;
+  const out = opts.outward ?? 1;
+  const lugH = opts.lugH ?? R * 0.07;
+  const n = opts.lugs ?? Math.round(R * 52);
+  const tread = R - lugH * 0.55;
+  const tire = tireGeo(tread, W, rimR * 1.02, { segs: 64, squareness: 0.45 });
+  // tacos en chevron que cubren toda la banda y bajan al hombro
+  const lugParts: THREE.BufferGeometry[] = [];
+  for (let i = 0; i < n; i++) {
+    const a = (i / n) * Math.PI * 2;
+    for (const side of [-1, 1]) {
+      const len = W * 0.62;
+      const lug = new THREE.BoxGeometry(len, lugH, W * 0.12);
+      // bisel en la punta exterior: baja hacia el hombro
+      const p = lug.getAttribute('position');
+      for (let k = 0; k < p.count; k++) {
+        const x = p.getX(k);
+        if (x > len * 0.3 && p.getY(k) > 0) p.setY(k, p.getY(k) - lugH * 0.35);
+      }
+      lug.translate(len / 2 - W * 0.06, 0, 0);
+      lug.rotateY(side > 0 ? -0.62 : Math.PI + 0.62);
+      lug.translate(0, tread + lugH / 2 - lugH * 0.15, side * W * 0.04 + (side > 0 ? 0 : (Math.PI / n) * tread));
+      lug.rotateX(a);
+      lugParts.push(lug.toNonIndexed());
+    }
+  }
+  const lugs = mergeGeometries(lugParts)!;
+  lugs.computeVertexNormals();
+  // llanta: barril + aros + disco + cubo
+  const bw = W * 0.82;
+  const barrel = new THREE.CylinderGeometry(rimR, rimR, bw, 48, 1, true);
+  const innerDisc = new THREE.CylinderGeometry(rimR * 0.99, rimR * 0.99, 0.008, 48).translate(0, -out * bw * 0.32, 0);
+  const faceDisc = new THREE.CylinderGeometry(rimR * 0.97, rimR * 0.97, 0.012, 48).translate(0, out * bw * 0.12, 0);
+  const dish = new THREE.CylinderGeometry(rimR * 0.55, rimR * 0.97, bw * 0.18, 48, 1, true).translate(0, out * bw * 0.21, 0);
+  if (out < 0) dish.rotateX(Math.PI);
+  const hub = new THREE.CylinderGeometry(rimR * 0.3, rimR * 0.34, bw * 0.42, 24).translate(0, out * bw * 0.32, 0);
+  const rimParts = [barrel, innerDisc, faceDisc, dish, hub].map((g) => g.toNonIndexed());
+  for (const s of [-1, 1]) {
+    const fl = new THREE.TorusGeometry(rimR * 1.01, rimR * 0.035, 8, 48).rotateX(Math.PI / 2).translate(0, s * bw * 0.5, 0);
+    rimParts.push(fl.toNonIndexed());
+  }
+  const rim = mergeGeometries(rimParts)!;
+  rim.computeVertexNormals();
+  rim.rotateZ(-Math.PI / 2);
+  // bulones y taza central (acero)
+  const metalParts: THREE.BufferGeometry[] = [];
+  const nb = rimR > 0.2 ? 8 : 6;
+  for (let i = 0; i < nb; i++) {
+    const a = (i / nb) * Math.PI * 2;
+    const b = new THREE.CylinderGeometry(rimR * 0.045, rimR * 0.045, rimR * 0.08, 6).translate(Math.cos(a) * rimR * 0.21, out * (bw * 0.53 + rimR * 0.04), Math.sin(a) * rimR * 0.21);
+    metalParts.push(b.toNonIndexed());
+  }
+  metalParts.push(new THREE.SphereGeometry(rimR * 0.12, 16, 8, 0, Math.PI * 2, 0, Math.PI / 2).scale(1, 0.8, 1).rotateX(out > 0 ? 0 : Math.PI).translate(0, out * bw * 0.53, 0).toNonIndexed());
+  const metal = mergeGeometries(metalParts)!;
+  metal.computeVertexNormals();
+  metal.rotateZ(-Math.PI / 2);
+  // agujeros de aliviane del disco (oscuros, levemente hundidos)
+  const darkParts: THREE.BufferGeometry[] = [];
+  const nh = 8;
+  for (let i = 0; i < nh; i++) {
+    const a = (i / nh + 0.0625) * Math.PI * 2;
+    const h = new THREE.CylinderGeometry(rimR * 0.11, rimR * 0.11, 0.014, 16).scale(1, 1, 1.35).rotateY(-a).translate(Math.cos(a) * rimR * 0.66, out * bw * 0.125, Math.sin(a) * rimR * 0.66);
+    darkParts.push(h.toNonIndexed());
+  }
+  const dark = mergeGeometries(darkParts)!;
+  dark.computeVertexNormals();
+  dark.rotateZ(-Math.PI / 2);
+  return { tire, lugs, rim, metal, dark };
+}
+
+export function disposeWheel(w: WheelGeos) {
+  Object.values(w).forEach((g) => g.dispose());
+}

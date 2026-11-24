@@ -5,9 +5,8 @@ import { useT } from '../i18n/useT';
 import { Header, LangUnitControls } from './Header';
 import { ConfigPanel } from './ConfigPanel';
 import { PerformancePanel } from './PerformancePanel';
-import { BottomBar } from './BottomBar';
+import { PriceHeader } from './BottomBar';
 import { DetailLegend, HotspotCard, LoadingScreen, NoWebGL, NoticeToast, SimPanel, ViewerToolbar } from './ViewerUI';
-import { useMediaQuery } from './hooks';
 import { restartDemo, useEmbedBridge, useFeriaMode, useShortcuts } from './feria';
 import { touchInteraction } from '../three/runtime';
 import { IconReset } from './icons';
@@ -63,7 +62,8 @@ export function App() {
   const feria = useStore((s) => s.feria);
   const embed = useStore((s) => s.embed);
   const lang = useStore((s) => s.lang);
-  const mobile = useMediaQuery('(max-width: 900px)');
+  const tab = useStore((s) => s.panelTab);
+  const setTab = useStore((s) => s.setPanelTab);
   useFeriaMode();
   useShortcuts();
   useEmbedBridge();
@@ -95,11 +95,14 @@ export function App() {
           <FeriaOverlay />
         </div>
         <aside className="side">
-          <ConfigPanel />
-          <PerformancePanel collapsible={mobile} key={mobile ? 'm' : 'd'} />
+          <PriceHeader />
+          <div className="side-tabs seg" role="tablist" aria-label={t('a11y.panel')}>
+            <button type="button" role="tab" aria-selected={tab === 'config'} className={tab === 'config' ? 'is-selected' : ''} onClick={() => setTab('config')}>{t('nav.configure')}</button>
+            <button type="button" role="tab" aria-selected={tab === 'perf'} className={tab === 'perf' ? 'is-selected' : ''} onClick={() => setTab('perf')}>{t('perf.title')}</button>
+          </div>
+          {tab === 'config' ? <ConfigPanel /> : <PerformancePanel collapsible={false} />}
         </aside>
       </main>
-      <BottomBar />
       <Suspense fallback={null}>
         <AnimatePresence>
           {modal === 'summary' && <SummaryModal key="s" />}

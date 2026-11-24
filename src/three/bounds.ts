@@ -12,7 +12,7 @@ export function layoutBox(L: SeederLayout, transport: boolean): THREE.Box3 {
   const d = L.transportDims;
   if (L.transport === 'longitudinal') {
     const xc = (DIM.rowFrontZ + DIM.rowRearZ) / 2;
-    b.min.set(xc - d.width / 2, 0, -(L.barLength / 2 + 0.4));
+    b.min.set(xc - d.width / 2, 0, -(L.barLength / 2 + DIM.carriageOffset + 0.45));
     b.max.set(xc + d.width / 2, d.height, L.barLength / 2 + DIM.transportDrawbar);
   } else {
     b.min.set(-d.width / 2, 0, DIM.rowRearZ);
