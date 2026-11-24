@@ -15,7 +15,7 @@ async function run() {
   const browser = await launch();
   const { page, errors } = await openApp(browser);
   await setUi(page, { autoFoco: false });
-  const price = () => page.evaluate(() => Number(document.querySelector('[data-testid="precio-total"]').textContent.replace(/[^\d]/g, '').slice(0, 9)));
+  const price = () => page.evaluate(() => Number((document.querySelector('[data-testid="precio-total"]').textContent.match(/US\$\s*([\d.]+)/) || [])[1].replace(/\./g, '')));
 
   // --- Paso 1: tipo -------------------------------------------------------------
   const tolva = await state(page);
@@ -139,7 +139,8 @@ async function run() {
   report.ok('resumen: 3 renders automáticos desde el canvas', renders.length === 3 && renders.every((w) => w > 300), renders.join(', '));
   const numero = ((await page.locator('[data-testid="sum-numero"]').textContent()) || '').trim();
   report.ok('resumen: número de configuración', /[A-Z]{2}-[0-9A-Z]{7}/.test(numero), numero);
-  report.ok('resumen: total coincide con la barra', ((await page.locator('[data-testid="sum-total"]').textContent()) || '').replace(/[^\d]/g, '').startsWith(String(total).slice(0, 5)) || true);
+  const sumTotal = Number((((await page.locator('[data-testid="sum-total"]').textContent()) || '').match(/US\$\s*([\d.]+)/) || [])[1]?.replace(/\./g, '') ?? 0);
+  report.ok('resumen: el total coincide con la barra', sumTotal === (await price()), `US$ ${sumTotal}`);
   await page.screenshot({ path: path.join(OUT, 'resumen.png') });
 
   // --- PDF ------------------------------------------------------------------------------------

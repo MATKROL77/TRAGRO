@@ -87,7 +87,27 @@ Son reglas de demo, aunque varias salen de la geometría del modelo:
 
 Ver los resultados completos en `tests/e2e/out/`. Resumen al cierre:
 
-<!-- MEDICIONES -->
+**Entorno de medición:** contenedor Linux sin GPU, 4 núcleos; Chromium dibuja con SwiftShader (rasterizador por software). Sirve para comparar entre versiones y para detectar fugas, **no** para estimar fps en hardware real.
+
+| Qué | Resultado | Objetivo del documento | Estado |
+|---|---|---|---|
+| JS inicial sin three.js (gzip) | 382 KB (app 307 + postprocesado 75) | ≤ 400 KB | Cumple, con poco margen |
+| three.js (gzip) | 205 KB | — | — |
+| Descarga total de la primera vista | ≈ 1,0 MB en 8 pedidos (JS, CSS, 1 tipografía, HDRI de 380 KB) | — | — |
+| Chunks diferidos | PDF 131 KB, escena exterior 6 KB + sus texturas, modales 2–3 KB c/u | code-splitting | Cumple |
+| Modelo (tolva por defecto) | 49 mallas, ≈ 43.000 triángulos + ruedas instanciadas | — | — |
+| Cuadro completo | 122 draw calls (sombras + AO + escena + postprocesado) | — | — |
+| Reconstrucción del modelo | promedio 63 ms, p95 125 ms (software, máquina cargada) | "que no se trabe la UI" | Sin medir en hardware real |
+| Estrés: 200 cambios de opción | geometrías 73 → 76, texturas 46 → 51, memoria JS 22 → 40 MB | sin fugas | Cumple |
+| Primer cuadro interactivo | FPS_CARGA | < 3 s en 4G rápido | **Sin verificar** (ver abajo) |
+| Fps rotando / animando | FPS_ROT | 60 fps notebook, 30 fps celular | **Sin verificar** (ver abajo) |
+
+Sobre lo que no pude verificar acá:
+
+- **Fps.** Con render por software se obtienen FPS_ROT_CORTO, un número que no dice nada de una GPU. El diseño apunta a los objetivos (pocas mallas, instancing, render a demanda, calidad adaptativa en tres niveles), pero **hay que medirlo** en una notebook con Iris Xe y en un Android de gama media: `E2E_GPU=1 npm run e2e rendimiento`.
+- **Tiempo de carga.** Lo que se descarga para la primera vista es ≈ 1 MB; en 4G rápido (≈ 10 Mbps) son menos de 1 s de red. El resto es compilar shaders y armar el modelo, que depende del dispositivo. Medirlo con Lighthouse o WebPageTest sobre el deploy real.
+- **La fuga que sí encontré y corregí:** la sombra de contacto de drei no libera sus render targets al desmontarse; la reemplacé por una propia que reutiliza los buffers.
+
 
 ## 5. Ideas para la v2
 
