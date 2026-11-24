@@ -1,0 +1,63 @@
+{
+  "_aviso": "VALORES DE REFERENCIA PARA DEMO. Deben ser confirmados por el fabricante contra la normativa vigente antes de publicar: Ley Nacional de Transito 24.449 (art. 53), Decreto 779/95 (Anexo R) y sus modificatorias (por ejemplo Decreto 32/2018 y resoluciones de Vialidad Nacional / Secretaria de Transporte). Este archivo NO es una fuente oficial.",
+  "dimensiones": {
+    "anchoMaxM": 2.6,
+    "altoMaxM": 4.1,
+    "largoMaxTractorSemiM": 18.6,
+    "largoMaxCombinacionM": 20.5,
+    "_nota": "largoMaxTractorSemiM: unidad tractora con semirremolque. largoMaxCombinacionM: tope general de combinaciones sin contar bitrenes (tractor + semi + acoplado). El configurador valida el conjunto tractor + semi contra largoMaxTractorSemiM. CONFIRMAR ambos valores."
+  },
+  "umbralAmarillo": 0.985,
+  "pesoPorGrupoDeEjesT": {
+    "_nota": "Peso maximo transmitido a la calzada por grupo de ejes, en toneladas. 'duales' = rodado doble (4 neumaticos por eje); 'single' = neumaticos superanchos (2 por eje). CONFIRMAR.",
+    "simple": {
+      "duales": 10.5,
+      "single": 8
+    },
+    "tandem": {
+      "duales": 18,
+      "single": 16
+    },
+    "tridem": {
+      "duales": 25.5,
+      "single": 24
+    }
+  },
+  "pesoBrutoCombinacionT": {
+    "_nota": "Tope de peso bruto total del conjunto. Se usa la suma de los grupos de ejes con tope 'general', salvo que la configuracion figure en 'porConfiguracion' (clave: tractor + disposicion de ejes del semi, con rodado dual). CONFIRMAR.",
+    "general": 45,
+    "porConfiguracion": {
+      "4x2+1+1+1": 48,
+      "6x2+1+1+1": 55.5,
+      "6x2+tridem": 49.5
+    }
+  },
+  "tractores": {
+    "_nota": "Tractores genericos para estimar el conjunto. taraKg y medidas son tipicas, de DEMO. largoDelanteDelPernoM = distancia del perno rey al paragolpes delantero del tractor.",
+    "4x2": {
+      "taraKg": 7300,
+      "ejesT": [
+        6,
+        10.5
+      ],
+      "largoDelanteDelPernoM": 4.35
+    },
+    "6x2": {
+      "taraKg": 8900,
+      "ejesT": [
+        6,
+        18
+      ],
+      "largoDelanteDelPernoM": 4.55
+    }
+  },
+  "densidadesKgM3": {
+    "_nota": "Peso hectolitrico / densidad aparente tipica para estimar cuanto pesa la caja llena. Valores de referencia.",
+    "soja": 750,
+    "maiz": 740,
+    "trigo": 780,
+    "girasol": 420,
+    "arena": 1550,
+    "piedra": 1500
+  }
+}

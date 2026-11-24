@@ -1,0 +1,276 @@
+{
+  "_nota": "REGLAS DE DEMO. Rangos de medidas por tipo y reglas de compatibilidad. Son ejemplos razonables: el fabricante debe ajustarlas a su ingenieria. 'requiere': si se cumple 'si', se fuerza 'entonces' (y las alternativas quedan deshabilitadas mostrando 'motivo'). 'noDisponible': la 'opcion' no se puede elegir mientras se cumpla 'cuando'; si estaba elegida se cambia por 'alternativa' y se muestra 'aviso'. Condiciones: valor exacto, lista de valores, o comparacion numerica { lt, lte, gt, gte }.",
+  "dimensiones": {
+    "tolva": {
+      "largo": {
+        "min": 8.5,
+        "max": 11.5,
+        "paso": 0.5
+      },
+      "alto": {
+        "min": 1.7,
+        "max": 2.5,
+        "paso": 0.1
+      }
+    },
+    "batea": {
+      "largo": {
+        "min": 7.5,
+        "max": 10.5,
+        "paso": 0.5
+      },
+      "alto": {
+        "min": 1.2,
+        "max": 1.8,
+        "paso": 0.1
+      }
+    },
+    "plataforma": {
+      "largo": {
+        "min": 12.5,
+        "max": 15.5,
+        "paso": 0.5
+      },
+      "alto": {
+        "min": 0.6,
+        "max": 1.2,
+        "paso": 0.2
+      }
+    },
+    "furgon": {
+      "largo": {
+        "min": 13,
+        "max": 15.5,
+        "paso": 0.5
+      },
+      "alto": {
+        "min": 2.4,
+        "max": 2.8,
+        "paso": 0.1
+      }
+    }
+  },
+  "requiere": [
+    {
+      "id": "single-requiere-neumatica",
+      "si": {
+        "ruedas": "single"
+      },
+      "entonces": {
+        "suspension": "neumatica"
+      },
+      "aviso": {
+        "es": "Cambiamos a suspensión neumática porque las súper single la requieren.",
+        "pt": "Mudamos para suspensão pneumática porque as super single exigem."
+      },
+      "motivo": {
+        "es": "Las súper single requieren suspensión neumática.",
+        "pt": "As super single exigem suspensão pneumática."
+      }
+    },
+    {
+      "id": "elevable-requiere-neumatica",
+      "si": {
+        "ejeElevable": true
+      },
+      "entonces": {
+        "suspension": "neumatica"
+      },
+      "aviso": {
+        "es": "Cambiamos a suspensión neumática porque el eje elevable la necesita.",
+        "pt": "Mudamos para suspensão pneumática porque o eixo suspensor precisa dela."
+      },
+      "motivo": {
+        "es": "El eje elevable necesita suspensión neumática.",
+        "pt": "O eixo suspensor precisa de suspensão pneumática."
+      }
+    },
+    {
+      "id": "111-largo-minimo",
+      "si": {
+        "ejes": "1+1+1",
+        "tipo": [
+          "tolva",
+          "batea"
+        ]
+      },
+      "entonces": {
+        "largo": {
+          "min": 9.5
+        }
+      },
+      "aviso": {
+        "es": "Llevamos el largo a 9,5 m: el 1+1+1 necesita ese espacio para separar los ejes más de 2,40 m.",
+        "pt": "Ajustamos o comprimento para 9,5 m: o 1+1+1 precisa desse espaço para distanciar os eixos mais de 2,40 m."
+      },
+      "motivo": {
+        "es": "Con 1+1+1 el largo mínimo es 9,5 m (ejes separados más de 2,40 m).",
+        "pt": "Com 1+1+1 o comprimento mínimo é 9,5 m (eixos distanciados mais de 2,40 m)."
+      }
+    },
+    {
+      "id": "tolva-tridem-largo-minimo",
+      "si": {
+        "ejes": "tridem",
+        "tipo": "tolva"
+      },
+      "entonces": {
+        "largo": {
+          "min": 9.5
+        }
+      },
+      "aviso": {
+        "es": "Llevamos el largo a 9,5 m: con trídem las bocas van delante de los ejes y necesitan ese espacio.",
+        "pt": "Ajustamos o comprimento para 9,5 m: com tridem as bocas ficam à frente dos eixos e precisam desse espaço."
+      },
+      "motivo": {
+        "es": "Con trídem la tolva necesita 9,5 m o más para ubicar las bocas.",
+        "pt": "Com tridem o graneleiro precisa de 9,5 m ou mais para posicionar as bocas."
+      }
+    },
+    {
+      "id": "electrico-requiere-pvc900",
+      "si": {
+        "accionamientoLona": "electrico"
+      },
+      "entonces": {
+        "lona": "pvc900"
+      },
+      "aviso": {
+        "es": "Pasamos a lona reforzada de 900 g/m²: el accionamiento eléctrico la requiere.",
+        "pt": "Mudamos para lona reforçada de 900 g/m²: o acionamento elétrico exige."
+      },
+      "motivo": {
+        "es": "El accionamiento eléctrico requiere lona reforzada de 900 g/m².",
+        "pt": "O acionamento elétrico exige lona reforçada de 900 g/m²."
+      }
+    }
+  ],
+  "noDisponible": [
+    {
+      "id": "elevable-solo-tres-ejes",
+      "opcion": {
+        "ejeElevable": true
+      },
+      "cuando": {
+        "ejes": [
+          "dos",
+          "tandem"
+        ]
+      },
+      "alternativa": false,
+      "aviso": {
+        "es": "Quitamos el eje elevable: solo se ofrece en equipos de tres ejes.",
+        "pt": "Removemos o eixo suspensor: só é oferecido em equipamentos de três eixos."
+      },
+      "motivo": {
+        "es": "El eje elevable solo se ofrece en equipos de tres ejes.",
+        "pt": "O eixo suspensor só é oferecido em equipamentos de três eixos."
+      }
+    },
+    {
+      "id": "tres-bocas-ejes-separados",
+      "opcion": {
+        "bocas": "3"
+      },
+      "cuando": {
+        "ejes": "1+1+1",
+        "largo": {
+          "lt": 11.5
+        }
+      },
+      "alternativa": "2",
+      "aviso": {
+        "es": "Volvimos a 2 bocas: con ejes separados las bocas van entre ejes y la tercera recién entra desde 11,5 m.",
+        "pt": "Voltamos para 2 bocas: com eixos distanciados as bocas ficam entre os eixos e a terceira só cabe a partir de 11,5 m."
+      },
+      "motivo": {
+        "es": "Con 1+1+1 la tercera boca entra recién en cajas de 11,5 m.",
+        "pt": "Com 1+1+1 a terceira boca só cabe em caixas de 11,5 m."
+      }
+    },
+    {
+      "id": "tres-bocas-tridem",
+      "opcion": {
+        "bocas": "3"
+      },
+      "cuando": {
+        "ejes": "tridem",
+        "largo": {
+          "lt": 11
+        }
+      },
+      "alternativa": "2",
+      "aviso": {
+        "es": "Volvimos a 2 bocas: con trídem la tercera boca entra recién desde 11 m.",
+        "pt": "Voltamos para 2 bocas: com tridem a terceira boca só cabe a partir de 11 m."
+      },
+      "motivo": {
+        "es": "Con trídem la tercera boca entra recién en cajas de 11 m.",
+        "pt": "Com tridem a terceira boca só cabe em caixas de 11 m."
+      }
+    },
+    {
+      "id": "tres-bocas-largo-minimo",
+      "opcion": {
+        "bocas": "3"
+      },
+      "cuando": {
+        "largo": {
+          "lt": 10
+        }
+      },
+      "alternativa": "2",
+      "aviso": {
+        "es": "Volvimos a 2 bocas: la tercera boca necesita una caja de 10 m o más.",
+        "pt": "Voltamos para 2 bocas: a terceira boca precisa de uma caixa de 10 m ou mais."
+      },
+      "motivo": {
+        "es": "La tercera boca necesita una caja de 10 m o más.",
+        "pt": "A terceira boca precisa de uma caixa de 10 m ou mais."
+      }
+    },
+    {
+      "id": "portaauxilio-doble-largo",
+      "opcion": {
+        "portaauxilio": 2
+      },
+      "cuando": {
+        "largo": {
+          "lt": 9.5
+        }
+      },
+      "alternativa": 1,
+      "aviso": {
+        "es": "Dejamos un solo portaauxilio: el doble no entra en cajas de menos de 9,5 m.",
+        "pt": "Deixamos um único suporte de estepe: o duplo não cabe em caixas com menos de 9,5 m."
+      },
+      "motivo": {
+        "es": "El portaauxilio doble no entra en cajas de menos de 9,5 m.",
+        "pt": "O suporte duplo não cabe em caixas com menos de 9,5 m."
+      }
+    },
+    {
+      "id": "cajon-doble-tolva-111",
+      "opcion": {
+        "cajon": 2
+      },
+      "cuando": {
+        "tipo": "tolva",
+        "ejes": "1+1+1",
+        "largo": {
+          "lt": 10.5
+        }
+      },
+      "alternativa": 1,
+      "aviso": {
+        "es": "Dejamos un solo cajón: con 1+1+1 no hay lugar para dos en tolvas de menos de 10,5 m.",
+        "pt": "Deixamos uma única caixa: com 1+1+1 não há espaço para duas em graneleiros com menos de 10,5 m."
+      },
+      "motivo": {
+        "es": "Con 1+1+1 no hay lugar para dos cajones en tolvas de menos de 10,5 m.",
+        "pt": "Com 1+1+1 não há espaço para duas caixas em graneleiros com menos de 10,5 m."
+      }
+    }
+  ]
+}

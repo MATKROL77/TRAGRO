@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 260 56" role="img" aria-label="Metalúrgica Pampa">
+  <g fill="none" fill-rule="evenodd">
+    <path d="M4 44 22 12h10L20 34h12L44 12h10L36 44H26l6-11H20L14 44z" fill="#F2A900"/>
+    <path d="M50 44 68 12h8L58 44z" fill="#15171B" opacity=".9"/>
+    <text x="84" y="29" font-family="Manrope, 'Segoe UI', Arial, sans-serif" font-weight="800" font-size="22" letter-spacing="1.5" fill="#15171B">PAMPA</text>
+    <text x="85" y="44" font-family="Manrope, 'Segoe UI', Arial, sans-serif" font-weight="600" font-size="9.5" letter-spacing="3.2" fill="#565C66">METALÚRGICA</text>
+  </g>
+</svg>

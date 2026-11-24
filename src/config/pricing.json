@@ -1,0 +1,154 @@
+{
+  "_nota": "PRECIOS DE DEMO. Todos los valores son de ejemplo, en dolares estadounidenses (USD) sin IVA, pensados para ser realistas en el mercado argentino pero NO son precios de ningun fabricante. Reemplazar antes de publicar.",
+  "moneda": "USD",
+  "tipoDeCambio": {
+    "_nota": "Pesos argentinos por dolar. Valor de DEMO: actualizar a mano.",
+    "arsPorUsd": 1450,
+    "fecha": "2026-11-20",
+    "fuente": "Valor de ejemplo"
+  },
+  "tipos": {
+    "_nota": "base = precio del equipo con todas las opciones estandar, en el largo y alto de referencia. Cada metro de largo o de alto por encima (o por debajo) suma (o resta) el valor indicado.",
+    "tolva": {
+      "base": 64500,
+      "largoRef": 10,
+      "usdPorMetroLargo": 2600,
+      "altoRef": 2.1,
+      "usdPorMetroAlto": 3200
+    },
+    "batea": {
+      "base": 61800,
+      "largoRef": 9.5,
+      "usdPorMetroLargo": 2900,
+      "altoRef": 1.5,
+      "usdPorMetroAlto": 3800
+    },
+    "plataforma": {
+      "base": 48900,
+      "largoRef": 14.5,
+      "usdPorMetroLargo": 1900,
+      "altoRef": 0.8,
+      "usdPorMetroAlto": 4200
+    },
+    "furgon": {
+      "base": 68400,
+      "largoRef": 14.5,
+      "usdPorMetroLargo": 2700,
+      "altoRef": 2.5,
+      "usdPorMetroAlto": 5200
+    }
+  },
+  "opciones": {
+    "_nota": "Diferencia de precio (USD) de cada opcion respecto de la estandar. Forma corta: un numero. Forma larga: { usd, por } donde 'por' puede ser 'eje', 'rueda' o 'unidad'. Interruptores y cantidades: precio por unidad.",
+    "ejes": {
+      "1+1+1": 0,
+      "tridem": -650,
+      "tandem": -5400,
+      "dos": -4900
+    },
+    "suspension": {
+      "mecanica": 0,
+      "neumatica": {
+        "usd": 1250,
+        "por": "eje"
+      }
+    },
+    "ruedas": {
+      "duales": 0,
+      "single": {
+        "usd": -120,
+        "por": "eje"
+      }
+    },
+    "llantas": {
+      "acero": 0,
+      "aluminio": {
+        "usd": 235,
+        "por": "rueda"
+      }
+    },
+    "frenos": {
+      "abs": 0,
+      "ebs": 2150
+    },
+    "ejeElevable": 1950,
+    "bocas": {
+      "2": 0,
+      "3": 1850
+    },
+    "lona": {
+      "pvc650": 0,
+      "pvc900": 620
+    },
+    "colorLona": {
+      "negro": 0,
+      "gris": 0,
+      "azul": 0,
+      "verde": 0,
+      "blanco": 90
+    },
+    "accionamientoLona": {
+      "manual": 0,
+      "electrico": 2400
+    },
+    "materialBatea": {
+      "acero": 0,
+      "antidesgaste": 6900
+    },
+    "porton": {
+      "basculante": 0,
+      "libro": 1150
+    },
+    "cobertor": 1650,
+    "piso": {
+      "madera": 0,
+      "chapa": 1350
+    },
+    "modulosBaranda": {
+      "5": -280,
+      "6": 0,
+      "7": 320
+    },
+    "amarre": {
+      "ganchos": 0,
+      "precintos": 540
+    },
+    "variante": {
+      "furgon": 0,
+      "sider": -1800
+    },
+    "pisoFurgon": {
+      "fenolico": 0,
+      "chapa": 1700
+    },
+    "puertas": {
+      "dobleHoja": 0,
+      "dobleHojaInox": 980
+    },
+    "cajon": 390,
+    "portaauxilio": 310,
+    "tanqueAgua": 140,
+    "matafuego": 165,
+    "pasarela": 870,
+    "lucesLed": 420,
+    "faldones": 260,
+    "tractor": {
+      "4x2": 0,
+      "6x2": 0
+    },
+    "carga": {
+      "soja": 0,
+      "maiz": 0,
+      "trigo": 0,
+      "girasol": 0,
+      "arena": 0,
+      "piedra": 0
+    }
+  },
+  "personalizacion": {
+    "_nota": "Recargos de DEMO por personalizacion.",
+    "colorCajaNoEstandar": 0,
+    "logo": 380,
+    "texto": 120
+  }
+}

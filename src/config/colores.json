@@ -1,0 +1,397 @@
+{
+  "_nota": "Paleta RAL Classic de referencia. Los valores hex son aproximaciones para pantalla: el color real se define con la carta RAL fisica. Se pueden agregar o quitar colores libremente.",
+  "colores": [
+    {
+      "codigo": "RAL 1003",
+      "name": {
+        "es": "Amarillo señales",
+        "pt": "Amarelo sinal"
+      },
+      "hex": "#F9A800"
+    },
+    {
+      "codigo": "RAL 1007",
+      "name": {
+        "es": "Amarillo narciso",
+        "pt": "Amarelo narciso"
+      },
+      "hex": "#E88C00"
+    },
+    {
+      "codigo": "RAL 1015",
+      "name": {
+        "es": "Marfil claro",
+        "pt": "Marfim claro"
+      },
+      "hex": "#E6D2B5"
+    },
+    {
+      "codigo": "RAL 1021",
+      "name": {
+        "es": "Amarillo colza",
+        "pt": "Amarelo colza"
+      },
+      "hex": "#EEC900"
+    },
+    {
+      "codigo": "RAL 1023",
+      "name": {
+        "es": "Amarillo tráfico",
+        "pt": "Amarelo tráfego"
+      },
+      "hex": "#F0CA00"
+    },
+    {
+      "codigo": "RAL 1028",
+      "name": {
+        "es": "Amarillo melón",
+        "pt": "Amarelo melão"
+      },
+      "hex": "#FF9B00"
+    },
+    {
+      "codigo": "RAL 2004",
+      "name": {
+        "es": "Naranja puro",
+        "pt": "Laranja puro"
+      },
+      "hex": "#E25303"
+    },
+    {
+      "codigo": "RAL 2009",
+      "name": {
+        "es": "Naranja tráfico",
+        "pt": "Laranja tráfego"
+      },
+      "hex": "#DE5307"
+    },
+    {
+      "codigo": "RAL 2011",
+      "name": {
+        "es": "Naranja intenso",
+        "pt": "Laranja intenso"
+      },
+      "hex": "#E26E0E"
+    },
+    {
+      "codigo": "RAL 3000",
+      "name": {
+        "es": "Rojo vivo",
+        "pt": "Vermelho fogo"
+      },
+      "hex": "#A72920"
+    },
+    {
+      "codigo": "RAL 3002",
+      "name": {
+        "es": "Rojo carmín",
+        "pt": "Vermelho carmim"
+      },
+      "hex": "#9B2423"
+    },
+    {
+      "codigo": "RAL 3003",
+      "name": {
+        "es": "Rojo rubí",
+        "pt": "Vermelho rubi"
+      },
+      "hex": "#861A22"
+    },
+    {
+      "codigo": "RAL 3005",
+      "name": {
+        "es": "Rojo vino",
+        "pt": "Vermelho vinho"
+      },
+      "hex": "#59191F"
+    },
+    {
+      "codigo": "RAL 3020",
+      "name": {
+        "es": "Rojo tráfico",
+        "pt": "Vermelho tráfego"
+      },
+      "hex": "#BB1E10"
+    },
+    {
+      "codigo": "RAL 5002",
+      "name": {
+        "es": "Azul ultramar",
+        "pt": "Azul ultramar"
+      },
+      "hex": "#00387B"
+    },
+    {
+      "codigo": "RAL 5003",
+      "name": {
+        "es": "Azul zafiro",
+        "pt": "Azul safira"
+      },
+      "hex": "#2A3756"
+    },
+    {
+      "codigo": "RAL 5005",
+      "name": {
+        "es": "Azul señales",
+        "pt": "Azul sinal"
+      },
+      "hex": "#005387"
+    },
+    {
+      "codigo": "RAL 5010",
+      "name": {
+        "es": "Azul genciana",
+        "pt": "Azul genciana"
+      },
+      "hex": "#004F7C"
+    },
+    {
+      "codigo": "RAL 5012",
+      "name": {
+        "es": "Azul luminoso",
+        "pt": "Azul claro"
+      },
+      "hex": "#0089B6"
+    },
+    {
+      "codigo": "RAL 5015",
+      "name": {
+        "es": "Azul celeste",
+        "pt": "Azul celeste"
+      },
+      "hex": "#007CB0"
+    },
+    {
+      "codigo": "RAL 5017",
+      "name": {
+        "es": "Azul tráfico",
+        "pt": "Azul tráfego"
+      },
+      "hex": "#005B8C"
+    },
+    {
+      "codigo": "RAL 5024",
+      "name": {
+        "es": "Azul pastel",
+        "pt": "Azul pastel"
+      },
+      "hex": "#6093AC"
+    },
+    {
+      "codigo": "RAL 6001",
+      "name": {
+        "es": "Verde esmeralda",
+        "pt": "Verde esmeralda"
+      },
+      "hex": "#366735"
+    },
+    {
+      "codigo": "RAL 6002",
+      "name": {
+        "es": "Verde hoja",
+        "pt": "Verde folha"
+      },
+      "hex": "#325928"
+    },
+    {
+      "codigo": "RAL 6005",
+      "name": {
+        "es": "Verde musgo",
+        "pt": "Verde musgo"
+      },
+      "hex": "#114232"
+    },
+    {
+      "codigo": "RAL 6010",
+      "name": {
+        "es": "Verde hierba",
+        "pt": "Verde grama"
+      },
+      "hex": "#4D6F39"
+    },
+    {
+      "codigo": "RAL 6018",
+      "name": {
+        "es": "Verde amarillento",
+        "pt": "Verde amarelado"
+      },
+      "hex": "#48A43F"
+    },
+    {
+      "codigo": "RAL 6024",
+      "name": {
+        "es": "Verde tráfico",
+        "pt": "Verde tráfego"
+      },
+      "hex": "#008754"
+    },
+    {
+      "codigo": "RAL 6029",
+      "name": {
+        "es": "Verde menta",
+        "pt": "Verde menta"
+      },
+      "hex": "#006F3D"
+    },
+    {
+      "codigo": "RAL 7001",
+      "name": {
+        "es": "Gris plata",
+        "pt": "Cinza prata"
+      },
+      "hex": "#8C969D"
+    },
+    {
+      "codigo": "RAL 7011",
+      "name": {
+        "es": "Gris hierro",
+        "pt": "Cinza ferro"
+      },
+      "hex": "#555D61"
+    },
+    {
+      "codigo": "RAL 7015",
+      "name": {
+        "es": "Gris pizarra",
+        "pt": "Cinza ardósia"
+      },
+      "hex": "#4F5358"
+    },
+    {
+      "codigo": "RAL 7016",
+      "name": {
+        "es": "Gris antracita",
+        "pt": "Cinza antracite"
+      },
+      "hex": "#383E42"
+    },
+    {
+      "codigo": "RAL 7021",
+      "name": {
+        "es": "Gris negruzco",
+        "pt": "Cinza preto"
+      },
+      "hex": "#2F3234"
+    },
+    {
+      "codigo": "RAL 7024",
+      "name": {
+        "es": "Gris grafito",
+        "pt": "Cinza grafite"
+      },
+      "hex": "#45494E"
+    },
+    {
+      "codigo": "RAL 7035",
+      "name": {
+        "es": "Gris luminoso",
+        "pt": "Cinza claro"
+      },
+      "hex": "#C5C7C4"
+    },
+    {
+      "codigo": "RAL 7037",
+      "name": {
+        "es": "Gris polvo",
+        "pt": "Cinza poeira"
+      },
+      "hex": "#7A7B7A"
+    },
+    {
+      "codigo": "RAL 7040",
+      "name": {
+        "es": "Gris ventana",
+        "pt": "Cinza janela"
+      },
+      "hex": "#989EA1"
+    },
+    {
+      "codigo": "RAL 7042",
+      "name": {
+        "es": "Gris tráfico A",
+        "pt": "Cinza tráfego A"
+      },
+      "hex": "#8E9291"
+    },
+    {
+      "codigo": "RAL 8017",
+      "name": {
+        "es": "Marrón chocolate",
+        "pt": "Marrom chocolate"
+      },
+      "hex": "#442F29"
+    },
+    {
+      "codigo": "RAL 9001",
+      "name": {
+        "es": "Blanco crema",
+        "pt": "Branco creme"
+      },
+      "hex": "#E9E0D2"
+    },
+    {
+      "codigo": "RAL 9002",
+      "name": {
+        "es": "Blanco grisáceo",
+        "pt": "Branco acinzentado"
+      },
+      "hex": "#D7D5CB"
+    },
+    {
+      "codigo": "RAL 9003",
+      "name": {
+        "es": "Blanco señales",
+        "pt": "Branco sinal"
+      },
+      "hex": "#ECECE7"
+    },
+    {
+      "codigo": "RAL 9005",
+      "name": {
+        "es": "Negro intenso",
+        "pt": "Preto intenso"
+      },
+      "hex": "#0E0E10"
+    },
+    {
+      "codigo": "RAL 9006",
+      "name": {
+        "es": "Aluminio blanco",
+        "pt": "Alumínio branco"
+      },
+      "hex": "#A1A1A0"
+    },
+    {
+      "codigo": "RAL 9007",
+      "name": {
+        "es": "Aluminio gris",
+        "pt": "Alumínio cinza"
+      },
+      "hex": "#878581"
+    },
+    {
+      "codigo": "RAL 9010",
+      "name": {
+        "es": "Blanco puro",
+        "pt": "Branco puro"
+      },
+      "hex": "#F1ECE1"
+    },
+    {
+      "codigo": "RAL 9016",
+      "name": {
+        "es": "Blanco tráfico",
+        "pt": "Branco tráfego"
+      },
+      "hex": "#F1F0EA"
+    },
+    {
+      "codigo": "RAL 9017",
+      "name": {
+        "es": "Negro tráfico",
+        "pt": "Preto tráfego"
+      },
+      "hex": "#2A292A"
+    }
+  ]
+}

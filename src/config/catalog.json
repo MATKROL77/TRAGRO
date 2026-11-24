@@ -1,0 +1,1408 @@
+{
+  "_nota": "CATALOGO DE DEMO. Nombres, descripciones, pesos (kg) y plazos (dias) son valores de ejemplo: el fabricante debe reemplazarlos por los propios. Los precios viven en pricing.json, las reglas de compatibilidad y rangos de medidas en rules.json. Los 'id' estan conectados al modelo 3D: se pueden editar textos, pesos, plazos y cual opcion es estandar sin tocar codigo; para agregar una opcion nueva con geometria propia hay que programarla.",
+  "pasos": [
+    {
+      "id": "tipo",
+      "name": {
+        "es": "Tipo",
+        "pt": "Tipo"
+      }
+    },
+    {
+      "id": "dimensiones",
+      "name": {
+        "es": "Medidas",
+        "pt": "Medidas"
+      }
+    },
+    {
+      "id": "rodado",
+      "name": {
+        "es": "Ejes y rodado",
+        "pt": "Eixos e rodado"
+      }
+    },
+    {
+      "id": "especificos",
+      "name": {
+        "es": "Equipamiento",
+        "pt": "Equipamento"
+      }
+    },
+    {
+      "id": "accesorios",
+      "name": {
+        "es": "Accesorios",
+        "pt": "Acessórios"
+      }
+    },
+    {
+      "id": "personalizacion",
+      "name": {
+        "es": "Tu marca",
+        "pt": "Sua marca"
+      }
+    }
+  ],
+  "tipos": [
+    {
+      "id": "tolva",
+      "name": {
+        "es": "Tolva cerealera",
+        "pt": "Graneleiro tremonha"
+      },
+      "desc": {
+        "es": "Descarga por gravedad, lona enrollable. La más elegida del agro.",
+        "pt": "Descarga por gravidade, lona enrolável. A mais escolhida do agro."
+      },
+      "altoLabel": {
+        "es": "Altura de caja",
+        "pt": "Altura da caixa"
+      },
+      "tara": {
+        "baseKg": 5550,
+        "largoRef": 10,
+        "kgPorMetroLargo": 340,
+        "altoRef": 2.1,
+        "kgPorMetroAlto": 520
+      },
+      "plazoBaseDias": 45,
+      "defaults": {
+        "largo": 10,
+        "alto": 2.1,
+        "ejes": "1+1+1",
+        "suspension": "mecanica",
+        "ruedas": "duales",
+        "llantas": "acero",
+        "frenos": "abs",
+        "ejeElevable": false,
+        "bocas": "2",
+        "lona": "pvc650",
+        "accionamientoLona": "manual",
+        "cajon": 1,
+        "portaauxilio": 1,
+        "tanqueAgua": true,
+        "matafuego": true,
+        "pasarela": false,
+        "lucesLed": false,
+        "faldones": false,
+        "tractor": "6x2",
+        "carga": "soja",
+        "colorLona": "negro"
+      },
+      "colores": {
+        "chasis": "RAL 7021",
+        "caja": "RAL 3020"
+      }
+    },
+    {
+      "id": "batea",
+      "name": {
+        "es": "Batea volcadora",
+        "pt": "Basculante"
+      },
+      "desc": {
+        "es": "Vuelco trasero con cilindro telescópico frontal. Granos, áridos y más.",
+        "pt": "Basculamento traseiro com cilindro telescópico frontal. Grãos, agregados e mais."
+      },
+      "altoLabel": {
+        "es": "Altura de baranda",
+        "pt": "Altura da lateral"
+      },
+      "tara": {
+        "baseKg": 5950,
+        "largoRef": 9.5,
+        "kgPorMetroLargo": 380,
+        "altoRef": 1.5,
+        "kgPorMetroAlto": 640
+      },
+      "plazoBaseDias": 40,
+      "defaults": {
+        "largo": 9.5,
+        "alto": 1.5,
+        "ejes": "1+1+1",
+        "suspension": "mecanica",
+        "ruedas": "duales",
+        "llantas": "acero",
+        "frenos": "abs",
+        "ejeElevable": false,
+        "materialBatea": "acero",
+        "porton": "basculante",
+        "cobertor": false,
+        "cajon": 1,
+        "portaauxilio": 1,
+        "tanqueAgua": true,
+        "matafuego": true,
+        "lucesLed": false,
+        "faldones": false,
+        "tractor": "6x2",
+        "carga": "soja",
+        "colorLona": "negro"
+      },
+      "colores": {
+        "chasis": "RAL 9005",
+        "caja": "RAL 5010"
+      }
+    },
+    {
+      "id": "plataforma",
+      "name": {
+        "es": "Plataforma con barandas",
+        "pt": "Carga seca com laterais"
+      },
+      "desc": {
+        "es": "Barandas volcables por módulos. Carga general, bolsas, pallets y fardos.",
+        "pt": "Laterais basculantes por módulos. Carga geral, sacaria, paletes e fardos."
+      },
+      "altoLabel": {
+        "es": "Altura de barandas",
+        "pt": "Altura das laterais"
+      },
+      "tara": {
+        "baseKg": 5250,
+        "largoRef": 14.5,
+        "kgPorMetroLargo": 300,
+        "altoRef": 0.8,
+        "kgPorMetroAlto": 900
+      },
+      "plazoBaseDias": 35,
+      "defaults": {
+        "largo": 14.5,
+        "alto": 0.8,
+        "ejes": "1+1+1",
+        "suspension": "mecanica",
+        "ruedas": "duales",
+        "llantas": "acero",
+        "frenos": "abs",
+        "ejeElevable": false,
+        "piso": "madera",
+        "modulosBaranda": "6",
+        "amarre": "ganchos",
+        "cajon": 1,
+        "portaauxilio": 1,
+        "tanqueAgua": true,
+        "matafuego": true,
+        "lucesLed": false,
+        "faldones": false,
+        "tractor": "6x2"
+      },
+      "colores": {
+        "chasis": "RAL 7016",
+        "caja": "RAL 6005"
+      }
+    },
+    {
+      "id": "furgon",
+      "name": {
+        "es": "Furgón / Sider",
+        "pt": "Baú / Sider"
+      },
+      "desc": {
+        "es": "Caja cerrada de paneles o lona lateral corrediza. Carga paletizada protegida.",
+        "pt": "Caixa fechada de painéis ou lona lateral corrediça. Carga paletizada protegida."
+      },
+      "altoLabel": {
+        "es": "Altura interior",
+        "pt": "Altura interna"
+      },
+      "tara": {
+        "baseKg": 6300,
+        "largoRef": 14.5,
+        "kgPorMetroLargo": 360,
+        "altoRef": 2.5,
+        "kgPorMetroAlto": 700
+      },
+      "plazoBaseDias": 50,
+      "defaults": {
+        "largo": 14.5,
+        "alto": 2.5,
+        "ejes": "tridem",
+        "suspension": "neumatica",
+        "ruedas": "duales",
+        "llantas": "acero",
+        "frenos": "abs",
+        "ejeElevable": false,
+        "variante": "furgon",
+        "pisoFurgon": "fenolico",
+        "puertas": "dobleHoja",
+        "cajon": 1,
+        "portaauxilio": 1,
+        "tanqueAgua": true,
+        "matafuego": true,
+        "lucesLed": false,
+        "faldones": false,
+        "tractor": "6x2",
+        "colorLona": "azul"
+      },
+      "colores": {
+        "chasis": "RAL 7016",
+        "caja": "RAL 9016"
+      }
+    }
+  ],
+  "grupos": [
+    {
+      "id": "largo",
+      "paso": "dimensiones",
+      "tipo": "rango",
+      "unidad": "m",
+      "foco": "lateral",
+      "name": {
+        "es": "Largo de caja",
+        "pt": "Comprimento da caixa"
+      },
+      "ayuda": {
+        "es": "Medida exterior de la caja. El largo total del equipo figura en Datos técnicos.",
+        "pt": "Medida externa da caixa. O comprimento total aparece em Dados técnicos."
+      }
+    },
+    {
+      "id": "alto",
+      "paso": "dimensiones",
+      "tipo": "rango",
+      "unidad": "m",
+      "foco": "lateral",
+      "name": {
+        "es": "Altura",
+        "pt": "Altura"
+      }
+    },
+    {
+      "id": "ejes",
+      "paso": "rodado",
+      "tipo": "seleccion",
+      "foco": "ejes",
+      "name": {
+        "es": "Disposición de ejes",
+        "pt": "Disposição dos eixos"
+      },
+      "ayuda": {
+        "es": "Define cuánto podés cargar legalmente: cada grupo de ejes tiene su tope de peso.",
+        "pt": "Define quanto você pode carregar legalmente: cada grupo de eixos tem seu limite de peso."
+      },
+      "opciones": [
+        {
+          "id": "1+1+1",
+          "name": {
+            "es": "1+1+1 (tres ejes separados)",
+            "pt": "1+1+1 (três eixos distanciados)"
+          },
+          "desc": {
+            "es": "Máxima carga legal: cada eje cuenta como independiente.",
+            "pt": "Máxima carga legal: cada eixo conta como independente."
+          },
+          "estandar": true
+        },
+        {
+          "id": "tridem",
+          "name": {
+            "es": "Trídem (tres ejes juntos)",
+            "pt": "Tridem (três eixos juntos)"
+          },
+          "desc": {
+            "es": "Menor arrastre de neumáticos en maniobras cerradas.",
+            "pt": "Menor arraste de pneus em manobras fechadas."
+          }
+        },
+        {
+          "id": "tandem",
+          "name": {
+            "es": "Tándem doble",
+            "pt": "Tandem duplo"
+          },
+          "desc": {
+            "es": "Dos ejes juntos. Menos tara y menos mantenimiento.",
+            "pt": "Dois eixos juntos. Menos tara e menos manutenção."
+          }
+        },
+        {
+          "id": "dos",
+          "name": {
+            "es": "2 ejes separados (1+1)",
+            "pt": "2 eixos distanciados (1+1)"
+          },
+          "desc": {
+            "es": "Dos ejes independientes: más carga que el tándem.",
+            "pt": "Dois eixos independentes: mais carga que o tandem."
+          }
+        }
+      ]
+    },
+    {
+      "id": "suspension",
+      "paso": "rodado",
+      "tipo": "seleccion",
+      "foco": "ejes",
+      "name": {
+        "es": "Suspensión",
+        "pt": "Suspensão"
+      },
+      "opciones": [
+        {
+          "id": "mecanica",
+          "name": {
+            "es": "Mecánica a elásticos",
+            "pt": "Mecânica com molas"
+          },
+          "desc": {
+            "es": "Paquete de elásticos reforzado. Simple y robusta.",
+            "pt": "Feixe de molas reforçado. Simples e robusta."
+          },
+          "pesoKg": 470,
+          "por": "eje",
+          "estandar": true
+        },
+        {
+          "id": "neumatica",
+          "name": {
+            "es": "Neumática",
+            "pt": "Pneumática"
+          },
+          "desc": {
+            "es": "Fuelles de aire: cuida la carga y los neumáticos.",
+            "pt": "Bolsas de ar: protege a carga e os pneus."
+          },
+          "pesoKg": 505,
+          "por": "eje",
+          "plazoDias": 7
+        }
+      ]
+    },
+    {
+      "id": "ruedas",
+      "paso": "rodado",
+      "tipo": "seleccion",
+      "foco": "ruedas",
+      "name": {
+        "es": "Rodado",
+        "pt": "Rodado"
+      },
+      "opciones": [
+        {
+          "id": "duales",
+          "name": {
+            "es": "Duales 295/80 R22.5",
+            "pt": "Duplas 295/80 R22.5"
+          },
+          "desc": {
+            "es": "Cuatro neumáticos por eje. El clásico del transporte argentino.",
+            "pt": "Quatro pneus por eixo. O clássico do transporte."
+          },
+          "pesoKg": 101,
+          "por": "rueda",
+          "estandar": true
+        },
+        {
+          "id": "single",
+          "name": {
+            "es": "Súper single 385/65 R22.5",
+            "pt": "Super single 385/65 R22.5"
+          },
+          "desc": {
+            "es": "Dos neumáticos anchos por eje: menos tara y menos consumo.",
+            "pt": "Dois pneus largos por eixo: menos tara e menos consumo."
+          },
+          "pesoKg": 118,
+          "por": "rueda"
+        }
+      ]
+    },
+    {
+      "id": "llantas",
+      "paso": "rodado",
+      "tipo": "seleccion",
+      "foco": "ruedas",
+      "name": {
+        "es": "Llantas",
+        "pt": "Rodas"
+      },
+      "opciones": [
+        {
+          "id": "acero",
+          "name": {
+            "es": "Acero pintado",
+            "pt": "Aço pintado"
+          },
+          "desc": {
+            "es": "Disco de acero con pintura horneada.",
+            "pt": "Disco de aço com pintura ao forno."
+          },
+          "pesoKg": 0,
+          "por": "rueda",
+          "estandar": true
+        },
+        {
+          "id": "aluminio",
+          "name": {
+            "es": "Aluminio pulido",
+            "pt": "Alumínio polido"
+          },
+          "desc": {
+            "es": "Unos 17 kg menos por rueda y mejor disipación de calor.",
+            "pt": "Cerca de 17 kg a menos por roda e melhor dissipação de calor."
+          },
+          "pesoKg": -17,
+          "por": "rueda",
+          "plazoDias": 5
+        }
+      ]
+    },
+    {
+      "id": "frenos",
+      "paso": "rodado",
+      "tipo": "seleccion",
+      "foco": "ejes",
+      "name": {
+        "es": "Frenos",
+        "pt": "Freios"
+      },
+      "opciones": [
+        {
+          "id": "abs",
+          "name": {
+            "es": "ABS",
+            "pt": "ABS"
+          },
+          "desc": {
+            "es": "Antibloqueo de serie.",
+            "pt": "Antibloqueio de série."
+          },
+          "pesoKg": 0,
+          "estandar": true
+        },
+        {
+          "id": "ebs",
+          "name": {
+            "es": "EBS con control de estabilidad",
+            "pt": "EBS com controle de estabilidade"
+          },
+          "desc": {
+            "es": "Frenado electrónico más rápido y parejo, con antivuelco.",
+            "pt": "Frenagem eletrônica mais rápida e uniforme, com antitombamento."
+          },
+          "pesoKg": 12
+        }
+      ]
+    },
+    {
+      "id": "ejeElevable",
+      "paso": "rodado",
+      "tipo": "interruptor",
+      "foco": "ejes",
+      "name": {
+        "es": "Eje elevable",
+        "pt": "Eixo suspensor"
+      },
+      "desc": {
+        "es": "Levantás el primer eje cuando vas vacío: menos desgaste y menos peaje.",
+        "pt": "Levante o primeiro eixo quando estiver vazio: menos desgaste e menos pedágio."
+      },
+      "pesoKg": 85,
+      "plazoDias": 5
+    },
+    {
+      "id": "bocas",
+      "paso": "especificos",
+      "tipo": "seleccion",
+      "tipos": [
+        "tolva"
+      ],
+      "foco": "bocas",
+      "name": {
+        "es": "Bocas de descarga",
+        "pt": "Bocas de descarga"
+      },
+      "opciones": [
+        {
+          "id": "2",
+          "name": {
+            "es": "2 bocas",
+            "pt": "2 bocas"
+          },
+          "desc": {
+            "es": "Tolvas amplias con compuerta a cremallera.",
+            "pt": "Tremonhas amplas com comporta de cremalheira."
+          },
+          "pesoKg": 0,
+          "estandar": true
+        },
+        {
+          "id": "3",
+          "name": {
+            "es": "3 bocas",
+            "pt": "3 bocas"
+          },
+          "desc": {
+            "es": "Descarga más pareja y rápida en plantas con varias rejillas.",
+            "pt": "Descarga mais uniforme e rápida em plantas com várias moegas."
+          },
+          "pesoKg": 160,
+          "plazoDias": 3
+        }
+      ]
+    },
+    {
+      "id": "lona",
+      "paso": "especificos",
+      "tipo": "seleccion",
+      "tipos": [
+        "tolva"
+      ],
+      "foco": "superior",
+      "name": {
+        "es": "Lona",
+        "pt": "Lona"
+      },
+      "opciones": [
+        {
+          "id": "pvc650",
+          "name": {
+            "es": "PVC 650 g/m²",
+            "pt": "PVC 650 g/m²"
+          },
+          "desc": {
+            "es": "Lona enrollable estándar con arcos galvanizados.",
+            "pt": "Lona enrolável padrão com arcos galvanizados."
+          },
+          "pesoKg": 58,
+          "estandar": true
+        },
+        {
+          "id": "pvc900",
+          "name": {
+            "es": "PVC 900 g/m² reforzada",
+            "pt": "PVC 900 g/m² reforçada"
+          },
+          "desc": {
+            "es": "Mayor vida útil frente al sol y al roce.",
+            "pt": "Maior vida útil frente ao sol e ao atrito."
+          },
+          "pesoKg": 78
+        }
+      ]
+    },
+    {
+      "id": "colorLona",
+      "paso": "especificos",
+      "tipo": "seleccion",
+      "tipos": [
+        "tolva",
+        "furgon",
+        "batea"
+      ],
+      "foco": "superior",
+      "presentacion": "color",
+      "name": {
+        "es": "Color de lona",
+        "pt": "Cor da lona"
+      },
+      "opciones": [
+        {
+          "id": "negro",
+          "name": {
+            "es": "Negro",
+            "pt": "Preto"
+          },
+          "hex": "#1b1c1e",
+          "pesoKg": 0,
+          "estandar": true
+        },
+        {
+          "id": "gris",
+          "name": {
+            "es": "Gris",
+            "pt": "Cinza"
+          },
+          "hex": "#8a8f96",
+          "pesoKg": 0
+        },
+        {
+          "id": "azul",
+          "name": {
+            "es": "Azul",
+            "pt": "Azul"
+          },
+          "hex": "#1f4e8c",
+          "pesoKg": 0
+        },
+        {
+          "id": "verde",
+          "name": {
+            "es": "Verde",
+            "pt": "Verde"
+          },
+          "hex": "#2f5d3a",
+          "pesoKg": 0
+        },
+        {
+          "id": "blanco",
+          "name": {
+            "es": "Blanco",
+            "pt": "Branco"
+          },
+          "hex": "#e9e9e4",
+          "pesoKg": 0
+        }
+      ],
+      "visibleSi": [
+        {
+          "tipo": "tolva"
+        },
+        {
+          "tipo": "furgon",
+          "variante": "sider"
+        },
+        {
+          "tipo": "batea",
+          "cobertor": true
+        }
+      ]
+    },
+    {
+      "id": "accionamientoLona",
+      "paso": "especificos",
+      "tipo": "seleccion",
+      "tipos": [
+        "tolva"
+      ],
+      "foco": "superior",
+      "name": {
+        "es": "Accionamiento de lona",
+        "pt": "Acionamento da lona"
+      },
+      "opciones": [
+        {
+          "id": "manual",
+          "name": {
+            "es": "Manual a manivela",
+            "pt": "Manual com manivela"
+          },
+          "desc": {
+            "es": "Manivela desde el piso.",
+            "pt": "Manivela a partir do chão."
+          },
+          "pesoKg": 0,
+          "estandar": true
+        },
+        {
+          "id": "electrico",
+          "name": {
+            "es": "Eléctrico con control",
+            "pt": "Elétrico com controle"
+          },
+          "desc": {
+            "es": "Tapás y destapás sin bajarte del camión.",
+            "pt": "Cubra e descubra sem descer do caminhão."
+          },
+          "pesoKg": 24,
+          "plazoDias": 5
+        }
+      ]
+    },
+    {
+      "id": "materialBatea",
+      "paso": "especificos",
+      "tipo": "seleccion",
+      "tipos": [
+        "batea"
+      ],
+      "foco": "lateral",
+      "name": {
+        "es": "Material de la batea",
+        "pt": "Material da caçamba"
+      },
+      "opciones": [
+        {
+          "id": "acero",
+          "name": {
+            "es": "Acero estructural",
+            "pt": "Aço estrutural"
+          },
+          "desc": {
+            "es": "Ideal para granos y cargas generales.",
+            "pt": "Ideal para grãos e cargas gerais."
+          },
+          "pesoKg": 0,
+          "estandar": true
+        },
+        {
+          "id": "antidesgaste",
+          "name": {
+            "es": "Acero antidesgaste",
+            "pt": "Aço antidesgaste"
+          },
+          "desc": {
+            "es": "Chapa de alta dureza: menos espesor, menos tara y más vida útil con áridos.",
+            "pt": "Chapa de alta dureza: menos espessura, menos tara e mais vida útil com agregados."
+          },
+          "pesoKg": -380,
+          "plazoDias": 10
+        }
+      ]
+    },
+    {
+      "id": "porton",
+      "paso": "especificos",
+      "tipo": "seleccion",
+      "tipos": [
+        "batea"
+      ],
+      "foco": "trasera",
+      "name": {
+        "es": "Portón trasero",
+        "pt": "Tampa traseira"
+      },
+      "opciones": [
+        {
+          "id": "basculante",
+          "name": {
+            "es": "Basculante",
+            "pt": "Basculante"
+          },
+          "desc": {
+            "es": "Abre solo al volcar, con trabas automáticas.",
+            "pt": "Abre sozinha ao bascular, com travas automáticas."
+          },
+          "pesoKg": 0,
+          "estandar": true
+        },
+        {
+          "id": "libro",
+          "name": {
+            "es": "Doble hoja tipo libro",
+            "pt": "Duas folhas tipo livro"
+          },
+          "desc": {
+            "es": "Dos hojas que abren hacia los costados, con boquilla cerealera.",
+            "pt": "Duas folhas que abrem para os lados, com bica graneleira."
+          },
+          "pesoKg": 65
+        }
+      ]
+    },
+    {
+      "id": "cobertor",
+      "paso": "especificos",
+      "tipo": "interruptor",
+      "tipos": [
+        "batea"
+      ],
+      "foco": "superior",
+      "name": {
+        "es": "Cobertor de carga",
+        "pt": "Cobertura de carga"
+      },
+      "desc": {
+        "es": "Lona enrollable con arcos para tapar la carga en ruta.",
+        "pt": "Lona enrolável com arcos para cobrir a carga na estrada."
+      },
+      "pesoKg": 62
+    },
+    {
+      "id": "piso",
+      "paso": "especificos",
+      "tipo": "seleccion",
+      "tipos": [
+        "plataforma"
+      ],
+      "foco": "superior",
+      "name": {
+        "es": "Piso",
+        "pt": "Piso"
+      },
+      "opciones": [
+        {
+          "id": "madera",
+          "name": {
+            "es": "Madera dura",
+            "pt": "Madeira de lei"
+          },
+          "desc": {
+            "es": "Tablones machihembrados de 30 mm: agarre y fácil reemplazo.",
+            "pt": "Pranchas macho e fêmea de 30 mm: aderência e fácil reposição."
+          },
+          "pesoKg": 0,
+          "estandar": true
+        },
+        {
+          "id": "chapa",
+          "name": {
+            "es": "Chapa antideslizante",
+            "pt": "Chapa antiderrapante"
+          },
+          "desc": {
+            "es": "Chapa semilla de melón de 3,2 mm: máxima duración.",
+            "pt": "Chapa xadrez de 3,2 mm: máxima durabilidade."
+          },
+          "pesoKg": 210
+        }
+      ]
+    },
+    {
+      "id": "modulosBaranda",
+      "paso": "especificos",
+      "tipo": "seleccion",
+      "tipos": [
+        "plataforma"
+      ],
+      "foco": "lateral",
+      "name": {
+        "es": "Módulos de baranda por lado",
+        "pt": "Módulos de lateral por lado"
+      },
+      "opciones": [
+        {
+          "id": "5",
+          "name": {
+            "es": "5 módulos",
+            "pt": "5 módulos"
+          },
+          "pesoKg": -45
+        },
+        {
+          "id": "6",
+          "name": {
+            "es": "6 módulos",
+            "pt": "6 módulos"
+          },
+          "pesoKg": 0,
+          "estandar": true
+        },
+        {
+          "id": "7",
+          "name": {
+            "es": "7 módulos",
+            "pt": "7 módulos"
+          },
+          "desc": {
+            "es": "Módulos más cortos y livianos para abrir de a uno.",
+            "pt": "Módulos mais curtos e leves para abrir um a um."
+          },
+          "pesoKg": 45
+        }
+      ]
+    },
+    {
+      "id": "amarre",
+      "paso": "especificos",
+      "tipo": "seleccion",
+      "tipos": [
+        "plataforma"
+      ],
+      "foco": "lateral",
+      "name": {
+        "es": "Amarre de lona",
+        "pt": "Amarração da lona"
+      },
+      "opciones": [
+        {
+          "id": "ganchos",
+          "name": {
+            "es": "Ganchos para lona",
+            "pt": "Ganchos para lona"
+          },
+          "desc": {
+            "es": "Ganchos soldados en todo el perímetro.",
+            "pt": "Ganchos soldados em todo o perímetro."
+          },
+          "pesoKg": 0,
+          "estandar": true
+        },
+        {
+          "id": "precintos",
+          "name": {
+            "es": "Precintos aduaneros + ganchos",
+            "pt": "Lacres aduaneiros + ganchos"
+          },
+          "desc": {
+            "es": "Anillos y cable para precinto. Apto transporte internacional.",
+            "pt": "Anéis e cabo para lacre. Apto para transporte internacional."
+          },
+          "pesoKg": 18,
+          "plazoDias": 3
+        }
+      ]
+    },
+    {
+      "id": "variante",
+      "paso": "especificos",
+      "tipo": "seleccion",
+      "tipos": [
+        "furgon"
+      ],
+      "foco": "lateral",
+      "name": {
+        "es": "Tipo de caja",
+        "pt": "Tipo de caixa"
+      },
+      "opciones": [
+        {
+          "id": "furgon",
+          "name": {
+            "es": "Furgón de paneles",
+            "pt": "Baú de painéis"
+          },
+          "desc": {
+            "es": "Paneles lisos: máxima seguridad y superficie para tu marca.",
+            "pt": "Painéis lisos: máxima segurança e superfície para sua marca."
+          },
+          "pesoKg": 0,
+          "estandar": true
+        },
+        {
+          "id": "sider",
+          "name": {
+            "es": "Sider (lona lateral corrediza)",
+            "pt": "Sider (lona lateral corrediça)"
+          },
+          "desc": {
+            "es": "Carga y descarga lateral con autoelevador en minutos.",
+            "pt": "Carga e descarga lateral com empilhadeira em minutos."
+          },
+          "pesoKg": -420
+        }
+      ]
+    },
+    {
+      "id": "pisoFurgon",
+      "paso": "especificos",
+      "tipo": "seleccion",
+      "tipos": [
+        "furgon"
+      ],
+      "foco": "interior",
+      "name": {
+        "es": "Piso",
+        "pt": "Piso"
+      },
+      "opciones": [
+        {
+          "id": "fenolico",
+          "name": {
+            "es": "Multilaminado fenólico",
+            "pt": "Compensado naval"
+          },
+          "desc": {
+            "es": "Antideslizante, apto autoelevador.",
+            "pt": "Antiderrapante, apto para empilhadeira."
+          },
+          "pesoKg": 0,
+          "estandar": true
+        },
+        {
+          "id": "chapa",
+          "name": {
+            "es": "Chapa antideslizante",
+            "pt": "Chapa antiderrapante"
+          },
+          "desc": {
+            "es": "Para cargas pesadas y uso intensivo.",
+            "pt": "Para cargas pesadas e uso intensivo."
+          },
+          "pesoKg": 240
+        }
+      ]
+    },
+    {
+      "id": "puertas",
+      "paso": "especificos",
+      "tipo": "seleccion",
+      "tipos": [
+        "furgon"
+      ],
+      "foco": "trasera",
+      "name": {
+        "es": "Puertas",
+        "pt": "Portas"
+      },
+      "opciones": [
+        {
+          "id": "dobleHoja",
+          "name": {
+            "es": "Traseras doble hoja",
+            "pt": "Traseiras de duas folhas"
+          },
+          "desc": {
+            "es": "Apertura 270° con cierres a falleba.",
+            "pt": "Abertura 270° com fechos de varão."
+          },
+          "pesoKg": 0,
+          "estandar": true
+        },
+        {
+          "id": "dobleHojaInox",
+          "name": {
+            "es": "Doble hoja con herrajes inoxidables",
+            "pt": "Duas folhas com ferragens em inox"
+          },
+          "desc": {
+            "es": "Fallebas y bisagras de acero inoxidable.",
+            "pt": "Varões e dobradiças em aço inox."
+          },
+          "pesoKg": 6,
+          "plazoDias": 5
+        }
+      ]
+    },
+    {
+      "id": "cajon",
+      "paso": "accesorios",
+      "tipo": "cantidad",
+      "max": 2,
+      "foco": "lateral",
+      "name": {
+        "es": "Cajón de herramientas",
+        "pt": "Caixa de ferramentas"
+      },
+      "desc": {
+        "es": "Cajón estanco con cerradura.",
+        "pt": "Caixa estanque com fechadura."
+      },
+      "pesoKg": 38
+    },
+    {
+      "id": "portaauxilio",
+      "paso": "accesorios",
+      "tipo": "cantidad",
+      "max": 2,
+      "foco": "lateral",
+      "name": {
+        "es": "Portaauxilio",
+        "pt": "Suporte de estepe"
+      },
+      "desc": {
+        "es": "Soporte con malacate para rueda de auxilio.",
+        "pt": "Suporte com guincho para estepe."
+      },
+      "pesoKg": 42
+    },
+    {
+      "id": "tanqueAgua",
+      "paso": "accesorios",
+      "tipo": "interruptor",
+      "foco": "lateral",
+      "name": {
+        "es": "Tanque de agua lavamanos",
+        "pt": "Reservatório de água"
+      },
+      "desc": {
+        "es": "30 litros con canilla y jabonera.",
+        "pt": "30 litros com torneira e saboneteira."
+      },
+      "pesoKg": 9
+    },
+    {
+      "id": "matafuego",
+      "paso": "accesorios",
+      "tipo": "interruptor",
+      "foco": "lateral",
+      "name": {
+        "es": "Matafuego con soporte",
+        "pt": "Extintor com suporte"
+      },
+      "desc": {
+        "es": "ABC de 10 kg con soporte y cartel.",
+        "pt": "ABC de 10 kg com suporte e placa."
+      },
+      "pesoKg": 16
+    },
+    {
+      "id": "pasarela",
+      "paso": "accesorios",
+      "tipo": "interruptor",
+      "tipos": [
+        "tolva"
+      ],
+      "foco": "superior",
+      "name": {
+        "es": "Pasarela superior",
+        "pt": "Passarela superior"
+      },
+      "desc": {
+        "es": "Pasarela frontal con baranda para trabajar seguro arriba.",
+        "pt": "Passarela frontal com guarda-corpo para trabalhar com segurança no alto."
+      },
+      "pesoKg": 54,
+      "plazoDias": 3
+    },
+    {
+      "id": "lucesLed",
+      "paso": "accesorios",
+      "tipo": "interruptor",
+      "foco": "lateral",
+      "name": {
+        "es": "Luces LED adicionales",
+        "pt": "Luzes LED adicionais"
+      },
+      "desc": {
+        "es": "Faros de trabajo y más demarcadoras laterales.",
+        "pt": "Faróis de trabalho e mais delimitadoras laterais."
+      },
+      "pesoKg": 6
+    },
+    {
+      "id": "faldones",
+      "paso": "accesorios",
+      "tipo": "interruptor",
+      "foco": "trasera",
+      "name": {
+        "es": "Barreros con tu logo",
+        "pt": "Para-barros com seu logo"
+      },
+      "desc": {
+        "es": "Barreros traseros con el logo de tu flota impreso.",
+        "pt": "Para-barros traseiros com o logo da sua frota impresso."
+      },
+      "pesoKg": 7
+    },
+    {
+      "id": "tractor",
+      "paso": "tecnico",
+      "tipo": "seleccion",
+      "name": {
+        "es": "Tractor considerado",
+        "pt": "Cavalo considerado"
+      },
+      "ayuda": {
+        "es": "Se usa solo para estimar la carga útil legal del conjunto.",
+        "pt": "Usado apenas para estimar a carga útil legal do conjunto."
+      },
+      "opciones": [
+        {
+          "id": "4x2",
+          "name": {
+            "es": "Tractor 4x2",
+            "pt": "Cavalo 4x2"
+          },
+          "pesoKg": 0
+        },
+        {
+          "id": "6x2",
+          "name": {
+            "es": "Tractor 6x2",
+            "pt": "Cavalo 6x2"
+          },
+          "pesoKg": 0,
+          "estandar": true
+        }
+      ]
+    },
+    {
+      "id": "carga",
+      "paso": "tecnico",
+      "tipo": "seleccion",
+      "tipos": [
+        "tolva",
+        "batea"
+      ],
+      "name": {
+        "es": "Producto a cargar",
+        "pt": "Produto a carregar"
+      },
+      "opciones": [
+        {
+          "id": "soja",
+          "name": {
+            "es": "Soja",
+            "pt": "Soja"
+          },
+          "pesoKg": 0,
+          "estandar": true
+        },
+        {
+          "id": "maiz",
+          "name": {
+            "es": "Maíz",
+            "pt": "Milho"
+          },
+          "pesoKg": 0
+        },
+        {
+          "id": "trigo",
+          "name": {
+            "es": "Trigo",
+            "pt": "Trigo"
+          },
+          "pesoKg": 0
+        },
+        {
+          "id": "girasol",
+          "name": {
+            "es": "Girasol",
+            "pt": "Girassol"
+          },
+          "pesoKg": 0
+        },
+        {
+          "id": "arena",
+          "name": {
+            "es": "Arena",
+            "pt": "Areia"
+          },
+          "pesoKg": 0,
+          "tipos": [
+            "batea"
+          ]
+        },
+        {
+          "id": "piedra",
+          "name": {
+            "es": "Piedra partida",
+            "pt": "Brita"
+          },
+          "pesoKg": 0,
+          "tipos": [
+            "batea"
+          ]
+        }
+      ]
+    }
+  ],
+  "hotspots": [
+    {
+      "id": "pernoRey",
+      "titulo": {
+        "es": "Perno rey de 2\"",
+        "pt": "Pino rei de 2\""
+      },
+      "texto": {
+        "es": "Forjado y abulonado sobre placa reforzada: se reemplaza sin soldar y resiste el uso más exigente.",
+        "pt": "Forjado e aparafusado sobre placa reforçada: é substituído sem solda e resiste ao uso mais exigente."
+      }
+    },
+    {
+      "id": "suspension",
+      "cuando": {
+        "suspension": "neumatica"
+      },
+      "titulo": {
+        "es": "Suspensión neumática",
+        "pt": "Suspensão pneumática"
+      },
+      "texto": {
+        "es": "Menor desgaste de neumáticos y carga más protegida. Regulás la altura para acoplar más fácil.",
+        "pt": "Menor desgaste de pneus e carga mais protegida. Regule a altura para engatar com facilidade."
+      }
+    },
+    {
+      "id": "suspension",
+      "cuando": {
+        "suspension": "mecanica"
+      },
+      "titulo": {
+        "es": "Elásticos reforzados",
+        "pt": "Molas reforçadas"
+      },
+      "texto": {
+        "es": "Paquete de hojas parabólicas con balancines: robusto, simple y con repuestos en todo el país.",
+        "pt": "Feixe de lâminas parabólicas com balancins: robusto, simples e com peças em todo o país."
+      }
+    },
+    {
+      "id": "compuertas",
+      "tipos": [
+        "tolva"
+      ],
+      "titulo": {
+        "es": "Compuertas a cremallera",
+        "pt": "Comportas de cremalheira"
+      },
+      "texto": {
+        "es": "Apertura suave y regulable desde el costado, con cierre hermético: no perdés ni un grano.",
+        "pt": "Abertura suave e regulável pela lateral, com fechamento hermético: você não perde um grão."
+      }
+    },
+    {
+      "id": "lona",
+      "tipos": [
+        "tolva"
+      ],
+      "titulo": {
+        "es": "Lona enrollable",
+        "pt": "Lona enrolável"
+      },
+      "texto": {
+        "es": "Destapás toda la caja en segundos desde el piso. Arcos galvanizados que no acumulan agua.",
+        "pt": "Descubra toda a caixa em segundos a partir do chão. Arcos galvanizados que não acumulam água."
+      }
+    },
+    {
+      "id": "piston",
+      "tipos": [
+        "batea"
+      ],
+      "titulo": {
+        "es": "Cilindro telescópico frontal",
+        "pt": "Cilindro telescópico frontal"
+      },
+      "texto": {
+        "es": "Vuelco estable a 45° con cilindro de varias etapas y válvula de fin de carrera.",
+        "pt": "Basculamento estável a 45° com cilindro de vários estágios e válvula de fim de curso."
+      }
+    },
+    {
+      "id": "porton",
+      "tipos": [
+        "batea"
+      ],
+      "titulo": {
+        "es": "Portón trasero",
+        "pt": "Tampa traseira"
+      },
+      "texto": {
+        "es": "Cierre con trabas de seguridad y burlete: estanco para grano fino.",
+        "pt": "Fechamento com travas de segurança e vedação: estanque para grão fino."
+      }
+    },
+    {
+      "id": "barandas",
+      "tipos": [
+        "plataforma"
+      ],
+      "titulo": {
+        "es": "Barandas volcables",
+        "pt": "Laterais basculantes"
+      },
+      "texto": {
+        "es": "Módulos independientes con cierres rápidos: abrís solo el tramo que necesitás.",
+        "pt": "Módulos independentes com fechos rápidos: abra apenas o trecho que precisar."
+      }
+    },
+    {
+      "id": "puertas",
+      "tipos": [
+        "furgon"
+      ],
+      "titulo": {
+        "es": "Puertas traseras",
+        "pt": "Portas traseiras"
+      },
+      "texto": {
+        "es": "Doble hoja con apertura a 270° y cuatro fallebas: carga protegida y acceso total.",
+        "pt": "Duas folhas com abertura de 270° e quatro varões: carga protegida e acesso total."
+      }
+    },
+    {
+      "id": "reflectivos",
+      "titulo": {
+        "es": "Bandas reflectivas",
+        "pt": "Faixas refletivas"
+      },
+      "texto": {
+        "es": "Demarcación perimetral roja y blanca y luces LED: salís de fábrica listo para la ruta.",
+        "pt": "Demarcação perimetral vermelha e branca e luzes LED: sai de fábrica pronto para a estrada."
+      }
+    },
+    {
+      "id": "chasis",
+      "titulo": {
+        "es": "Chasis de alta resistencia",
+        "pt": "Chassi de alta resistência"
+      },
+      "texto": {
+        "es": "Largueros de perfil doble T con soldadura continua y travesaños pasantes: menos tara y más rigidez.",
+        "pt": "Longarinas em perfil duplo T com solda contínua e travessas passantes: menos tara e mais rigidez."
+      }
+    }
+  ]
+}

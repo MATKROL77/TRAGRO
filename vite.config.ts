@@ -1,0 +1,30 @@
+import { defineConfig } from 'vitest/config';
+import react from '@vitejs/plugin-react';
+import { fileURLToPath, URL } from 'node:url';
+
+export default defineConfig({
+  plugins: [react()],
+  resolve: {
+    alias: { '@': fileURLToPath(new URL('./src', import.meta.url)) },
+  },
+  build: {
+    target: 'es2022',
+    chunkSizeWarningLimit: 900,
+    rollupOptions: {
+      output: {
+        manualChunks(id) {
+          if (id.includes('node_modules/three/')) return 'three';
+          if (id.includes('node_modules/jspdf') || id.includes('node_modules/fflate')) return 'pdf';
+          if (id.includes('node_modules/postprocessing') || id.includes('node_modules/n8ao')) return 'post';
+          return undefined;
+        },
+      },
+    },
+  },
+  server: { host: true, port: 5173 },
+  preview: { host: true, port: 4173 },
+  test: {
+    environment: 'node',
+    include: ['tests/unit/**/*.test.ts'],
+  },
+});
