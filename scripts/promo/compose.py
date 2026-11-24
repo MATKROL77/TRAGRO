@@ -216,6 +216,8 @@ def segment_frame(t):
         if a <= t < b:
             lt = t - a
             idx = s0 + int(round(lt * FPS))
+            if name == 'fold':  # cámara lenta durante el giro a transporte, después velocidad normal
+                idx = int(lt * FPS * 0.45) if lt < 4.0 else int(4.0 * FPS * 0.45 + (lt - 4.0) * FPS)
             src = shot_frame(name, idx)
             ui = name in UI_SHOTS
             # golpe de zoom al entrar + zoom lento continuo

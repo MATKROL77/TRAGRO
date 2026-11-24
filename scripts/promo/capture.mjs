@@ -20,6 +20,7 @@ window.__cam = (p, t) => {
   s.runtime.lastInteraction = performance.now(); s.runtime.invalidate();
 };
 window.__lerp = (a, b, k) => a + (b - a) * k;
+window.__noHL = () => { const sm = window.__sp.sim; if (sm) sm.hl.G = window.__sp.runtime.distance + 150; };
 window.__ease = (k) => k < 0.5 ? 4 * k * k * k : 1 - Math.pow(-2 * k + 2, 3) / 2;
 window.__L = () => window.__sp.runtime.model.layout;
 `;
@@ -41,14 +42,14 @@ const SHOTS = {
     setup: "window.__sp.store.getState().setScene('field');",
     warm: 450,
     warmScale: 25,
-    cam: `(i,n)=>{const L=__L(); const x=L.rowX[Math.floor(L.rowX.length/2)]+L.spacing*0.5; const k=i/(n-1); __cam([x+__lerp(0.9,0.35,k), __lerp(0.42,0.55,k), -1.46-__lerp(3.6,5.0,k)],[x-0.25,0.3,-0.2]);}`,
+    cam: `(i,n)=>{__noHL(); const L=__L(); const x=L.rowX[Math.floor(L.rowX.length/2)]+L.spacing*0.5; const k=i/(n-1); __cam([x+__lerp(0.9,0.35,k), __lerp(0.42,0.55,k), -1.46-__lerp(3.6,5.0,k)],[x-0.25,0.3,-0.2]);}`,
   },
   sow_wide: {
     frames: 90,
     setup: "window.__sp.store.getState().setScene('field');",
     warm: 450,
     warmScale: 25,
-    cam: `(i,n)=>{const k=__ease(i/(n-1)); const a=__lerp(2.35,2.9,k); const r=__lerp(16,13,k); __cam([Math.sin(a)*r, __lerp(5.5,3.2,k), Math.cos(a)*r],[0,0.6,1.0]);}`,
+    cam: `(i,n)=>{__noHL(); const k=__ease(i/(n-1)); const a=__lerp(2.35,2.9,k); const r=__lerp(16,13,k); __cam([Math.sin(a)*r, __lerp(5.5,3.2,k), Math.cos(a)*r],[0,0.6,1.0]);}`,
   },
   fold: {
     frames: 150,
@@ -109,7 +110,10 @@ for (const name of names) {
   // precalentamiento acelerado (pocos cuadros de render, mucho tiempo de simulación)
   const ts = await page.evaluate(() => window.__sp.runtime.timeScale);
   if (shot.warmScale) await page.evaluate((k) => (window.__sp.runtime.timeScale = k), shot.warmScale);
-  await page.clock.runFor(shot.warm ?? 800);
+  for (let w = 0; w < (shot.warm ?? 800); w += 50) {
+    await page.evaluate(() => window.__noHL?.());
+    await page.clock.runFor(50);
+  }
   await page.evaluate((k) => (window.__sp.runtime.timeScale = k), ts);
   if (shot.shotScale) await page.evaluate((k) => (window.__sp.runtime.timeScale = k), TS * shot.shotScale);
   await page.evaluate(`window.__shotCam = ${shot.cam};`);
