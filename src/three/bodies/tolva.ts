@@ -250,14 +250,93 @@ export function buildTolva(ctx: BuildCtx): void {
   ctx.livery = { side: [0, railY + L.H * 0.52, Math.min(len - 1.2, 7.5), L.H - 0.42], front: [-0.25, railY + L.H * 0.55, 1.5, L.H - 0.6] };
   ctx.marking = { y: railY - 0.15, z: hw - 0.005, x0: x0 + 0.1, x1: x1 - 0.1 };
 
-  // Animación de compuertas y volantes.
+  // --- Grano: partículas instanciadas que caen de las bocas abiertas ---------------------
+  const PER = 90;
+  const total = PER * t.hoppers.length;
+  const grainGeo = new THREE.IcosahedronGeometry(0.021, 0);
+  const grains = new THREE.InstancedMesh(grainGeo, mats.grain, total);
+  grains.frustumCulled = false;
+  grains.castShadow = false;
+  grains.count = total;
+  grains.name = 'grain';
+  const gy = new Float32Array(total).fill(-1);
+  const gv = new Float32Array(total);
+  const gx = new Float32Array(total);
+  const gz = new Float32Array(total);
+  const m4 = new THREE.Matrix4();
+  const hide = new THREE.Matrix4().makeScale(0, 0, 0);
+  for (let i = 0; i < total; i++) grains.setMatrixAt(i, hide);
+  asm.attach(grains, 'root');
+  // Montículos bajo cada boca.
+  const pileGeo = new THREE.ConeGeometry(0.62, 0.36, 20, 1, true);
+  pileGeo.translate(0, 0.18, 0);
+  const piles = t.hoppers.map((h) => {
+    const p = new THREE.Mesh(pileGeo, mats.grain);
+    p.position.set(h.x, 0, 0);
+    p.scale.setScalar(0.0001);
+    p.receiveShadow = true;
+    asm.attach(p, 'root');
+    return p;
+  });
+  const pileSize = new Float32Array(t.hoppers.length);
+  ctx.disposers.push(() => {
+    grainGeo.dispose();
+    pileGeo.dispose();
+    grains.dispose();
+  });
+  let seed = 7;
+  const rnd = () => {
+    seed = (seed * 16807) % 2147483647;
+    return seed / 2147483647;
+  };
+  let alive = 0;
+  let flowing = false;
+  ctx.busy.push(() => flowing || alive > 0 || pileSize.some((v) => v > 0.001 && v < 0.999 && flowing));
+
+  // Animación de compuertas, volantes y grano.
   ctx.updaters.push((a, nodes) => {
-    t.hoppers.forEach((_, i) => {
+    alive = 0;
+    flowing = false;
+    t.hoppers.forEach((h, i) => {
       const open = stage(a.accion, i * 0.08, 0.75 + i * 0.08);
       const g = nodes[`gate${i}`];
       const w = nodes[`hw${i}`];
       if (g) g.position.z = (g.userData.rest as THREE.Vector3).z + open * GATE_TRAVEL;
       if (w) w.rotation.z = -open * Math.PI * 5;
+
+      const emit = open > 0.18;
+      if (emit) flowing = true;
+      const spread = 0.05 + open * 0.2;
+      const dt = Math.min(a.dt, 0.05);
+      for (let k = 0; k < PER; k++) {
+        const j = i * PER + k;
+        if (gy[j] < 0) {
+          // Nace una fracción por cuadro: chorro continuo, no una tanda.
+          if (!emit || rnd() > 0.12 + open * 0.2) continue;
+          gy[j] = t.mouthY - 0.02 - rnd() * 0.05;
+          gv[j] = 0.4 + rnd() * 0.5;
+          gx[j] = h.x + (rnd() - 0.5) * 2 * spread;
+          gz[j] = (rnd() - 0.5) * 2 * (0.06 + open * 0.24);
+        }
+        gv[j] += 9.8 * dt;
+        gy[j] -= gv[j] * dt;
+        const floor = pileSize[i] * 0.3 * Math.max(0, 1 - Math.hypot(gx[j] - h.x, gz[j]) / 0.6);
+        if (gy[j] <= floor + 0.01) {
+          gy[j] = -1;
+          grains.setMatrixAt(j, hide);
+          continue;
+        }
+        alive++;
+        m4.makeTranslation(gx[j], gy[j], gz[j]);
+        grains.setMatrixAt(j, m4);
+      }
+      // El montículo crece mientras descarga y desaparece al cerrar.
+      pileSize[i] = emit ? Math.min(1, pileSize[i] + dt * 0.16) : a.accion <= 0.001 ? Math.max(0, pileSize[i] - dt * 0.9) : pileSize[i];
+      if (pileSize[i] > 0.001 && !emit && a.accion <= 0.001) flowing = true;
+      const sc = Math.max(0.0001, pileSize[i]);
+      piles[i].scale.set(0.35 + sc * 0.65, sc, 0.35 + sc * 0.65);
+      piles[i].visible = pileSize[i] > 0.002;
     });
+    grains.instanceMatrix.needsUpdate = true;
   });
 }

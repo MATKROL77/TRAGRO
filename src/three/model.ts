@@ -26,6 +26,8 @@ export interface TrailerModel {
   rearFlaps: { x: number; y: number; z: number; w: number; h: number }[];
   grain: { x: number; y: number; z: number }[];
   update: (a: AnimState) => void;
+  /** true mientras haya partículas u otra animación propia en curso. */
+  isBusy: () => boolean;
   dispose: () => void;
   stats: { triangles: number; meshes: number };
 }
@@ -61,6 +63,7 @@ export function buildTrailer(cfg: Config, mats: MaterialSet): TrailerModel {
     spares: [],
     marking: { y: L.deckY - 0.1, z: L.W / 2, x0: L.rearX + 0.1, x1: L.frontX - 0.1 },
     grain: [],
+    busy: [],
   };
 
   const gear = buildRunningGear(asm, L, chassis.frameBottomY, { flapPrint: cfg.sel.faldones === true });
@@ -79,6 +82,16 @@ export function buildTrailer(cfg: Config, mats: MaterialSet): TrailerModel {
     frameBottomY: L.tipo === 'tolva' ? L.deckY - 0.3 : L.deckY - 0.24,
     workLights: extraLights ? L.bodyTopY - 0.12 : null,
   });
+  if (cfg.sel.faldones === true) {
+    // Impresión sobre los barreros traseros.
+    asm.into('sprung');
+    for (const f of gear.rearFlaps) {
+      const g = new THREE.PlaneGeometry(f.w, f.h);
+      g.rotateY(-Math.PI / 2);
+      g.translate(f.x, f.y, f.z);
+      asm.add('flapPrint', g);
+    }
+  }
   buildSideMarking(asm, ctx.marking.x0, ctx.marking.x1, ctx.marking.y, ctx.marking.z, { extraLights, node: ctx.marking.node });
   buildAccessories(ctx);
 
@@ -125,6 +138,7 @@ export function buildTrailer(cfg: Config, mats: MaterialSet): TrailerModel {
     rearFlaps: gear.rearFlaps,
     grain: ctx.grain,
     update,
+    isBusy: () => ctx.busy.some((b) => b()),
     stats: { triangles: Math.round(built.triangles), meshes: built.meshes },
     dispose: () => {
       built.dispose();

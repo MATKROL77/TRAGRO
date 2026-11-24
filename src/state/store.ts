@@ -34,6 +34,7 @@ export interface UiState {
   modal: ModalId;
   tecAbierto: boolean;
   hojaExpandida: boolean;
+  cargandoEntorno: boolean;
 }
 
 export type ModalId = null | 'resumen' | 'cotizar' | 'comparar' | 'compartir' | 'atajos' | 'tecnico';
@@ -53,8 +54,11 @@ export interface AppState {
   camera: { preset: string; nonce: number };
   activeHotspot: string | null;
   compare: { a: Snapshot | null; b: Snapshot | null };
-  /** Se incrementa con cada interacción del usuario (corta el modo inactivo). */
+  /** El visor ya dibujó el primer cuadro. */
   ready: boolean;
+  /** Se incrementa cada vez que se reconstruye el modelo 3D. */
+  modelVersion: number;
+  bumpModel: () => void;
 
   setOption: (key: string, value: Value, foco?: string) => void;
   setTipo: (tipo: TypeId) => void;
@@ -93,6 +97,7 @@ const initialUi: UiState = {
   modal: null,
   tecAbierto: false,
   hojaExpandida: false,
+  cargandoEntorno: false,
 };
 
 const initialAnim = { accion: 0, lona: 0, susp: 0, elevado: 1 };
@@ -108,6 +113,8 @@ export const useStore = create<AppState>()(
     activeHotspot: null,
     compare: { a: null, b: null },
     ready: false,
+    modelVersion: 0,
+    bumpModel: () => set((s) => ({ modelVersion: s.modelVersion + 1 })),
 
     setOption: (key, value, foco) => {
       const { config, notices } = applyChange(get().config, key, value);

@@ -51,6 +51,16 @@ export function encodeConfig(cfg: Config): EncodeResult {
   return { code: LZString.compressToEncodedURIComponent(json), logoIncluded: !hasLogo || logoIncluded };
 }
 
+/** ¿El link fue generado con un logo que no entró (solo viaja su posición)? */
+export function linkOmittedLogo(code: string): boolean {
+  try {
+    const json = LZString.decompressFromEncodedURIComponent(code);
+    return !!json && Array.isArray((JSON.parse(json) as Record<string, unknown>).lp);
+  } catch {
+    return false;
+  }
+}
+
 export function decodeConfig(code: string): Config | null {
   try {
     const json = LZString.decompressFromEncodedURIComponent(code);

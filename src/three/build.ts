@@ -45,6 +45,8 @@ export interface BuildCtx {
   marking: { y: number; z: number; x0: number; x1: number; node?: string };
   /** Hay partículas de grano que emitir desde estas bocas. */
   grain: { x: number; y: number; z: number }[];
+  /** Devuelven true mientras haya algo animándose por su cuenta (partículas). */
+  busy: (() => boolean)[];
 }
 
 export const ease = (t: number): number => {
