@@ -38,7 +38,7 @@ test.describe('flujo completo', () => {
     await expect(pneu).toHaveAttribute('aria-disabled', 'false');
 
     // Idioma y unidades
-    await page.getByRole('radio', { name: 'English' }).click();
+    await page.getByLabel('Idioma').selectOption('en');
     await expect(page.getByRole('button', { name: 'Request a quote' })).toBeVisible();
     await page.getByRole('radio', { name: 'Imperial' }).click();
     await page.getByRole('tab', { name: 'Performance' }).click();

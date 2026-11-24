@@ -4,7 +4,7 @@ import { useT } from '../i18n/useT';
 import { loadLang } from '../i18n';
 import brand from '../config/brand.json';
 import type { Lang } from '../domain/types';
-import { IconCompare, IconMore, IconReset, IconShare } from './icons';
+import { IconCompare, IconGlobe, IconMore, IconReset, IconShare } from './icons';
 import { shareCurrent } from './share';
 
 export function LangUnitControls() {
@@ -24,13 +24,15 @@ export function LangUnitControls() {
   };
   return (
     <div className="lu">
-      <div className="seg seg-mini lu-langs" role="radiogroup" aria-label={t('actions.language')}>
-        {(brand.languages as Lang[]).map((l) => (
-          <button key={l} type="button" role="radio" aria-checked={lang === l} aria-label={t(`langNames.${l}`)} title={t(`langNames.${l}`)} className={lang === l ? 'is-selected' : ''} onClick={() => changeLang(l)}>
-            {l.slice(0, 2).toUpperCase()}
-          </button>
-        ))}
-      </div>
+      <label className="lu-lang">
+        <IconGlobe size={16} />
+        <span className="sr-only">{t('actions.language')}</span>
+        <select className="select select-bare" value={lang} onChange={(e) => changeLang(e.target.value as Lang)} aria-label={t('actions.language')}>
+          {(brand.languages as Lang[]).map((l) => (
+            <option key={l} value={l}>{t(`langNames.${l}`)}</option>
+          ))}
+        </select>
+      </label>
       <div className="seg seg-mini" role="radiogroup" aria-label={t('actions.units')}>
         {(['metric', 'imperial'] as const).map((u) => (
           <button key={u} type="button" role="radio" aria-checked={units === u} aria-label={t(`units.${u}`)} title={t(`units.${u}`)} className={units === u ? 'is-selected' : ''} onClick={() => setUnits(u)}>
