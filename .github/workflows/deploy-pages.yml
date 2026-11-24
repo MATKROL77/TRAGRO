@@ -8,6 +8,8 @@ on:
 jobs:
   deploy:
     runs-on: ubuntu-latest
+    # los secretos están cargados en este Environment del repo
+    environment: Configure api token
     permissions:
       contents: read
       deployments: write
