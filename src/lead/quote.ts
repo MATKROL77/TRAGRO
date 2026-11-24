@@ -7,6 +7,7 @@ import { priceBreakdown, type PriceBreakdown } from '@/core/pricing';
 import { computeSpecs, type Specs } from '@/core/specs';
 import type { Config, Lang, Level, Tx } from '@/core/types';
 import { formatNumber, translate } from '@/i18n';
+import { checkParams } from '@/ui/TechPanel';
 
 export interface QuoteRow {
   key: string;
@@ -96,7 +97,7 @@ export function checkTexts(config: Config, lang: Lang, specs: Specs = computeSpe
       level: c.level,
       title: t(CHECK_TITLE[c.id], { producto }),
       value: c.id === 'peso' ? `${n(c.value, d)} ${c.unit}` : `${n(c.value, d)} / ${n(c.limit, d)} ${c.unit}`,
-      message: t(c.msg, { ...c.params, producto }),
+      message: t(c.msg, checkParams(c, n, producto)),
       status: t(`tec.estado.${c.level}`),
     };
   });

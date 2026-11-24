@@ -184,6 +184,7 @@ function makeGroundMaterial(a: Assets, macro: THREE.Texture, haze: HazeUniforms)
           float n1 = texture2D(uMacro, xz * 0.017).r;
           float n2 = texture2D(uMacro, xz * 0.11 + 0.37).r;
           float n3 = texture2D(uMacro, xz * 0.61 + 0.11).r;
+          float n4 = texture2D(uMacro, xz * 2.9 + 0.53).r;
 
           // Bordes irregulares: el asfalto se desgrana y el pasto invade la banquina.
           float edge = uRoad.y + (n2 - 0.5) * 0.16 + (n3 - 0.5) * 0.06;
@@ -208,6 +209,10 @@ function makeGroundMaterial(a: Assets, macro: THREE.Texture, haze: HazeUniforms)
           // Banquina y préstamo: manchones de pasto más seco o más verde.
           vec3 dry = cF * uFieldTint * 1.12;
           vec3 lush = cF * vec3(0.8, 0.86, 0.62);
+          // Matas y claros a escala de pasos: evita el aspecto de césped liso.
+          cF *= mix(0.74, 1.2, n4) * mix(0.9, 1.08, n3);
+          dry *= mix(0.74, 1.2, n4);
+          lush *= mix(0.74, 1.2, n4);
           vec3 road = mix(lush, dry, smoothstep(0.3, 0.72, n1)) * mix(0.82, 1.1, n2);
           // Detrás del alambrado: lotes de cultivo (soja, rastrojo, pastura) como un damero irregular.
           float dist = length(vViewPosition);
@@ -471,22 +476,30 @@ function buildTreeLines(haze: HazeUniforms): { objects: THREE.Object3D[]; dispos
   tex.colorSpace = THREE.SRGBColorSpace;
   tex.wrapS = THREE.RepeatWrapping;
   tex.anisotropy = 4;
-  const mat = withHaze(new THREE.MeshStandardMaterial({ color: '#000000', emissive: '#ffffff', emissiveMap: tex, emissiveIntensity: 0.42, map: tex, alphaTest: 0.5, side: THREE.DoubleSide, roughness: 1 }), haze, 'trees');
+  const mat = withHaze(new THREE.MeshStandardMaterial({ color: '#000000', emissive: '#ffffff', emissiveMap: tex, emissiveIntensity: 0.3, map: tex, alphaTest: 0.5, side: THREE.DoubleSide, roughness: 1 }), haze, 'trees');
   const geos: THREE.BufferGeometry[] = [];
   // [centro x, centro z, largo, alto, giro en Y, desplazamiento u]
   const strips: [number, number, number, number, number, number][] = [
-    [120, -330, 520, 19, 0.06, 0.0],
-    [-380, -250, 300, 16, 0.5, 0.31],
-    [-90, 300, 380, 17, Math.PI - 0.1, 0.55],
-    [330, 250, 260, 15, Math.PI + 0.45, 0.12],
-    [520, -80, 240, 16, Math.PI / 2 + 0.2, 0.7],
-    [-560, 60, 300, 18, -Math.PI / 2 - 0.15, 0.43],
+    [140, -290, 420, 20, 0.06, 0.0],
+    [-330, -230, 260, 17, 0.5, 0.31],
+    [-110, 270, 340, 18, Math.PI - 0.1, 0.55],
+    [300, 235, 230, 16, Math.PI + 0.45, 0.12],
+    [470, -70, 220, 17, Math.PI / 2 + 0.2, 0.7],
+    [-500, 50, 260, 19, -Math.PI / 2 - 0.15, 0.43],
+    [-40, -520, 300, 22, 0.02, 0.2],
   ];
   for (const [cx, cz, len, h, rot, off] of strips) {
-    const g = new THREE.PlaneGeometry(len, h, 1, 1);
+    const g = new THREE.PlaneGeometry(len, h, 28, 1);
     const uv = g.getAttribute('uv') as THREE.BufferAttribute;
-    for (let i = 0; i < uv.count; i++) uv.setX(i, off + (uv.getX(i) * len) / 360);
-    g.translate(0, h / 2 - 0.3, 0);
+    const pos = g.getAttribute('position') as THREE.BufferAttribute;
+    for (let i = 0; i < uv.count; i++) {
+      const u = uv.getX(i);
+      // El monte se achica hacia las puntas: nunca termina en un corte vertical.
+      const taper = Math.min(1, Math.sin(Math.PI * u) * 2.6) ** 0.8;
+      const y = pos.getY(i) + h / 2;
+      pos.setY(i, y * Math.max(0.02, taper) - 0.3);
+      uv.setX(i, off + (u * len) / 360);
+    }
     g.rotateY(rot);
     g.translate(cx, 0, cz);
     geos.push(g);
