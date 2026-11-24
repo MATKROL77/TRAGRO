@@ -72,7 +72,7 @@ Son reglas de demo, aunque varias salen de la geometría del modelo:
 
 ## 3. Limitaciones conocidas
 
-- **Rendimiento medido solo por software.** Este entorno no tiene GPU: Chromium dibuja con SwiftShader. Los fps medidos acá no dicen nada sobre una notebook con Iris Xe ni sobre un celular; ver sección 4. **Hay que medir en hardware real antes de prometer 60 / 30 fps.**
+- **Rendimiento medido solo por software.** Este entorno no tiene GPU: Chromium dibuja con SwiftShader. Los fps medidos acá no dicen nada sobre una notebook con Iris Xe ni sobre un celular; ver sección 5. **Hay que medir en hardware real antes de prometer 60 / 30 fps.**
 - **No probado en dispositivos físicos.** Las vistas de celular se verificaron con emulación de iPhone 13 en Chromium, no en iOS Safari ni en Android reales.
 - **Fidelidad de los modelos.** Son equipos genéricos plausibles, no la réplica de ningún fabricante. Proporciones, cantidad de parantes, forma de los embudos, etc. salen de reglas paramétricas. Para una demo a un fabricante concreto conviene ajustar medidas y detalles a su línea.
 - **Tolva.** Las bocas se ubican entre ejes y los embudos son pirámides truncadas; el volumen descuenta rampas interiores simplificadas.
@@ -83,7 +83,15 @@ Son reglas de demo, aunque varias salen de la geometría del modelo:
 - **Accesibilidad.** Contraste AA verificado por test sobre los colores de marca, navegación por teclado y labels en el panel. El visor 3D en sí no es operable con lector de pantalla (la información equivalente está en el resumen y la ficha técnica).
 - **Sin persistencia.** No hay login, base de datos ni panel de administración, por diseño.
 
-## 4. Mediciones
+## 4. Qué se verificó y cómo
+
+- `npm run verificar`: typecheck, ESLint sin warnings, 65 tests unitarios (precio, reglas de compatibilidad, tara y carga útil, validación legal, layout, serialización de la URL, mensaje de la consulta, CUIT, paridad es/pt, contraste AA de la marca) y build.
+- `npm run e2e flujo` (Playwright, 53 verificaciones, todas pasan): elegir tipo, cambiar cada paso, regla con autoajuste y aviso, opción deshabilitada con motivo, RAL con buscador, subir logo, texto, cámaras, "Ver en acción" reversible, hotspots, acercamiento automático y regreso, resumen con 3 renders, PDF, link compartido que reconstruye exactamente la misma configuración (con logo), comparador, formulario y mensaje de WhatsApp, modo vendedor con atajos, `/embed`, fallback sin WebGL y uso en celular (objetivos táctiles ≥ 44 px, sin desborde).
+- `npm run e2e capturas`: las 16 capturas de `screenshots/` (4 tipos × estudio/exterior × escritorio 1440×900 / iPhone 13 emulado), revisadas a ojo.
+- `npm run e2e rendimiento`: carga, fps y la prueba de estrés de 200 cambios.
+- PDF revisado página por página (3 páginas, con y sin datos de cliente).
+
+## 5. Mediciones
 
 Ver los resultados completos en `tests/e2e/out/`. Resumen al cierre:
 
@@ -109,7 +117,7 @@ Sobre lo que no pude verificar acá:
 - **La fuga que sí encontré y corregí:** la sombra de contacto de drei no libera sus render targets al desmontarse; la reemplacé por una propia que reutiliza los buffers.
 
 
-## 5. Ideas para la v2
+## 6. Ideas para la v2
 
 - **Realidad aumentada**: ver el semi en el patio del cliente. El modelo ya está en metros reales y se arma como un único grafo; se puede exportar a GLB/USDZ con los exportadores de three.js o montar una sesión WebXR.
 - **CRM**: conectar `submitLead()` a HubSpot/Zoho/Salesforce o a un webhook, con seguimiento del origen (link, vendedor, exposición).
