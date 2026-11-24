@@ -13,6 +13,9 @@ import { viewer } from './viewerApi';
 /** Modelo actual (para cámaras, hotspots y capturas). */
 export const currentModel: { value: TrailerModel | null } = { value: null };
 
+/** Tiempos de reconstrucción del modelo (ms), para las mediciones de rendimiento. */
+export const buildTimes: number[] = [];
+
 const SPEED: Record<string, number> = { accion: 0.3, lona: 0.45, elevado: 0.9, patas: 1.2, luces: 2.5 };
 
 function lonaHex(id: unknown): string {
@@ -31,7 +34,11 @@ export function TrailerObject() {
 
   const model = useMemo(() => {
     void key;
-    return buildTrailer(cfgRef.current, lib.mats);
+    const t0 = performance.now();
+    const m = buildTrailer(cfgRef.current, lib.mats);
+    buildTimes.push(performance.now() - t0);
+    if (buildTimes.length > 400) buildTimes.shift();
+    return m;
   }, [key, lib]);
 
   const anim = useRef<AnimState & { luces: number }>({ accion: 0, lona: 0, susp: 0, elevado: 1, patas: 0, luces: 0, time: 0, dt: 0 });

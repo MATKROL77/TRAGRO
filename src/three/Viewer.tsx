@@ -10,7 +10,7 @@ import { composerRef, Effects } from './Effects';
 import { Hotspots } from './Hotspots';
 import { Scene } from './Scene';
 import { Tractor } from './Tractor';
-import { TrailerObject, currentModel, useGeometryCrossfade } from './TrailerObject';
+import { TrailerObject, buildTimes, currentModel, useGeometryCrossfade } from './TrailerObject';
 import { registerViewer, type SnapshotOptions } from './viewerApi';
 
 const MAX_PIXELS = 9_000_000;
@@ -151,7 +151,8 @@ function Bridge({ overlay }: { overlay: React.RefObject<HTMLCanvasElement> }) {
       c?.update();
       invalidate();
     };
-    (window as unknown as { __viewer: unknown }).__viewer = { stats: () => ({ ...get().gl.info.memory, ...lastInfo.current, fps: fps.current.value, frames: fps.current.total, programs: get().gl.info.programs?.length ?? 0 }), camera: () => ({ position: get().camera.position.toArray(), target: (get().controls as unknown as OrbitImpl | null)?.target.toArray() }) };
+    (window as unknown as { __captura: unknown }).__captura = snapshot;
+    (window as unknown as { __viewer: unknown }).__viewer = { stats: () => ({ ...get().gl.info.memory, ...lastInfo.current, fps: fps.current.value, frames: fps.current.total, programs: get().gl.info.programs?.length ?? 0, buildMs: buildTimes.slice(), modelTriangles: currentModel.value?.stats.triangles ?? 0, modelMeshes: currentModel.value?.stats.meshes ?? 0 }), camera: () => ({ position: get().camera.position.toArray(), target: (get().controls as unknown as OrbitImpl | null)?.target.toArray() }) };
     return () => registerViewer(null);
   }, [overlay]);
   return null;

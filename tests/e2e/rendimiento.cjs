@@ -104,7 +104,7 @@ async function run() {
   report.data.fps = { rotando: fpsRot, animacion: fpsAnim, calidadFinal: calidad, drawCalls: draw.calls, triangulos: draw.triangles };
   report.ok('fps rotando la cámara', fpsRot > 0, `${fpsRot} fps (calidad adaptativa: ${calidad})`);
   report.ok('fps durante "Ver en acción"', fpsAnim > 0, `${fpsAnim} fps`);
-  console.log(`  · escena: ${draw.calls} draw calls, ${draw.triangles} triángulos por cuadro`);
+  console.log(`  · cuadro completo: ${draw.calls} draw calls, ${draw.triangles} triángulos (incluye sombras y postprocesado); modelo: ${draw.modelMeshes} mallas, ${draw.modelTriangles} triángulos`);
 
   // --- Estrés: 200 cambios de opción -------------------------------------------------------
   await settle(page);
@@ -139,6 +139,11 @@ async function run() {
   report.data.estres = { cambios: n, antes: before, despues: after, muestras: samples };
   console.log(`  · antes:   ${JSON.stringify(before)}`);
   console.log(`  · después: ${JSON.stringify(after)}`);
+  const builds = await page.evaluate(() => window.__viewer.stats().buildMs);
+  const sorted = [...builds].sort((a, b) => a - b);
+  const avg = sorted.reduce((s, v) => s + v, 0) / Math.max(1, sorted.length);
+  report.data.reconstruccion = { muestras: sorted.length, promedioMs: Math.round(avg), p95Ms: Math.round(sorted[Math.floor(sorted.length * 0.95)] ?? 0), maxMs: Math.round(sorted[sorted.length - 1] ?? 0) };
+  console.log(`  · reconstrucción del modelo: promedio ${Math.round(avg)} ms, p95 ${report.data.reconstruccion.p95Ms} ms, máx ${report.data.reconstruccion.maxMs} ms (${sorted.length} muestras)`);
   report.ok(`estrés: ${n} cambios sin fuga de geometrías`, after.geometries <= before.geometries + 4, `${before.geometries} → ${after.geometries}`);
   report.ok('estrés: sin fuga de texturas', after.textures <= before.textures + 6, `${before.textures} → ${after.textures}`);
   if (before.heapMB !== null) report.ok('estrés: la memoria JS no crece sin control', after.heapMB <= before.heapMB + 60, `${before.heapMB} MB → ${after.heapMB} MB`);
