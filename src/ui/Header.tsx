@@ -1,22 +1,27 @@
 import { useEffect, useRef, useState } from 'react';
 import { brand } from '@/core/catalog';
+import type { Lang } from '@/core/types';
 import { changeLang, HTML_LANG, LANG_NAMES, LANGS, useI18n } from '@/i18n';
 import { useStore } from '@/state/store';
 import { Icon } from './Icon';
 
-/** Selector de idioma (ES · EN · PT · RU) y de sistema de unidades (encabezado y modo embebido). */
+/** Selector de idioma (desplegable) y de sistema de unidades (encabezado y modo embebido). */
 export function LangUnitControls() {
   const { t, lang, units } = useI18n();
   const setUi = useStore((s) => s.setUi);
   return (
     <div className="lu">
-      <div className="seg seg-mini lu-langs" role="radiogroup" aria-label={t('top.idioma')} data-testid="sel-idioma">
-        {LANGS.map((l) => (
-          <button key={l} type="button" role="radio" aria-checked={lang === l} aria-label={LANG_NAMES[l]} title={LANG_NAMES[l]} lang={HTML_LANG[l]} className={lang === l ? 'is-on' : ''} onClick={() => void changeLang(l)} data-testid={`lang-${l}`}>
-            {l.toUpperCase()}
-          </button>
-        ))}
-      </div>
+      <label className="lu-lang">
+        <Icon name="globo" size={16} />
+        <span className="sr-only">{t('top.idioma')}</span>
+        <select className="select select-bare" value={lang} onChange={(e) => void changeLang(e.target.value as Lang)} aria-label={t('top.idioma')} data-testid="sel-idioma">
+          {LANGS.map((l) => (
+            <option key={l} value={l} lang={HTML_LANG[l]}>
+              {LANG_NAMES[l]}
+            </option>
+          ))}
+        </select>
+      </label>
       <div className="seg seg-mini" role="radiogroup" aria-label={t('top.unidades')}>
         {(['metric', 'imperial'] as const).map((u) => (
           <button key={u} type="button" role="radio" aria-checked={units === u} aria-label={t(`top.unidades.${u}`)} title={t(`top.unidades.${u}`)} className={units === u ? 'is-on' : ''} onClick={() => setUi({ unidades: u })} data-testid={`unidades-${u}`}>

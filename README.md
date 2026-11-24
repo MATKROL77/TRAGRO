@@ -16,7 +16,7 @@ El comprador arma su equipo (tolva cerealera, batea volcadora, plataforma con ba
 - Resumen, comparador A/B, link compartible, PDF de cotización, consulta por WhatsApp o mail.
 - Modo vendedor (`?modo=vendedor`) y modo embebido (`/embed`).
 - Español rioplatense (por defecto), inglés, portugués de Brasil y ruso, con selector en el encabezado. Sistema métrico (m · kg) o imperial (ft · lb).
-- Mismo formato visual que los otros configuradores Umbral_exp (estilo ficha de producto): barra única arriba del visor (cámaras, escenario, "Ver en acción", pantalla completa), tarjeta de precio y datos abajo a la izquierda, botón Comparar, pestañas Configurar / Datos técnicos e idiomas ES · EN · PT · RU en el encabezado.
+- Mismo formato visual que los otros configuradores Umbral_exp (estilo ficha de producto): tarjeta de precio y datos arriba a la izquierda, barra de controles abajo (cámaras, escenario, "Ver en acción", pantalla completa), botón Comparar, pestañas Configurar / Datos técnicos y selector de idioma en el encabezado.
 
 ## Cómo correrlo
 

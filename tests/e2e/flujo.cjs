@@ -239,20 +239,20 @@ async function run() {
 
   // --- Idiomas y unidades ------------------------------------------------------------------------------------
   const tabText = () => page.locator('[data-testid="tab-config"]').textContent();
-  await page.click('[data-testid="lang-en"]');
+  await page.selectOption('[data-testid="sel-idioma"]', 'en');
   await page.waitForFunction(() => document.documentElement.lang === 'en', null, { timeout: 15000 }).catch(() => undefined);
   const enTab = (await tabText()) || '';
   await page.click('[data-paso="tipo"]');
   const enTipo = ((await page.locator('[data-tipo="tolva"] .nombre').textContent()) || '').trim();
   report.ok('idioma: inglés (interfaz y catálogo)', enTab !== 'Configurar' && enTab.length > 2 && enTipo !== 'Tolva cerealera', `${enTab} · ${enTipo}`);
-  await page.click('[data-testid="lang-ru"]');
+  await page.selectOption('[data-testid="sel-idioma"]', 'ru');
   await page.waitForFunction(() => document.documentElement.lang === 'ru', null, { timeout: 15000 }).catch(() => undefined);
   const ruTab = (await tabText()) || '';
   report.ok('idioma: ruso (cirílico)', /[\u0400-\u04FF]/.test(ruTab), ruTab);
-  await page.click('[data-testid="lang-pt"]');
+  await page.selectOption('[data-testid="sel-idioma"]', 'pt');
   await sleep(300);
   report.ok('idioma: portugués', ((await tabText()) || '').trim() === 'Configurar' && (await page.evaluate(() => document.documentElement.lang)) === 'pt-BR');
-  await page.click('[data-testid="lang-es"]');
+  await page.selectOption('[data-testid="sel-idioma"]', 'es');
   await page.click('[data-testid="unidades-imperial"]');
   await sleep(300);
   await page.click('[data-paso="dimensiones"]');
