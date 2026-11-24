@@ -16,7 +16,8 @@ async function run() {
     for (const tipo of TIPOS) {
       await page.evaluate((t) => window.__store.getState().setTipo(t), tipo);
       for (const env of ['estudio', 'exterior']) {
-        await setUi(page, { env });
+        // En exterior el equipo se muestra enganchado al tractor, como en la interfaz.
+        await setUi(page, { env, tractor: env === 'exterior' });
         await page.waitForFunction((e) => !window.__store.getState().ui.cargandoEntorno && window.__store.getState().ui.env === e, env, { timeout: 120000 });
         await sleep(1800);
         await settle(page, 9000);
