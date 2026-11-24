@@ -11,154 +11,13 @@ import { Tractor, TRACTOR } from './Tractor';
 import { getCrop } from '../domain/agronomy';
 import { computeLayout } from '../machines/seeder/layout';
 import { getMaterials } from './materials';
-import { mergeAll } from '../machines/seeder/parts';
-import { createTrees, treeLine } from './trees';
 
-const TILE_Z = 44;
-const Z_MIN = -26;
-
-/** Rastrojo instanciado cerca de la cámara; el shader lo recicla en loop según el avance. */
-function Stubble({ kind, width, count }: { kind: 'wheat' | 'soy' | 'maize'; width: number; count: number }) {
-  const offset = useRef({ value: 0 });
-  const meshes = useMemo(() => {
-    const rnd = (() => {
-      let s = 1234567;
-      return () => ((s = (s * 16807) % 2147483647) / 2147483647);
-    })();
-    const make = (geo: THREE.BufferGeometry, color: string, n: number, place: (i: number, m: THREE.Matrix4, c: THREE.Color) => void) => {
-      const mat = new THREE.MeshStandardMaterial({ color, roughness: 0.92, metalness: 0 });
-      mat.onBeforeCompile = (sh) => {
-        sh.uniforms.uOff = offset.current;
-        sh.vertexShader = sh.vertexShader
-          .replace('#include <common>', '#include <common>\nuniform float uOff;')
-          .replace(
-            '#include <project_vertex>',
-            `vec4 iw = instanceMatrix * vec4(transformed, 1.0);
-             float oz = instanceMatrix[3].z;
-             float nz = mod(oz - uOff - ${Z_MIN.toFixed(1)}, ${TILE_Z.toFixed(1)}) + ${Z_MIN.toFixed(1)};
-             iw.z += nz - oz;
-             vec4 mvPosition = modelViewMatrix * iw;
-             gl_Position = projectionMatrix * mvPosition;`,
-          );
-      };
-      const im = new THREE.InstancedMesh(geo, mat, n);
-      const m4 = new THREE.Matrix4();
-      const c = new THREE.Color();
-      for (let i = 0; i < n; i++) {
-        place(i, m4, c);
-        im.setMatrixAt(i, m4);
-        im.setColorAt(i, c);
-      }
-      im.frustumCulled = false;
-      im.receiveShadow = true;
-      return im;
-    };
-    const half = width / 2 + 7;
-    const pos = new THREE.Vector3();
-    const q = new THREE.Quaternion();
-    const sc = new THREE.Vector3();
-    const e = new THREE.Euler();
-    const base = new THREE.Color(kind === 'soy' ? '#a89270' : kind === 'wheat' ? '#c4ab72' : '#b49f78');
-    const tint = (c: THREE.Color) => c.copy(base).offsetHSL((rnd() - 0.5) * 0.03, (rnd() - 0.5) * 0.1, (rnd() - 0.5) * 0.16);
-    // tallos en pie, en las hileras del cultivo anterior (cruzadas en diagonal)
-    const prevSpacing = kind === 'soy' ? 0.42 : kind === 'wheat' ? 0.175 : 0.7;
-    // trigo: macollos de 6 cañas finas y altas (rastrojo en pie tras la cosecha)
-    const wheatTuft = () => {
-      const parts: THREE.BufferGeometry[] = [];
-      for (let k = 0; k < 6; k++) {
-        const h = 0.15 + rnd() * 0.09;
-        const g = new THREE.CylinderGeometry(0.0016, 0.0026, h, 3, 1, true).translate(0, h / 2, 0);
-        g.rotateZ((rnd() - 0.5) * 0.5);
-        g.rotateX((rnd() - 0.5) * 0.5);
-        g.translate((rnd() - 0.5) * 0.035, 0, (rnd() - 0.5) * 0.035);
-        parts.push(g);
-      }
-      return mergeAll(parts);
-    };
-    const standGeo =
-      kind === 'wheat'
-        ? wheatTuft()
-        : kind === 'soy'
-          ? new THREE.CylinderGeometry(0.003, 0.0045, 0.09, 3, 1, true).translate(0, 0.045, 0)
-          : new THREE.CylinderGeometry(0.009, 0.013, 0.24, 5, 1, true).translate(0, 0.12, 0);
-    const nStand = Math.round(count * (kind === 'wheat' ? 0.55 : kind === 'soy' ? 0.25 : 0.18));
-    const ang = 0.5;
-    const standing = make(standGeo, '#ffffff', nStand, (_, m, c) => {
-      const row = Math.floor(rnd() * ((2 * half) / prevSpacing));
-      const along = rnd() * TILE_Z + Z_MIN;
-      const u = -half + row * prevSpacing;
-      pos.set(u * Math.cos(ang) + (rnd() - 0.5) * 0.04, 0, along);
-      pos.x = ((pos.x + half) % (2 * half)) - half;
-      e.set((rnd() - 0.5) * 0.5, rnd() * 6.28, (rnd() - 0.5) * 0.5);
-      q.setFromEuler(e);
-      sc.set(1, 0.6 + rnd() * 0.8, 1);
-      m.compose(pos, q, sc);
-      tint(c);
-    });
-    // paja acostada
-    const lyGeo = new THREE.PlaneGeometry(0.011, 1).rotateX(-Math.PI / 2).translate(0, 0.004, 0);
-    const lying = make(lyGeo, '#ffffff', count - nStand, (_, m, c) => {
-      pos.set((rnd() * 2 - 1) * half, 0.0, rnd() * TILE_Z + Z_MIN);
-      e.set(0, rnd() * 6.28, (rnd() - 0.5) * 0.2);
-      q.setFromEuler(e);
-      sc.set(kind === 'soy' ? 0.8 : 1.6, 1, 0.12 + rnd() * (kind === 'soy' ? 0.2 : 0.45));
-      m.compose(pos, q, sc);
-      tint(c).multiplyScalar(0.92 + rnd() * 0.2);
-    });
-    const extras: THREE.InstancedMesh[] = [];
-    if (kind === 'maize') {
-      // hojas secas de maíz, anchas y retorcidas
-      const leaf = new THREE.PlaneGeometry(0.06, 0.5, 1, 3);
-      leaf.rotateX(-Math.PI / 2);
-      const p = leaf.getAttribute('position');
-      for (let i = 0; i < p.count; i++) p.setY(i, 0.004 + Math.abs(p.getZ(i)) * 0.06);
-      leaf.computeVertexNormals();
-      extras.push(
-        make(leaf, '#ffffff', Math.round(count * 0.18), (_, m, c) => {
-          pos.set((rnd() * 2 - 1) * half, 0, rnd() * TILE_Z + Z_MIN);
-          e.set(0, rnd() * 6.28, (rnd() - 0.5) * 0.3);
-          q.setFromEuler(e);
-          sc.set(0.7 + rnd() * 0.6, 1, 0.5 + rnd() * 0.7);
-          m.compose(pos, q, sc);
-          tint(c).multiplyScalar(1.05);
-        }),
-      );
-      (extras[0].material as THREE.MeshStandardMaterial).side = THREE.DoubleSide;
-    }
-    return [standing, lying, ...extras];
-  }, [kind, width, count]);
-
-  useEffect(() => () => meshes.forEach((m) => {
-    m.geometry.dispose();
-    (m.material as THREE.Material).dispose();
-    m.dispose();
-  }), [meshes]);
-
-  useFrame(() => {
-    offset.current.value = runtime.distance;
-  });
-  return (
-    <group>
-      {meshes.map((m, i) => (
-        <primitive key={i} object={m} />
-      ))}
-    </group>
-  );
-}
 
 /** Horizonte pampeano: cortinas de eucaliptos, un silo y un molino lejanos (muy livianos). */
 function Horizon() {
   const g = useMemo(() => {
     const group = new THREE.Group();
     const mats = getMaterials();
-    const trees = createTrees([
-      ...treeLine(-320, 160, 300, 7, 14, 24, 1),
-      ...treeLine(150, 460, 230, 7, 13, 22, 2),
-      ...treeLine(-460, -180, -260, 7, 14, 22, 3),
-      ...treeLine(-200, 200, 380, 6, 15, 26, 4, 'z').map((t) => ({ ...t, x: t.x - 380 })),
-    ]);
-    group.add(trees.group);
-    group.userData.dispose = trees.dispose;
     // silo
     const silo = new THREE.Group();
     for (let i = 0; i < 3; i++) {
@@ -269,10 +128,7 @@ function FieldTractor() {
 
 export default function FieldScene() {
   const { scene } = useThree();
-  const quality = useStore((s) => s.quality);
   const stubble = useStore((s) => s.stubble);
-  const config = useStore((s) => s.config);
-  const width = useMemo(() => computeLayout(config).barLength, [config]);
   const ground = useMemo(() => createGroundMaterial({ straw: stubble === 'soy' ? 0.75 : 0.95 }), [stubble]);
   useEffect(() => () => ground.material.dispose(), [ground]);
   useEffect(() => {
@@ -285,7 +141,6 @@ export default function FieldScene() {
     ground.uniforms.uOffset.value = runtime.distance;
     runtime.frames++;
   });
-  const count = quality === 'high' ? 40000 : quality === 'medium' ? 20000 : 6000;
   const base = import.meta.env.BASE_URL;
   return (
     <>
@@ -295,7 +150,6 @@ export default function FieldScene() {
       <mesh rotation-x={-Math.PI / 2} receiveShadow material={ground.material}>
         <planeGeometry args={[900, 900, 1, 1]} />
       </mesh>
-      <Stubble kind={stubble} width={width} count={count} />
       <SowingSim />
       <FieldTractor />
       <Horizon />

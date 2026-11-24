@@ -8,7 +8,6 @@ import { KeyLight } from './StudioScene';
 import { createGroundMaterial, loadTex } from './ground';
 import { Tractor, TRACTOR } from './Tractor';
 import { computeLayout, DIM } from '../machines/seeder/layout';
-import { createTrees, treeLine } from './trees';
 
 const ROAD_W = 7.3;
 const SHOULDER = 1.6;
@@ -84,18 +83,12 @@ export default function RoadScene() {
     ground.uniforms.uOffset.value = r.d;
     if (dashGroup.current) dashGroup.current.position.z = -(r.d % 12);
     if (signGroup.current) signGroup.current.position.z = 60 - (r.d % 140);
-    if (treeGroup.current) treeGroup.current.position.z = -(r.d % 320);
     m?.spinTransportWheels(r.d);
     runtime.invalidate();
   });
   const L = computeLayout(config);
   const machineX = L.transport === 'longitudinal' ? (DIM.rowFrontZ + DIM.rowRearZ) / 2 : 0;
   const roadX = machineX - ROAD_W / 4;
-  // cortina de eucaliptos al costado de la ruta (se recicla en loop con el avance)
-  const trees = useMemo(() => createTrees([...treeLine(-160, 160, 0, 6.5, 13, 22, 11, 'z')], 3), []);
-  useEffect(() => () => trees.dispose(), [trees]);
-  const treeCopies = useMemo(() => [0, 1, 2, 3, 4].map(() => trees.group.clone()), [trees]);
-  const treeGroup = useRef<THREE.Group>(null);
   const dashes = useMemo(() => {
     const out: number[] = [];
     for (let z = -300; z < 300; z += 12) out.push(z);
@@ -138,18 +131,6 @@ export default function RoadScene() {
         <mesh position={[0, 2.3, 0]} rotation={[0, -0.4, Math.PI / 4]} material={mats.yellow}>
           <boxGeometry args={[0.7, 0.7, 0.03]} />
         </mesh>
-      </group>
-      <group ref={treeGroup}>
-        <group position-x={roadX + ROAD_W / 2 + SHOULDER + 18}>
-          <primitive object={trees.group} />
-          <primitive object={treeCopies[0]} position-z={320} />
-          <primitive object={treeCopies[1]} position-z={-320} />
-        </group>
-        <group position-x={roadX - ROAD_W / 2 - SHOULDER - 26} rotation-y={Math.PI}>
-          <primitive object={treeCopies[2]} />
-          <primitive object={treeCopies[3]} position-z={320} />
-          <primitive object={treeCopies[4]} position-z={-320} />
-        </group>
       </group>
       <RoadTractor />
     </>

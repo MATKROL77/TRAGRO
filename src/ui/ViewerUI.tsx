@@ -23,7 +23,6 @@ export function ViewerToolbar() {
   const showTractor = useStore((s) => s.showTractor);
   const showHotspots = useStore((s) => s.showHotspots);
   const autoFocus = useStore((s) => s.autoFocus);
-  const stubble = useStore((s) => s.stubble);
   const st = useStore.getState;
   const [camOpen, setCamOpen] = useState(false);
   const [moreOpen, setMoreOpen] = useState(false);
@@ -78,7 +77,7 @@ export function ViewerToolbar() {
           <span className="tb-label">{t('toolbar.cameras')}</span>
         </button>
         {camOpen && (
-          <div className="pop pop-down" role="menu">
+          <div className="pop pop-up" role="menu">
             {PRESETS.filter((p) => p !== 'ground' || scene === 'field').map((p) => (
               <button key={p} role="menuitem" type="button" onClick={() => { st().requestCam(p); setCamOpen(false); touchInteraction(); }}>
                 {t(`toolbar.cam.${p}`)}
@@ -123,14 +122,10 @@ export function ViewerToolbar() {
           <IconMore size={17} />
         </button>
         {moreOpen && (
-          <div className="pop pop-down pop-right" role="menu">
+          <div className="pop pop-up pop-right" role="menu">
             <label className="pop-check"><input type="checkbox" checked={showTractor} onChange={() => st().toggle('showTractor')} /> {t('toolbar.tractor')}</label>
             <label className="pop-check"><input type="checkbox" checked={showHotspots} onChange={() => st().toggle('showHotspots')} /> {t('toolbar.hotspots')}</label>
             <label className="pop-check"><input type="checkbox" checked={autoFocus} onChange={() => st().toggle('autoFocus')} /> {t('toolbar.autoFocus')}</label>
-            <div className="pop-sep" />
-            {(['wheat', 'soy', 'maize'] as const).map((k) => (
-              <label key={k} className="pop-check"><input type="radio" name="stubble" checked={stubble === k} onChange={() => st().setStubble(k)} /> {t(`toolbar.stubble.${k}`)}</label>
-            ))}
           </div>
         )}
       </div>

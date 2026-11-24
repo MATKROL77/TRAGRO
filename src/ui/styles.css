@@ -634,3 +634,25 @@ input[type='range'] { accent-color: var(--primary); }
   .pcard .ph-actions { border-top: 0; padding: 6px 14px 10px; }
 }
 .price-float .price-head.pcard { background: rgba(247, 245, 241, 0.98); box-shadow: 0 6px 24px rgba(27, 39, 71, 0.12); }
+
+/* ---------- controles abajo, precio arriba a la izquierda ---------- */
+.topbar { top: auto; bottom: 14px; left: 12px; right: 190px; }
+.pop-up { top: auto; bottom: calc(100% + 10px); }
+.price-float { top: 14px; bottom: auto; left: 14px; }
+.sim { top: 14px; left: auto; right: 14px; }
+.toast-zone { top: 14px; right: 14px; }
+.hs-card { top: auto; bottom: 84px; left: 14px; }
+.detail-legend { top: auto; bottom: 84px; left: 14px; }
+@media (max-width: 1100px) {
+  .topbar { right: 12px; bottom: 74px; }
+}
+@media (max-width: 900px) {
+  .topbar { bottom: 10px; top: auto; left: 0; right: 0; }
+  .sim { top: 10px; right: 10px; left: auto; }
+  .toast-zone { top: 10px; }
+  .compare-fab { top: 10px; bottom: auto; right: 10px; }
+  .hs-card, .detail-legend { bottom: 70px; }
+}
+.topbar { right: auto; left: 0; right: 0; margin: 0 auto; flex-wrap: nowrap; max-width: calc(100% - 200px); transform: translateX(-80px); }
+@media (max-width: 1100px) { .topbar { transform: none; max-width: calc(100% - 24px); } }
+@media (max-width: 900px) { .topbar { transform: none; max-width: calc(100% - 16px); } }
