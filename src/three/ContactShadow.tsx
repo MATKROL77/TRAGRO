@@ -23,7 +23,7 @@ interface Props {
  * modelo (cámara ortográfica desde el piso + desenfoque) y reutiliza siempre los
  * mismos buffers: no pierde memoria al reconstruir.
  */
-export function ContactShadow({ size = [30, 12], far = 1.1, resolution = 512, blur = 3.2, opacity = 0.5, color = '#1b1d21', y = 0.004, version }: Props) {
+export function ContactShadow({ size = [30, 12], far = 1.1, resolution = 512, blur = 3.2, opacity = 0.5, color = '#2a241d', y = 0.004, version }: Props) {
   const gl = useThree((s) => s.gl);
   const scene = useThree((s) => s.scene);
   const invalidate = useThree((s) => s.invalidate);

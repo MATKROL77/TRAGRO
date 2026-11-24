@@ -3,7 +3,7 @@
 Demo comercial de un configurador 3D en tiempo real para fabricantes de semirremolques y acoplados.
 El comprador arma su equipo (tolva cerealera, batea volcadora, plataforma con barandas o furgón/sider), lo ve con los colores y el logo de su flota, sabe cuánto carga legalmente y cuánto cuesta, y pide la cotización por WhatsApp o mail con un PDF profesional.
 
-> **Todo es de demostración.** La marca "Metalúrgica Pampa" es ficticia. Precios, pesos, plazos y valores de normativa son de ejemplo y se editan en archivos JSON. Ver [`NOTAS.md`](./NOTAS.md).
+> **Todo es de demostración.** La marca por defecto es "Umbral_exp" y sus datos de contacto son de ejemplo. Precios, pesos, plazos y valores de normativa también son de ejemplo y se editan en archivos JSON. Ver [`NOTAS.md`](./NOTAS.md).
 
 ## Qué incluye
 

@@ -253,7 +253,7 @@ export function Viewer() {
         frameloop="demand"
         gl={{ antialias: false, powerPreference: 'high-performance', toneMapping: THREE.NoToneMapping, stencil: false, alpha: false }}
         camera={{ fov: FOV, near: 0.25, far: 900, position: [12, 4.2, 12.5] }}
-        onCreated={({ gl }) => gl.setClearColor('#cfd2d6')}
+        onCreated={({ gl }) => gl.setClearColor('#e3ddd3')}
       >
         <AdaptiveQuality mobile={mobile} />
         <Suspense fallback={null}>

@@ -103,7 +103,8 @@ export async function buildQuotePdf(input: QuoteInput): Promise<QuotePdf> {
   const numero = configHash(config);
   const price = priceBreakdown(config);
   const specs = computeSpecs(config);
-  const accent = hexToRgb(brand.colores.acento ?? '#F2A900');
+  const accent = hexToRgb(brand.colores.acento ?? '#1B2A4A');
+  const onAccent = hexToRgb(brand.colores.acentoTexto ?? '#FFFFFF');
   const logo = await rasterLogo(brand.logoClaro);
   const other = moneda === 'USD' ? 'ARS' : 'USD';
 
@@ -233,12 +234,12 @@ export async function buildQuotePdf(input: QuoteInput): Promise<QuotePdf> {
   let cx = M;
   cards.forEach((c, i) => {
     const w = i === 0 ? firstW : restW;
-    if (c.hi) doc.setFillColor(INK[0], INK[1], INK[2]);
+    if (c.hi) doc.setFillColor(accent[0], accent[1], accent[2]);
     else doc.setFillColor(SOFT[0], SOFT[1], SOFT[2]);
     doc.roundedRect(cx, y, w, cardH, 1.5, 1.5, 'F');
-    font(6.8, true, c.hi ? [200, 205, 212] : MUTED);
+    font(6.8, true, c.hi ? onAccent : MUTED);
     doc.text(wrap(c.k.toUpperCase(), w - 8).slice(0, 2), cx + 4, y + 5.6);
-    font(c.hi ? 14 : 12, true, c.hi ? accent : INK);
+    font(c.hi ? 14 : 12, true, c.hi ? onAccent : INK);
     doc.text(c.v, cx + 4, y + 14.6);
     cx += w + gap;
   });
@@ -333,11 +334,11 @@ export async function buildQuotePdf(input: QuoteInput): Promise<QuotePdf> {
   // Total.
   ensure(26);
   y += 2;
-  doc.setFillColor(INK[0], INK[1], INK[2]);
+  doc.setFillColor(accent[0], accent[1], accent[2]);
   doc.roundedRect(M, y, CW, 13, 1.5, 1.5, 'F');
-  font(9.5, true, [235, 237, 240]);
+  font(9.5, true, onAccent);
   doc.text(`${t('pdf.total')} (${t('pdf.sinIva')})`, M + 4, y + 8.2);
-  font(14, true, accent);
+  font(14, true, onAccent);
   doc.text(hidePrices ? t('pdf.precioAConsultar') : money(price.totalUsd), W - M - 4, y + 8.8, { align: 'right' });
   y += 16;
   if (!hidePrices) {
