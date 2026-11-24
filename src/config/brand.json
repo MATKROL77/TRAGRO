@@ -2,7 +2,12 @@
   "_demo": "Marca FICTICIA de demostración. Reemplazar por la del fabricante.",
   "name": "Umbral_exp",
   "short": "UX",
-  "tagline": { "es-AR": "Sembradoras de siembra directa", "en": "No-till precision planters", "pt-BR": "Plantadeiras de plantio direto", "ru": "Сеялки прямого посева" },
+  "tagline": {
+    "es-AR": "By Matias Colimodio",
+    "en": "By Matias Colimodio",
+    "pt-BR": "By Matias Colimodio",
+    "ru": "By Matias Colimodio"
+  },
   "logo": "/brand/logo.svg",
   "colors": {
     "primary": "#1E4D5C",
@@ -12,15 +17,33 @@
     "paper": "#F4F2EE"
   },
   "machinePalette": [
-    { "ral": "brand", "hex": "#1E4D5C", "name": "Azul petróleo SP" },
-    { "ral": "brand-accent", "hex": "#E8792B", "name": "Naranja SP" }
+    {
+      "ral": "brand",
+      "hex": "#1E4D5C",
+      "name": "Azul petróleo SP"
+    },
+    {
+      "ral": "brand-accent",
+      "hex": "#E8792B",
+      "name": "Naranja SP"
+    }
   ],
   "whatsapp": "5493424000000",
   "email": "ventas@umbralexp.example",
   "phone": "+54 342 400-0000",
   "web": "umbralexp.example",
   "address": "Parque Industrial (demo) · Santa Fe · Argentina",
-  "pdfFooter": { "es-AR": "Umbral_exp es una marca ficticia de demostración.", "en": "Umbral_exp is a fictitious demo brand.", "pt-BR": "Umbral_exp é uma marca fictícia de demonstração.", "ru": "Umbral_exp — вымышленная демонстрационная марка." },
-  "languages": ["es-AR", "en", "pt-BR", "ru"],
+  "pdfFooter": {
+    "es-AR": "Umbral_exp es una marca ficticia de demostración.",
+    "en": "Umbral_exp is a fictitious demo brand.",
+    "pt-BR": "Umbral_exp é uma marca fictícia de demonstração.",
+    "ru": "Umbral_exp — вымышленная демонстрационная марка."
+  },
+  "languages": [
+    "es-AR",
+    "en",
+    "pt-BR",
+    "ru"
+  ],
   "defaultLanguage": "es-AR"
 }

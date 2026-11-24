@@ -519,3 +519,21 @@ input[type='range'] { accent-color: var(--primary); }
   .price-head .seg-mini button { padding: 0 8px; }
   .ph-kpis { font-size: 12px; }
 }
+
+/* ---------- precio mínimo ---------- */
+.btn-xs { min-height: 34px; padding: 0 14px; font-size: 13px; }
+.price-head { display: flex; flex-direction: column; gap: 6px; }
+.price-head .ph-actions { display: flex; gap: 6px; margin: 0; }
+.price-float { max-width: none; width: auto; }
+.price-float .price-head { align-items: flex-end; }
+.price-float .ph-amount { font-size: clamp(24px, 2.4vw, 32px); cursor: help; }
+.sum-meta { align-items: center; }
+@media (max-width: 900px) {
+  .price-head { flex-direction: row; align-items: center; justify-content: space-between; padding: 10px 14px; }
+  .price-head .ph-amount { font-size: 22px; }
+}
+.ph-amount { white-space: nowrap; }
+@media (max-width: 900px) {
+  .price-head .ph-amount { font-size: 20px; }
+  .price-head .btn-xs { padding: 0 10px; font-size: 12.5px; white-space: nowrap; }
+}

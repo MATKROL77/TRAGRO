@@ -41,7 +41,9 @@ test.describe('flujo completo', () => {
     await page.getByLabel('Idioma').selectOption('en');
     await expect(page.getByRole('button', { name: 'Request a quote' })).toBeVisible();
     await page.getByRole('radio', { name: 'Imperial' }).click();
-    await expect(page.locator('.bb-kpis')).toContainText('ft');
+    await page.getByRole('tab', { name: 'Performance' }).click();
+    await expect(page.locator('.kpi-grid')).toContainText('ft');
+    await page.getByRole('tab', { name: 'Configure' }).click();
 
     // Plegar para transporte
     await act(page, 'window.__sp.runtime.timeScale = 30');
@@ -75,7 +77,9 @@ test.describe('flujo completo', () => {
     await page2.waitForFunction(() => !!(window as any).__sp);
     await page2.getByRole('button', { name: 'Summary' }).click();
     await expect(page2.locator('.sum-meta strong')).toHaveText(number);
-    await expect(page2.locator('.bb-kpis')).toContainText('ft');
+    await page2.keyboard.press('Escape');
+    await page2.getByRole('tab', { name: 'Performance' }).click();
+    await expect(page2.locator('.kpi-grid')).toContainText('ft');
     expect(errors).toEqual([]);
   });
 

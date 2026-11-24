@@ -76,6 +76,13 @@ export default function SummaryModal() {
     >
       <div className="sum-meta">
         <span>{t('summary.configNumber')} <strong>{summary.number}</strong></span>
+        <span className="seg seg-mini" role="radiogroup" aria-label={t('price.destination')}>
+          {(['local', 'export'] as const).map((d) => (
+            <button key={d} type="button" role="radio" aria-checked={s.destination === d} className={s.destination === d ? 'is-selected' : ''} onClick={() => s.setDestination(d)}>
+              {t(`price.${d}`)}
+            </button>
+          ))}
+        </span>
         <span>{t('summary.date')}: {formatDate(new Date(), s.lang)}</span>
       </div>
       <div className="sum-renders" aria-busy={!renders}>
