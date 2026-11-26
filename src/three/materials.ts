@@ -134,6 +134,14 @@ function addLivery(mat: THREE.MeshStandardMaterial, u: LiveryUniforms): void {
   mat.customProgramCacheKey = () => 'livery-v1';
 }
 
+/** Textura de 1×1 para que un material nazca "con mapa" y cambiarlo después no recompile el shader. */
+function placeholder(rgba: [number, number, number, number], srgb = true): THREE.DataTexture {
+  const t = new THREE.DataTexture(new Uint8Array(rgba), 1, 1);
+  if (srgb) t.colorSpace = THREE.SRGBColorSpace;
+  t.needsUpdate = true;
+  return t;
+}
+
 export function createMaterials(): MaterialLibrary {
   const wear = wearRoughness();
   const panelN = panelNormal();
@@ -189,7 +197,7 @@ export function createMaterials(): MaterialLibrary {
     bodyInner,
     chassisPaint,
     blackSteel: std({ color: '#17181a', roughness: 0.55, metalness: 0.25, roughnessMap: wear }),
-    galvanized: std({ color: '#aab0b5', roughness: 0.55, metalness: 0.85, roughnessMap: galvanizedRoughness() }),
+    galvanized: std({ color: '#aab0b5', map: placeholder([255, 255, 255, 255]), roughness: 0.55, metalness: 0.85, roughnessMap: galvanizedRoughness() }),
     alu: std({ color: '#d9dcde', roughness: 0.16, metalness: 1 }),
     aluBrushed: std({ color: '#c3c7ca', roughness: 0.42, metalness: 0.9, roughnessMap: wear }),
     chrome: std({ color: '#f1f2f3', roughness: 0.06, metalness: 1 }),
@@ -215,7 +223,7 @@ export function createMaterials(): MaterialLibrary {
     tireSingle: tire('385/65 R22.5'),
     rimSteel: phys({ color: '#b9bcc0', roughness: 0.42, metalness: 0.55, clearcoat: 0.4, clearcoatRoughness: 0.3, roughnessMap: wear, side: THREE.DoubleSide }),
     rimAlu: std({ color: '#e3e5e7', roughness: 0.14, metalness: 1, side: THREE.DoubleSide }),
-    flapPrint: std({ color: '#ffffff', roughness: 0.9, metalness: 0, transparent: true, alphaTest: 0.35 }),
+    flapPrint: std({ color: '#ffffff', map: placeholder([0, 0, 0, 0]), roughness: 0.9, metalness: 0, transparent: true, alphaTest: 0.35 }),
     glass: phys({ color: '#aab7bf', roughness: 0.05, metalness: 0, transmission: 0, transparent: true, opacity: 0.35 }),
   };
 

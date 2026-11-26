@@ -107,14 +107,14 @@ export function CameraRig() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [ready]);
 
-  // Reencuadre al cambiar el tamaño del visor o el tipo/largo del equipo.
-  const tipo = useStore((s) => s.config.tipo);
-  const largo = useStore((s) => s.config.sel.largo);
-  const alto = useStore((s) => s.config.sel.alto);
+  // Reencuadre al cambiar el tamaño del visor o las medidas del equipo (cuando el modelo nuevo ya está armado:
+  // la geometría llega del worker un instante después del cambio de opción).
+  const modelVersion = useStore((s) => s.modelVersion);
   const tractor = useStore((s) => s.ui.tractor);
   const lastFrame = useRef('');
   useEffect(() => {
-    const key = `${tipo}|${largo}|${alto}|${tractor}|${Math.round(aspect * 20)}`;
+    const L = currentModel.value?.layout;
+    const key = `${L?.tipo}|${L?.L}|${L?.totalHeight}|${tractor}|${Math.round(aspect * 20)}`;
     if (lastFrame.current === '') {
       lastFrame.current = key;
       return;
@@ -129,7 +129,7 @@ export function CameraRig() {
     });
     return () => cancelAnimationFrame(id);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [tipo, largo, alto, tractor, aspect]);
+  }, [modelVersion, tractor, aspect]);
 
   // Cada paso tiene su cámara (apunta a lo que se está editando).
   const paso = useStore((s) => s.ui.paso);
@@ -224,7 +224,7 @@ export function CameraRig() {
     // Con frameloop "demand" el delta del reloj puede ser enorme: se usa tiempo real acotado.
     const wall = Math.min(2.5, (now - lastTick.current) / 1000);
     lastTick.current = now;
-    const dt = Math.min(rawDt, 0.05);
+    const dt = Math.min(rawDt, 0.1);
     clock.current += wall;
 
     if (dragging.current || rotating.current || transition.current) markActive();
@@ -285,7 +285,7 @@ export function CameraRig() {
     // Modo inactivo: rotación lenta y cinematográfica.
     const st = useStore.getState();
     idle.current += wall;
-    const canIdle = !st.ui.reducedMotion && st.ready && !st.ui.modal && !st.activeHotspot && !home.current;
+    const canIdle = !st.ui.reducedMotion && st.ready && !st.ui.modal && !st.activeHotspot && !home.current && !(window as unknown as { __benchRec?: boolean }).__benchRec;
     if (canIdle && idle.current > IDLE_AFTER) {
       if (!rotating.current) {
         rotating.current = true;
@@ -305,6 +305,7 @@ export function CameraRig() {
     <OrbitControls
       ref={controls}
       makeDefault
+      regress
       enableDamping
       dampingFactor={0.085}
       rotateSpeed={0.72}

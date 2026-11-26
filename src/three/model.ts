@@ -12,6 +12,10 @@ import { buildBatea } from './bodies/batea';
 import { buildPlataforma } from './bodies/plataforma';
 import { buildFurgon } from './bodies/furgon';
 import { Assembly } from './kit/asm';
+import { geoMode } from './kit/geo';
+import { applyBuffers, type ModelBuffers } from './kit/buffers';
+
+export type { BucketData, ModelBuffers } from './kit/buffers';
 import type { MaterialSet } from './materials';
 import { buildAccessories } from './parts/accessories';
 import { buildLandingGear, buildPerimeterFrame, buildRearEnd, buildSideMarking, buildTwinRailChassis } from './parts/chassis';
@@ -20,6 +24,8 @@ import { createWheelSet, type WheelPose } from './parts/wheels';
 
 export interface TrailerModel {
   root: THREE.Group;
+  /** Clave de geometría con la que se armó. */
+  key: string;
   layout: Layout;
   anchors: Record<string, [number, number, number]>;
   livery: BuildCtx['livery'];
@@ -28,6 +34,9 @@ export interface TrailerModel {
   update: (a: AnimState) => void;
   /** true mientras haya partículas u otra animación propia en curso. */
   isBusy: () => boolean;
+  setAluminium: (alu: boolean) => void;
+  /** Mallas fusionadas (para que el worker extraiga sus buffers). */
+  buckets: Map<string, THREE.Mesh>;
   dispose: () => void;
   stats: { triangles: number; meshes: number };
 }
@@ -35,14 +44,39 @@ export interface TrailerModel {
 /** Campos de la configuración que afectan la geometría (los colores no). */
 export function geometryKey(cfg: Config): string {
   const s = cfg.sel;
-  const keys = ['largo', 'alto', 'ejes', 'suspension', 'ruedas', 'llantas', 'ejeElevable', 'bocas', 'accionamientoLona', 'porton', 'cobertor', 'piso', 'modulosBaranda', 'amarre', 'variante', 'parantes', 'tablillas', 'techo', 'tensado', 'pisoFurgon', 'puertas', 'cajon', 'portaauxilio', 'tanqueAgua', 'matafuego', 'pasarela', 'lucesLed', 'faldones'];
+  // Las llantas (acero / aluminio) solo cambian el material: no forman parte de la clave.
+  const keys = ['largo', 'alto', 'ejes', 'suspension', 'ruedas', 'ejeElevable', 'bocas', 'accionamientoLona', 'porton', 'cobertor', 'piso', 'modulosBaranda', 'amarre', 'variante', 'parantes', 'tablillas', 'techo', 'tensado', 'pisoFurgon', 'puertas', 'cajon', 'portaauxilio', 'tanqueAgua', 'matafuego', 'pasarela', 'lucesLed', 'faldones'];
   return cfg.tipo + '|' + keys.map((k) => s[k] ?? '').join('|');
 }
 
 const SUSP_TRAVEL = 0.055;
 const LEG_RETRACT = 0.3;
 
-export function buildTrailer(cfg: Config, mats: MaterialSet): TrailerModel {
+/**
+ * Arma el modelo. Sin `buffers` genera todo en el acto (carga inicial, worker).
+ * Con `buffers` (llegados del worker) corre en modo esqueleto: solo nodos, pivotes,
+ * animaciones y piezas animadas en CPU; las mallas fusionadas toman la geometría
+ * ya generada. Así un cambio de opción no traba el hilo principal.
+ */
+export function buildTrailer(cfg: Config, mats: MaterialSet, buffers?: ModelBuffers): TrailerModel {
+  if (!buffers) return buildTrailerImpl(cfg, mats);
+  geoMode.stub = true;
+  let m: TrailerModel;
+  try {
+    m = buildTrailerImpl(cfg, mats);
+  } finally {
+    geoMode.stub = false;
+  }
+  try {
+    m.stats.triangles = applyBuffers(m.buckets, buffers);
+  } catch (e) {
+    m.dispose();
+    throw e;
+  }
+  return m;
+}
+
+function buildTrailerImpl(cfg: Config, mats: MaterialSet): TrailerModel {
   const L = computeLayout(cfg);
   const asm = new Assembly();
   asm.node('sprung', 'root', [0, 0, 0]);
@@ -132,6 +166,9 @@ export function buildTrailer(cfg: Config, mats: MaterialSet): TrailerModel {
 
   return {
     root: built.root,
+    key: geometryKey(cfg),
+    buckets: built.buckets,
+    setAluminium: (alu: boolean) => wheels.setAluminium(alu),
     layout: L,
     anchors: ctx.anchors,
     livery: ctx.livery,

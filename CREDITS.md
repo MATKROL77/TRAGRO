@@ -43,6 +43,9 @@ No son assets gráficos, pero se distribuyen con el build:
 | Archivo | Qué es | Origen | Licencia |
 |---|---|---|---|
 | `public/basis/basis_transcoder.js`, `public/basis/basis_transcoder.wasm` | Transcodificador Basis Universal que usa `KTX2Loader` | Copiado de `three/examples/jsm/libs/basis/` (three.js r170) — Binomial LLC | Apache 2.0 |
+| `public/detect-gpu/*.json` | Tablas de rendimiento de GPUs para elegir el nivel de calidad inicial | Copiado de `detect-gpu/dist/benchmarks` (pmndrs/detect-gpu 5.0.70) | MIT |
+
+El panel de rendimiento de `?debug=1` usa [r3f-perf](https://github.com/utsuboco/r3f-perf) (MIT), que solo se descarga con ese parámetro.
 
 ## Tipografías
 

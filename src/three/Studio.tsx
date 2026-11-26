@@ -3,9 +3,17 @@ import * as THREE from 'three';
 import { Environment, Lightformer } from '@react-three/drei';
 import { ContactShadow } from './ContactShadow';
 import { useStore } from '@/state/store';
+import { tierSettings } from '@/render-kit/quality/tiers';
 
 /** En celulares el HDRI del estudio va a 256 px (131 KB en lugar de 390 KB). */
 const SMALL = typeof window !== 'undefined' && !!window.matchMedia?.('(max-width: 900px), (pointer: coarse)').matches;
+
+/**
+ * Tamaño del cubo de entorno: igual al del exterior (PMREM de un HDRI de 1k = 256).
+ * Con el mismo tamaño, los materiales del equipo usan los mismos shaders en las dos
+ * escenas y el cambio de escena no compila nada.
+ */
+const ENV_CUBE = 256;
 
 export const STUDIO_BG_TOP = '#d6cfc3';
 export const STUDIO_BG_BOTTOM = '#e9e4db';
@@ -51,18 +59,19 @@ function Floor({ color }: { color: string }) {
   );
 }
 
-export function Studio() {
+export function Studio({ visible = true }: { visible?: boolean }) {
   // La sombra de contacto se recalcula solo cuando cambia el modelo (un único render).
   const version = useStore((s) => s.modelVersion);
   const calidad = useStore((s) => s.ui.calidad);
-  const shadowSize = calidad === 'baja' ? 1024 : 2048;
+  const shadowSize = tierSettings(calidad).shadowMapSize;
+  // Siempre montado: al volver de otra escena no se descarga ni se vuelve a prefiltrar el entorno.
   return (
-    <>
-      <ContactShadow version={version} />
+    <group name="studio" visible={visible}>
+      <ContactShadow version={version} active={visible} />
       <Backdrop top={STUDIO_BG_TOP} bottom={STUDIO_BG_BOTTOM} />
       <Floor color="#d8d1c5" />
       {/* HDRI de estudio local + softboxes para dibujar reflejos largos sobre la caja. */}
-      <Environment files={SMALL ? '/assets/hdri/studio_256.hdr' : '/assets/hdri/studio_512.hdr'} resolution={SMALL ? 256 : 512} frames={1} environmentIntensity={0.62} environmentRotation={[0, Math.PI * 0.62, 0]}>
+      <Environment files={SMALL ? '/assets/hdri/studio_256.hdr' : '/assets/hdri/studio_512.hdr'} resolution={ENV_CUBE} frames={1} environmentIntensity={0.62} environmentRotation={[0, Math.PI * 0.62, 0]}>
         <Lightformer form="rect" intensity={5} color="#ffffff" position={[0, 14, 0]} rotation-x={Math.PI / 2} scale={[34, 5, 1]} />
         <Lightformer form="rect" intensity={1.15} color="#fff4e6" position={[10, 6, 22]} rotation-y={Math.PI} scale={[26, 6, 1]} />
         <Lightformer form="rect" intensity={1.3} color="#e6eeff" position={[-24, 6, -4]} rotation-y={Math.PI / 2} scale={[16, 8, 1]} />
@@ -88,6 +97,6 @@ export function Studio() {
         shadow-camera-far={50}
       />
       <directionalLight position={[-12, 7, -9]} intensity={0.5} color="#dfe8ff" />
-    </>
+    </group>
   );
 }

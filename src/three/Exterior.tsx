@@ -7,13 +7,18 @@
  *
  * Se carga recién cuando el usuario pide "Exterior" (chunk aparte).
  */
-import { useLayoutEffect, useMemo } from 'react';
+import { useLayoutEffect } from 'react';
 import * as THREE from 'three';
 import { useThree } from '@react-three/fiber';
 import { RGBELoader } from 'three/examples/jsm/loaders/RGBELoader.js';
 import { mergeGeometries } from 'three/examples/jsm/utils/BufferGeometryUtils.js';
 import { fbm, grayTexture, makeCanvas, rng } from './kit/tex';
 import { loadKtx } from './ktx';
+import { compileObject, renderOffscreen, uploadTextures } from '@/render-kit/precompile/compile';
+import { whenIdle } from '@/render-kit/scheduling/idle';
+import { markSceneReady } from './sceneReady';
+import { useStore } from '@/state/store';
+import { tierSettings } from '@/render-kit/quality/tiers';
 
 const BASE = import.meta.env.BASE_URL;
 
@@ -530,79 +535,128 @@ function buildTreeLines(haze: HazeUniforms): { objects: THREE.Object3D[]; dispos
   };
 }
 
-export default function Exterior() {
+interface Built {
+  group: THREE.Group;
+  env: THREE.Texture;
+}
+
+let built: Built | null = null;
+let preparing: Promise<Built> | null = null;
+
+/** Arma el grupo de la escena (suelo, cielo, alambrado, postes, árboles, sol). Una sola vez por sesión. */
+function buildExterior(a: Assets): Built {
+  const haze: HazeUniforms = { uHaze: { value: hazeColor() }, uHazeDist: { value: HAZE_DIST } };
+  const macro = grayTexture(fbm(256, 99, 4, 5, 0.5), 256, 256);
+  const group = new THREE.Group();
+  group.name = 'exterior';
+
+  const skyGeo = new THREE.SphereGeometry(800, 48, 24);
+  const skyMat = makeSkyMaterial(a, haze);
+  const sky = new THREE.Mesh(skyGeo, skyMat);
+  sky.renderOrder = -10;
+  sky.frustumCulled = false;
+
+  const groundGeo = new THREE.CircleGeometry(WORLD_RADIUS, 72);
+  groundGeo.rotateX(-Math.PI / 2);
+  const groundMat = makeGroundMaterial(a, macro, haze);
+  const ground = new THREE.Mesh(groundGeo, groundMat);
+  ground.receiveShadow = true;
+  ground.frustumCulled = false;
+
+  const fence = buildFence(haze);
+  const poles = buildPoles(haze);
+  const trees = buildTreeLines(haze);
+  group.add(sky, ground, ...fence.objects, ...poles.objects, ...trees.objects);
+
+  // Sol: alineado con el HDRI, repone la energía del disco solar y proyecta sombras.
+  const sun = new THREE.DirectionalLight('#fff0d4', SUN_INTENSITY);
+  sun.position.copy(SUN_DIR).multiplyScalar(90).add(new THREE.Vector3(2, 0, 0));
+  sun.target.position.set(2, 0, 0);
+  sun.castShadow = true;
+  sun.shadow.mapSize.set(2048, 2048);
+  const cam = sun.shadow.camera;
+  cam.left = -18;
+  cam.right = 18;
+  cam.top = 13;
+  cam.bottom = -13;
+  cam.near = 20;
+  cam.far = 170;
+  cam.updateProjectionMatrix();
+  sun.shadow.bias = -0.00025;
+  sun.shadow.normalBias = 0.035;
+  sun.shadow.radius = 4;
+  // Rebote del cielo desde el lado opuesto al sol. Además deja la misma cantidad de luces que el
+  // estudio (una con sombra y una sin): los materiales del equipo usan los mismos shaders en las
+  // dos escenas y cambiar de escena no compila nada.
+  const fill = new THREE.DirectionalLight('#d6e2f2', 0.18);
+  fill.position.set(-SUN_DIR.x * 60, 40, -SUN_DIR.z * 60);
+  group.add(sun, sun.target, fill);
+  group.visible = false;
+  return { group, env: a.env };
+}
+
+/**
+ * Deja la escena lista sin mostrarla: descarga, arma, sube las texturas a la GPU y
+ * compila sus shaders con las luces de la escena real. Pensado para momentos ociosos.
+ */
+export function prepareExterior(gl: THREE.WebGLRenderer, camera: THREE.Camera): Promise<Built> {
+  if (built) return Promise.resolve(built);
+  if (!preparing) {
+    preparing = (async () => {
+      await preloadExterior(gl);
+      await whenIdle(1500);
+      const b = buildExterior(assets!);
+      await whenIdle(1500);
+      uploadTextures(gl, b.group, [b.env]);
+      await whenIdle(1500);
+      // Con las luces y el entorno de la propia escena (no las del estudio, que también están montadas).
+      const own = new THREE.Scene();
+      own.environment = b.env;
+      await compileObject(gl, camera, own, b.group);
+      await whenIdle(1500);
+      // Un cuadro oculto: compila también los shaders de sombra de la escena.
+      renderOffscreen(gl, b.group, camera);
+      built = b;
+      markSceneReady('exterior');
+      return b;
+    })();
+    preparing.catch(() => {
+      preparing = null;
+    });
+  }
+  return preparing;
+}
+
+export function isExteriorReady(): boolean {
+  return !!built;
+}
+
+/** La escena queda montada una vez armada: mostrarla u ocultarla no regenera nada. */
+export default function Exterior({ visible }: { visible: boolean }) {
   const scene = useThree((s) => s.scene);
   const invalidate = useThree((s) => s.invalidate);
+  const b = built;
 
-  const built = useMemo(() => {
-    const a = assets;
-    if (!a) return null;
-    const haze: HazeUniforms = { uHaze: { value: hazeColor() }, uHazeDist: { value: HAZE_DIST } };
-    const macro = grayTexture(fbm(256, 99, 4, 5, 0.5), 256, 256);
-    const group = new THREE.Group();
-    group.name = 'exterior';
-
-    const skyGeo = new THREE.SphereGeometry(800, 48, 24);
-    const skyMat = makeSkyMaterial(a, haze);
-    const sky = new THREE.Mesh(skyGeo, skyMat);
-    sky.renderOrder = -10;
-    sky.frustumCulled = false;
-
-    const groundGeo = new THREE.CircleGeometry(WORLD_RADIUS, 72);
-    groundGeo.rotateX(-Math.PI / 2);
-    const groundMat = makeGroundMaterial(a, macro, haze);
-    const ground = new THREE.Mesh(groundGeo, groundMat);
-    ground.receiveShadow = true;
-    ground.frustumCulled = false;
-
-    const fence = buildFence(haze);
-    const poles = buildPoles(haze);
-    const trees = buildTreeLines(haze);
-    group.add(sky, ground, ...fence.objects, ...poles.objects, ...trees.objects);
-
-    // Sol: alineado con el HDRI, repone la energía del disco solar y proyecta sombras.
-    const sun = new THREE.DirectionalLight('#fff0d4', SUN_INTENSITY);
-    sun.position.copy(SUN_DIR).multiplyScalar(90).add(new THREE.Vector3(2, 0, 0));
-    sun.target.position.set(2, 0, 0);
-    sun.castShadow = true;
-    sun.shadow.mapSize.set(2048, 2048);
-    const cam = sun.shadow.camera;
-    cam.left = -18;
-    cam.right = 18;
-    cam.top = 13;
-    cam.bottom = -13;
-    cam.near = 20;
-    cam.far = 170;
-    cam.updateProjectionMatrix();
-    sun.shadow.bias = -0.00025;
-    sun.shadow.normalBias = 0.035;
-    sun.shadow.radius = 4;
-    group.add(sun, sun.target);
-
-    if (import.meta.env.DEV) (window as unknown as { __ext?: unknown }).__ext = { skyMat, groundMat, sun, haze, scene };
-
-    return {
-      group,
-      env: a.env,
-      dispose: () => {
-        skyGeo.dispose();
-        skyMat.dispose();
-        groundGeo.dispose();
-        groundMat.dispose();
-        macro.dispose();
-        fence.dispose();
-        poles.dispose();
-        trees.dispose();
-        sun.shadow.map?.dispose();
-        sun.dispose();
-      },
-    };
-  }, [scene]);
+  // Mapa de sombras del sol según el nivel de calidad.
+  const shadowSize = useStore((st) => tierSettings(st.ui.calidad).shadowMapSize);
+  useLayoutEffect(() => {
+    const sun = b?.group.children.find((o) => (o as THREE.DirectionalLight).isDirectionalLight && o.castShadow) as THREE.DirectionalLight | undefined;
+    if (!sun || sun.shadow.mapSize.x === shadowSize) return;
+    sun.shadow.mapSize.set(shadowSize, shadowSize);
+    sun.shadow.map?.dispose();
+    sun.shadow.map = null;
+    invalidate();
+  }, [b, shadowSize, invalidate]);
 
   useLayoutEffect(() => {
-    if (!built) return;
+    if (!b) return;
+    b.group.visible = visible;
+    if (!visible) {
+      invalidate();
+      return;
+    }
     const prev = { env: scene.environment, intensity: scene.environmentIntensity, rotation: scene.environmentRotation.clone() };
-    scene.environment = built.env;
+    scene.environment = b.env;
     scene.environmentIntensity = ENV_INTENSITY;
     scene.environmentRotation.set(0, 0, 0);
     invalidate();
@@ -610,9 +664,9 @@ export default function Exterior() {
       scene.environment = prev.env;
       scene.environmentIntensity = prev.intensity;
       scene.environmentRotation.copy(prev.rotation);
-      built.dispose();
+      invalidate();
     };
-  }, [built, scene, invalidate]);
+  }, [b, visible, scene, invalidate]);
 
-  return built ? <primitive object={built.group} /> : null;
+  return b ? <primitive object={b.group} /> : null;
 }

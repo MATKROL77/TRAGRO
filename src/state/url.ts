@@ -49,6 +49,11 @@ export function initFromUrl(): Lang | null {
     // En pantallas táctiles los puntos de interés se prenden desde "···" (no hay hover).
     ui.hotspots = false;
   }
+  const calidad = q.get('calidad')?.toLowerCase();
+  if (calidad === 'alta' || calidad === 'media' || calidad === 'baja') {
+    ui.calidad = calidad;
+    ui.calidadFija = true;
+  }
   if (Object.keys(ui).length) st.setUi(ui);
 
   const code = q.get('c');

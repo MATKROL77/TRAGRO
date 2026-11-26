@@ -5,7 +5,7 @@
 import * as THREE from 'three';
 import type { BuildCtx } from '../build';
 import { stage } from '../build';
-import { bar, box, cyl, extrudeAlong, pipe, quad, rbox, rod, sheet, type P2 } from '../kit/geo';
+import { bar, box, cyl, extrudeAlong, pipe, quad, rbox, realGeometry, rod, sheet, type P2 } from '../kit/geo';
 import { RollTarp } from '../parts/tarp';
 
 const GATE_TRAVEL = 0.64;
@@ -163,6 +163,8 @@ export function buildTolva(ctx: BuildCtx): void {
   const drive = new THREE.Group();
   drive.name = 'tarpDrive';
   const half = (x1 - x0) / 2;
+  // Piezas sueltas que se animan con su propio nodo: siempre con geometría real.
+  realGeometry(() => {
   if (electric) {
     const motor = new THREE.Mesh(cyl(0.062, 0.22, 'x', half + 0.07, 0, 0, 16), mats.blackSteel);
     const cap = new THREE.Mesh(cyl(0.066, 0.03, 'x', half + 0.19, 0, 0, 16), mats.yellowPaint);
@@ -185,6 +187,7 @@ export function buildTolva(ctx: BuildCtx): void {
     const grip = new THREE.Mesh(cyl(0.02, 0.13, 'y', half + 0.24, -1.67, 0, 10), mats.rubber);
     drive.add(crank, grip);
   }
+  });
   drive.traverse((o) => {
     o.castShadow = true;
   });

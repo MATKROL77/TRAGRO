@@ -26,6 +26,8 @@ export default defineConfig({
       },
     },
   },
+  // Worker de geometría (three/buildWorker.ts) como módulo ES.
+  worker: { format: 'es' },
   server: { host: true, port: 5173 },
   preview: { host: true, port: 4173 },
   test: {

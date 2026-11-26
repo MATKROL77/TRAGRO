@@ -16,6 +16,8 @@ interface Props {
   y?: number;
   /** Cambiar este valor vuelve a calcular la sombra (un solo render). */
   version: number | string;
+  /** Con la escena oculta no se recalcula (quedaría manchada por otra escena); se hace al volver. */
+  active?: boolean;
 }
 
 /**
@@ -23,7 +25,7 @@ interface Props {
  * modelo (cámara ortográfica desde el piso + desenfoque) y reutiliza siempre los
  * mismos buffers: no pierde memoria al reconstruir.
  */
-export function ContactShadow({ size = [30, 12], far = 1.1, resolution = 512, blur = 3.2, opacity = 0.5, color = '#2a241d', y = 0.004, version }: Props) {
+export function ContactShadow({ size = [30, 12], far = 1.1, resolution = 512, blur = 3.2, opacity = 0.5, color = '#2a241d', y = 0.004, version, active = true }: Props) {
   const gl = useThree((s) => s.gl);
   const scene = useThree((s) => s.scene);
   const invalidate = useThree((s) => s.invalidate);
@@ -94,9 +96,13 @@ export function ContactShadow({ size = [30, 12], far = 1.1, resolution = 512, bl
     blurPlane.visible = false;
   };
 
+  useEffect(() => {
+    if (active && pending.current > 0) invalidate();
+  }, [active, invalidate]);
+
   useFrame(() => {
     const g = group.current;
-    if (!g || pending.current <= 0) return;
+    if (!g || pending.current <= 0 || !active) return;
     pending.current--;
     const { target, depth, camera } = res;
     const background = scene.background;

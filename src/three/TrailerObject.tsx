@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import * as THREE from 'three';
 import { useFrame, useThree } from '@react-three/fiber';
 import { brand, groupDef, ral } from '@/core/catalog';
@@ -8,8 +8,10 @@ import type { AnimState } from './build';
 import { upgradeMaterials } from './ktx';
 import { composeFlapPrint, composeLivery, liveryTexture } from './livery';
 import { materialLibrary } from './materialsLib';
-import { buildTrailer, geometryKey, type TrailerModel } from './model';
+import { buildTrailer, geometryKey, type ModelBuffers, type TrailerModel } from './model';
+import { requestBuffers, warmUpBuilder } from './modelBuilder';
 import { viewer } from './viewerApi';
+import { buildStats } from '@/render-kit/debug/frameStats';
 
 /** Modelo actual (para cámaras, hotspots y capturas). */
 export const currentModel: { value: TrailerModel | null } = { value: null };
@@ -33,14 +35,44 @@ export function TrailerObject() {
   const cfgRef = useRef(config);
   cfgRef.current = config;
 
-  const model = useMemo(() => {
-    void key;
+  // Armado inicial en el acto (pantalla de carga). Después, cada cambio de geometría se genera
+  // en un Web Worker y acá solo se arma el esqueleto: el hilo principal no se traba.
+  const build = (cfg: typeof config, buffers?: ModelBuffers | null): TrailerModel => {
     const t0 = performance.now();
-    const m = buildTrailer(cfgRef.current, lib.mats);
-    buildTimes.push(performance.now() - t0);
+    let m: TrailerModel;
+    try {
+      m = buildTrailer(cfg, lib.mats, buffers ?? undefined);
+    } catch (e) {
+      console.warn('[configurador] no se pudo usar la geometría del worker; se arma completa', e);
+      m = buildTrailer(cfg, lib.mats);
+    }
+    const ms = performance.now() - t0;
+    buildTimes.push(ms);
+    buildStats.count++;
+    buildStats.ms += ms;
     if (buildTimes.length > 400) buildTimes.shift();
     return m;
-  }, [key, lib]);
+  };
+  const [model, setModel] = useState<TrailerModel>(() => build(cfgRef.current));
+  const wanted = useRef(key);
+  useEffect(() => {
+    wanted.current = key;
+    if (model.key === key) return;
+    let cancelled = false;
+    const cfg = cfgRef.current;
+    void requestBuffers('trailer', cfg, key).then((buffers) => {
+      // Superado por otro cambio: se descarta.
+      if (cancelled || wanted.current !== key) return;
+      const m = build(cfg, buffers);
+      // Fundido cruzado: se congela el cuadro actual y se cambia el modelo.
+      viewer()?.crossfade();
+      setModel(m);
+    });
+    return () => {
+      cancelled = true;
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [key, model]);
 
   const anim = useRef<AnimState & { luces: number }>({ accion: 0, lona: 0, susp: 0, elevado: 1, patas: 0, luces: 0, time: 0, dt: 0 });
   const suspPulse = useRef(0);
@@ -55,6 +87,23 @@ export function TrailerObject() {
       model.dispose();
     };
   }, [model, invalidate]);
+
+  // Llantas de acero o aluminio: solo cambia el material de las llantas instanciadas.
+  const llantas = config.sel.llantas;
+  useEffect(() => {
+    model.setAluminium(llantas === 'aluminio');
+    invalidate();
+  }, [model, llantas, invalidate]);
+
+  // Worker de geometría listo (y caché precalentada) en cuanto el visor está ocioso.
+  const readyFlag = useStore((s) => s.ready);
+  useEffect(() => {
+    if (!readyFlag) return;
+    const w = window as unknown as { requestIdleCallback?: (cb: () => void, o?: { timeout: number }) => number };
+    const go = () => warmUpBuilder(cfgRef.current, geometryKey(cfgRef.current));
+    if (w.requestIdleCallback) w.requestIdleCallback(go, { timeout: 2500 });
+    else window.setTimeout(go, 800);
+  }, [readyFlag]);
 
   // Colores: solo cambian uniformes de material, con transición.
   const chasis = config.colores.chasis;
@@ -107,15 +156,15 @@ export function TrailerObject() {
       const tex = new THREE.CanvasTexture(canvas);
       tex.colorSpace = THREE.SRGBColorSpace;
       tex.anisotropy = 4;
+      gl.initTexture(tex);
       mat.map?.dispose();
       mat.map = tex;
-      mat.needsUpdate = true;
       invalidate();
     });
     return () => {
       cancelled = true;
     };
-  }, [flaps, logoData, lib, invalidate]);
+  }, [flaps, logoData, lib, gl, invalidate]);
 
   // Texturas KTX2: se cargan cuando el equipo ya está en pantalla.
   const ready = useStore((s) => s.ready);
@@ -142,7 +191,8 @@ export function TrailerObject() {
   useEffect(() => useStore.subscribe((s) => [s.anim, s.ui.tractor, s.ui.luces], () => invalidate(), { equalityFn: (a, b) => a[0] === b[0] && a[1] === b[1] && a[2] === b[2] }), [invalidate]);
 
   useFrame((_, rawDt) => {
-    const dt = Math.min(rawDt, 0.05);
+    // Delta acotado: al volver de una pestaña oculta no hay saltos.
+    const dt = Math.min(rawDt, 0.1);
     const st = useStore.getState();
     const a = anim.current;
     const reduced = st.ui.reducedMotion;
@@ -180,16 +230,4 @@ export function TrailerObject() {
   });
 
   return <primitive object={model.root} />;
-}
-
-/** Fundido cruzado cada vez que se reconstruye la geometría. */
-export function useGeometryCrossfade() {
-  useEffect(
-    () =>
-      useStore.subscribe(
-        (s) => geometryKey(s.config),
-        () => viewer()?.crossfade(),
-      ),
-    [],
-  );
 }

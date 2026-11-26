@@ -21,10 +21,18 @@ interface Bucket {
 export interface BuiltAssembly {
   root: THREE.Group;
   nodes: Record<string, THREE.Group>;
+  /** Mallas fusionadas por nodo y material ("nodo|material"): el worker devuelve su geometría con esta clave. */
+  buckets: Map<string, THREE.Mesh>;
   dispose: () => void;
   triangles: number;
   meshes: number;
 }
+
+/**
+ * Piezas chicas o planas que no aportan sombra visible: no entran en la pasada de
+ * sombras (menos draw calls por cuadro).
+ */
+const NO_SHADOW: MatKey[] = ['lensRed', 'lensAmber', 'lensWhite', 'reflex', 'plate', 'speed', 'flapPrint', 'glass'];
 
 /** Materiales cuya geometría lleva el atributo de proyección del logo/texto. */
 const LIVERY_MATS: MatKey[] = ['bodyPaint', 'lona'];
@@ -92,6 +100,7 @@ export class Assembly {
   build(mats: MaterialSet): BuiltAssembly {
     const groups: Record<string, THREE.Group> = {};
     const disposables: THREE.BufferGeometry[] = [];
+    const bucketMeshes = new Map<string, THREE.Mesh>();
     let triangles = 0;
     let meshes = 0;
 
@@ -125,9 +134,10 @@ export class Assembly {
       merged.computeBoundingBox();
       const mesh = new THREE.Mesh(merged, mats[b.mat]);
       mesh.name = `${b.node}:${b.mat}`;
-      mesh.castShadow = true;
+      mesh.castShadow = !NO_SHADOW.includes(b.mat);
       mesh.receiveShadow = true;
       groups[b.node].add(mesh);
+      bucketMeshes.set(`${b.node}|${b.mat}`, mesh);
       disposables.push(merged);
       triangles += merged.getAttribute('position').count / 3;
       meshes++;
@@ -145,10 +155,13 @@ export class Assembly {
     return {
       root: groups.root,
       nodes: groups,
+      buckets: bucketMeshes,
       triangles,
       meshes,
       dispose: () => {
         disposables.forEach((g) => g.dispose());
+        // Geometrías que llegaron del worker y reemplazaron a las del esqueleto.
+        bucketMeshes.forEach((m) => m.geometry.dispose());
         // Los InstancedMesh comparten geometría cacheada: solo se libera la instancia.
         extras.forEach((e) => (e.object as THREE.InstancedMesh).dispose?.());
       },

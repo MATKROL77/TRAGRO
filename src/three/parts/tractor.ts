@@ -6,7 +6,8 @@
 import * as THREE from 'three';
 import { toCreasedNormals } from 'three/examples/jsm/utils/BufferGeometryUtils.js';
 import { Assembly } from '../kit/asm';
-import { arcBand, bar, box, cyl, extrudeUp, pipe, rbox, sheet, type P2 } from '../kit/geo';
+import { arcBand, bar, box, cyl, extrudeUp, geoMode, pipe, rbox, sheet, stubGeometry, type P2 } from '../kit/geo';
+import { applyBuffers, type ModelBuffers } from '../kit/buffers';
 import type { MaterialSet } from '../materials';
 import { createWheelSet, wheelGeometry, type WheelPose } from './wheels';
 
@@ -26,11 +27,25 @@ export interface TractorOptions {
 
 export interface TractorModel {
   root: THREE.Group;
+  /** Clave de las opciones con las que se armó. */
+  key: string;
+  buckets: Map<string, THREE.Mesh>;
+  setAluminium: (alu: boolean) => void;
   dispose: () => void;
+}
+
+export function tractorKey(o: TractorOptions): string {
+  return [o.kingpinX, o.kingpinY, o.trailerFrontX, o.serviceY, o.axles, o.frontLength].map((v) => (typeof v === 'number' ? v.toFixed(3) : v)).join('|');
 }
 
 let cabPaint: THREE.MeshPhysicalMaterial | null = null;
 let cabGlass: THREE.MeshPhysicalMaterial | null = null;
+
+/** Materiales propios de la cabina (para precompilarlos junto con la biblioteca). */
+export function tractorMaterials(): THREE.Material[] {
+  const { paint, glass } = cabMaterials();
+  return [paint, glass];
+}
 
 function cabMaterials(): { paint: THREE.MeshPhysicalMaterial; glass: THREE.MeshPhysicalMaterial } {
   // Color neutro: no compite con el semi, que es el protagonista.
@@ -41,6 +56,7 @@ function cabMaterials(): { paint: THREE.MeshPhysicalMaterial; glass: THREE.MeshP
 
 /** Casco de la cabina: perfil lateral extruido a lo ancho, con aristas redondeadas y pasarrueda. */
 function cabShell(xB: number, axleX: number, wheelY: number): THREE.BufferGeometry {
+  if (geoMode.stub) return stubGeometry();
   const s = new THREE.Shape();
   const r = 0.7;
   const yBottom = 1.02;
@@ -75,7 +91,26 @@ function cabShell(xB: number, axleX: number, wheelY: number): THREE.BufferGeomet
   return g;
 }
 
-export function buildTractor(o: TractorOptions, mats: MaterialSet): TractorModel {
+/** Igual que el semi: sin `buffers` se arma completo; con `buffers` (del worker), solo el esqueleto. */
+export function buildTractor(o: TractorOptions, mats: MaterialSet, buffers?: ModelBuffers): TractorModel {
+  if (!buffers) return buildTractorImpl(o, mats);
+  geoMode.stub = true;
+  let m: TractorModel;
+  try {
+    m = buildTractorImpl(o, mats);
+  } finally {
+    geoMode.stub = false;
+  }
+  try {
+    applyBuffers(m.buckets, buffers);
+  } catch (e) {
+    m.dispose();
+    throw e;
+  }
+  return m;
+}
+
+function buildTractorImpl(o: TractorOptions, mats: MaterialSet): TractorModel {
   const asm = new Assembly();
   const { paint, glass } = cabMaterials();
   const kx = o.kingpinX;
@@ -269,6 +304,12 @@ export function buildTractor(o: TractorOptions, mats: MaterialSet): TractorModel
   built.root.name = 'tractor';
   return {
     root: built.root,
+    key: tractorKey(o),
+    buckets: built.buckets,
+    setAluminium: (alu) => {
+      wFront.setAluminium(alu);
+      wBack.setAluminium(alu);
+    },
     dispose: () => {
       built.dispose();
       wFront.dispose();

@@ -2,6 +2,28 @@
 import { configHash } from '@/core/serialize';
 import { useStore } from '@/state/store';
 import { viewer, type SnapshotOptions } from './viewerApi';
+import { geometryKey } from './model';
+import { currentModel } from './TrailerObject';
+
+/**
+ * Espera a que el modelo en pantalla corresponda a la configuración actual
+ * (la geometría de un cambio llega del worker un instante después). Tope: `maxMs`.
+ */
+export function whenModelCurrent(maxMs = 4000): Promise<void> {
+  const t0 = performance.now();
+  return new Promise((resolve) => {
+    const check = () => {
+      const key = geometryKey(useStore.getState().config);
+      if (currentModel.value?.key === key || performance.now() - t0 > maxMs) {
+        // Un cuadro más para que el modelo nuevo ya esté dibujado.
+        requestAnimationFrame(() => resolve());
+        return;
+      }
+      window.setTimeout(check, 50);
+    };
+    check();
+  });
+}
 
 export function snapshot(o: SnapshotOptions): string | null {
   try {

@@ -11,12 +11,46 @@ export type P2 = [number, number];
 
 const _m = new THREE.Matrix4();
 
+/**
+ * Modo esqueleto: las primitivas devuelven un triángulo vacío en lugar de la pieza.
+ * Lo usa el hilo principal para armar solo nodos, pivotes y animaciones mientras la
+ * geometría real se genera en un Web Worker (ver three/modelBuilder.ts).
+ */
+export const geoMode = { stub: false };
+
+/** Triángulo vacío (modo esqueleto). */
+export function stubGeometry(): THREE.BufferGeometry {
+  return stub();
+}
+
+function stub(): THREE.BufferGeometry {
+  const g = new THREE.BufferGeometry();
+  g.setAttribute('position', new THREE.BufferAttribute(new Float32Array(9), 3));
+  g.setAttribute('normal', new THREE.BufferAttribute(new Float32Array([0, 1, 0, 0, 1, 0, 0, 1, 0]), 3));
+  g.setAttribute('uv', new THREE.BufferAttribute(new Float32Array(6), 2));
+  g.userData.stub = true;
+  return g;
+}
+
+/** Ejecuta `fn` con geometría real aunque se esté armando el esqueleto (piezas que se animan en CPU). */
+export function realGeometry<T>(fn: () => T): T {
+  const prev = geoMode.stub;
+  geoMode.stub = false;
+  try {
+    return fn();
+  } finally {
+    geoMode.stub = prev;
+  }
+}
+
 export function box(w: number, h: number, d: number, x = 0, y = 0, z = 0): THREE.BufferGeometry {
+  if (geoMode.stub) return stub();
   return new THREE.BoxGeometry(w, h, d).translate(x, y, z);
 }
 
 /** Caja con aristas matadas (chaflán corto): las aristas agarran luz como en una pieza real. */
 export function rbox(w: number, h: number, d: number, x = 0, y = 0, z = 0, r = 0.008): THREE.BufferGeometry {
+  if (geoMode.stub) return stub();
   const rr = Math.min(r, w / 2.2, h / 2.2, d / 2.2);
   return new RoundedBoxGeometry(w, h, d, 1, rr).translate(x, y, z);
 }
@@ -33,6 +67,7 @@ export function boxBetween(x0: number, x1: number, y0: number, y1: number, z0: n
 }
 
 export function cyl(r: number, len: number, axis: Axis, x = 0, y = 0, z = 0, seg = 18, rTop?: number): THREE.BufferGeometry {
+  if (geoMode.stub) return stub();
   const g = new THREE.CylinderGeometry(rTop ?? r, r, len, seg, 1);
   if (axis === 'x') g.rotateZ(-Math.PI / 2);
   else if (axis === 'z') g.rotateX(Math.PI / 2);
@@ -41,6 +76,7 @@ export function cyl(r: number, len: number, axis: Axis, x = 0, y = 0, z = 0, seg
 
 /** Cilindro entre dos puntos cualesquiera. */
 export function rod(a: THREE.Vector3Like, b: THREE.Vector3Like, r: number, seg = 10): THREE.BufferGeometry {
+  if (geoMode.stub) return stub();
   const va = new THREE.Vector3(a.x, a.y, a.z);
   const vb = new THREE.Vector3(b.x, b.y, b.z);
   const dir = vb.clone().sub(va);
@@ -53,6 +89,7 @@ export function rod(a: THREE.Vector3Like, b: THREE.Vector3Like, r: number, seg =
 
 /** Barra de sección rectangular entre dos puntos (en el plano XY o cualquiera). */
 export function bar(a: THREE.Vector3Like, b: THREE.Vector3Like, w: number, h: number): THREE.BufferGeometry {
+  if (geoMode.stub) return stub();
   const va = new THREE.Vector3(a.x, a.y, a.z);
   const vb = new THREE.Vector3(b.x, b.y, b.z);
   const dir = vb.clone().sub(va);
@@ -65,6 +102,7 @@ export function bar(a: THREE.Vector3Like, b: THREE.Vector3Like, w: number, h: nu
 
 /** Caño que sigue una polilínea (barandas, escaleras, mangueras). */
 export function pipe(points: [number, number, number][], r: number, radial = 8, smooth = false): THREE.BufferGeometry {
+  if (geoMode.stub) return stub();
   const pts = points.map((p) => new THREE.Vector3(p[0], p[1], p[2]));
   let curve: THREE.Curve<THREE.Vector3>;
   if (smooth) {
@@ -107,6 +145,7 @@ function extrudeRaw(shape: THREE.Shape, depth: number, bevel = 0, curveSegments 
  * Ideal para almas de largueros, cartelas y chapas recortadas.
  */
 export function extrudeSide(points: P2[] | THREE.Shape, thickness: number, zc = 0, bevel = 0, crease = 0): THREE.BufferGeometry {
+  if (geoMode.stub) return stub();
   const shape = points instanceof THREE.Shape ? points : shapeOf(points);
   let g: THREE.BufferGeometry = extrudeRaw(shape, thickness, bevel);
   g.translate(0, 0, zc - thickness / 2 + (bevel > 0 ? bevel : 0));
@@ -119,6 +158,7 @@ export function extrudeSide(points: P2[] | THREE.Shape, thickness: number, zc = 
  * Ideal para perfiles (doble T, C, omega), bateas y cajas.
  */
 export function extrudeAlong(points: P2[] | THREE.Shape, x0: number, x1: number, bevel = 0, crease = 0): THREE.BufferGeometry {
+  if (geoMode.stub) return stub();
   // El perfil se dibuja con u = -z para conservar la orientación de las caras.
   const shape = points instanceof THREE.Shape ? points : shapeOf(points.map(([z, y]) => [-z, y] as P2).reverse());
   let g: THREE.BufferGeometry = extrudeRaw(shape, Math.abs(x1 - x0), bevel);
@@ -134,6 +174,7 @@ export function extrudeAlong(points: P2[] | THREE.Shape, x0: number, x1: number,
  * Ideal para pisos, placas y tapas.
  */
 export function extrudeUp(points: P2[] | THREE.Shape, y0: number, thickness: number, bevel = 0): THREE.BufferGeometry {
+  if (geoMode.stub) return stub();
   const shape = points instanceof THREE.Shape ? points : shapeOf(points.map(([x, z]) => [x, -z] as P2));
   const g: THREE.BufferGeometry = extrudeRaw(shape, thickness, bevel);
   g.rotateX(-Math.PI / 2);
@@ -179,6 +220,7 @@ export function arcBand(cx: number, cy: number, rIn: number, rOut: number, a0: n
 
 /** Cuadrilátero suelto (dos triángulos) con normal calculada; para chapas inclinadas. */
 export function quad(a: number[], b: number[], c: number[], d: number[], doubleSided = false): THREE.BufferGeometry {
+  if (geoMode.stub) return stub();
   const g = new THREE.BufferGeometry();
   const pos = [...a, ...b, ...c, ...a, ...c, ...d];
   const uv = [0, 0, 1, 0, 1, 1, 0, 0, 1, 1, 0, 1];
@@ -194,6 +236,7 @@ export function quad(a: number[], b: number[], c: number[], d: number[], doubleS
 
 /** Chapa con espesor entre cuatro esquinas (ordenadas en sentido antihorario vistas desde afuera). */
 export function sheet(a: number[], b: number[], c: number[], d: number[], t: number): THREE.BufferGeometry {
+  if (geoMode.stub) return stub();
   const va = new THREE.Vector3(...(a as [number, number, number]));
   const vb = new THREE.Vector3(...(b as [number, number, number]));
   const vc = new THREE.Vector3(...(c as [number, number, number]));
@@ -221,6 +264,7 @@ export function sheet(a: number[], b: number[], c: number[], d: number[], t: num
 
 /** Cuerpo de revolución alrededor del eje indicado. `profile` = [radio, posición sobre el eje]. */
 export function lathe(profile: P2[], axis: Axis, x = 0, y = 0, z = 0, seg = 24): THREE.BufferGeometry {
+  if (geoMode.stub) return stub();
   const g = new THREE.LatheGeometry(
     profile.map(([r, t]) => new THREE.Vector2(Math.max(0, r), t)),
     seg,

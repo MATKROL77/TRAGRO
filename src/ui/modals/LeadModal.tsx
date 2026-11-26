@@ -6,7 +6,7 @@ import { typeName } from '@/lead/quote';
 import { submitLead, type LeadChannel } from '@/lead/submitLead';
 import { usePrice } from '@/state/derived';
 import { useStore } from '@/state/store';
-import { captureRenderSet } from '@/three/capture';
+import { captureRenderSet, whenModelCurrent } from '@/three/capture';
 import { Icon } from '../Icon';
 import { LegalBanner } from '../TechPanel';
 import { Button, Modal } from '../primitives';
@@ -68,6 +68,7 @@ export default function LeadModal() {
     setBusy(true);
     try {
       const { downloadQuotePdf } = await import('@/pdf/quotePdf');
+      await whenModelCurrent();
       await downloadQuotePdf({ config, lang, moneda, units, hidePrices: hide, renders: captureRenderSet(), lead, href: window.location.href });
     } catch (e) {
       console.error('[configurador] no se pudo generar el PDF', e);

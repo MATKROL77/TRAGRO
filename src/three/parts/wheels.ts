@@ -225,6 +225,8 @@ export interface WheelSet {
   objects: THREE.InstancedMesh[];
   /** Sube el eje indicado `dy` metros. */
   setAxleLift: (axle: number, dy: number) => void;
+  /** Llanta de aluminio o de acero: solo cambia el material (no se regenera nada). */
+  setAluminium: (alu: boolean) => void;
   dispose: () => void;
 }
 
@@ -287,6 +289,9 @@ export function createWheelSet(poses: WheelPose[], dual: boolean, aluminium: boo
 
   return {
     objects,
+    setAluminium: (alu) => {
+      rim.material = alu ? mats.rimAlu : mats.rimSteel;
+    },
     setAxleLift: (axle, dy) => {
       if ((lift.get(axle) ?? 0) === dy) return;
       lift.set(axle, dy);

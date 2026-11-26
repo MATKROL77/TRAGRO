@@ -5,7 +5,7 @@ import { useI18n } from '@/i18n';
 import { formatDate, quoteGroups, quoteSubtitle, typeName } from '@/lead/quote';
 import { usePrice, useSpecs } from '@/state/derived';
 import { useStore } from '@/state/store';
-import { captureRenderSet, captureThumb, type RenderSet } from '@/three/capture';
+import { captureRenderSet, captureThumb, whenModelCurrent, type RenderSet } from '@/three/capture';
 import { Icon } from '../Icon';
 import { Button, Modal, StatusDot } from '../primitives';
 import { LegalBanner, TechBody } from '../TechPanel';
@@ -31,7 +31,7 @@ export default function SummaryModal() {
   // Los renders se generan una sola vez, después de pintar el modal.
   useEffect(() => {
     const id = window.setTimeout(() => {
-      setRenders(captureRenderSet());
+      void whenModelCurrent().then(() => setRenders(captureRenderSet()));
       setPending(false);
     }, 90);
     return () => window.clearTimeout(id);

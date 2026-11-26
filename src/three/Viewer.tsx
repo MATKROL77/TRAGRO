@@ -9,13 +9,26 @@ import { poseFor } from './camera';
 import { CameraRig, FOV, rigLock } from './CameraRig';
 import { composerRef } from './composerRef';
 import { Hotspots } from './Hotspots';
+import { Preloader } from './Preloader';
 import { Scene } from './Scene';
 import { Tractor } from './Tractor';
-import { TrailerObject, buildTimes, currentModel, useGeometryCrossfade } from './TrailerObject';
+import { TrailerObject, buildTimes, currentModel } from './TrailerObject';
 import { registerViewer, type SnapshotOptions } from './viewerApi';
+
+import { installFrameStats } from '@/render-kit/debug/frameStats';
+import { AdaptiveQuality } from '@/render-kit/quality/AdaptiveQuality';
+import { detectTier } from '@/render-kit/quality/detectTier';
+import { TIERS } from '@/render-kit/quality/tiers';
+import { workerStats } from './modelBuilder';
+import { frameCrossfade } from '@/render-kit/transition/FrameCrossfade';
 
 // El postprocesado (≈160 KB) se baja aparte, en paralelo con el HDRI: no pesa en la carga inicial.
 const Effects = lazy(() => import('./Effects'));
+// Panel de rendimiento: solo con ?debug=1 (chunk aparte, no entra en el bundle principal).
+const PerfOverlay = lazy(() => import('@/render-kit/debug/PerfOverlay'));
+const DEBUG = typeof window !== 'undefined' && /[?&]debug(=1|&|$)/.test(window.location.search);
+/** El benchmark (bench/bench.cjs) pide las muestras por cuadro antes de cargar la página. */
+const BENCH = typeof window !== 'undefined' && (window as unknown as { __benchRec?: boolean }).__benchRec === true;
 
 const MAX_PIXELS = 9_000_000;
 
@@ -24,7 +37,6 @@ function Bridge({ overlay }: { overlay: React.RefObject<HTMLCanvasElement> }) {
   const ref = useRef(state);
   ref.current = state;
   const fps = useRef({ frames: 0, last: performance.now(), value: 0, total: 0 });
-  useGeometryCrossfade();
 
   // Estadísticas por cuadro completo (sombras + escena + postprocesado), no por pasada.
   useEffect(() => {
@@ -35,6 +47,13 @@ function Bridge({ overlay }: { overlay: React.RefObject<HTMLCanvasElement> }) {
     lastInfo.current = { calls: gl.info.render.calls, triangles: gl.info.render.triangles };
     gl.info.reset();
   }, -100);
+
+  // Muestras por cuadro para el benchmark (sin costo si no se piden).
+  const frameStats = useRef(BENCH ? installFrameStats(state.gl) : null);
+  useEffect(() => {
+    if (frameStats.current) (window as unknown as { __frameStats: unknown }).__frameStats = frameStats.current;
+  }, []);
+  useFrame(() => frameStats.current?.beginFrame(), -1000);
 
   useFrame(() => {
     const f = fps.current;
@@ -118,6 +137,8 @@ function Bridge({ overlay }: { overlay: React.RefObject<HTMLCanvasElement> }) {
         const el = overlay.current;
         const { gl, advance } = get();
         if (!el || useStore.getState().ui.reducedMotion) return;
+        // Copia del cuadro dentro de la GPU (sin leer píxeles): no frena la placa.
+        if (frameCrossfade.available && frameCrossfade.start(ms)) return;
         advance(performance.now());
         const src = gl.domElement;
         if (el.width !== src.width || el.height !== src.height) {
@@ -156,77 +177,37 @@ function Bridge({ overlay }: { overlay: React.RefObject<HTMLCanvasElement> }) {
       invalidate();
     };
     (window as unknown as { __captura: unknown }).__captura = snapshot;
-    (window as unknown as { __viewer: unknown }).__viewer = { stats: () => ({ ...get().gl.info.memory, ...lastInfo.current, fps: fps.current.value, frames: fps.current.total, programs: get().gl.info.programs?.length ?? 0, buildMs: buildTimes.slice(), modelTriangles: currentModel.value?.stats.triangles ?? 0, modelMeshes: currentModel.value?.stats.meshes ?? 0 }), camera: () => ({ position: get().camera.position.toArray(), target: (get().controls as unknown as OrbitImpl | null)?.target.toArray() }) };
+    if (DEBUG || BENCH) (window as unknown as { __progKeys: unknown }).__progKeys = () => (get().gl.info.programs ?? []).map((pr) => `${pr.name}|${pr.cacheKey}`);
+    (window as unknown as { __viewer: unknown }).__viewer = { stats: () => ({ ...get().gl.info.memory, ...lastInfo.current, fps: fps.current.value, frames: fps.current.total, programs: get().gl.info.programs?.length ?? 0, buildMs: buildTimes.slice(), modelTriangles: currentModel.value?.stats.triangles ?? 0, modelMeshes: currentModel.value?.stats.meshes ?? 0, modelKey: currentModel.value?.key ?? '', worker: { ...workerStats } }), camera: () => ({ position: get().camera.position.toArray(), target: (get().controls as unknown as OrbitImpl | null)?.target.toArray() }) };
     return () => registerViewer(null);
   }, [overlay]);
   return null;
 }
 
-const TIERS = ['baja', 'media', 'alta'] as const;
-
-/**
- * Calidad adaptativa. Equivale al PerformanceMonitor de drei, pero pensado para
- * frameloop="demand": solo mide ráfagas de cuadros continuos (girar la cámara,
- * animaciones) y descarta las pausas, que no son caídas de fps.
- * Si el promedio baja de ~27 fps se reduce resolución, AO, antialiasing y sombras.
- */
-function AdaptiveQuality({ mobile }: { mobile: boolean }) {
-  const calidad = useStore((s) => s.ui.calidad);
-  const setDpr = useThree((s) => s.setDpr);
-  const perf = useRef({ run: 0, sum: 0, slow: 0, fast: 0, raises: 0 });
-
+/** Calidad adaptativa (render-kit) conectada al estado de la app, con el nivel inicial según la GPU. */
+function Quality() {
+  const tier = useStore((s) => s.ui.calidad);
+  const locked = useStore((s) => s.ui.calidadFija);
   const size = useThree((s) => s.size);
-  const invalidate = useThree((s) => s.invalidate);
   useEffect(() => {
-    const device = window.devicePixelRatio || 1;
-    const cap = calidad === 'alta' ? (mobile ? 1.75 : 2) : calidad === 'media' ? 1.4 : 1;
-    setDpr(Math.min(device, cap));
-    // El compositor de postprocesado tiene que tomar la nueva resolución.
-    const id = requestAnimationFrame(() => {
-      composerRef.current?.setSize(size.width, size.height);
-      invalidate();
+    if (useStore.getState().ui.calidadFija) return;
+    void detectTier().then((d) => {
+      (window as unknown as { __gpu: unknown }).__gpu = d;
+      const st = useStore.getState();
+      // Ya con el primer cuadro en pantalla solo se baja (subir recrearía el postprocesado de golpe).
+      if (st.ui.calidadFija) return;
+      if (!st.ready || TIERS.indexOf(d.tier) < TIERS.indexOf(st.ui.calidad)) st.setUi({ calidad: d.tier });
     });
-    return () => cancelAnimationFrame(id);
-  }, [calidad, mobile, setDpr, size.width, size.height, invalidate]);
-
-  useFrame((_, rawDt) => {
-    const p = perf.current;
-    const continuous = isActive();
-    if (!continuous && rawDt > 0.25) {
-      // Pausa del render a demanda: empieza una ráfaga nueva.
-      p.run = 0;
-      p.sum = 0;
-      return;
-    }
-    p.run++;
-    p.sum += Math.min(rawDt, 1.5);
-    // Ventana de medición: 50 cuadros, o 2,5 s si el equipo es muy lento.
-    if (p.run < 50 && p.sum < 2.5) return;
-    if (p.run < 4) return;
-    const fps = p.run / p.sum;
-    p.run = 0;
-    p.sum = 0;
-    const tier = TIERS.indexOf(useStore.getState().ui.calidad);
-    if (fps < 27) {
-      p.fast = 0;
-      if (++p.slow >= 2 && tier > 0) {
-        p.slow = 0;
-        useStore.getState().setUi({ calidad: TIERS[tier - 1] });
-      }
-    } else if (fps > 57) {
-      p.slow = 0;
-      // Subir es más conservador (y limitado) para no oscilar.
-      if (++p.fast >= 8 && tier < 2 && p.raises < 2) {
-        p.fast = 0;
-        p.raises++;
-        useStore.getState().setUi({ calidad: TIERS[tier + 1] });
-      }
-    } else {
-      p.slow = 0;
-      p.fast = 0;
-    }
-  });
-  return null;
+  }, []);
+  return (
+    <AdaptiveQuality
+      tier={tier}
+      locked={locked}
+      onChange={(t) => useStore.getState().setUi({ calidad: t })}
+      isActive={isActive}
+      onResolution={() => composerRef.current?.setSize(size.width, size.height)}
+    />
+  );
 }
 
 /** Avisa a la UI cuando el primer cuadro completo ya está en pantalla. */
@@ -239,6 +220,7 @@ function ReadySignal() {
     frames.current++;
     if (frames.current >= 2) {
       done.current = true;
+      (window as unknown as { __readyAt: number }).__readyAt = performance.now();
       useStore.getState().setReady(true);
     }
   });
@@ -254,11 +236,12 @@ export function Viewer() {
         shadows={{ type: THREE.PCFSoftShadowMap }}
         dpr={[1, mobile ? 1.75 : 2]}
         frameloop="demand"
+        performance={{ min: 0.75, max: 1, debounce: 400 }}
         gl={{ antialias: false, powerPreference: 'high-performance', toneMapping: THREE.NoToneMapping, stencil: false, alpha: false }}
         camera={{ fov: FOV, near: 0.25, far: 900, position: [12, 4.2, 12.5] }}
         onCreated={({ gl }) => gl.setClearColor('#e3ddd3')}
       >
-        <AdaptiveQuality mobile={mobile} />
+        <Quality />
         <Suspense fallback={null}>
           <Scene />
           <TrailerObject />
@@ -270,6 +253,12 @@ export function Viewer() {
         </Suspense>
         <CameraRig />
         <Bridge overlay={overlay} />
+        <Preloader />
+        {DEBUG ? (
+          <Suspense fallback={null}>
+            <PerfOverlay />
+          </Suspense>
+        ) : null}
       </Canvas>
       <canvas ref={overlay} className="viewer-fade" aria-hidden="true" />
     </div>

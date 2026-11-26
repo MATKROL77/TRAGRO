@@ -1,32 +1,41 @@
-import { EffectComposer, N8AO, Bloom, ToneMapping, SMAA, HueSaturation, BrightnessContrast } from '@react-three/postprocessing';
+import { EffectComposer, N8AO, Bloom, ToneMapping, SMAA, FXAA, HueSaturation, BrightnessContrast, Vignette } from '@react-three/postprocessing';
 import { ToneMappingMode, type EffectComposer as ComposerImpl } from 'postprocessing';
 import { useStore } from '@/state/store';
+import { tierSettings } from '@/render-kit/quality/tiers';
 import { composerRef } from './composerRef';
+import { FrameCrossfade } from '@/render-kit/transition/FrameCrossfade';
 
 /**
- * Postprocesado sobrio, de fotografía de producto: oclusión ambiental (N8AO),
- * bloom mínimo solo para las luces, tone mapping AgX con una corrección leve
- * de contraste y saturación (AgX solo lava los colores RAL) y antialiasing.
+ * Postprocesado de fotografía de producto, por nivel de calidad:
+ *  - alto: oclusión ambiental (N8AO) + SMAA + bloom muy sutil (solo luces encendidas y
+ *    brillos fuertes) + viñeta leve;
+ *  - medio: N8AO a media resolución + SMAA;
+ *  - bajo: solo FXAA.
+ * En todos: tone mapping AgX con una corrección leve de contraste y saturación (AgX solo
+ * lava los colores RAL). Los parámetros no cambian con la escena: si cambiaran, el AO se
+ * recrearía y compilaría sus shaders justo al cambiar de escena (un tirón).
  */
 export default function Effects() {
   const calidad = useStore((s) => s.ui.calidad);
-  const exterior = useStore((s) => s.ui.env === 'exterior');
-  const high = calidad === 'alta';
-  const low = calidad === 'baja';
+  const post = tierSettings(calidad).post;
   return (
-    <EffectComposer
-      ref={(c) => {
-        composerRef.current = c as ComposerImpl | null;
-      }}
-      multisampling={high ? 4 : 0}
-      enableNormalPass={false}
-    >
-      {low ? <></> : <N8AO aoRadius={0.55} intensity={exterior ? 1.7 : 2.1} distanceFalloff={0.8} quality={high ? 'medium' : 'performance'} halfRes={!high} />}
-      <Bloom intensity={0.4} luminanceThreshold={1.1} luminanceSmoothing={0.2} mipmapBlur />
-      <ToneMapping mode={ToneMappingMode.AGX} />
-      <HueSaturation saturation={0.22} />
-      <BrightnessContrast brightness={-0.02} contrast={0.16} />
-      {high ? <></> : <SMAA />}
-    </EffectComposer>
+    <>
+      <FrameCrossfade />
+      <EffectComposer
+        ref={(c) => {
+          composerRef.current = c as ComposerImpl | null;
+        }}
+        multisampling={0}
+        enableNormalPass={false}
+      >
+        {post === 'bajo' ? <></> : <N8AO aoRadius={0.55} intensity={1.9} distanceFalloff={0.8} quality={post === 'alto' ? 'medium' : 'performance'} halfRes={post !== 'alto'} />}
+        {post === 'alto' ? <Bloom intensity={0.32} luminanceThreshold={1.15} luminanceSmoothing={0.15} mipmapBlur /> : <></>}
+        <ToneMapping mode={ToneMappingMode.AGX} />
+        <HueSaturation saturation={0.22} />
+        <BrightnessContrast brightness={-0.02} contrast={0.16} />
+        {post === 'alto' ? <Vignette offset={0.32} darkness={0.32} /> : <></>}
+        {post === 'bajo' ? <FXAA /> : <SMAA />}
+      </EffectComposer>
+    </>
   );
 }

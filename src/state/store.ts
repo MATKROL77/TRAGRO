@@ -34,6 +34,8 @@ export interface UiState {
   embed: boolean;
   luces: boolean;
   calidad: Quality;
+  /** El usuario fijó la calidad con ?calidad=...: no se ajusta sola. */
+  calidadFija: boolean;
   reducedMotion: boolean;
   modal: ModalId;
   cargandoEntorno: boolean;
@@ -102,6 +104,7 @@ const initialUi: UiState = {
   embed: false,
   luces: false,
   calidad: 'alta',
+  calidadFija: false,
   reducedMotion: false,
   modal: null,
   cargandoEntorno: false,

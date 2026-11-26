@@ -42,6 +42,8 @@ export function loadKtx(gl: THREE.WebGLRenderer, name: string, opts: KtxOptions 
         tex.anisotropy = Math.min(opts.anisotropy ?? 8, gl.capabilities.getMaxAnisotropy());
         if (opts.repeat) tex.repeat.set(opts.repeat[0], opts.repeat[1]);
         tex.needsUpdate = true;
+        // Se sube a la GPU ya (fuera del render): el primer cuadro que la usa no se traba.
+        gl.initTexture(tex);
         return tex;
       });
     p.catch(() => cache.delete(name));
@@ -101,10 +103,9 @@ async function apply(id: SetId, gl: THREE.WebGLRenderer, lib: MaterialLibrary): 
     // Flor de galvanizado real como color (cristales de zinc) sobre el metal.
     const c = await loadKtx(gl, 'galvanized_color', { repeat: [1, 1] });
     const mat = m.galvanized as Std;
-    const hadMap = !!mat.map;
+    // El material ya nace con un mapa provisorio: cambiarlo no obliga a recompilar el shader.
     mat.map = c;
     mat.color.set('#c4c9cd');
-    if (!hadMap) mat.needsUpdate = true;
   }
 }
 
