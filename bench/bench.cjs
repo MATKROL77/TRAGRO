@@ -323,6 +323,11 @@ async function runProfile(browser, prof) {
     };
   });
   console.log(`  carga: primer cuadro con el modelo a los ${carga.primerCuadroConModeloMs} ms · ${carga.transferidoKB} KB · GPU: ${carga.gpu}`);
+  // La precarga en segundo plano (shaders, Exterior, Ruta) no es parte de ninguna acción: se espera a que termine.
+  await page.waitForFunction(() => window.__precargaLista != null, null, { timeout: 240000 }).catch(() => undefined);
+  carga.precargaMs = await page.evaluate(() => (window.__precargaLista != null ? Math.round(window.__precargaLista) : null));
+  carga.transferidoConPrecargaKB = await page.evaluate(() => Math.round((performance.getEntriesByType('resource').reduce((s, r) => s + (r.transferSize || 0), 0) + (performance.getEntriesByType('navigation')[0]?.transferSize || 0)) / 1024));
+  console.log(`  precarga en segundo plano terminada a los ${carga.precargaMs ?? '–'} ms · ${carga.transferidoConPrecargaKB} KB en total`);
   await settle(page, { min: 1500, max: 15000 });
 
   await step(page, results, 'estudio: órbita de cámara 3 s', () => orbit(page));

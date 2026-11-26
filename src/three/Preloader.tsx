@@ -15,6 +15,7 @@ import { materialLibrary } from './materialsLib';
 import { tierSettings } from '@/render-kit/quality/tiers';
 import { tractorMaterials } from './parts/tractor';
 import { prepareWheelDetail } from './parts/wheels';
+import { isActive } from './activity';
 
 /** Espera (hasta `ms`) a que aparezca un objeto en la escena. */
 function waitFor<T>(get: () => T | undefined, ms = 8000): Promise<T | undefined> {
@@ -75,7 +76,11 @@ export function Preloader() {
         if (ruta) warmScene(gl, scene, camera, [[studio, false], [ruta, true], [tractor, true]]);
         log('cuadros de calentamiento listos');
       },
-    ]).catch((e) => console.warn('[configurador] precarga incompleta', e));
+      // Cada tarea espera a que el usuario no esté girando la cámara ni haya una transición en curso.
+    ], 2000, isActive)
+      .catch((e) => console.warn('[configurador] precarga incompleta', e))
+      // Marca de fin (la usa el benchmark para separar la precarga de las acciones medidas).
+      .finally(() => ((window as unknown as { __precargaLista?: number }).__precargaLista = performance.now()));
     return () => {
       cancelled = true;
     };

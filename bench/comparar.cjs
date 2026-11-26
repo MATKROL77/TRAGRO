@@ -35,6 +35,8 @@ for (const perfil of Object.keys(A.perfiles)) {
   const lines = [
     ['Primer cuadro con el modelo (ms)', a.carga.primerCuadroConModeloMs, b.carga.primerCuadroConModeloMs],
     ['Transferido hasta el primer cuadro (KB)', a.carga.transferidoKB, b.carga.transferidoKB],
+    ['Precarga en segundo plano terminada (ms)', a.carga.precargaMs ?? '–', b.carga.precargaMs ?? '–'],
+    ['Transferido con la precarga (Exterior y Ruta incluidas, KB)', a.carga.transferidoConPrecargaKB ?? '–', b.carga.transferidoConPrecargaKB ?? '–'],
     ['Cuadro más largo (ms)', sa.cuadroMaxMs, sb.cuadroMaxMs],
     ['Cuadros > 50 ms', sa.cuadrosMayores50, sb.cuadrosMayores50],
     ['Acciones con algún cuadro > 50 ms', `${sa.accionesConCuadrosMayores50}/${sa.acciones}`, `${sb.accionesConCuadrosMayores50}/${sb.acciones}`],
