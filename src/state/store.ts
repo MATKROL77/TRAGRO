@@ -1,5 +1,5 @@
 import { create } from 'zustand';
-import { createDefaultConfig, getGroup, getModel, rowsRange } from '../domain/catalog';
+import { createDefaultConfig, getGroup, getModel, rowsRange, standardSelections } from '../domain/catalog';
 import { applySelection, resolve } from '../domain/rules';
 import { defaultFieldParams, getCrop, type FieldParams } from '../domain/agronomy';
 import type { Destination } from '../domain/pricing';
@@ -21,6 +21,10 @@ export interface AppState {
   langReady: boolean;
   units: UnitSystem;
   destination: Destination;
+  /** el usuario eligió el destino a mano (si no, se sigue el idioma) */
+  destinationTouched: boolean;
+  /** surcos que eligió el usuario (se restauran si vuelve a un espaciado donde entran) */
+  desiredRows: number;
   transportProfile: string;
   field: FieldParams;
   logoUrl: string | null;
@@ -57,6 +61,8 @@ export interface AppState {
   setField: (p: Partial<FieldParams>) => void;
   setCrop: (id: string) => void;
   setModel: (id: string) => void;
+  applyBasic: () => void;
+  applyRecommended: () => void;
   setRows: (n: number) => void;
   setSpacing: (cm: number) => void;
   select: (group: string, option: string) => void;
@@ -99,7 +105,9 @@ export const useStore = create<AppState>((set, get) => ({
   lang: brand.defaultLanguage as Lang,
   langReady: true,
   units: 'metric',
-  destination: 'export',
+  destination: brand.defaultLanguage === 'es-AR' ? 'local' : 'export',
+  destinationTouched: false,
+  desiredRows: createDefaultConfig().rows,
   transportProfile: transportDef.defaultProfile,
   field: defaultFieldParams(),
   logoUrl: null,
@@ -128,10 +136,10 @@ export const useStore = create<AppState>((set, get) => ({
   panelTab: 'config',
   setPanelTab: (panelTab) => set({ panelTab }),
 
-  setLang: (lang) => set({ lang }),
+  setLang: (lang) => set(get().destinationTouched ? { lang } : { lang, destination: lang === 'es-AR' ? 'local' : 'export' }),
   setLangReady: (langReady) => set({ langReady }),
   setUnits: (units) => set({ units }),
-  setDestination: (destination) => set({ destination }),
+  setDestination: (destination) => set({ destination, destinationTouched: true }),
   setTransportProfile: (transportProfile) => set({ transportProfile }),
   setField: (p) => set({ field: { ...get().field, ...p } }),
   setCrop: (id) => {
@@ -143,18 +151,31 @@ export const useStore = create<AppState>((set, get) => ({
     const cfg = get().config;
     const r = resolve({ ...cfg, model: m.id, rows: m.defaultRows, spacingCm: cfg.spacingCm });
     withNotices(set, { config: r.config, notices: r.notices.filter((n) => n.ruleId !== 'rowsRange') });
+    set({ desiredRows: r.config.rows });
     get().focus('overview');
+  },
+  applyBasic: () => {
+    const cfg = get().config;
+    set({ config: resolve({ ...cfg, selections: standardSelections() }).config, notice: null });
+  },
+  applyRecommended: () => {
+    const cfg = get().config;
+    set({ config: resolve({ ...cfg, selections: createDefaultConfig().selections }).config, notice: null });
   },
   setRows: (n) => {
     const cfg = get().config;
     const range = rowsRange(getModel(cfg.model), cfg.spacingCm);
     const rows = Math.min(range.max, Math.max(range.min, Math.round(n)));
     if (rows === cfg.rows) return;
+    set({ desiredRows: rows });
     withNotices(set, resolve({ ...cfg, rows }));
   },
   setSpacing: (spacingCm) => {
     const cfg = get().config;
-    withNotices(set, resolve({ ...cfg, spacingCm }));
+    // si antes se recortaron surcos por el ancho, al volver a un espaciado donde entran se restauran
+    const range = rowsRange(getModel(cfg.model), spacingCm);
+    const want = Math.max(cfg.rows, Math.min(get().desiredRows, range.max));
+    withNotices(set, resolve({ ...cfg, spacingCm, rows: want }));
   },
   select: (group, option) => {
     const cfg = get().config;
@@ -166,8 +187,11 @@ export const useStore = create<AppState>((set, get) => ({
   setColors: (c) => set({ config: { ...get().config, colors: { ...get().config.colors, ...c } } }),
   setText: (text) => set({ config: { ...get().config, text: text.slice(0, 28) } }),
   setLogo: (logoUrl) => set({ logoUrl }),
-  loadConfig: (c) => set({ config: resolve(c).config, notice: null }),
-  reset: () => set({ config: createDefaultConfig(), notice: null, step: 0, pose: 'work', sowing: false, detail: false, exploded: false, scene: 'studio' }),
+  loadConfig: (c) => {
+    const config = resolve(c).config;
+    set({ config, notice: null, desiredRows: config.rows });
+  },
+  reset: () => set({ config: createDefaultConfig(), desiredRows: createDefaultConfig().rows, notice: null, step: 0, pose: 'work', sowing: false, detail: false, exploded: false, scene: 'studio' }),
   setStep: (step) => set({ step }),
   setScene: (scene) => {
     const s: Partial<AppState> = { scene, detail: false, exploded: false };

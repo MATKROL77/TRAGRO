@@ -1,12 +1,13 @@
 import { useMemo, useRef, useState } from 'react';
-import { AnimatePresence, motion } from 'framer-motion';
+import { motion } from 'framer-motion';
 import { useStore } from '../state/store';
 import { useT } from '../i18n/useT';
 import { useFmt } from './format';
 import { catalog, getGroup, getModel, rowsRange, widthM } from '../domain/catalog';
-import { isGroupVisible, optionStatus, resolve } from '../domain/rules';
-import { computePrice, optionPrice } from '../domain/pricing';
-import { createDefaultConfig } from '../domain/catalog';
+import { isGroupVisible, optionStatus } from '../domain/rules';
+import { fromPrice, optionPrice, recommendedPrice } from '../domain/pricing';
+import { checkTransport } from '../domain/transport';
+import { useTransportCheck } from './hooks';
 import { IconBack, IconChevron, IconInfo, IconWarn, IconCheck } from './icons';
 import brand from '../config/brand.json';
 import ral from '../config/ral.json';
@@ -37,6 +38,7 @@ function OptionCard({ group, option }: { group: string; option: string }) {
       ? status.notices.map((n) => `${t(`groups.${n.group}.name`)}: ${t(`options.${n.group}.${n.to}.name`)}`).join(' · ')
       : '';
   const desc = t(`options.${group}.${option}.desc`);
+  const road = group === 'transport' && !disabled ? <RoadWarning option={option} /> : null;
   return (
     <button
       type="button"
@@ -61,6 +63,7 @@ function OptionCard({ group, option }: { group: string; option: string }) {
             <IconWarn size={14} /> {t('status.adjusts')} {adjusts}
           </span>
         )}
+        {road}
         {def.leadTimeDays ? <span className="opt-lead">{t('status.leadTime', { days: def.leadTimeDays })}</span> : null}
       </span>
       <span className="opt-price">
@@ -70,11 +73,73 @@ function OptionCard({ group, option }: { group: string; option: string }) {
   );
 }
 
+/** Aviso en la tarjeta de transporte: cómo queda la máquina en ruta con esa opción. */
+function RoadWarning({ option }: { option: string }) {
+  const t = useT();
+  const f = useFmt();
+  const config = useStore((s) => s.config);
+  const profile = useStore((s) => s.transportProfile);
+  const chk = useMemo(() => checkTransport({ ...config, selections: { ...config.selections, transport: option } }, profile), [config, option, profile]);
+  if (chk.level === 'green') return <span className="opt-road ok"><IconCheck size={14} /> {t('transport.optOk', { w: f.q(chk.width.value, 'length', 2), h: f.q(chk.height.value, 'length', 2) })}</span>;
+  return (
+    <span className={`opt-road ${chk.level}`}>
+      <IconWarn size={14} /> {t(`transport.opt.${chk.level}`, { width: f.q(config.rows * config.spacingCm / 100, 'length', 2), w: f.q(chk.width.value, 'length', 2), h: f.q(chk.height.value, 'length', 2) })}
+    </span>
+  );
+}
+
+/** Resumen del chequeo de ruta, arriba del paso Transporte (donde se decide). */
+function TransportCheckCard() {
+  const t = useT();
+  const f = useFmt();
+  const chk = useTransportCheck();
+  const config = useStore((s) => s.config);
+  const profile = useStore((s) => s.transportProfile);
+  const select = useStore((s) => s.select);
+  const other = config.selections.transport === 'fold' ? 'longitudinal' : 'fold';
+  const otherChk = useMemo(() => checkTransport({ ...config, selections: { ...config.selections, transport: other } }, profile), [config, other, profile]);
+  const order = { green: 0, yellow: 1, red: 2 };
+  const otherAllowed = optionStatus(config, 'transport', other).state !== 'disabled';
+  const better = otherAllowed && order[otherChk.level] < order[chk.level];
+  return (
+    <div id="transport-check" className={`tr-card tr-${chk.level}`} role={chk.level === 'red' ? 'alert' : 'status'}>
+      <div className="tr-card-head">
+        <span className={`light light-${chk.level}`} aria-hidden />
+        <strong>{t(`price.road.${chk.level}`)}</strong>
+        <span className="tr-dims">{f.q(chk.width.value, 'length', 2)} × {f.q(chk.height.value, 'length', 2)}</span>
+      </div>
+      <p>{t(`transport.${chk.level}`)}</p>
+      {better && (
+        <button type="button" className="btn btn-secondary btn-xs" onClick={() => select('transport', other)}>
+          {t('transport.switchTo', { mode: t(`options.transport.${other}.name`) })}
+        </button>
+      )}
+    </div>
+  );
+}
+
 function GroupBlock({ id }: { id: string }) {
   const t = useT();
   const config = useStore((s) => s.config);
   const g = getGroup(id);
-  if (!g || !isGroupVisible(id, config)) return null;
+  if (!g) return null;
+  if (!isGroupVisible(id, config)) {
+    // se mantiene el lugar (el panel no salta) con las opciones deshabilitadas
+    return (
+      <fieldset className="group is-na" disabled>
+        <legend className="group-title">{t(`groups.${id}.name`)}</legend>
+        <p className="muted small na-note">{t(`groups.${id}.na`)}</p>
+        <div className={`opts${g.type === 'toggle' ? ' opts-toggle' : ''}`} aria-hidden>
+          {g.options.map((o) => (
+            <div key={o.id} className="opt is-disabled">
+              <span className="opt-radio" aria-hidden />
+              <span className="opt-body"><span className="opt-name">{t(`options.${id}.${o.id}.name`)}</span></span>
+            </div>
+          ))}
+        </div>
+      </fieldset>
+    );
+  }
   return (
     <fieldset className="group">
       <legend className="group-title">{t(`groups.${id}.name`)}</legend>
@@ -93,11 +158,12 @@ function StepModel() {
   const config = useStore((s) => s.config);
   const setModel = useStore((s) => s.setModel);
   const hide = useStore((s) => s.hidePrices);
+  const destination = useStore((s) => s.destination);
   return (
     <div className="models" role="radiogroup" aria-label={t('steps.model.name')}>
       {catalog.models.map((m) => {
-        const base = createDefaultConfig();
-        const from = computePrice(resolve({ ...base, model: m.id, rows: m.rowsMin, selections: { ...base.selections, transport: 'fold' } }).config).total;
+        const from = fromPrice(m.id, destination);
+        const rec = recommendedPrice(m.id, destination);
         const sel = config.model === m.id;
         const range = rowsRange(m, config.spacingCm);
         return (
@@ -109,6 +175,7 @@ function StepModel() {
             {!hide && (
               <span className="model-from">
                 {t('models.from')} <strong>{f.money(from)}</strong>
+                <span className="model-rec">{t('models.recommended')}: {f.money(rec)}</span>
               </span>
             )}
             <ModelGlyph tier={m.tier} />
@@ -177,6 +244,7 @@ function ColorPicker({ which }: { which: 'main' | 'accent' }) {
   const config = useStore((s) => s.config);
   const setColors = useStore((s) => s.setColors);
   const [q, setQ] = useState('');
+  const [all, setAll] = useState(false);
   const current = which === 'main' ? config.colors.main : config.colors.accent;
   const currentRal = which === 'main' ? config.colors.mainRal : config.colors.accentRal;
   const list = useMemo(() => {
@@ -196,15 +264,29 @@ function ColorPicker({ which }: { which: 'main' | 'accent' }) {
       <input className="input" type="search" placeholder={t('custom.ralSearch')} aria-label={t('custom.ralSearch')} value={q} onChange={(e) => setQ(e.target.value)} />
       <div className="ral-grid" role="listbox" aria-label={t('custom.ralSearch')}>
         {list.length === 0 && <span className="muted">{t('custom.noResults')}</span>}
-        {list.map((c) => (
+        {(all || q.trim() ? list : collapsed(list, currentRal)).map((c) => (
           <button key={c.ral} type="button" role="option" aria-selected={currentRal === c.ral} className={`ral${currentRal === c.ral ? ' is-selected' : ''}`} onClick={() => pick(c.hex, c.ral)} title={`${c.ral} · ${(c.names as Record<string, string>)[lang]}`}>
             <span className="ral-chip" style={{ background: c.hex }} />
             <span className="ral-code">{c.ral.replace('RAL ', '')}</span>
           </button>
         ))}
       </div>
+      {!q.trim() && list.length > COLLAPSED && (
+        <button type="button" className="link small ral-more" onClick={() => setAll(!all)} aria-expanded={all}>
+          {all ? t('custom.fewerColors') : t('custom.allColors', { n: list.length })}
+        </button>
+      )}
     </fieldset>
   );
+}
+
+const COLLAPSED = 14;
+/** Primeras dos filas de colores (y el elegido, si no está entre ellas). */
+function collapsed<T extends { ral: string }>(list: T[], currentRal: string): T[] {
+  const head = list.slice(0, COLLAPSED);
+  const cur = list.find((c) => c.ral === currentRal);
+  if (cur && !head.includes(cur)) head[head.length - 1] = cur;
+  return head;
 }
 
 function StepCustom() {
@@ -284,16 +366,15 @@ export function ConfigPanel() {
         <p className="step-hint">{t(`steps.${cur.id}.hint`)}</p>
       </div>
       <div className="step-body">
-        <AnimatePresence mode="wait" initial={false}>
-          <motion.div key={cur.id} initial={{ opacity: 0, x: 12 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -12 }} transition={{ duration: 0.18 }}>
-            {cur.id === 'model' && <StepModel />}
-            {cur.id === 'rows' && <StepRows />}
-            {cur.id === 'custom' && <StepCustom />}
-            {cur.groups.map((g) => (
-              <GroupBlock key={g} id={g} />
-            ))}
-          </motion.div>
-        </AnimatePresence>
+        <motion.div key={cur.id} initial={{ opacity: 0.35, x: 8 }} animate={{ opacity: 1, x: 0 }} transition={{ duration: 0.14, ease: 'easeOut' }}>
+          {cur.id === 'model' && <StepModel />}
+          {cur.id === 'rows' && <StepRows />}
+          {cur.id === 'transport' && <TransportCheckCard />}
+          {cur.id === 'custom' && <StepCustom />}
+          {cur.groups.map((g) => (
+            <GroupBlock key={g} id={g} />
+          ))}
+        </motion.div>
       </div>
       <div className="step-nav">
         <button type="button" className="btn btn-ghost" onClick={() => go(Math.max(0, step - 1))} disabled={step === 0}>

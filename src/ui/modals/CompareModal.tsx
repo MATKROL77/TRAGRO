@@ -5,18 +5,22 @@ import { Modal } from './Modal';
 import { computePrice } from '../../domain/pricing';
 import { computePerformance } from '../../domain/agronomy';
 import { checkTransport } from '../../domain/transport';
-import { configNumber } from '../../domain/url';
+import { configNumber, encodeConfig } from '../../domain/url';
 import type { Configuration } from '../../domain/types';
 
 export default function CompareModal() {
   const t = useT();
   const f = useFmt();
   const s = useStore();
-  const cols: { key: string; label: string; cfg?: Configuration }[] = [
-    { key: 'A', label: t('compare.slotA'), cfg: s.slots.A },
-    { key: 'B', label: t('compare.slotB'), cfg: s.slots.B },
-    { key: 'C', label: t('compare.current'), cfg: s.config },
+  // sólo columnas con datos; "Actual" no se repite si es igual a A o a B
+  const same = (a?: Configuration, b?: Configuration) => !!a && !!b && encodeConfig(a) === encodeConfig(b);
+  const curIs = same(s.config, s.slots.A) ? 'A' : same(s.config, s.slots.B) ? 'B' : null;
+  const all: { key: string; label: string; cfg?: Configuration }[] = [
+    { key: 'A', label: curIs === 'A' ? `${t('compare.slotA')} (${t('compare.current').toLowerCase()})` : t('compare.slotA'), cfg: s.slots.A },
+    { key: 'B', label: curIs === 'B' ? `${t('compare.slotB')} (${t('compare.current').toLowerCase()})` : t('compare.slotB'), cfg: s.slots.B },
+    { key: 'C', label: t('compare.current'), cfg: curIs ? undefined : s.config },
   ];
+  const cols = all.filter((c) => c.cfg);
   const data = cols.map((c) => {
     if (!c.cfg) return null;
     const price = computePrice(c.cfg, s.destination).total;
@@ -26,10 +30,12 @@ export default function CompareModal() {
   });
   const best = (k: 'price' | 'weight' | 'haH' | 'width', higher: boolean) => {
     const vals = data.map((d) => (d ? d[k] : NaN)).filter((v) => !Number.isNaN(v));
+    // si todas son iguales no hay "mejor"
+    if (vals.length < 2 || vals.every((v) => Math.abs(v - vals[0]) < 1e-6)) return NaN;
     return higher ? Math.max(...vals) : Math.min(...vals);
   };
   const cell = (v: number, k: 'price' | 'weight' | 'haH' | 'width', higher: boolean, text: string) => (
-    <span className={v === best(k, higher) && data.filter(Boolean).length > 1 ? 'is-best' : ''}>{text}</span>
+    <span className={Math.abs(v - best(k, higher)) < 1e-6 ? 'is-best' : ''}>{text}</span>
   );
   return (
     <Modal title={t('compare.title')} onClose={() => s.openModal(null)} wide footer={
@@ -39,7 +45,7 @@ export default function CompareModal() {
       </>
     }>
       {!s.slots.A && !s.slots.B && <p className="muted">{t('compare.empty')}</p>}
-      {s.slots.A && !s.slots.B && <p className="cmp-hint">{t('compare.hint')}</p>}
+      {s.slots.A && !s.slots.B && <p className="cmp-hint">{curIs === 'A' ? t('compare.hintSame') : t('compare.hint')}</p>}
       <div className="cmp-wrap">
         <table className="cmp">
           <thead>

@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef } from 'react';
+import { Suspense, useEffect, useMemo, useRef } from 'react';
 import { useFrame, useThree } from '@react-three/fiber';
 import { Environment, Lightformer } from '@react-three/drei';
 import * as THREE from 'three';
@@ -71,14 +71,22 @@ export function StudioScene() {
     runtime.frames++;
   });
   const base = import.meta.env.BASE_URL;
+  const formers = (
+    <>
+      <Lightformer form="rect" intensity={2.2} position={[0, 6, 4]} scale={[12, 3, 1]} target={[0, 0, 0]} />
+      <Lightformer form="rect" intensity={1.2} position={[-8, 3, -2]} scale={[6, 4, 1]} target={[0, 0, 0]} />
+      <Lightformer form="ring" intensity={1.5} position={[8, 4, -6]} scale={3} target={[0, 0, 0]} />
+    </>
+  );
   return (
     <>
       <color attach="background" args={['#f2e4cf']} />
-      <Environment files={`${base}hdri/studio.hdr`} environmentIntensity={0.7} environmentRotation={[0, Math.PI / 3, 0]}>
-        <Lightformer form="rect" intensity={2.2} position={[0, 6, 4]} scale={[12, 3, 1]} target={[0, 0, 0]} />
-        <Lightformer form="rect" intensity={1.2} position={[-8, 3, -2]} scale={[6, 4, 1]} target={[0, 0, 0]} />
-        <Lightformer form="ring" intensity={1.5} position={[8, 4, -6]} scale={3} target={[0, 0, 0]} />
-      </Environment>
+      {/* la máquina aparece enseguida con luces simples; el HDR llega después */}
+      <Suspense fallback={<Environment environmentIntensity={0.9} resolution={128}>{formers}</Environment>}>
+        <Environment files={`${base}hdri/studio.hdr`} environmentIntensity={0.7} environmentRotation={[0, Math.PI / 3, 0]}>
+          {formers}
+        </Environment>
+      </Suspense>
       <hemisphereLight args={['#ffffff', '#b9b5ad', 0.35]} />
       <KeyLight intensity={2.6} position={[-7, 7.5, -4.5]} color="#fff1dd" />
       <directionalLight position={[6, 5, 9]} intensity={0.9} color="#fff6ea" />

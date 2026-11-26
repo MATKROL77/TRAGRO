@@ -70,7 +70,7 @@ export function Header() {
   return (
     <header className="header">
       <a className="brand" href="./" aria-label={brand.name}>
-        <img src={`${import.meta.env.BASE_URL}brand/logo-umbral.svg`} alt="" width={34} height={34} />
+        <img src={`${import.meta.env.BASE_URL}brand/logo-umbral.svg`} alt="Umbral_exp" width={34} height={34} />
         <span className="brand-text">
           <span className="brand-name">{brand.name}</span>
           <span className="brand-tag">{(brand.tagline as Record<string, string>)[lang]}</span>

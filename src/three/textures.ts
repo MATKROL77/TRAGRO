@@ -2,11 +2,11 @@ import * as THREE from 'three';
 
 /** Texturas procedurales (canvas). Se generan una sola vez y se comparten. */
 
-function canvas(w: number, h: number): [HTMLCanvasElement, CanvasRenderingContext2D] {
+function canvas(w: number, h: number, read = false): [HTMLCanvasElement, CanvasRenderingContext2D] {
   const c = document.createElement('canvas');
   c.width = w;
   c.height = h;
-  const ctx = c.getContext('2d');
+  const ctx = c.getContext('2d', read ? { willReadFrequently: true } : undefined);
   if (!ctx) throw new Error('2d context');
   return [c, ctx];
 }
@@ -131,7 +131,7 @@ let paintNoiseTex: THREE.Texture | null = null;
 /** Variación de rugosidad sutil para pintura (micro rayas y polvo). */
 export function paintRoughness(): THREE.Texture {
   if (paintNoiseTex) return paintNoiseTex;
-  const [c, ctx] = canvas(256, 256);
+  const [c, ctx] = canvas(256, 256, true);
   ctx.fillStyle = '#7a7a7a';
   ctx.fillRect(0, 0, 256, 256);
   const img = ctx.getImageData(0, 0, 256, 256);
@@ -158,7 +158,7 @@ export function paintRoughness(): THREE.Texture {
 let rubberNormalTex: THREE.Texture | null = null;
 export function rubberSidewallNormal(): THREE.Texture {
   if (rubberNormalTex) return rubberNormalTex;
-  const [c, ctx] = canvas(128, 128);
+  const [c, ctx] = canvas(128, 128, true);
   ctx.fillStyle = '#808080';
   ctx.fillRect(0, 0, 128, 128);
   const img = ctx.getImageData(0, 0, 128, 128);

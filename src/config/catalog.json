@@ -11,14 +11,14 @@
   "steps": [
     { "id": "model", "groups": [] },
     { "id": "rows", "groups": [] },
-    { "id": "transport", "groups": ["transport", "transportWheels"], "focus": "transport" },
+    { "id": "transport", "groups": ["transport", "transportWheels"], "focus": "overview" },
     { "id": "hoppers", "groups": ["seedHopper", "seedCapacity", "fertilizer", "fertCapacity"], "focus": "hoppers" },
     { "id": "rowUnit", "groups": ["coulter", "closing", "firmer", "downforce"], "focus": "rowUnit" },
     { "id": "tech", "groups": ["metering", "monitor", "sectionControl", "variableRate", "isobus", "autosteer"], "focus": "meter" },
-    { "id": "custom", "groups": [] }
+    { "id": "custom", "groups": [], "focus": "overview" }
   ],
   "groups": [
-    { "id": "transport", "type": "single", "default": "longitudinal", "geometric": true, "focus": "transport",
+    { "id": "transport", "type": "single", "default": "longitudinal", "geometric": true, "focus": "overview",
       "options": [
         { "id": "fold", "standard": true, "weightKg": 600 },
         { "id": "longitudinal", "standard": false, "weightKg": 950, "leadTimeDays": 10 }

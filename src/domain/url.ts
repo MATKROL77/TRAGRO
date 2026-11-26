@@ -97,3 +97,17 @@ export function configNumber(cfg: Configuration, prefix = 'UX'): string {
   const yy = String(new Date().getFullYear()).slice(-2);
   return `${prefix}-${yy}-${code}`;
 }
+
+/**
+ * URL "en vivo" mientras se configura: conserva los demás parámetros (modo, calidad, embed)
+ * y sólo agrega idioma/unidades cuando no son los de por defecto.
+ */
+export function liveUrl(href: string, s: SharedState): string {
+  const u = new URL(href);
+  u.searchParams.set('cfg', encodeConfig(s.config));
+  if (s.lang && s.lang !== 'es-AR') u.searchParams.set('lang', s.lang);
+  else u.searchParams.delete('lang');
+  if (s.units === 'imperial') u.searchParams.set('u', 'imp');
+  else u.searchParams.delete('u');
+  return u.toString();
+}

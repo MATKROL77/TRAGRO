@@ -74,3 +74,22 @@ export function sanitizeConfig(input: Partial<Configuration> | null | undefined)
     text: typeof input.text === 'string' ? input.text.slice(0, 28) : '',
   };
 }
+
+/** Selecciones "estándar" (sin opcionales pagos) de cada grupo. */
+export function standardSelections(): Record<string, string> {
+  const s: Record<string, string> = {};
+  for (const g of catalog.groups) s[g.id] = g.options.find((o) => o.standard)?.id ?? g.default;
+  return s;
+}
+
+/** ¿La configuración usa exactamente las selecciones recomendadas de fábrica? */
+export function isRecommended(cfg: Configuration): boolean {
+  const d = createDefaultConfig().selections;
+  return catalog.groups.every((g) => cfg.selections[g.id] === d[g.id]);
+}
+
+/** ¿Todas las selecciones están en su opción estándar? */
+export function isBasic(cfg: Configuration): boolean {
+  const s = standardSelections();
+  return catalog.groups.every((g) => cfg.selections[g.id] === s[g.id]);
+}

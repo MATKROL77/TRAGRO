@@ -10,6 +10,8 @@ import { configNumber } from '../domain/url';
 import { IconCamera, IconClose, IconFold, IconFull, IconInfo, IconMore, IconPause, IconPlay, IconShot, IconUnit } from './icons';
 import { usePerformance } from './hooks';
 import { getCrop } from '../domain/agronomy';
+import { catalog, getModel, rowsRange } from '../domain/catalog';
+import type { Notice } from '../domain/types';
 
 const PRESETS: CamPreset[] = ['front34', 'side', 'rear', 'top', 'rowUnit', 'hoppers', 'ground'];
 
@@ -19,7 +21,6 @@ export function ViewerToolbar() {
   const pose = useStore((s) => s.pose);
   const sowing = useStore((s) => s.sowing);
   const detail = useStore((s) => s.detail);
-  const exploded = useStore((s) => s.exploded);
   const showTractor = useStore((s) => s.showTractor);
   const showHotspots = useStore((s) => s.showHotspots);
   const autoFocus = useStore((s) => s.autoFocus);
@@ -49,11 +50,9 @@ export function ViewerToolbar() {
     const next = pose === 'work' ? 'transport' : 'work';
     st().setPose(next);
     if (scene === 'field' && next === 'transport') st().setScene('studio');
-    // reencuadrar cuando termina la secuencia
-    window.setTimeout(() => {
-      if (performance.now() - runtime.lastInteraction > 6500) st().requestCam('front34');
-    }, 7300);
     touchInteraction();
+    // encuadra las dos posiciones mientras se mueve y reencuadra al terminar
+    st().requestCam('front34');
   };
   const fullscreen = () => {
     const el = document.querySelector('.viewer') as HTMLElement | null;
@@ -69,6 +68,9 @@ export function ViewerToolbar() {
   };
   const scenes: SceneId[] = ['studio', 'field', 'road'];
   const isRoad = scene === 'road';
+  const playLabel = sowing ? t('toolbar.stopSow') : isRoad ? t('toolbar.drive') : t('toolbar.sow');
+  const foldLabel = pose === 'work' ? t('toolbar.fold') : t('toolbar.unfold');
+  const detailLabel = detail ? t('toolbar.exitDetail') : t('toolbar.detail');
   return (
     <div className="topbar" ref={wrap} role="toolbar" aria-label={t('toolbar.cameras')}>
       <div className="pop-wrap">
@@ -99,23 +101,20 @@ export function ViewerToolbar() {
         className={`tb-btn tb-primary${sowing ? ' is-on' : ''}`}
         onClick={() => st().setSowing(!sowing)}
         disabled={isRoad ? pose !== 'transport' : pose === 'transport'}
+        aria-label={playLabel}
+        title={playLabel}
       >
         {sowing ? <IconPause size={16} /> : <IconPlay size={16} />}
-        <span className="tb-label">{sowing ? t('toolbar.stopSow') : isRoad ? t('toolbar.drive') : t('toolbar.sow')}</span>
+        <StableLabel className="tb-label" current={playLabel} all={[t('toolbar.stopSow'), t('toolbar.drive'), t('toolbar.sow')]} />
       </button>
-      <button type="button" className={`tb-btn${pose === 'transport' ? ' is-sel' : ''}`} onClick={fold} title={pose === 'work' ? t('toolbar.fold') : t('toolbar.unfold')}>
+      <button type="button" className={`tb-btn${pose === 'transport' ? ' is-sel' : ''}`} onClick={fold} title={foldLabel} aria-label={foldLabel}>
         <IconFold size={17} />
-        <span className="tb-label tb-label-wide">{pose === 'work' ? t('toolbar.fold') : t('toolbar.unfold')}</span>
+        <StableLabel className="tb-label tb-label-wide" current={foldLabel} all={[t('toolbar.fold'), t('toolbar.unfold')]} />
       </button>
-      <button type="button" className={`tb-btn${detail ? ' is-sel' : ''}`} onClick={() => st().setDetail(!detail)} title={detail ? t('toolbar.exitDetail') : t('toolbar.detail')}>
+      <button type="button" className={`tb-btn${detail ? ' is-sel' : ''}`} onClick={() => st().setDetail(!detail)} title={detailLabel} aria-label={detailLabel}>
         <IconUnit size={17} />
-        <span className="tb-label tb-label-wide">{detail ? t('toolbar.exitDetail') : t('toolbar.detail')}</span>
+        <StableLabel className="tb-label tb-label-wide" current={detailLabel} all={[t('toolbar.detail'), t('toolbar.exitDetail')]} />
       </button>
-      {detail && (
-        <button type="button" className={`tb-btn${exploded ? ' is-sel' : ''}`} onClick={() => st().setExploded(!exploded)}>
-          <span>{exploded ? t('toolbar.assemble') : t('toolbar.explode')}</span>
-        </button>
-      )}
       <span className="tb-sep" aria-hidden />
       <div className="pop-wrap">
         <button type="button" className="tb-btn tb-icon" aria-haspopup="menu" aria-expanded={moreOpen} aria-label={t('toolbar.more')} title={t('toolbar.more')} onClick={() => { setMoreOpen(!moreOpen); setCamOpen(false); }}>
@@ -148,7 +147,18 @@ export function NoticeToast() {
     const id = window.setTimeout(dismiss, 7000);
     return () => window.clearTimeout(id);
   }, [notice, dismiss]);
+  const f = useFmt();
+  const config = useStore((s) => s.config);
   const label = (g: string, o: string) => (g === 'rows' ? o : t(`options.${g}.${o}.name`));
+  const why = (n: Notice) => {
+    if (n.ruleId !== 'rowsRange') return t(`rules.${n.ruleId}`);
+    const m = getModel(config.model);
+    const r = rowsRange(m, config.spacingCm);
+    if (Number(n.to) === r.max && r.max < m.rowsMax) {
+      return t('rules.rowsRangeWidth', { spacing: f.q(config.spacingCm, 'lengthCm', 1), max: r.max, model: t(`models.${m.id}.name`), width: f.q(m.maxWidthM, 'length', 1) });
+    }
+    return t('rules.rowsRange');
+  };
   return (
     <div className="toast-zone" aria-live="polite">
       <AnimatePresence>
@@ -161,7 +171,7 @@ export function NoticeToast() {
             <ul>
               {notice.items.map((n, i) => (
                 <li key={i}>
-                  <span>{t(`rules.${n.ruleId}`)}</span>
+                  <span>{why(n)}</span>
                   <span className="toast-change">{t('rules.changed', { group: n.group === 'rows' ? t('rows.count') : t(`groups.${n.group}.name`), from: label(n.group, n.from), to: label(n.group, n.to) })}</span>
                 </li>
               ))}
@@ -171,6 +181,19 @@ export function NoticeToast() {
       </AnimatePresence>
     </div>
   );
+}
+
+export const ROW_UNIT_PARTS = ['coulter', 'discs', 'gauge', 'meter', 'closing'] as const;
+const HOTSPOT_STEP: Record<string, string> = { rowUnit: 'rowUnit', coulter: 'rowUnit', discs: 'rowUnit', gauge: 'rowUnit', closing: 'rowUnit', meter: 'tech', hoppers: 'hoppers', transport: 'transport', monitor: 'tech' };
+
+function goToStep(stepId: string, setHotspot: (id: string | null) => void) {
+  const st = useStore.getState();
+  const i = Math.max(0, catalog.steps.findIndex((s) => s.id === stepId));
+  setHotspot(null);
+  st.setPanelTab('config');
+  st.setStep(i);
+  const f = catalog.steps[i].focus;
+  if (f) st.focus(f);
 }
 
 export function HotspotCard() {
@@ -183,7 +206,26 @@ export function HotspotCard() {
         <motion.aside key={id} className="hs-card" role="dialog" aria-label={t(`hotspots.${id}.title`)} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: 10 }}>
           <button type="button" className="btn-icon btn-icon-sm hs-close" aria-label={t('actions.close')} onClick={() => setHotspot(null)}><IconClose size={16} /></button>
           <h3>{t(`hotspots.${id}.title`)}</h3>
-          <p>{t(`hotspots.${id}.body`)}</p>
+          {id === 'rowUnit' ? (
+            <dl className="hs-list">
+              {ROW_UNIT_PARTS.map((p) => (
+                <div key={p}>
+                  <dt>{t(`hotspots.${p}.title`)}</dt>
+                  <dd>{t(`hotspots.${p}.body`)}</dd>
+                </div>
+              ))}
+            </dl>
+          ) : (
+            <p>{t(`hotspots.${id}.body`)}</p>
+          )}
+          <div className="hs-actions">
+            {id === 'rowUnit' && (
+              <button type="button" className="btn btn-secondary btn-xs" onClick={() => { setHotspot(null); useStore.getState().setDetail(true); }}>{t('toolbar.detail')}</button>
+            )}
+            <button type="button" className="btn btn-accent btn-xs" onClick={() => goToStep(HOTSPOT_STEP[id] ?? 'model', setHotspot)}>
+              {t('hotspots.configure', { step: t(`steps.${HOTSPOT_STEP[id] ?? 'model'}.name`) })}
+            </button>
+          </div>
         </motion.aside>
       )}
     </AnimatePresence>
@@ -252,11 +294,49 @@ export function SimPanel() {
 export function DetailLegend() {
   const t = useT();
   const detail = useStore((s) => s.detail);
+  const exploded = useStore((s) => s.exploded);
+  const setExploded = useStore((s) => s.setExploded);
   if (!detail) return null;
   return (
     <div className="detail-legend">
       <strong>{t('detail.title')}</strong>
       <span className="muted small">{t('detail.subtitle')}</span>
+      <button type="button" className={`btn btn-secondary btn-xs${exploded ? ' is-sel' : ''}`} aria-pressed={exploded} onClick={() => setExploded(!exploded)}>
+        {exploded ? t('toolbar.assemble') : t('toolbar.explode')}
+      </button>
+    </div>
+  );
+}
+
+/** Texto de botón con el ancho del más largo de sus estados (la barra no se mueve al cambiar). */
+function StableLabel({ current, all, className }: { current: string; all: string[]; className?: string }) {
+  return (
+    <span className={`stable ${className ?? ''}`}>
+      {all.map((x) => (
+        <span key={x} className="stable-ghost" aria-hidden>{x}</span>
+      ))}
+      <span className="stable-cur">{current}</span>
+    </span>
+  );
+}
+
+/** Indicador mientras la máquina se pliega/despliega (la animación tarda unos segundos). */
+export function PoseBadge() {
+  const t = useT();
+  const pose = useStore((s) => s.pose);
+  const [moving, setMoving] = useState(false);
+  useEffect(() => {
+    const id = window.setInterval(() => {
+      const p = runtime.model?.state.poseT ?? (pose === 'transport' ? 1 : 0);
+      const target = pose === 'transport' ? 1 : 0;
+      setMoving(Math.abs(p - target) > 0.01);
+    }, 150);
+    return () => window.clearInterval(id);
+  }, [pose]);
+  if (!moving) return null;
+  return (
+    <div className="pose-badge" role="status">
+      <span className="spinner" aria-hidden /> {t(pose === 'transport' ? 'toolbar.folding' : 'toolbar.unfolding')}
     </div>
   );
 }
@@ -277,6 +357,7 @@ export function LoadingScreen() {
   const pct = ready ? 100 : Math.max(8, Math.min(96, active ? progress : 60));
   return (
     <div className={`loader${ready ? ' is-done' : ''}`} role="status" aria-live="polite">
+      <img className="loader-poster" src={`${import.meta.env.BASE_URL}poster.jpg`} alt="" aria-hidden decoding="async" onLoad={(e) => e.currentTarget.setAttribute('data-ok', '')} onError={(e) => (e.currentTarget.style.display = 'none')} />
       <svg className="loader-svg" viewBox="0 0 320 120" aria-hidden>
         <defs>
           <clipPath id="fillclip">

@@ -1,5 +1,7 @@
 {
   "_demo": "Marca FICTICIA de demostración. Reemplazar por la del fabricante.",
+  "demo": true,
+  "_demoLeads": "Con demo=true: WhatsApp y email se abren sin destinatario (elegís a quién mandarlo) y cada consulta queda guardada en el Worker (KV). En la versión del fabricante: demo=false y completar whatsapp/email de ventas.",
   "name": "Umbral_exp",
   "short": "UX",
   "tagline": {
@@ -20,15 +22,15 @@
     {
       "ral": "brand",
       "hex": "#1E4D5C",
-      "name": "Azul petróleo SP"
+      "name": "Azul petróleo Umbral"
     },
     {
       "ral": "brand-accent",
       "hex": "#E8792B",
-      "name": "Naranja SP"
+      "name": "Naranja Umbral"
     }
   ],
-  "whatsapp": "5493424000000",
+  "whatsapp": "",
   "email": "ventas@umbralexp.example",
   "phone": "+54 342 400-0000",
   "web": "umbralexp.example",

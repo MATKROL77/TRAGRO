@@ -246,7 +246,7 @@ export async function generateQuotePdf(input: PdfInput): Promise<Blob> {
   y = sectionTitle(y, t('pdf.contact'));
   doc.setFontSize(9);
   doc.setTextColor(...ink);
-  doc.text([`${brand.name} · ${brand.address}`, `${brand.phone} · WhatsApp +${brand.whatsapp}`, `${brand.email} · ${brand.web}`], M, y);
+  doc.text([`${brand.name} · ${brand.address}`, brand.whatsapp ? `${brand.phone} · WhatsApp +${brand.whatsapp}` : brand.phone, `${brand.email} · ${brand.web}`], M, y);
   y += 16;
   doc.setFontSize(8);
   doc.setTextColor(...primary);

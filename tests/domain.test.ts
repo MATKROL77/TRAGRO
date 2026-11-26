@@ -210,3 +210,32 @@ describe('URL', () => {
     expect(encodeConfig(base()).length).toBeLessThan(600);
   });
 });
+
+describe('auditoría: precios, estado en la URL y formulario', () => {
+  it('el "desde" es la configuración básica con el mínimo de surcos (más barato que la recomendada)', async () => {
+    const { fromPrice, recommendedPrice } = await import('../src/domain/pricing');
+    const { catalog: cat } = await import('../src/domain/catalog');
+    for (const m of cat.models) {
+      expect(fromPrice(m.id)).toBeLessThan(recommendedPrice(m.id));
+    }
+  });
+  it('la configuración básica no suma opcionales', async () => {
+    const { standardSelections, isBasic, isRecommended } = await import('../src/domain/catalog');
+    const cfg = { ...createDefaultConfig(), selections: standardSelections() };
+    expect(isBasic(cfg)).toBe(true);
+    expect(isRecommended(createDefaultConfig())).toBe(true);
+    const p = computePrice(cfg);
+    expect(p.lines.every((l) => l.key === 'base' || l.key === 'rows')).toBe(true);
+  });
+  it('liveUrl conserva otros parámetros y omite idioma/unidades por defecto', async () => {
+    const { liveUrl } = await import('../src/domain/url');
+    const u = new URL(liveUrl('https://x.test/?modo=feria&q=low', { config: createDefaultConfig(), lang: 'es-AR', units: 'metric' }));
+    expect(u.searchParams.get('modo')).toBe('feria');
+    expect(u.searchParams.get('q')).toBe('low');
+    expect(u.searchParams.get('cfg')).toBeTruthy();
+    expect(u.searchParams.has('lang')).toBe(false);
+    const v = new URL(liveUrl(u.toString(), { config: createDefaultConfig(), lang: 'en', units: 'imperial' }));
+    expect(v.searchParams.get('lang')).toBe('en');
+    expect(v.searchParams.get('u')).toBe('imp');
+  });
+});

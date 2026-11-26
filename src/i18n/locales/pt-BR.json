@@ -67,7 +67,8 @@
       "desc": "Máxima capacidade operacional por dia."
     },
     "rowsRange": "{min}–{max} linhas",
-    "from": "a partir de"
+    "from": "a partir de",
+    "recommended": "Recomendada"
   },
   "rows": {
     "count": "Número de linhas",
@@ -94,7 +95,8 @@
       "name": "Adubação"
     },
     "fertCapacity": {
-      "name": "Capacidade de adubo"
+      "name": "Capacidade de adubo",
+      "na": "Não se aplica sem fertilização."
     },
     "coulter": {
       "name": "Disco de corte"
@@ -325,7 +327,8 @@
     "pneumaticDownforceTiers": "A pressão pneumática está disponível nos modelos Grande e Grande largura.",
     "rowsRange": "O número de linhas foi ajustado à faixa do modelo.",
     "noticeTitle": "Ajustamos sua configuração",
-    "changed": "{group}: {from} → {to}"
+    "changed": "{group}: {from} → {to}",
+    "rowsRangeWidth": "Com {spacing} cabem no máximo {max} linhas no chassi da {model} ({width})."
   },
   "custom": {
     "mainColor": "Cor principal",
@@ -341,7 +344,9 @@
     "logoError": "Não conseguimos ler esse arquivo. Tente um PNG ou SVG de até 2 MB.",
     "text": "Texto na máquina (opcional)",
     "textPlaceholder": "Ex.: Fazenda Boa Vista",
-    "logoNotShared": "O logotipo não vai no link compartilhado."
+    "logoNotShared": "O logotipo não vai no link compartilhado.",
+    "allColors": "Ver todas as cores ({n})",
+    "fewerColors": "Ver menos cores"
   },
   "price": {
     "label": "Preço de referência",
@@ -356,7 +361,16 @@
     "rowsLine": "{rows} linhas",
     "customPaint": "Pintura especial",
     "customText": "Adesivagem personalizada",
-    "leadTime": "Entrega estimada: {days} dias"
+    "leadTime": "Entrega estimada: {days} dias",
+    "road": {
+      "green": "Estrada OK",
+      "yellow": "Estrada: máquina especial",
+      "red": "Estrada: não apta"
+    },
+    "recommended": "Configuração recomendada",
+    "basic": "Configuração básica",
+    "toBasic": "Ver a básica",
+    "toRecommended": "Voltar à recomendada"
   },
   "perf": {
     "title": "Rendimento",
@@ -409,7 +423,13 @@
     "mode": {
       "fold": "Asas dobradas",
       "longitudinal": "Longitudinal"
-    }
+    },
+    "optOk": "Na estrada mede {w} × {h}: dentro dos limites gerais.",
+    "opt": {
+      "yellow": "Na estrada mede {w} de largura e {h} de altura: circula como máquina especial (sinalização, horários e licenças).",
+      "red": "Com {width} de largura de trabalho, na estrada mede {w} de largura e {h} de altura: precisa de licença especial e escolta."
+    },
+    "switchTo": "Mudar para {mode}"
   },
   "toolbar": {
     "cameras": "Câmeras",
@@ -449,7 +469,9 @@
       "maize": "Palhada de milho"
     },
     "more": "Mais",
-    "drive": "Andar na estrada"
+    "drive": "Andar na estrada",
+    "folding": "Dobrando…",
+    "unfolding": "Abrindo…"
   },
   "hotspots": {
     "coulter": {
@@ -483,7 +505,12 @@
     "monitor": {
       "title": "Monitor de plantio",
       "body": "Avisa na hora se uma linha falha ou entope. Você vê a população real em cada linha."
-    }
+    },
+    "rowUnit": {
+      "title": "Linha de plantio",
+      "body": "Disco de corte, disco duplo, rodas limitadoras, dosador e rodas compactadoras."
+    },
+    "configure": "Configurar: {step}"
   },
   "detail": {
     "title": "Linha de plantio",
@@ -574,29 +601,32 @@
     "transport": "Transporte",
     "better": "melhor",
     "cta": "Comparar",
-    "hint": "Salvamos sua configuração atual como A. Mude o que quiser (modelo, linhas, opções) e salve como B para vê-las lado a lado."
+    "hint": "Salvamos sua configuração atual como A. Mude o que quiser (modelo, linhas, opções) e salve como B para vê-las lado a lado.",
+    "hintSame": "A opção A é igual à sua configuração atual. Mude algo (modelo, linhas ou opções) e toque em «Salvar como B»."
   },
   "quote": {
     "title": "Pedir cotação",
     "intro": "Responderemos com a cotação formal e as condições de entrega para o seu país.",
     "name": "Nome completo",
-    "company": "Empresa ou fazenda",
-    "country": "País",
-    "region": "Estado, província ou região",
+    "company": "Empresa ou fazenda (opcional)",
+    "country": "País (opcional)",
+    "region": "Cidade (opcional)",
     "hectares": "Hectares plantados por ano (opcional)",
-    "phone": "Telefone (com código do país)",
-    "email": "E-mail",
+    "phone": "Telefone (opcional)",
+    "email": "Email (para resposta por email)",
     "message": "Comentários (opcional)",
     "sendWhatsapp": "Enviar pelo WhatsApp",
     "sendEmail": "Enviar por e-mail",
     "required": "Preencha este campo.",
     "invalidEmail": "Verifique o e-mail.",
-    "invalidPhone": "Inclua o código do país, por exemplo +55 66 99999 0000.",
+    "invalidPhone": "Confira o telefone (com código do país, por exemplo +55 11 95555 0000).",
     "sent": "Pronto! O {channel} foi aberto com a sua consulta.",
     "privacy": "Usamos estes dados apenas para responder à sua consulta.",
     "waGreeting": "Olá, quero uma cotação desta plantadeira:",
     "waFooter": "Veja a configuração em 3D:",
-    "subject": "Cotação plantadeira {model} — {number}"
+    "subject": "Cotação plantadeira {model} — {number}",
+    "demoNote": "Demo: a mensagem abre sem destinatário e a consulta fica registrada. Na sua versão, chega direto à sua equipe de vendas.",
+    "whichFields": "Pelo WhatsApp basta o seu nome. Para resposta por email, deixe seu email."
   },
   "pdf": {
     "title": "Cotação de referência",

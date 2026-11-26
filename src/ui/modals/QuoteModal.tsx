@@ -6,37 +6,43 @@ import { buildSummary } from '../../services/summaryData';
 import { submitLead, type Channel, type Lead } from '../../services/lead';
 import { currentShareUrl } from '../share';
 import { IconMail, IconWhatsapp } from '../icons';
+import brand from '../../config/brand.json';
 
 type Form = Pick<Lead, 'name' | 'company' | 'country' | 'region' | 'hectares' | 'phone' | 'email' | 'message'>;
 const EMPTY: Form = { name: '', company: '', country: '', region: '', hectares: '', phone: '', email: '', message: '' };
+const COUNTRY_BY_LANG: Record<string, string> = { 'es-AR': 'Argentina', 'pt-BR': 'Brasil' };
+const HECTARES = ['<500', '500–2000', '2000+'];
 
-export function validateLead(f: Form): Partial<Record<keyof Form, string>> {
+/**
+ * Por WhatsApp el teléfono llega solo: alcanza con el nombre. Por email hace falta el email.
+ * Teléfono y email, si se completan, se validan.
+ */
+export function validateLead(f: Form, channel: Channel = 'whatsapp'): Partial<Record<keyof Form, string>> {
   const e: Partial<Record<keyof Form, string>> = {};
   if (!f.name.trim()) e.name = 'quote.required';
-  if (!f.country.trim()) e.country = 'quote.required';
-  if (!f.phone.trim()) e.phone = 'quote.required';
-  else if (!/^\+\d[\d\s().-]{6,}$/.test(f.phone.trim())) e.phone = 'quote.invalidPhone';
-  if (!f.email.trim()) e.email = 'quote.required';
-  else if (!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(f.email.trim())) e.email = 'quote.invalidEmail';
+  if (f.phone.trim() && !/^\+?\d[\d\s().-]{6,}$/.test(f.phone.trim())) e.phone = 'quote.invalidPhone';
+  if (channel === 'email' && !f.email.trim()) e.email = 'quote.required';
+  else if (f.email.trim() && !/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(f.email.trim())) e.email = 'quote.invalidEmail';
   return e;
 }
 
 export default function QuoteModal() {
   const t = useT();
   const s = useStore();
-  const [f, setF] = useState<Form>(EMPTY);
+  const [f, setF] = useState<Form>(() => ({ ...EMPTY, country: COUNTRY_BY_LANG[useStore.getState().lang] ?? '' }));
   const [errors, setErrors] = useState<Partial<Record<keyof Form, string>>>({});
   const [sent, setSent] = useState<string | null>(null);
   const summary = useMemo(() => buildSummary(s.config, s.field, s.lang, s.units, s.destination, s.transportProfile, s.hidePrices), [s.config, s.field, s.lang, s.units, s.destination, s.transportProfile, s.hidePrices]);
   const set = (k: keyof Form) => (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => setF({ ...f, [k]: e.target.value });
   const send = async (channel: Channel) => {
-    const e = validateLead(f);
+    const e = validateLead(f, channel);
     setErrors(e);
     if (Object.keys(e).length) {
       document.getElementById(`q-${Object.keys(e)[0]}`)?.focus();
       return;
     }
     const url = currentShareUrl();
+    const L = (k: string) => t(`quote.${k}`).replace(/\s*\(.*\)\s*$/, '');
     const text = [
       t('quote.waGreeting'),
       `*${summary.title}* — ${summary.number}`,
@@ -46,13 +52,13 @@ export default function QuoteModal() {
       `• ${t('transport.title')}: ${summary.transport.map((x) => `${x.label} ${x.value}`).join(' · ')}`,
       s.hidePrices ? '' : `• ${t('price.label')}: ${summary.totalText} (${summary.legend})`,
       '',
-      `${t('quote.name')}: ${f.name}`,
-      f.company && `${t('quote.company')}: ${f.company}`,
-      `${t('quote.country')}: ${f.country}${f.region ? ` / ${f.region}` : ''}`,
-      f.hectares && `${t('quote.hectares')}: ${f.hectares}`,
-      `${t('quote.phone')}: ${f.phone}`,
-      `${t('quote.email')}: ${f.email}`,
-      f.message && `${t('quote.message')}: ${f.message}`,
+      `${L('name')}: ${f.name}`,
+      f.company && `${L('company')}: ${f.company}`,
+      (f.country || f.region) && `${L('country')}: ${[f.country, f.region].filter(Boolean).join(' / ')}`,
+      f.hectares && `${L('hectares')}: ${f.hectares} ha`,
+      f.phone && `${L('phone')}: ${f.phone}`,
+      f.email && `${L('email')}: ${f.email}`,
+      f.message && `${L('message')}: ${f.message}`,
       '',
       `${t('quote.waFooter')} ${url}`,
     ]
@@ -84,15 +90,26 @@ export default function QuoteModal() {
       }
     >
       <p className="muted">{t('quote.intro')}</p>
+      {brand.demo && <p className="demo-note" role="note">{t('quote.demoNote')}</p>}
       <div className="quote-config"><strong>{summary.title}</strong> · {summary.number}{!s.hidePrices && <> · {summary.totalText}</>}</div>
       <form className="form-grid" onSubmit={(e) => { e.preventDefault(); send('whatsapp'); }} noValidate>
         {field('name', { auto: 'name', required: true })}
+        {field('region', { auto: 'address-level2' })}
+        {field('country', { auto: 'country-name' })}
         {field('company', { auto: 'organization' })}
-        {field('country', { auto: 'country-name', required: true })}
-        {field('region', { auto: 'address-level1' })}
-        {field('hectares', { type: 'number', inputMode: 'numeric' })}
-        {field('phone', { type: 'tel', auto: 'tel', required: true, inputMode: 'tel' })}
-        {field('email', { type: 'email', auto: 'email', required: true, inputMode: 'email', full: true })}
+        <fieldset className="field field-full ha-field">
+          <legend className="field-label">{t('quote.hectares')}</legend>
+          <div className="chips" role="radiogroup" aria-label={t('quote.hectares')}>
+            {HECTARES.map((h) => (
+              <button key={h} type="button" role="radio" aria-checked={f.hectares === h} className={`chip${f.hectares === h ? ' is-selected' : ''}`} onClick={() => setF({ ...f, hectares: f.hectares === h ? '' : h })}>
+                {h} ha
+              </button>
+            ))}
+          </div>
+        </fieldset>
+        {field('phone', { type: 'tel', auto: 'tel', inputMode: 'tel' })}
+        {field('email', { type: 'email', auto: 'email', inputMode: 'email' })}
+        <p className="muted tiny field-full">{t('quote.whichFields')}</p>
         <label className="field field-full">
           <span className="field-label">{t('quote.message')}</span>
           <textarea className="input" rows={3} value={f.message} onChange={set('message')} />

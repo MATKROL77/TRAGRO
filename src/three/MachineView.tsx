@@ -45,6 +45,11 @@ export function MachineView() {
     }
     runtime.model = m;
     if (!prev) useStore.getState().requestCam(useStore.getState().scene === 'field' ? 'ground' : 'front34', true);
+    // si cambió el ancho (surcos, espaciado, modelo, transporte), reencuadrar la máquina entera
+    else if (Math.abs(m.layout.barLength - prev.layout.barLength) > 0.2 || m.layout.transport !== prev.layout.transport) {
+      const st = useStore.getState();
+      if (st.scene !== 'field' && !st.detail) window.setTimeout(() => useStore.getState().focus('overview'), 450);
+    }
     invalidate();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [sig]);

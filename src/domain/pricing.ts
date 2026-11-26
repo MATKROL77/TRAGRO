@@ -1,5 +1,6 @@
 import pricingJson from '../config/pricing.json';
-import { catalog, getModel } from './catalog';
+import { catalog, createDefaultConfig, getModel, standardSelections } from './catalog';
+import { resolve } from './rules';
 import type { Configuration } from './types';
 
 interface PriceEntry { base: number; perRow: number; ifSel?: Record<string, string> }
@@ -61,4 +62,36 @@ export function leadTimeDays(cfg: Configuration): number {
     extra = Math.max(extra, o?.leadTimeDays ?? 0);
   }
   return model.leadTimeDays + extra;
+}
+
+/**
+ * Precio "desde" real de un modelo: mínimo de surcos y todas las opciones en estándar
+ * (las reglas duras, como el transporte longitudinal en anchos grandes, se respetan).
+ */
+export function fromPrice(modelId: string, destination: Destination = 'export'): number {
+  const m = getModel(modelId);
+  const spacings = catalog.spacingsCm;
+  let best = Infinity;
+  for (const spacingCm of spacings) {
+    const cfg = resolveBasic({ ...baseFor(modelId), rows: m.rowsMin, spacingCm });
+    best = Math.min(best, computePrice(cfg, destination).total);
+  }
+  return best;
+}
+
+/** Precio de la configuración recomendada de fábrica para un modelo (surcos por defecto). */
+export function recommendedPrice(modelId: string, destination: Destination = 'export'): number {
+  const m = getModel(modelId);
+  const r = resolve({ ...baseFor(modelId), rows: m.defaultRows, spacingCm: m.defaultSpacingCm, selections: createDefaultConfig().selections });
+  return computePrice(r.config, destination).total;
+}
+
+function baseFor(modelId: string): Configuration {
+  const d = createDefaultConfig();
+  const m = getModel(modelId);
+  return { ...d, model: m.id, rows: m.defaultRows, spacingCm: m.defaultSpacingCm };
+}
+
+function resolveBasic(cfg: Configuration): Configuration {
+  return resolve({ ...cfg, selections: standardSelections() }).config;
 }

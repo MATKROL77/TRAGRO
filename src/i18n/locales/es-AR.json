@@ -67,7 +67,8 @@
       "desc": "Máxima capacidad de trabajo por jornada."
     },
     "rowsRange": "{min}–{max} surcos",
-    "from": "desde"
+    "from": "desde",
+    "recommended": "Recomendada"
   },
   "rows": {
     "count": "Cantidad de surcos",
@@ -94,7 +95,8 @@
       "name": "Fertilización"
     },
     "fertCapacity": {
-      "name": "Capacidad de fertilizante"
+      "name": "Capacidad de fertilizante",
+      "na": "No aplica sin fertilización."
     },
     "coulter": {
       "name": "Cuchilla de corte"
@@ -325,7 +327,8 @@
     "pneumaticDownforceTiers": "La presión neumática está disponible en los modelos Grande y Gran ancho.",
     "rowsRange": "La cantidad de surcos se ajustó al rango del modelo.",
     "noticeTitle": "Ajustamos tu configuración",
-    "changed": "{group}: {from} → {to}"
+    "changed": "{group}: {from} → {to}",
+    "rowsRangeWidth": "Con {spacing} entran como máximo {max} surcos en el bastidor del {model} ({width})."
   },
   "custom": {
     "mainColor": "Color principal",
@@ -341,7 +344,9 @@
     "logoError": "No pudimos leer ese archivo. Probá con un PNG o SVG de menos de 2 MB.",
     "text": "Texto en la máquina (opcional)",
     "textPlaceholder": "Ej.: Agro Los Talas",
-    "logoNotShared": "El logo no viaja en el link compartido."
+    "logoNotShared": "El logo no viaja en el link compartido.",
+    "allColors": "Ver todos los colores ({n})",
+    "fewerColors": "Ver menos colores"
   },
   "price": {
     "label": "Precio orientativo",
@@ -356,7 +361,16 @@
     "rowsLine": "{rows} surcos",
     "customPaint": "Pintura especial",
     "customText": "Ploteo personalizado",
-    "leadTime": "Entrega estimada: {days} días"
+    "leadTime": "Entrega estimada: {days} días",
+    "road": {
+      "green": "Ruta OK",
+      "yellow": "Ruta: maquinaria especial",
+      "red": "Ruta: no apta"
+    },
+    "recommended": "Configuración recomendada",
+    "basic": "Configuración básica",
+    "toBasic": "Ver la básica",
+    "toRecommended": "Volver a la recomendada"
   },
   "perf": {
     "title": "Rendimiento",
@@ -409,7 +423,13 @@
     "mode": {
       "fold": "Alas plegadas",
       "longitudinal": "Longitudinal"
-    }
+    },
+    "optOk": "En ruta mide {w} × {h}: dentro de los límites generales.",
+    "opt": {
+      "yellow": "En ruta mide {w} de ancho y {h} de alto: circula como maquinaria especial (balizas, horarios y permisos).",
+      "red": "Con {width} de ancho de labor, en ruta mide {w} de ancho y {h} de alto: necesita permiso especial y escolta."
+    },
+    "switchTo": "Cambiar a {mode}"
   },
   "toolbar": {
     "cameras": "Cámaras",
@@ -449,7 +469,9 @@
       "maize": "Rastrojo de maíz"
     },
     "more": "Más",
-    "drive": "Andar por la ruta"
+    "drive": "Andar por la ruta",
+    "folding": "Plegando…",
+    "unfolding": "Desplegando…"
   },
   "hotspots": {
     "coulter": {
@@ -483,7 +505,12 @@
     "monitor": {
       "title": "Monitor de siembra",
       "body": "Avisa al instante si un surco falla o se tapa. Ves la densidad real en cada surco."
-    }
+    },
+    "rowUnit": {
+      "title": "Cuerpo de siembra",
+      "body": "Cuchilla, doble disco, ruedas limitadoras, dosificador y tapadoras."
+    },
+    "configure": "Configurar: {step}"
   },
   "detail": {
     "title": "Cuerpo de siembra",
@@ -574,29 +601,32 @@
     "transport": "Transporte",
     "better": "mejor",
     "cta": "Comparar",
-    "hint": "Guardamos tu configuración actual como A. Cambiá lo que quieras (modelo, surcos, opciones) y guardala como B para verlas lado a lado."
+    "hint": "Guardamos tu configuración actual como A. Cambiá lo que quieras (modelo, surcos, opciones) y guardala como B para verlas lado a lado.",
+    "hintSame": "La opción A es igual a tu configuración actual. Cambiá algo (modelo, surcos u opciones) y tocá «Guardar como B»."
   },
   "quote": {
     "title": "Pedir cotización",
     "intro": "Te respondemos con la cotización formal y las condiciones de entrega a tu país.",
     "name": "Nombre y apellido",
-    "company": "Empresa o establecimiento",
-    "country": "País",
-    "region": "Provincia, estado o región",
+    "company": "Empresa o establecimiento (opcional)",
+    "country": "País (opcional)",
+    "region": "Localidad (opcional)",
     "hectares": "Hectáreas que siembra por año (opcional)",
-    "phone": "Teléfono (con código de país)",
-    "email": "Email",
+    "phone": "Teléfono (opcional)",
+    "email": "Email (para respuesta por email)",
     "message": "Comentarios (opcional)",
     "sendWhatsapp": "Enviar por WhatsApp",
     "sendEmail": "Enviar por email",
     "required": "Completá este dato.",
     "invalidEmail": "Revisá el email.",
-    "invalidPhone": "Incluí el código de país, por ejemplo +54 9 341 555 0000.",
+    "invalidPhone": "Revisá el teléfono (con código de país, por ejemplo +54 9 341 555 0000).",
     "sent": "¡Listo! Se abrió {channel} con tu consulta.",
     "privacy": "Usamos estos datos sólo para responder tu consulta.",
     "waGreeting": "Hola, quiero cotizar esta sembradora:",
     "waFooter": "Ver la configuración en 3D:",
-    "subject": "Cotización sembradora {model} — {number}"
+    "subject": "Cotización sembradora {model} — {number}",
+    "demoNote": "Demo: el mensaje se abre sin destinatario y la consulta queda registrada. En tu versión, le llega directo a tu equipo de ventas.",
+    "whichFields": "Por WhatsApp alcanza con tu nombre. Para respuesta por email, dejanos tu email."
   },
   "pdf": {
     "title": "Cotización orientativa",

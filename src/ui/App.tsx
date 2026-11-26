@@ -1,4 +1,4 @@
-import { Component, Suspense, lazy, useEffect } from 'react';
+import { Component, Suspense, lazy, useEffect, useRef } from 'react';
 import { AnimatePresence } from 'framer-motion';
 import { useStore } from '../state/store';
 import { useT } from '../i18n/useT';
@@ -8,7 +8,7 @@ import { PerformancePanel } from './PerformancePanel';
 import { PriceHeader } from './BottomBar';
 import { useMediaQuery } from './hooks';
 import { IconCompare } from './icons';
-import { DetailLegend, HotspotCard, LoadingScreen, NoWebGL, NoticeToast, SimPanel, ViewerToolbar } from './ViewerUI';
+import { DetailLegend, HotspotCard, LoadingScreen, NoWebGL, NoticeToast, PoseBadge, SimPanel, ViewerToolbar } from './ViewerUI';
 import { restartDemo, useEmbedBridge, useFeriaMode, useShortcuts } from './feria';
 import { touchInteraction } from '../three/runtime';
 import { IconReset } from './icons';
@@ -67,6 +67,16 @@ export function App() {
   const tab = useStore((s) => s.panelTab);
   const mobile = useMediaQuery('(max-width: 900px)');
   const setTab = useStore((s) => s.setPanelTab);
+  const side = useRef<HTMLElement>(null);
+  // en el celular, la tira de pasos queda fija justo debajo del precio
+  useEffect(() => {
+    const el = side.current;
+    const ph = el?.querySelector('.price-head');
+    if (!el || !ph || !mobile) return;
+    const ro = new ResizeObserver(() => el.style.setProperty('--ph-h', `${(ph as HTMLElement).offsetHeight}px`));
+    ro.observe(ph);
+    return () => ro.disconnect();
+  }, [mobile]);
   useFeriaMode();
   useShortcuts();
   useEmbedBridge();
@@ -76,6 +86,7 @@ export function App() {
   return (
     <div className={`app${feria ? ' is-feria' : ''}${embed ? ' is-embed' : ''}`} onPointerDown={touchInteraction}>
       <a className="skip" href="#config-panel">{t('app.skipToPanel')}</a>
+      <h1 className="sr-only">{t('app.title')} · Umbral_exp</h1>
       {!embed && <Header />}
       <main className="main">
         <div className="viewer" aria-label={t('a11y.viewer')} role="region">
@@ -92,6 +103,7 @@ export function App() {
           {embed && <div className="embed-lu"><LangUnitControls /></div>}
           <ViewerToolbar />
           <SimPanel />
+          <PoseBadge />
           <DetailLegend />
           <HotspotCard />
           <NoticeToast />
@@ -113,7 +125,7 @@ export function App() {
             <IconCompare size={18} /> {t('compare.cta')}
           </button>
         </div>
-        <aside className="side">
+        <aside className="side" ref={side}>
           {mobile && <PriceHeader />}
           <div className="side-tabs seg" role="tablist" aria-label={t('a11y.panel')}>
             <button type="button" role="tab" aria-selected={tab === 'config'} className={tab === 'config' ? 'is-selected' : ''} onClick={() => setTab('config')}>{t('nav.configure')}</button>

@@ -67,7 +67,8 @@
       "desc": "Maximum acres per day."
     },
     "rowsRange": "{min}–{max} rows",
-    "from": "from"
+    "from": "from",
+    "recommended": "Recommended"
   },
   "rows": {
     "count": "Number of rows",
@@ -94,7 +95,8 @@
       "name": "Fertilizer"
     },
     "fertCapacity": {
-      "name": "Fertilizer capacity"
+      "name": "Fertilizer capacity",
+      "na": "Not applicable without fertilizer."
     },
     "coulter": {
       "name": "Residue coulter"
@@ -325,7 +327,8 @@
     "pneumaticDownforceTiers": "Pneumatic downforce is available on the Large and Wide models.",
     "rowsRange": "The number of rows was adjusted to the model's range.",
     "noticeTitle": "We adjusted your configuration",
-    "changed": "{group}: {from} → {to}"
+    "changed": "{group}: {from} → {to}",
+    "rowsRangeWidth": "At {spacing}, the {model} frame ({width}) fits at most {max} rows."
   },
   "custom": {
     "mainColor": "Main color",
@@ -341,7 +344,9 @@
     "logoError": "We couldn't read that file. Try a PNG or SVG under 2 MB.",
     "text": "Text on the machine (optional)",
     "textPlaceholder": "e.g. Green Valley Farms",
-    "logoNotShared": "The logo is not included in the shared link."
+    "logoNotShared": "The logo is not included in the shared link.",
+    "allColors": "See all colours ({n})",
+    "fewerColors": "Show fewer colours"
   },
   "price": {
     "label": "Indicative price",
@@ -356,7 +361,16 @@
     "rowsLine": "{rows} rows",
     "customPaint": "Custom paint",
     "customText": "Custom lettering",
-    "leadTime": "Estimated delivery: {days} days"
+    "leadTime": "Estimated delivery: {days} days",
+    "road": {
+      "green": "Road OK",
+      "yellow": "Road: oversize",
+      "red": "Road: not allowed"
+    },
+    "recommended": "Recommended setup",
+    "basic": "Basic setup",
+    "toBasic": "See basic",
+    "toRecommended": "Back to recommended"
   },
   "perf": {
     "title": "Performance",
@@ -409,7 +423,13 @@
     "mode": {
       "fold": "Wings folded",
       "longitudinal": "Endways"
-    }
+    },
+    "optOk": "On the road: {w} × {h}, within general limits.",
+    "opt": {
+      "yellow": "On the road it is {w} wide and {h} high: travels as oversize farm machinery (beacons, hours and permits).",
+      "red": "With {width} working width it is {w} wide and {h} high on the road: needs a special permit and escort."
+    },
+    "switchTo": "Switch to {mode}"
   },
   "toolbar": {
     "cameras": "Cameras",
@@ -449,7 +469,9 @@
       "maize": "Corn stubble"
     },
     "more": "More",
-    "drive": "Drive on the road"
+    "drive": "Drive on the road",
+    "folding": "Folding…",
+    "unfolding": "Unfolding…"
   },
   "hotspots": {
     "coulter": {
@@ -483,7 +505,12 @@
     "monitor": {
       "title": "Planter monitor",
       "body": "Alerts you instantly if a row fails or plugs. See the real population in every row."
-    }
+    },
+    "rowUnit": {
+      "title": "Row unit",
+      "body": "Coulter, double disc, gauge wheels, meter and closing wheels."
+    },
+    "configure": "Configure: {step}"
   },
   "detail": {
     "title": "Row unit",
@@ -574,29 +601,32 @@
     "transport": "Transport",
     "better": "better",
     "cta": "Compare",
-    "hint": "Your current configuration was saved as A. Change anything you like (model, rows, options) and save it as B to see them side by side."
+    "hint": "Your current configuration was saved as A. Change anything you like (model, rows, options) and save it as B to see them side by side.",
+    "hintSame": "Option A matches your current setup. Change something (model, rows or options) and tap “Save as B”."
   },
   "quote": {
     "title": "Request a quote",
     "intro": "We'll reply with a formal quote and delivery terms to your country.",
     "name": "Full name",
-    "company": "Company or farm",
-    "country": "Country",
-    "region": "State, province or region",
-    "hectares": "Hectares planted per year (optional)",
-    "phone": "Phone (with country code)",
-    "email": "Email",
+    "company": "Company or farm (optional)",
+    "country": "Country (optional)",
+    "region": "Town (optional)",
+    "hectares": "Hectares sown per year (optional)",
+    "phone": "Phone (optional)",
+    "email": "Email (for a reply by email)",
     "message": "Comments (optional)",
     "sendWhatsapp": "Send via WhatsApp",
     "sendEmail": "Send via email",
     "required": "Please fill in this field.",
     "invalidEmail": "Please check the email.",
-    "invalidPhone": "Include the country code, e.g. +1 555 010 0000.",
+    "invalidPhone": "Check the phone (with country code, e.g. +54 9 341 555 0000).",
     "sent": "Done! {channel} opened with your request.",
     "privacy": "We only use this information to answer your request.",
     "waGreeting": "Hello, I'd like a quote for this planter:",
     "waFooter": "See the configuration in 3D:",
-    "subject": "Planter quote {model} — {number}"
+    "subject": "Planter quote {model} — {number}",
+    "demoNote": "Demo: the message opens with no recipient and the enquiry is logged. In your version it goes straight to your sales team.",
+    "whichFields": "For WhatsApp your name is enough. For a reply by email, leave your email."
   },
   "pdf": {
     "title": "Indicative quotation",

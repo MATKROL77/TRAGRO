@@ -37,6 +37,11 @@ ns = next((n['id'] for n in curl('GET', f'{API}/storage/kv/namespaces?per_page=1
 if not ns:
     ns = curl('POST', f'{API}/storage/kv/namespaces', json.dumps({'title': title}))['id']
 print('KV namespace:', ns)
+leads_title = f'{NAME}-leads'
+leads = next((n['id'] for n in curl('GET', f'{API}/storage/kv/namespaces?per_page=100') if n['title'] == leads_title), None)
+if not leads:
+    leads = curl('POST', f'{API}/storage/kv/namespaces', json.dumps({'title': leads_title}))['id']
+print('KV leads:', leads)
 
 # 2) subir archivos de dist/
 items = []
@@ -51,7 +56,7 @@ for i in range(0, len(items), 25):
 print('Archivos subidos:', len(items))
 
 # 3) script del Worker con el binding
-meta = json.dumps({'main_module': 'worker.js', 'compatibility_date': '2024-11-01', 'bindings': [{'type': 'kv_namespace', 'name': 'ASSETS', 'namespace_id': ns}]})
+meta = json.dumps({'main_module': 'worker.js', 'compatibility_date': '2024-11-01', 'bindings': [{'type': 'kv_namespace', 'name': 'ASSETS', 'namespace_id': ns}, {'type': 'kv_namespace', 'name': 'LEADS', 'namespace_id': leads}]})
 here = os.path.dirname(os.path.abspath(__file__))
 curl('PUT', f'{API}/workers/scripts/{NAME}', form=[f'metadata={meta};type=application/json', f'worker.js=@{here}/worker.js;type=application/javascript+module'])
 curl('POST', f'{API}/workers/scripts/{NAME}/subdomain', json.dumps({'enabled': True, 'previews_enabled': False}))

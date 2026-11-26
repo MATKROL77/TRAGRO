@@ -93,6 +93,8 @@ function SowingSim() {
     const k = 1 - Math.exp(-step * 1.6);
     runtime.speed += (target - runtime.speed) * k;
     if (runtime.speed < 0.005 && target === 0) runtime.speed = 0;
+    // llega exacto a la velocidad elegida (el panel en vivo y la tarjeta muestran lo mismo)
+    if (target > 0 && Math.abs(target - runtime.speed) < 0.004) runtime.speed = target;
     runtime.distance += runtime.speed * step;
     sim.update(step, runtime.distance, runtime.speed > 0.01);
     const s = sim.getStats();

@@ -15,6 +15,18 @@
 | Plazos de entrega | `catalog.json` → `leadTimeDays` | Demo. |
 | Contacto (WhatsApp, email, dirección) | `src/config/brand.json` | Ficticios (`.example`). |
 
+## Consultas (leads) y modo demo
+
+- Cada consulta se guarda **antes** de abrir WhatsApp/email: `POST /api/lead` al mismo Worker, que la escribe en el KV `surco-configurador-leads` (clave `lead:<fecha>-<id>`, con nombre, canal y n.º de configuración en los metadatos). Se ven en Cloudflare → Storage & Databases → Workers KV → `surco-configurador-leads`.
+- `brand.demo = true`: WhatsApp y email se abren **sin destinatario** (no le llega a un número inventado) y el formulario muestra un aviso de demo. En la versión de un fabricante: `demo: false` y cargar `whatsapp`/`email` de ventas en `src/config/brand.json`.
+- `VITE_LEAD_WEBHOOK` reemplaza el endpoint por un CRM/webhook propio.
+
+## Estado y encuadre
+
+- La configuración, el idioma y las unidades viven en la URL (`?cfg=…`, con `replaceState`) y en `localStorage`: recargar o volver desde WhatsApp no pierde nada. En modo feria no se guarda.
+- La cámara encuadra con `fitPoints()` (esquinas de cada pieza visible, descontando la tarjeta de precio y la barra): pasos, Ruta (tractor + máquina plegada, y reencuadre al terminar de plegar) y las vistas del Resumen/PDF (recorte exacto 2:1).
+- Precio "desde" = todas las opciones estándar y el mínimo de surcos; la tarjeta indica "Configuración recomendada / básica".
+
 ## Decisiones
 
 - **Idioma**: español (Argentina) por defecto, como pide el documento. El idioma se elige con el selector o con `?lang=` (el link compartido lo conserva). La detección automática por navegador quedó implementada (`browserLang()` en `src/state/bootstrap.ts`) pero apagada.

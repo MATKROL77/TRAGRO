@@ -93,14 +93,14 @@ test.describe('flujo completo', () => {
     await page.getByLabel(/^País/).fill('Paraguay');
     await page.getByLabel(/Teléfono/).fill('+595 981 000 000');
     await page.getByLabel(/^Email/).fill('juan@example.com');
-    await page.getByLabel(/Hectáreas/).fill('3500');
+    await page.getByRole('radio', { name: '2000+ ha' }).click();
     const popup = page.waitForEvent('popup');
     await page.getByRole('button', { name: /Enviar por WhatsApp/ }).click();
     const p = await popup;
     const u = decodeURIComponent(p.url()).replace(/\+/g, ' ');
     expect(u).toMatch(/wa\.me|whatsapp\.com/);
     expect(u).toContain('Juan Pérez');
-    expect(u).toContain('3500');
+    expect(u).toMatch(/2000.? ha/);
     expect(u).toContain('cfg=');
   });
 });
