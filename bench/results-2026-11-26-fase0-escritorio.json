@@ -1,0 +1,3452 @@
+{
+  "meta": {
+    "fecha": "2026-11-26T21:06:28.983Z",
+    "url": "http://localhost:4174",
+    "modo": "rasterizador por software (SwiftShader): sirve para detectar trabas de CPU, no para medir fps reales",
+    "ventana": "sin ventana",
+    "rapido": true,
+    "commit": "28a551e",
+    "navegador": "158.0.8127.36"
+  },
+  "perfiles": {
+    "escritorio": {
+      "perfil": "escritorio",
+      "cpu": 1,
+      "viewport": {
+        "width": 1920,
+        "height": 1080
+      },
+      "dpr": 1,
+      "carga": {
+        "primerCuadroConModeloMs": 6246,
+        "domContentLoadedMs": 99,
+        "transferidoKB": 993,
+        "pedidos": 12,
+        "gpu": "ANGLE (Google, Vulkan 1.3.0 (SwiftShader Device (Subzero) (0x0000C0DE)), SwiftShader driver)"
+      },
+      "resumen": {
+        "acciones": 35,
+        "cuadroMaxMs": 3599.9,
+        "accionesConCuadrosMayores50": 35,
+        "cuadrosMayores50": 658,
+        "fpsOrbitaEstudio": null,
+        "fpsOrbitaExterior": null,
+        "causas": {
+          "JavaScript del hilo principal (tarea larga de N ms)": 393,
+          "espera de la GPU / compositor": 5,
+          "reconstrucción del modelo (N ms)": 9,
+          "compilación de N shader(s)": 2,
+          "subida de N textura(s)": 2,
+          "creación de N geometría(s)": 2,
+          "render lento (N ms de CPU en renderer.render)": 1
+        },
+        "drawCallsMax": 176,
+        "triangulosMax": 553354,
+        "erroresConsola": [],
+        "duracionS": 1056
+      },
+      "acciones": [
+        {
+          "accion": "estudio: órbita de cámara 3 s",
+          "cuadros3d": 20,
+          "fpsPromedio": null,
+          "fps1PorCiento": null,
+          "cuadroMaxMs": 1233.4,
+          "renderCpuMaxMs": 5.8,
+          "cuadrosMayores50": 20,
+          "largos": [
+            {
+              "ms": 1066.6,
+              "causas": [
+                "JavaScript del hilo principal (tarea larga de 1068 ms)"
+              ]
+            },
+            {
+              "ms": 1116.7,
+              "causas": [
+                "JavaScript del hilo principal (tarea larga de 1111 ms)"
+              ]
+            },
+            {
+              "ms": 1200,
+              "causas": [
+                "JavaScript del hilo principal (tarea larga de 1210 ms)"
+              ]
+            },
+            {
+              "ms": 1049.9,
+              "causas": [
+                "JavaScript del hilo principal (tarea larga de 1064 ms)"
+              ]
+            },
+            {
+              "ms": 1066.6,
+              "causas": [
+                "JavaScript del hilo principal (tarea larga de 1079 ms)"
+              ]
+            },
+            {
+              "ms": 1166.7,
+              "causas": [
+                "JavaScript del hilo principal (tarea larga de 1161 ms)"
+              ]
+            },
+            {
+              "ms": 1166.5,
+              "causas": [
+                "JavaScript del hilo principal (tarea larga de 1164 ms)"
+              ]
+            },
+            {
+              "ms": 1233.4,
+              "causas": [
+                "JavaScript del hilo principal (tarea larga de 1232 ms)"
+              ]
+            },
+            {
+              "ms": 1183.3,
+              "causas": [
+                "JavaScript del hilo principal (tarea larga de 1232 ms)"
+              ]
+            },
+            {
+              "ms": 1149.9,
+              "causas": [
+                "JavaScript del hilo principal (tarea larga de 1187 ms)"
+              ]
+            },
+            {
+              "ms": 1166.7,
+              "causas": [
+                "JavaScript del hilo principal (tarea larga de 1161 ms)"
+              ]
+            },
+            {
+              "ms": 1099.9,
+              "causas": [
+                "JavaScript del hilo principal (tarea larga de 1161 ms)"
+              ]
+            }
+          ],
+          "tareasLargas": 20,
+          "tareaLargaMaxMs": 1234,
+          "drawCalls": 120,
+          "triangulos": 310516,
+          "delta": {
+            "programas": 0,
+            "texturas": 0,
+            "geometrias": 0,
+            "reconstrucciones": 0,
+            "reconstruccionMs": 0
+          },
+          "duracionMs": 21842,
+          "esperaMs": 12573
+        },
+        {
+          "accion": "tipo → tolva",
+          "cuadros3d": 22,
+          "fpsPromedio": null,
+          "fps1PorCiento": null,
+          "cuadroMaxMs": 1350,
+          "renderCpuMaxMs": 3.9,
+          "cuadrosMayores50": 22,
+          "largos": [
+            {
+              "ms": 1333.3,
+              "causas": [
+                "espera de la GPU / compositor"
+              ]
+            },
+            {
+              "ms": 1133.3,
+              "causas": [
+                "JavaScript del hilo principal (tarea larga de 1134 ms)"
+              ]
+            },
+            {
+              "ms": 1183.3,
+              "causas": [
+                "JavaScript del hilo principal (tarea larga de 1188 ms)"
+              ]
+            },
+            {
+              "ms": 1183.3,
+              "causas": [
+                "JavaScript del hilo principal (tarea larga de 1188 ms)"
+              ]
+            },
+            {
+              "ms": 1350,
+              "causas": [
+                "JavaScript del hilo principal (tarea larga de 1352 ms)"
+              ]
+            },
+            {
+              "ms": 1266.5,
+              "causas": [
+                "JavaScript del hilo principal (tarea larga de 1352 ms)"
+              ]
+            },
+            {
+              "ms": 1200,
+              "causas": [
+                "JavaScript del hilo principal (tarea larga de 1259 ms)"
+              ]
+            },
+            {
+              "ms": 1133.3,
+              "causas": [
+                "JavaScript del hilo principal (tarea larga de 1196 ms)"
+              ]
+            },
+            {
+              "ms": 1116.6,
+              "causas": [
+                "JavaScript del hilo principal (tarea larga de 1129 ms)"
+              ]
+            },
+            {
+              "ms": 1200,
+              "causas": [
+                "JavaScript del hilo principal (tarea larga de 1195 ms)"
+              ]
+            },
+            {
+              "ms": 1133.3,
+              "causas": [
+                "JavaScript del hilo principal (tarea larga de 1195 ms)"
+              ]
+            },
+            {
+              "ms": 1216.6,
+              "causas": [
+                "JavaScript del hilo principal (tarea larga de 1214 ms)"
+              ]
+            }
+          ],
+          "tareasLargas": 21,
+          "tareaLargaMaxMs": 1352,
+          "drawCalls": 120,
+          "triangulos": 310516,
+          "delta": {
+            "programas": 0,
+            "texturas": 0,
+            "geometrias": 0,
+            "reconstrucciones": 0,
+            "reconstruccionMs": 0
+          },
+          "duracionMs": 25507,
+          "esperaMs": 12382
+        },
+        {
+          "accion": "tolva: paso dimensiones",
+          "cuadros3d": 20,
+          "fpsPromedio": null,
+          "fps1PorCiento": null,
+          "cuadroMaxMs": 1366.6,
+          "renderCpuMaxMs": 3.3,
+          "cuadrosMayores50": 20,
+          "largos": [
+            {
+              "ms": 1200,
+              "causas": [
+                "espera de la GPU / compositor"
+              ]
+            },
+            {
+              "ms": 1133.3,
+              "causas": [
+                "JavaScript del hilo principal (tarea larga de 1129 ms)"
+              ]
+            },
+            {
+              "ms": 1366.6,
+              "causas": [
+                "JavaScript del hilo principal (tarea larga de 1357 ms)"
+              ]
+            },
+            {
+              "ms": 1133.3,
+              "causas": [
+                "JavaScript del hilo principal (tarea larga de 1357 ms)"
+              ]
+            },
+            {
+              "ms": 1149.9,
+              "causas": [
+                "JavaScript del hilo principal (tarea larga de 1133 ms)"
+              ]
+            },
+            {
+              "ms": 1166.7,
+              "causas": [
+                "JavaScript del hilo principal (tarea larga de 1179 ms)"
+              ]
+            },
+            {
+              "ms": 1150,
+              "causas": [
+                "JavaScript del hilo principal (tarea larga de 1146 ms)"
+              ]
+            },
+            {
+              "ms": 1300,
+              "causas": [
+                "JavaScript del hilo principal (tarea larga de 1291 ms)"
+              ]
+            },
+            {
+              "ms": 1316.6,
+              "causas": [
+                "JavaScript del hilo principal (tarea larga de 1299 ms)"
+              ]
+            },
+            {
+              "ms": 1233.3,
+              "causas": [
+                "JavaScript del hilo principal (tarea larga de 1299 ms)"
+              ]
+            },
+            {
+              "ms": 1166.6,
+              "causas": [
+                "JavaScript del hilo principal (tarea larga de 1230 ms)"
+              ]
+            },
+            {
+              "ms": 1150,
+              "causas": [
+                "JavaScript del hilo principal (tarea larga de 1169 ms)"
+              ]
+            }
+          ],
+          "tareasLargas": 19,
+          "tareaLargaMaxMs": 1357,
+          "drawCalls": 120,
+          "triangulos": 310516,
+          "delta": {
+            "programas": 0,
+            "texturas": 0,
+            "geometrias": 0,
+            "reconstrucciones": 0,
+            "reconstruccionMs": 0
+          },
+          "duracionMs": 21977,
+          "esperaMs": 12236
+        },
+        {
+          "accion": "tolva/dimensiones: medida Largo de caja +",
+          "cuadros3d": 14,
+          "fpsPromedio": null,
+          "fps1PorCiento": null,
+          "cuadroMaxMs": 1516.7,
+          "renderCpuMaxMs": 13.1,
+          "cuadrosMayores50": 14,
+          "largos": [
+            {
+              "ms": 966.6,
+              "causas": [
+                "JavaScript del hilo principal (tarea larga de 969 ms)"
+              ]
+            },
+            {
+              "ms": 1066.6,
+              "causas": [
+                "JavaScript del hilo principal (tarea larga de 1057 ms)"
+              ]
+            },
+            {
+              "ms": 1516.7,
+              "causas": [
+                "reconstrucción del modelo (97 ms)"
+              ]
+            },
+            {
+              "ms": 1049.9,
+              "causas": [
+                "JavaScript del hilo principal (tarea larga de 1425 ms)"
+              ]
+            },
+            {
+              "ms": 1050,
+              "causas": [
+                "JavaScript del hilo principal (tarea larga de 1048 ms)"
+              ]
+            },
+            {
+              "ms": 983.3,
+              "causas": [
+                "JavaScript del hilo principal (tarea larga de 1041 ms)"
+              ]
+            },
+            {
+              "ms": 999.9,
+              "causas": [
+                "JavaScript del hilo principal (tarea larga de 1001 ms)"
+              ]
+            },
+            {
+              "ms": 983.3,
+              "causas": [
+                "JavaScript del hilo principal (tarea larga de 1001 ms)"
+              ]
+            },
+            {
+              "ms": 966.6,
+              "causas": [
+                "JavaScript del hilo principal (tarea larga de 974 ms)"
+              ]
+            },
+            {
+              "ms": 1000,
+              "causas": [
+                "JavaScript del hilo principal (tarea larga de 1010 ms)"
+              ]
+            },
+            {
+              "ms": 966.6,
+              "causas": [
+                "JavaScript del hilo principal (tarea larga de 1010 ms)"
+              ]
+            },
+            {
+              "ms": 1033.3,
+              "causas": [
+                "JavaScript del hilo principal (tarea larga de 1041 ms)"
+              ]
+            }
+          ],
+          "tareasLargas": 15,
+          "tareaLargaMaxMs": 1425,
+          "drawCalls": 120,
+          "triangulos": 312580,
+          "delta": {
+            "programas": 0,
+            "texturas": 0,
+            "geometrias": -1,
+            "reconstrucciones": 1,
+            "reconstruccionMs": 97.3
+          },
+          "duracionMs": 14784,
+          "esperaMs": 12728
+        },
+        {
+          "accion": "tolva: paso rodado",
+          "cuadros3d": 11,
+          "fpsPromedio": null,
+          "fps1PorCiento": null,
+          "cuadroMaxMs": 1433.3,
+          "renderCpuMaxMs": 3.3,
+          "cuadrosMayores50": 10,
+          "largos": [
+            {
+              "ms": 1066.7,
+              "causas": [
+                "JavaScript del hilo principal (tarea larga de 1069 ms)"
+              ]
+            },
+            {
+              "ms": 966.7,
+              "causas": [
+                "JavaScript del hilo principal (tarea larga de 1069 ms)"
+              ]
+            },
+            {
+              "ms": 1033.2,
+              "causas": [
+                "JavaScript del hilo principal (tarea larga de 1030 ms)"
+              ]
+            },
+            {
+              "ms": 1049.9,
+              "causas": [
+                "JavaScript del hilo principal (tarea larga de 1044 ms)"
+              ]
+            },
+            {
+              "ms": 1050.1,
+              "causas": [
+                "JavaScript del hilo principal (tarea larga de 1059 ms)"
+              ]
+            },
+            {
+              "ms": 1249.8,
+              "causas": [
+                "JavaScript del hilo principal (tarea larga de 1234 ms)"
+              ]
+            },
+            {
+              "ms": 1333.3,
+              "causas": [
+                "JavaScript del hilo principal (tarea larga de 1337 ms)"
+              ]
+            },
+            {
+              "ms": 1433.3,
+              "causas": [
+                "JavaScript del hilo principal (tarea larga de 1434 ms)"
+              ]
+            },
+            {
+              "ms": 1333.3,
+              "causas": [
+                "JavaScript del hilo principal (tarea larga de 1434 ms)"
+              ]
+            },
+            {
+              "ms": 1366.7,
+              "causas": [
+                "JavaScript del hilo principal (tarea larga de 1363 ms)"
+              ]
+            }
+          ],
+          "tareasLargas": 11,
+          "tareaLargaMaxMs": 1434,
+          "drawCalls": 113,
+          "triangulos": 310938,
+          "delta": {
+            "programas": 0,
+            "texturas": 0,
+            "geometrias": 0,
+            "reconstrucciones": 0,
+            "reconstruccionMs": 0
+          },
+          "duracionMs": 12070,
+          "esperaMs": 12011
+        },
+        {
+          "accion": "tolva/rodado: ejes=tridem",
+          "cuadros3d": 11,
+          "fpsPromedio": null,
+          "fps1PorCiento": null,
+          "cuadroMaxMs": 1766.6,
+          "renderCpuMaxMs": 9.6,
+          "cuadrosMayores50": 11,
+          "largos": [
+            {
+              "ms": 1399.9,
+              "causas": [
+                "JavaScript del hilo principal (tarea larga de 1390 ms)"
+              ]
+            },
+            {
+              "ms": 1383.3,
+              "causas": [
+                "JavaScript del hilo principal (tarea larga de 1384 ms)"
+              ]
+            },
+            {
+              "ms": 1566.6,
+              "causas": [
+                "reconstrucción del modelo (110 ms)"
+              ]
+            },
+            {
+              "ms": 1466.6,
+              "causas": [
+                "JavaScript del hilo principal (tarea larga de 1458 ms)"
+              ]
+            },
+            {
+              "ms": 1266.6,
+              "causas": [
+                "JavaScript del hilo principal (tarea larga de 1271 ms)"
+              ]
+            },
+            {
+              "ms": 1616.6,
+              "causas": [
+                "JavaScript del hilo principal (tarea larga de 1614 ms)"
+              ]
+            },
+            {
+              "ms": 1416.6,
+              "causas": [
+                "JavaScript del hilo principal (tarea larga de 1614 ms)"
+              ]
+            },
+            {
+              "ms": 1433.3,
+              "causas": [
+                "JavaScript del hilo principal (tarea larga de 1446 ms)"
+              ]
+            },
+            {
+              "ms": 1766.6,
+              "causas": [
+                "JavaScript del hilo principal (tarea larga de 1754 ms)"
+              ]
+            },
+            {
+              "ms": 1699.9,
+              "causas": [
+                "JavaScript del hilo principal (tarea larga de 1754 ms)"
+              ]
+            },
+            {
+              "ms": 1566.6,
+              "causas": [
+                "JavaScript del hilo principal (tarea larga de 1700 ms)"
+              ]
+            }
+          ],
+          "tareasLargas": 13,
+          "tareaLargaMaxMs": 1754,
+          "drawCalls": 105,
+          "triangulos": 308788,
+          "delta": {
+            "programas": 0,
+            "texturas": 0,
+            "geometrias": 44,
+            "reconstrucciones": 1,
+            "reconstruccionMs": 110.2
+          },
+          "duracionMs": 15376,
+          "esperaMs": 12372
+        },
+        {
+          "accion": "tolva: paso especificos",
+          "cuadros3d": 21,
+          "fpsPromedio": null,
+          "fps1PorCiento": null,
+          "cuadroMaxMs": 1666.6,
+          "renderCpuMaxMs": 6.9,
+          "cuadrosMayores50": 21,
+          "largos": [
+            {
+              "ms": 1533.3,
+              "causas": [
+                "JavaScript del hilo principal (tarea larga de 1523 ms)"
+              ]
+            },
+            {
+              "ms": 1516.5,
+              "causas": [
+                "JavaScript del hilo principal (tarea larga de 1524 ms)"
+              ]
+            },
+            {
+              "ms": 1416.6,
+              "causas": [
+                "JavaScript del hilo principal (tarea larga de 1524 ms)"
+              ]
+            },
+            {
+              "ms": 1333.3,
+              "causas": [
+                "JavaScript del hilo principal (tarea larga de 1415 ms)"
+              ]
+            },
+            {
+              "ms": 1333.3,
+              "causas": [
+                "JavaScript del hilo principal (tarea larga de 1334 ms)"
+              ]
+            },
+            {
+              "ms": 1400,
+              "causas": [
+                "JavaScript del hilo principal (tarea larga de 1396 ms)"
+              ]
+            },
+            {
+              "ms": 1566.5,
+              "causas": [
+                "JavaScript del hilo principal (tarea larga de 1577 ms)"
+              ]
+            },
+            {
+              "ms": 1416.7,
+              "causas": [
+                "JavaScript del hilo principal (tarea larga de 1577 ms)"
+              ]
+            },
+            {
+              "ms": 1666.6,
+              "causas": [
+                "JavaScript del hilo principal (tarea larga de 1662 ms)"
+              ]
+            },
+            {
+              "ms": 1416.6,
+              "causas": [
+                "JavaScript del hilo principal (tarea larga de 1662 ms)"
+              ]
+            },
+            {
+              "ms": 1383.3,
+              "causas": [
+                "JavaScript del hilo principal (tarea larga de 1415 ms)"
+              ]
+            },
+            {
+              "ms": 1466.6,
+              "causas": [
+                "JavaScript del hilo principal (tarea larga de 1455 ms)"
+              ]
+            }
+          ],
+          "tareasLargas": 21,
+          "tareaLargaMaxMs": 1669,
+          "drawCalls": 120,
+          "triangulos": 312076,
+          "delta": {
+            "programas": 0,
+            "texturas": 0,
+            "geometrias": 0,
+            "reconstrucciones": 0,
+            "reconstruccionMs": 0
+          },
+          "duracionMs": 28197,
+          "esperaMs": 12275
+        },
+        {
+          "accion": "tolva/especificos: lona=pvc900",
+          "cuadros3d": 11,
+          "fpsPromedio": null,
+          "fps1PorCiento": null,
+          "cuadroMaxMs": 1466.5,
+          "renderCpuMaxMs": 2.4,
+          "cuadrosMayores50": 11,
+          "largos": [
+            {
+              "ms": 1266.6,
+              "causas": [
+                "JavaScript del hilo principal (tarea larga de 1264 ms)"
+              ]
+            },
+            {
+              "ms": 1449.9,
+              "causas": [
+                "JavaScript del hilo principal (tarea larga de 1459 ms)"
+              ]
+            },
+            {
+              "ms": 1199.9,
+              "causas": [
+                "JavaScript del hilo principal (tarea larga de 1195 ms)"
+              ]
+            },
+            {
+              "ms": 1183.3,
+              "causas": [
+                "JavaScript del hilo principal (tarea larga de 1175 ms)"
+              ]
+            },
+            {
+              "ms": 1216.6,
+              "causas": [
+                "JavaScript del hilo principal (tarea larga de 1225 ms)"
+              ]
+            },
+            {
+              "ms": 1450,
+              "causas": [
+                "JavaScript del hilo principal (tarea larga de 1443 ms)"
+              ]
+            },
+            {
+              "ms": 1416.6,
+              "causas": [
+                "JavaScript del hilo principal (tarea larga de 1443 ms)"
+              ]
+            },
+            {
+              "ms": 1416.6,
+              "causas": [
+                "JavaScript del hilo principal (tarea larga de 1412 ms)"
+              ]
+            },
+            {
+              "ms": 1383.3,
+              "causas": [
+                "JavaScript del hilo principal (tarea larga de 1409 ms)"
+              ]
+            },
+            {
+              "ms": 1466.5,
+              "causas": [
+                "JavaScript del hilo principal (tarea larga de 1477 ms)"
+              ]
+            },
+            {
+              "ms": 1266.7,
+              "causas": [
+                "JavaScript del hilo principal (tarea larga de 1477 ms)"
+              ]
+            }
+          ],
+          "tareasLargas": 12,
+          "tareaLargaMaxMs": 1477,
+          "drawCalls": 120,
+          "triangulos": 312076,
+          "delta": {
+            "programas": 0,
+            "texturas": 0,
+            "geometrias": 0,
+            "reconstrucciones": 0,
+            "reconstruccionMs": 0
+          },
+          "duracionMs": 13678,
+          "esperaMs": 12142
+        },
+        {
+          "accion": "tolva: paso accesorios",
+          "cuadros3d": 23,
+          "fpsPromedio": null,
+          "fps1PorCiento": null,
+          "cuadroMaxMs": 1466.6,
+          "renderCpuMaxMs": 5.4,
+          "cuadrosMayores50": 23,
+          "largos": [
+            {
+              "ms": 1216.6,
+              "causas": [
+                "JavaScript del hilo principal (tarea larga de 1216 ms)"
+              ]
+            },
+            {
+              "ms": 1249.9,
+              "causas": [
+                "JavaScript del hilo principal (tarea larga de 1242 ms)"
+              ]
+            },
+            {
+              "ms": 1300,
+              "causas": [
+                "JavaScript del hilo principal (tarea larga de 1296 ms)"
+              ]
+            },
+            {
+              "ms": 1299.9,
+              "causas": [
+                "JavaScript del hilo principal (tarea larga de 1296 ms)"
+              ]
+            },
+            {
+              "ms": 1250,
+              "causas": [
+                "JavaScript del hilo principal (tarea larga de 1295 ms)"
+              ]
+            },
+            {
+              "ms": 1249.9,
+              "causas": [
+                "JavaScript del hilo principal (tarea larga de 1261 ms)"
+              ]
+            },
+            {
+              "ms": 1366.6,
+              "causas": [
+                "JavaScript del hilo principal (tarea larga de 1359 ms)"
+              ]
+            },
+            {
+              "ms": 1300,
+              "causas": [
+                "JavaScript del hilo principal (tarea larga de 1359 ms)"
+              ]
+            },
+            {
+              "ms": 1300,
+              "causas": [
+                "JavaScript del hilo principal (tarea larga de 1307 ms)"
+              ]
+            },
+            {
+              "ms": 1216.6,
+              "causas": [
+                "JavaScript del hilo principal (tarea larga de 1307 ms)"
+              ]
+            },
+            {
+              "ms": 1466.6,
+              "causas": [
+                "JavaScript del hilo principal (tarea larga de 1459 ms)"
+              ]
+            },
+            {
+              "ms": 1266.6,
+              "causas": [
+                "JavaScript del hilo principal (tarea larga de 1459 ms)"
+              ]
+            }
+          ],
+          "tareasLargas": 23,
+          "tareaLargaMaxMs": 1459,
+          "drawCalls": 120,
+          "triangulos": 312076,
+          "delta": {
+            "programas": 0,
+            "texturas": 0,
+            "geometrias": 0,
+            "reconstrucciones": 0,
+            "reconstruccionMs": 0
+          },
+          "duracionMs": 27071,
+          "esperaMs": 12812
+        },
+        {
+          "accion": "tolva/accesorios: cajon (interruptor/cantidad)",
+          "cuadros3d": 13,
+          "fpsPromedio": null,
+          "fps1PorCiento": null,
+          "cuadroMaxMs": 1816.6,
+          "renderCpuMaxMs": 4.7,
+          "cuadrosMayores50": 12,
+          "largos": [
+            {
+              "ms": 983.3,
+              "causas": [
+                "JavaScript del hilo principal (tarea larga de 984 ms)"
+              ]
+            },
+            {
+              "ms": 1433.3,
+              "causas": [
+                "reconstrucción del modelo (102 ms)"
+              ]
+            },
+            {
+              "ms": 1133.3,
+              "causas": [
+                "JavaScript del hilo principal (tarea larga de 1339 ms)"
+              ]
+            },
+            {
+              "ms": 1033.2,
+              "causas": [
+                "JavaScript del hilo principal (tarea larga de 1121 ms)"
+              ]
+            },
+            {
+              "ms": 1016.7,
+              "causas": [
+                "JavaScript del hilo principal (tarea larga de 1031 ms)"
+              ]
+            },
+            {
+              "ms": 1183.2,
+              "causas": [
+                "JavaScript del hilo principal (tarea larga de 1183 ms)"
+              ]
+            },
+            {
+              "ms": 1183.4,
+              "causas": [
+                "JavaScript del hilo principal (tarea larga de 1183 ms)"
+              ]
+            },
+            {
+              "ms": 1399.9,
+              "causas": [
+                "JavaScript del hilo principal (tarea larga de 1401 ms)"
+              ]
+            },
+            {
+              "ms": 1816.6,
+              "causas": [
+                "JavaScript del hilo principal (tarea larga de 1821 ms)"
+              ]
+            },
+            {
+              "ms": 1533.2,
+              "causas": [
+                "JavaScript del hilo principal (tarea larga de 1821 ms)"
+              ]
+            },
+            {
+              "ms": 1600,
+              "causas": [
+                "JavaScript del hilo principal (tarea larga de 1593 ms)"
+              ]
+            },
+            {
+              "ms": 1566.7,
+              "causas": [
+                "JavaScript del hilo principal (tarea larga de 1593 ms)"
+              ]
+            }
+          ],
+          "tareasLargas": 13,
+          "tareaLargaMaxMs": 1821,
+          "drawCalls": 101,
+          "triangulos": 300470,
+          "delta": {
+            "programas": 0,
+            "texturas": 0,
+            "geometrias": 44,
+            "reconstrucciones": 1,
+            "reconstruccionMs": 101.9
+          },
+          "duracionMs": 16073,
+          "esperaMs": 12457
+        },
+        {
+          "accion": "tolva: paso personalizacion",
+          "cuadros3d": 24,
+          "fpsPromedio": null,
+          "fps1PorCiento": null,
+          "cuadroMaxMs": 1816.7,
+          "renderCpuMaxMs": 2.6,
+          "cuadrosMayores50": 24,
+          "largos": [
+            {
+              "ms": 1599.8,
+              "causas": [
+                "JavaScript del hilo principal (tarea larga de 1597 ms)"
+              ]
+            },
+            {
+              "ms": 1816.7,
+              "causas": [
+                "JavaScript del hilo principal (tarea larga de 1817 ms)"
+              ]
+            },
+            {
+              "ms": 1649.9,
+              "causas": [
+                "JavaScript del hilo principal (tarea larga de 1817 ms)"
+              ]
+            },
+            {
+              "ms": 1766.6,
+              "causas": [
+                "JavaScript del hilo principal (tarea larga de 1768 ms)"
+              ]
+            },
+            {
+              "ms": 1433.2,
+              "causas": [
+                "JavaScript del hilo principal (tarea larga de 1768 ms)"
+              ]
+            },
+            {
+              "ms": 1116.7,
+              "causas": [
+                "JavaScript del hilo principal (tarea larga de 1423 ms)"
+              ]
+            },
+            {
+              "ms": 1083.2,
+              "causas": [
+                "JavaScript del hilo principal (tarea larga de 1125 ms)"
+              ]
+            },
+            {
+              "ms": 1066.7,
+              "causas": [
+                "JavaScript del hilo principal (tarea larga de 1069 ms)"
+              ]
+            },
+            {
+              "ms": 966.6,
+              "causas": [
+                "JavaScript del hilo principal (tarea larga de 1067 ms)"
+              ]
+            },
+            {
+              "ms": 1250,
+              "causas": [
+                "JavaScript del hilo principal (tarea larga de 1249 ms)"
+              ]
+            },
+            {
+              "ms": 1099.9,
+              "causas": [
+                "JavaScript del hilo principal (tarea larga de 1249 ms)"
+              ]
+            },
+            {
+              "ms": 1000,
+              "causas": [
+                "JavaScript del hilo principal (tarea larga de 1077 ms)"
+              ]
+            }
+          ],
+          "tareasLargas": 24,
+          "tareaLargaMaxMs": 1817,
+          "drawCalls": 120,
+          "triangulos": 313204,
+          "delta": {
+            "programas": 0,
+            "texturas": 0,
+            "geometrias": 0,
+            "reconstrucciones": 0,
+            "reconstruccionMs": 0
+          },
+          "duracionMs": 26525,
+          "esperaMs": 12293
+        },
+        {
+          "accion": "tolva/personalizacion: color RAL 1003",
+          "cuadros3d": 14,
+          "fpsPromedio": null,
+          "fps1PorCiento": null,
+          "cuadroMaxMs": 1033.3,
+          "renderCpuMaxMs": 3.2,
+          "cuadrosMayores50": 13,
+          "largos": [
+            {
+              "ms": 883.4,
+              "causas": [
+                "JavaScript del hilo principal (tarea larga de 898 ms)"
+              ]
+            },
+            {
+              "ms": 866.5,
+              "causas": [
+                "JavaScript del hilo principal (tarea larga de 898 ms)"
+              ]
+            },
+            {
+              "ms": 1000.1,
+              "causas": [
+                "JavaScript del hilo principal (tarea larga de 993 ms)"
+              ]
+            },
+            {
+              "ms": 899.9,
+              "causas": [
+                "JavaScript del hilo principal (tarea larga de 993 ms)"
+              ]
+            },
+            {
+              "ms": 883.3,
+              "causas": [
+                "JavaScript del hilo principal (tarea larga de 894 ms)"
+              ]
+            },
+            {
+              "ms": 916.6,
+              "causas": [
+                "JavaScript del hilo principal (tarea larga de 910 ms)"
+              ]
+            },
+            {
+              "ms": 966.6,
+              "causas": [
+                "JavaScript del hilo principal (tarea larga de 972 ms)"
+              ]
+            },
+            {
+              "ms": 950,
+              "causas": [
+                "JavaScript del hilo principal (tarea larga de 972 ms)"
+              ]
+            },
+            {
+              "ms": 933.3,
+              "causas": [
+                "JavaScript del hilo principal (tarea larga de 943 ms)"
+              ]
+            },
+            {
+              "ms": 1033.3,
+              "causas": [
+                "JavaScript del hilo principal (tarea larga de 1025 ms)"
+              ]
+            },
+            {
+              "ms": 933.2,
+              "causas": [
+                "JavaScript del hilo principal (tarea larga de 1025 ms)"
+              ]
+            },
+            {
+              "ms": 933.4,
+              "causas": [
+                "JavaScript del hilo principal (tarea larga de 935 ms)"
+              ]
+            }
+          ],
+          "tareasLargas": 13,
+          "tareaLargaMaxMs": 1025,
+          "drawCalls": 120,
+          "triangulos": 313204,
+          "delta": {
+            "programas": 0,
+            "texturas": 0,
+            "geometrias": 0,
+            "reconstrucciones": 0,
+            "reconstruccionMs": 0
+          },
+          "duracionMs": 12353,
+          "esperaMs": 12310
+        },
+        {
+          "accion": "tolva estudio: Ver en acción",
+          "cuadros3d": 23,
+          "fpsPromedio": null,
+          "fps1PorCiento": null,
+          "cuadroMaxMs": 1083.2,
+          "renderCpuMaxMs": 3,
+          "cuadrosMayores50": 23,
+          "largos": [
+            {
+              "ms": 916.6,
+              "causas": [
+                "JavaScript del hilo principal (tarea larga de 914 ms)"
+              ]
+            },
+            {
+              "ms": 983.3,
+              "causas": [
+                "JavaScript del hilo principal (tarea larga de 987 ms)"
+              ]
+            },
+            {
+              "ms": 916.7,
+              "causas": [
+                "JavaScript del hilo principal (tarea larga de 987 ms)"
+              ]
+            },
+            {
+              "ms": 966.6,
+              "causas": [
+                "JavaScript del hilo principal (tarea larga de 966 ms)"
+              ]
+            },
+            {
+              "ms": 950,
+              "causas": [
+                "JavaScript del hilo principal (tarea larga de 966 ms)"
+              ]
+            },
+            {
+              "ms": 899.9,
+              "causas": [
+                "JavaScript del hilo principal (tarea larga de 948 ms)"
+              ]
+            },
+            {
+              "ms": 1066.6,
+              "causas": [
+                "JavaScript del hilo principal (tarea larga de 1075 ms)"
+              ]
+            },
+            {
+              "ms": 916.7,
+              "causas": [
+                "JavaScript del hilo principal (tarea larga de 1075 ms)"
+              ]
+            },
+            {
+              "ms": 950,
+              "causas": [
+                "JavaScript del hilo principal (tarea larga de 946 ms)"
+              ]
+            },
+            {
+              "ms": 933.3,
+              "causas": [
+                "JavaScript del hilo principal (tarea larga de 946 ms)"
+              ]
+            },
+            {
+              "ms": 983.2,
+              "causas": [
+                "JavaScript del hilo principal (tarea larga de 980 ms)"
+              ]
+            },
+            {
+              "ms": 900,
+              "causas": [
+                "JavaScript del hilo principal (tarea larga de 980 ms)"
+              ]
+            }
+          ],
+          "tareasLargas": 23,
+          "tareaLargaMaxMs": 1090,
+          "drawCalls": 122,
+          "triangulos": 313244,
+          "delta": {
+            "programas": 0,
+            "texturas": 0,
+            "geometrias": 1,
+            "reconstrucciones": 0,
+            "reconstruccionMs": 0
+          },
+          "duracionMs": 21023,
+          "esperaMs": 20984
+        },
+        {
+          "accion": "tolva estudio: volver a cerrar",
+          "cuadros3d": 33,
+          "fpsPromedio": null,
+          "fps1PorCiento": null,
+          "cuadroMaxMs": 1100,
+          "renderCpuMaxMs": 6.7,
+          "cuadrosMayores50": 33,
+          "largos": [
+            {
+              "ms": 1000,
+              "causas": [
+                "JavaScript del hilo principal (tarea larga de 1005 ms)"
+              ]
+            },
+            {
+              "ms": 949.9,
+              "causas": [
+                "JavaScript del hilo principal (tarea larga de 1005 ms)"
+              ]
+            },
+            {
+              "ms": 916.6,
+              "causas": [
+                "JavaScript del hilo principal (tarea larga de 953 ms)"
+              ]
+            },
+            {
+              "ms": 983.3,
+              "causas": [
+                "JavaScript del hilo principal (tarea larga de 976 ms)"
+              ]
+            },
+            {
+              "ms": 950,
+              "causas": [
+                "JavaScript del hilo principal (tarea larga de 976 ms)"
+              ]
+            },
+            {
+              "ms": 949.9,
+              "causas": [
+                "JavaScript del hilo principal (tarea larga de 957 ms)"
+              ]
+            },
+            {
+              "ms": 883.3,
+              "causas": [
+                "JavaScript del hilo principal (tarea larga de 955 ms)"
+              ]
+            },
+            {
+              "ms": 866.7,
+              "causas": [
+                "JavaScript del hilo principal (tarea larga de 869 ms)"
+              ]
+            },
+            {
+              "ms": 933.2,
+              "causas": [
+                "JavaScript del hilo principal (tarea larga de 937 ms)"
+              ]
+            },
+            {
+              "ms": 950.1,
+              "causas": [
+                "JavaScript del hilo principal (tarea larga de 945 ms)"
+              ]
+            },
+            {
+              "ms": 916.5,
+              "causas": [
+                "JavaScript del hilo principal (tarea larga de 945 ms)"
+              ]
+            },
+            {
+              "ms": 1050,
+              "causas": [
+                "JavaScript del hilo principal (tarea larga de 1052 ms)"
+              ]
+            }
+          ],
+          "tareasLargas": 34,
+          "tareaLargaMaxMs": 1102,
+          "drawCalls": 122,
+          "triangulos": 313244,
+          "delta": {
+            "programas": 0,
+            "texturas": 0,
+            "geometrias": 0,
+            "reconstrucciones": 0,
+            "reconstruccionMs": 0
+          },
+          "duracionMs": 30521,
+          "esperaMs": 20169
+        },
+        {
+          "accion": "tolva exterior: Ver en acción",
+          "cuadros3d": 16,
+          "fpsPromedio": null,
+          "fps1PorCiento": null,
+          "cuadroMaxMs": 1699.9,
+          "renderCpuMaxMs": 7.1,
+          "cuadrosMayores50": 16,
+          "largos": [
+            {
+              "ms": 1549.9,
+              "causas": [
+                "JavaScript del hilo principal (tarea larga de 1553 ms)"
+              ]
+            },
+            {
+              "ms": 1516.6,
+              "causas": [
+                "JavaScript del hilo principal (tarea larga de 1523 ms)"
+              ]
+            },
+            {
+              "ms": 1616.7,
+              "causas": [
+                "JavaScript del hilo principal (tarea larga de 1628 ms)"
+              ]
+            },
+            {
+              "ms": 1583.3,
+              "causas": [
+                "JavaScript del hilo principal (tarea larga de 1628 ms)"
+              ]
+            },
+            {
+              "ms": 1633.2,
+              "causas": [
+                "JavaScript del hilo principal (tarea larga de 1623 ms)"
+              ]
+            },
+            {
+              "ms": 1633.3,
+              "causas": [
+                "JavaScript del hilo principal (tarea larga de 1633 ms)"
+              ]
+            },
+            {
+              "ms": 1549.9,
+              "causas": [
+                "JavaScript del hilo principal (tarea larga de 1633 ms)"
+              ]
+            },
+            {
+              "ms": 1699.9,
+              "causas": [
+                "JavaScript del hilo principal (tarea larga de 1705 ms)"
+              ]
+            },
+            {
+              "ms": 1683.4,
+              "causas": [
+                "JavaScript del hilo principal (tarea larga de 1705 ms)"
+              ]
+            },
+            {
+              "ms": 1633.1,
+              "causas": [
+                "JavaScript del hilo principal (tarea larga de 1686 ms)"
+              ]
+            },
+            {
+              "ms": 1500.1,
+              "causas": [
+                "JavaScript del hilo principal (tarea larga de 1623 ms)"
+              ]
+            },
+            {
+              "ms": 1533.2,
+              "causas": [
+                "JavaScript del hilo principal (tarea larga de 1531 ms)"
+              ]
+            }
+          ],
+          "tareasLargas": 16,
+          "tareaLargaMaxMs": 1705,
+          "drawCalls": 175,
+          "triangulos": 553334,
+          "delta": {
+            "programas": 0,
+            "texturas": 0,
+            "geometrias": 0,
+            "reconstrucciones": 0,
+            "reconstruccionMs": 0
+          },
+          "duracionMs": 24089,
+          "esperaMs": 20898
+        },
+        {
+          "accion": "tolva exterior: volver a cerrar",
+          "cuadros3d": 25,
+          "fpsPromedio": null,
+          "fps1PorCiento": null,
+          "cuadroMaxMs": 1766.5,
+          "renderCpuMaxMs": 4,
+          "cuadrosMayores50": 25,
+          "largos": [
+            {
+              "ms": 1633.3,
+              "causas": [
+                "espera de la GPU / compositor"
+              ]
+            },
+            {
+              "ms": 1766.5,
+              "causas": [
+                "JavaScript del hilo principal (tarea larga de 1766 ms)"
+              ]
+            },
+            {
+              "ms": 1583.3,
+              "causas": [
+                "JavaScript del hilo principal (tarea larga de 1766 ms)"
+              ]
+            },
+            {
+              "ms": 1549.9,
+              "causas": [
+                "JavaScript del hilo principal (tarea larga de 1580 ms)"
+              ]
+            },
+            {
+              "ms": 1633.3,
+              "causas": [
+                "JavaScript del hilo principal (tarea larga de 1626 ms)"
+              ]
+            },
+            {
+              "ms": 1700,
+              "causas": [
+                "JavaScript del hilo principal (tarea larga de 1699 ms)"
+              ]
+            },
+            {
+              "ms": 1549.9,
+              "causas": [
+                "JavaScript del hilo principal (tarea larga de 1699 ms)"
+              ]
+            },
+            {
+              "ms": 1650,
+              "causas": [
+                "JavaScript del hilo principal (tarea larga de 1638 ms)"
+              ]
+            },
+            {
+              "ms": 1666.6,
+              "causas": [
+                "JavaScript del hilo principal (tarea larga de 1673 ms)"
+              ]
+            },
+            {
+              "ms": 1566.6,
+              "causas": [
+                "JavaScript del hilo principal (tarea larga de 1673 ms)"
+              ]
+            },
+            {
+              "ms": 1516.5,
+              "causas": [
+                "JavaScript del hilo principal (tarea larga de 1568 ms)"
+              ]
+            },
+            {
+              "ms": 1700,
+              "causas": [
+                "JavaScript del hilo principal (tarea larga de 1690 ms)"
+              ]
+            }
+          ],
+          "tareasLargas": 24,
+          "tareaLargaMaxMs": 1766,
+          "drawCalls": 176,
+          "triangulos": 553354,
+          "delta": {
+            "programas": 0,
+            "texturas": 0,
+            "geometrias": 0,
+            "reconstrucciones": 0,
+            "reconstruccionMs": 0
+          },
+          "duracionMs": 38667,
+          "esperaMs": 20778
+        },
+        {
+          "accion": "tipo → furgon",
+          "cuadros3d": 18,
+          "fpsPromedio": null,
+          "fps1PorCiento": null,
+          "cuadroMaxMs": 2083.2,
+          "renderCpuMaxMs": 11.2,
+          "cuadrosMayores50": 16,
+          "largos": [
+            {
+              "ms": 2083.2,
+              "causas": [
+                "JavaScript del hilo principal (tarea larga de 1078 ms)"
+              ]
+            },
+            {
+              "ms": 1183.4,
+              "causas": [
+                "reconstrucción del modelo (73 ms)"
+              ]
+            },
+            {
+              "ms": 1033.2,
+              "causas": [
+                "JavaScript del hilo principal (tarea larga de 1021 ms)"
+              ]
+            },
+            {
+              "ms": 883.4,
+              "causas": [
+                "JavaScript del hilo principal (tarea larga de 895 ms)"
+              ]
+            },
+            {
+              "ms": 899.9,
+              "causas": [
+                "JavaScript del hilo principal (tarea larga de 899 ms)"
+              ]
+            },
+            {
+              "ms": 883.3,
+              "causas": [
+                "JavaScript del hilo principal (tarea larga de 899 ms)"
+              ]
+            },
+            {
+              "ms": 916.6,
+              "causas": [
+                "JavaScript del hilo principal (tarea larga de 917 ms)"
+              ]
+            },
+            {
+              "ms": 916.7,
+              "causas": [
+                "JavaScript del hilo principal (tarea larga de 925 ms)"
+              ]
+            },
+            {
+              "ms": 866.6,
+              "causas": [
+                "JavaScript del hilo principal (tarea larga de 925 ms)"
+              ]
+            },
+            {
+              "ms": 933.3,
+              "causas": [
+                "JavaScript del hilo principal (tarea larga de 930 ms)"
+              ]
+            },
+            {
+              "ms": 866.6,
+              "causas": [
+                "JavaScript del hilo principal (tarea larga de 930 ms)"
+              ]
+            },
+            {
+              "ms": 933.3,
+              "causas": [
+                "JavaScript del hilo principal (tarea larga de 929 ms)"
+              ]
+            }
+          ],
+          "tareasLargas": 18,
+          "tareaLargaMaxMs": 1085,
+          "drawCalls": 115,
+          "triangulos": 289612,
+          "delta": {
+            "programas": 0,
+            "texturas": 0,
+            "geometrias": -4,
+            "reconstrucciones": 1,
+            "reconstruccionMs": 72.7
+          },
+          "duracionMs": 15938,
+          "esperaMs": 12627
+        },
+        {
+          "accion": "furgon: variante sider",
+          "cuadros3d": 13,
+          "fpsPromedio": null,
+          "fps1PorCiento": null,
+          "cuadroMaxMs": 1399.9,
+          "renderCpuMaxMs": 18.4,
+          "cuadrosMayores50": 14,
+          "largos": [
+            {
+              "ms": 949.9,
+              "causas": [
+                "JavaScript del hilo principal (tarea larga de 949 ms)"
+              ]
+            },
+            {
+              "ms": 949.9,
+              "causas": [
+                "JavaScript del hilo principal (tarea larga de 961 ms)"
+              ]
+            },
+            {
+              "ms": 966.7,
+              "causas": [
+                "JavaScript del hilo principal (tarea larga de 967 ms)"
+              ]
+            },
+            {
+              "ms": 1000,
+              "causas": [
+                "JavaScript del hilo principal (tarea larga de 988 ms)"
+              ]
+            },
+            {
+              "ms": 949.9,
+              "causas": [
+                "JavaScript del hilo principal (tarea larga de 988 ms)"
+              ]
+            },
+            {
+              "ms": 1016.6,
+              "causas": [
+                "JavaScript del hilo principal (tarea larga de 1005 ms)"
+              ]
+            },
+            {
+              "ms": 966.7,
+              "causas": [
+                "JavaScript del hilo principal (tarea larga de 1005 ms)"
+              ]
+            },
+            {
+              "ms": 1050,
+              "causas": [
+                "JavaScript del hilo principal (tarea larga de 1054 ms)"
+              ]
+            },
+            {
+              "ms": 999.9,
+              "causas": [
+                "JavaScript del hilo principal (tarea larga de 1054 ms)"
+              ]
+            },
+            {
+              "ms": 983.2,
+              "causas": [
+                "JavaScript del hilo principal (tarea larga de 993 ms)"
+              ]
+            },
+            {
+              "ms": 1133.4,
+              "causas": [
+                "JavaScript del hilo principal (tarea larga de 1129 ms)"
+              ]
+            },
+            {
+              "ms": 1399.9,
+              "causas": [
+                "compilación de 1 shader(s)",
+                "reconstrucción del modelo (53 ms)"
+              ]
+            }
+          ],
+          "tareasLargas": 15,
+          "tareaLargaMaxMs": 1316,
+          "drawCalls": 153,
+          "triangulos": 290752,
+          "delta": {
+            "programas": 1,
+            "texturas": 0,
+            "geometrias": 20,
+            "reconstrucciones": 1,
+            "reconstruccionMs": 53.2
+          },
+          "duracionMs": 14769,
+          "esperaMs": 3360
+        },
+        {
+          "accion": "furgon: paso dimensiones",
+          "cuadros3d": 14,
+          "fpsPromedio": null,
+          "fps1PorCiento": null,
+          "cuadroMaxMs": 1166.5,
+          "renderCpuMaxMs": 5.7,
+          "cuadrosMayores50": 13,
+          "largos": [
+            {
+              "ms": 1016.6,
+              "causas": [
+                "JavaScript del hilo principal (tarea larga de 1017 ms)"
+              ]
+            },
+            {
+              "ms": 1000,
+              "causas": [
+                "JavaScript del hilo principal (tarea larga de 1017 ms)"
+              ]
+            },
+            {
+              "ms": 1000,
+              "causas": [
+                "JavaScript del hilo principal (tarea larga de 1010 ms)"
+              ]
+            },
+            {
+              "ms": 1166.5,
+              "causas": [
+                "JavaScript del hilo principal (tarea larga de 1158 ms)"
+              ]
+            },
+            {
+              "ms": 1016.7,
+              "causas": [
+                "JavaScript del hilo principal (tarea larga de 1158 ms)"
+              ]
+            },
+            {
+              "ms": 916.6,
+              "causas": [
+                "JavaScript del hilo principal (tarea larga de 1013 ms)"
+              ]
+            },
+            {
+              "ms": 833.3,
+              "causas": [
+                "JavaScript del hilo principal (tarea larga de 916 ms)"
+              ]
+            },
+            {
+              "ms": 816.6,
+              "causas": [
+                "JavaScript del hilo principal (tarea larga de 836 ms)"
+              ]
+            },
+            {
+              "ms": 833.4,
+              "causas": [
+                "JavaScript del hilo principal (tarea larga de 828 ms)"
+              ]
+            },
+            {
+              "ms": 799.9,
+              "causas": [
+                "JavaScript del hilo principal (tarea larga de 828 ms)"
+              ]
+            },
+            {
+              "ms": 899.9,
+              "causas": [
+                "JavaScript del hilo principal (tarea larga de 903 ms)"
+              ]
+            },
+            {
+              "ms": 816.7,
+              "causas": [
+                "JavaScript del hilo principal (tarea larga de 903 ms)"
+              ]
+            }
+          ],
+          "tareasLargas": 13,
+          "tareaLargaMaxMs": 1158,
+          "drawCalls": 153,
+          "triangulos": 290752,
+          "delta": {
+            "programas": 0,
+            "texturas": 0,
+            "geometrias": 0,
+            "reconstrucciones": 0,
+            "reconstruccionMs": 0
+          },
+          "duracionMs": 12238,
+          "esperaMs": 12187
+        },
+        {
+          "accion": "furgon/dimensiones: medida Largo de caja +",
+          "cuadros3d": 12,
+          "fpsPromedio": null,
+          "fps1PorCiento": null,
+          "cuadroMaxMs": 1133.2,
+          "renderCpuMaxMs": 14.4,
+          "cuadrosMayores50": 12,
+          "largos": [
+            {
+              "ms": 799.9,
+              "causas": [
+                "JavaScript del hilo principal (tarea larga de 809 ms)"
+              ]
+            },
+            {
+              "ms": 1133.2,
+              "causas": [
+                "reconstrucción del modelo (65 ms)"
+              ]
+            },
+            {
+              "ms": 916.7,
+              "causas": [
+                "JavaScript del hilo principal (tarea larga de 1047 ms)"
+              ]
+            },
+            {
+              "ms": 966.6,
+              "causas": [
+                "JavaScript del hilo principal (tarea larga de 975 ms)"
+              ]
+            },
+            {
+              "ms": 850,
+              "causas": [
+                "JavaScript del hilo principal (tarea larga de 975 ms)"
+              ]
+            },
+            {
+              "ms": 816.6,
+              "causas": [
+                "JavaScript del hilo principal (tarea larga de 850 ms)"
+              ]
+            },
+            {
+              "ms": 783.3,
+              "causas": [
+                "JavaScript del hilo principal (tarea larga de 811 ms)"
+              ]
+            },
+            {
+              "ms": 866.7,
+              "causas": [
+                "JavaScript del hilo principal (tarea larga de 858 ms)"
+              ]
+            },
+            {
+              "ms": 799.9,
+              "causas": [
+                "JavaScript del hilo principal (tarea larga de 858 ms)"
+              ]
+            },
+            {
+              "ms": 766.7,
+              "causas": [
+                "JavaScript del hilo principal (tarea larga de 797 ms)"
+              ]
+            },
+            {
+              "ms": 799.9,
+              "causas": [
+                "JavaScript del hilo principal (tarea larga de 785 ms)"
+              ]
+            },
+            {
+              "ms": 833.4,
+              "causas": [
+                "JavaScript del hilo principal (tarea larga de 838 ms)"
+              ]
+            }
+          ],
+          "tareasLargas": 13,
+          "tareaLargaMaxMs": 1047,
+          "drawCalls": 153,
+          "triangulos": 291376,
+          "delta": {
+            "programas": 0,
+            "texturas": 0,
+            "geometrias": 61,
+            "reconstrucciones": 1,
+            "reconstruccionMs": 65.1
+          },
+          "duracionMs": 11094,
+          "esperaMs": 10268
+        },
+        {
+          "accion": "furgon: paso rodado",
+          "cuadros3d": 13,
+          "fpsPromedio": null,
+          "fps1PorCiento": null,
+          "cuadroMaxMs": 1333.2,
+          "renderCpuMaxMs": 3.6,
+          "cuadrosMayores50": 12,
+          "largos": [
+            {
+              "ms": 783.3,
+              "causas": [
+                "JavaScript del hilo principal (tarea larga de 798 ms)"
+              ]
+            },
+            {
+              "ms": 816.6,
+              "causas": [
+                "JavaScript del hilo principal (tarea larga de 813 ms)"
+              ]
+            },
+            {
+              "ms": 800,
+              "causas": [
+                "JavaScript del hilo principal (tarea larga de 813 ms)"
+              ]
+            },
+            {
+              "ms": 816.6,
+              "causas": [
+                "JavaScript del hilo principal (tarea larga de 808 ms)"
+              ]
+            },
+            {
+              "ms": 866.7,
+              "causas": [
+                "JavaScript del hilo principal (tarea larga de 874 ms)"
+              ]
+            },
+            {
+              "ms": 1033.2,
+              "causas": [
+                "JavaScript del hilo principal (tarea larga de 1031 ms)"
+              ]
+            },
+            {
+              "ms": 1150,
+              "causas": [
+                "JavaScript del hilo principal (tarea larga de 1141 ms)"
+              ]
+            },
+            {
+              "ms": 1166.6,
+              "causas": [
+                "JavaScript del hilo principal (tarea larga de 1169 ms)"
+              ]
+            },
+            {
+              "ms": 1183.3,
+              "causas": [
+                "JavaScript del hilo principal (tarea larga de 1188 ms)"
+              ]
+            },
+            {
+              "ms": 1266.6,
+              "causas": [
+                "JavaScript del hilo principal (tarea larga de 1259 ms)"
+              ]
+            },
+            {
+              "ms": 1333.2,
+              "causas": [
+                "JavaScript del hilo principal (tarea larga de 1335 ms)"
+              ]
+            },
+            {
+              "ms": 1300,
+              "causas": [
+                "JavaScript del hilo principal (tarea larga de 1335 ms)"
+              ]
+            }
+          ],
+          "tareasLargas": 12,
+          "tareaLargaMaxMs": 1335,
+          "drawCalls": 138,
+          "triangulos": 288772,
+          "delta": {
+            "programas": 0,
+            "texturas": 0,
+            "geometrias": 0,
+            "reconstrucciones": 0,
+            "reconstruccionMs": 0
+          },
+          "duracionMs": 12710,
+          "esperaMs": 12663
+        },
+        {
+          "accion": "furgon/rodado: ejes=1+1+1",
+          "cuadros3d": 14,
+          "fpsPromedio": null,
+          "fps1PorCiento": null,
+          "cuadroMaxMs": 1483.3,
+          "renderCpuMaxMs": 6.7,
+          "cuadrosMayores50": 13,
+          "largos": [
+            {
+              "ms": 1299.9,
+              "causas": [
+                "JavaScript del hilo principal (tarea larga de 1301 ms)"
+              ]
+            },
+            {
+              "ms": 1483.3,
+              "causas": [
+                "reconstrucción del modelo (52 ms)"
+              ]
+            },
+            {
+              "ms": 1283.3,
+              "causas": [
+                "JavaScript del hilo principal (tarea larga de 1268 ms)"
+              ]
+            },
+            {
+              "ms": 1133.3,
+              "causas": [
+                "JavaScript del hilo principal (tarea larga de 1146 ms)"
+              ]
+            },
+            {
+              "ms": 1183.3,
+              "causas": [
+                "JavaScript del hilo principal (tarea larga de 1171 ms)"
+              ]
+            },
+            {
+              "ms": 1166.6,
+              "causas": [
+                "JavaScript del hilo principal (tarea larga de 1171 ms)"
+              ]
+            },
+            {
+              "ms": 1116.6,
+              "causas": [
+                "JavaScript del hilo principal (tarea larga de 1116 ms)"
+              ]
+            },
+            {
+              "ms": 1083.3,
+              "causas": [
+                "JavaScript del hilo principal (tarea larga de 1116 ms)"
+              ]
+            },
+            {
+              "ms": 1099.9,
+              "causas": [
+                "JavaScript del hilo principal (tarea larga de 1095 ms)"
+              ]
+            },
+            {
+              "ms": 1083.4,
+              "causas": [
+                "JavaScript del hilo principal (tarea larga de 1095 ms)"
+              ]
+            },
+            {
+              "ms": 1149.9,
+              "causas": [
+                "JavaScript del hilo principal (tarea larga de 1146 ms)"
+              ]
+            },
+            {
+              "ms": 1233.3,
+              "causas": [
+                "JavaScript del hilo principal (tarea larga de 1232 ms)"
+              ]
+            }
+          ],
+          "tareasLargas": 15,
+          "tareaLargaMaxMs": 1409,
+          "drawCalls": 141,
+          "triangulos": 289514,
+          "delta": {
+            "programas": 0,
+            "texturas": 0,
+            "geometrias": 61,
+            "reconstrucciones": 1,
+            "reconstruccionMs": 51.5
+          },
+          "duracionMs": 15674,
+          "esperaMs": 12856
+        },
+        {
+          "accion": "furgon: paso especificos",
+          "cuadros3d": 23,
+          "fpsPromedio": null,
+          "fps1PorCiento": null,
+          "cuadroMaxMs": 1300,
+          "renderCpuMaxMs": 7,
+          "cuadrosMayores50": 23,
+          "largos": [
+            {
+              "ms": 1300,
+              "causas": [
+                "JavaScript del hilo principal (tarea larga de 1301 ms)"
+              ]
+            },
+            {
+              "ms": 1150,
+              "causas": [
+                "JavaScript del hilo principal (tarea larga de 1301 ms)"
+              ]
+            },
+            {
+              "ms": 1099.9,
+              "causas": [
+                "JavaScript del hilo principal (tarea larga de 1142 ms)"
+              ]
+            },
+            {
+              "ms": 1166.7,
+              "causas": [
+                "JavaScript del hilo principal (tarea larga de 1161 ms)"
+              ]
+            },
+            {
+              "ms": 1133.3,
+              "causas": [
+                "JavaScript del hilo principal (tarea larga de 1161 ms)"
+              ]
+            },
+            {
+              "ms": 1233.2,
+              "causas": [
+                "JavaScript del hilo principal (tarea larga de 1218 ms)"
+              ]
+            },
+            {
+              "ms": 1199.9,
+              "causas": [
+                "JavaScript del hilo principal (tarea larga de 1218 ms)"
+              ]
+            },
+            {
+              "ms": 1216.7,
+              "causas": [
+                "JavaScript del hilo principal (tarea larga de 1223 ms)"
+              ]
+            },
+            {
+              "ms": 1216.6,
+              "causas": [
+                "JavaScript del hilo principal (tarea larga de 1223 ms)"
+              ]
+            },
+            {
+              "ms": 1233.3,
+              "causas": [
+                "JavaScript del hilo principal (tarea larga de 1231 ms)"
+              ]
+            },
+            {
+              "ms": 1166.6,
+              "causas": [
+                "JavaScript del hilo principal (tarea larga de 1231 ms)"
+              ]
+            },
+            {
+              "ms": 1166.6,
+              "causas": [
+                "JavaScript del hilo principal (tarea larga de 1165 ms)"
+              ]
+            }
+          ],
+          "tareasLargas": 23,
+          "tareaLargaMaxMs": 1301,
+          "drawCalls": 153,
+          "triangulos": 291472,
+          "delta": {
+            "programas": 0,
+            "texturas": 0,
+            "geometrias": 0,
+            "reconstrucciones": 0,
+            "reconstruccionMs": 0
+          },
+          "duracionMs": 25139,
+          "esperaMs": 12156
+        },
+        {
+          "accion": "furgon/especificos: variante=furgon",
+          "cuadros3d": 4,
+          "fpsPromedio": null,
+          "fps1PorCiento": null,
+          "cuadroMaxMs": 1300,
+          "renderCpuMaxMs": 5.5,
+          "cuadrosMayores50": 5,
+          "largos": [
+            {
+              "ms": 1083.3,
+              "causas": [
+                "JavaScript del hilo principal (tarea larga de 1082 ms)"
+              ]
+            },
+            {
+              "ms": 1133.2,
+              "causas": [
+                "JavaScript del hilo principal (tarea larga de 1147 ms)"
+              ]
+            },
+            {
+              "ms": 1300,
+              "causas": [
+                "reconstrucción del modelo (65 ms)"
+              ]
+            },
+            {
+              "ms": 1150,
+              "causas": [
+                "JavaScript del hilo principal (tarea larga de 1143 ms)"
+              ]
+            },
+            {
+              "ms": 1033.3,
+              "causas": [
+                "JavaScript del hilo principal (tarea larga de 1038 ms)"
+              ]
+            }
+          ],
+          "tareasLargas": 6,
+          "tareaLargaMaxMs": 1211,
+          "drawCalls": 115,
+          "triangulos": 290332,
+          "delta": {
+            "programas": 0,
+            "texturas": 0,
+            "geometrias": 41,
+            "reconstrucciones": 1,
+            "reconstruccionMs": 64.6
+          },
+          "duracionMs": 5915,
+          "esperaMs": 3427
+        },
+        {
+          "accion": "furgon: paso accesorios",
+          "cuadros3d": 13,
+          "fpsPromedio": null,
+          "fps1PorCiento": null,
+          "cuadroMaxMs": 1066.6,
+          "renderCpuMaxMs": 2.7,
+          "cuadrosMayores50": 13,
+          "largos": [
+            {
+              "ms": 1066.6,
+              "causas": [
+                "JavaScript del hilo principal (tarea larga de 1077 ms)"
+              ]
+            },
+            {
+              "ms": 1033.4,
+              "causas": [
+                "JavaScript del hilo principal (tarea larga de 1077 ms)"
+              ]
+            },
+            {
+              "ms": 949.9,
+              "causas": [
+                "JavaScript del hilo principal (tarea larga de 1023 ms)"
+              ]
+            },
+            {
+              "ms": 1050,
+              "causas": [
+                "JavaScript del hilo principal (tarea larga de 1049 ms)"
+              ]
+            },
+            {
+              "ms": 933.3,
+              "causas": [
+                "JavaScript del hilo principal (tarea larga de 1049 ms)"
+              ]
+            },
+            {
+              "ms": 950,
+              "causas": [
+                "JavaScript del hilo principal (tarea larga de 945 ms)"
+              ]
+            },
+            {
+              "ms": 799.9,
+              "causas": [
+                "JavaScript del hilo principal (tarea larga de 945 ms)"
+              ]
+            },
+            {
+              "ms": 799.9,
+              "causas": [
+                "JavaScript del hilo principal (tarea larga de 801 ms)"
+              ]
+            },
+            {
+              "ms": 916.7,
+              "causas": [
+                "JavaScript del hilo principal (tarea larga de 915 ms)"
+              ]
+            },
+            {
+              "ms": 800,
+              "causas": [
+                "JavaScript del hilo principal (tarea larga de 915 ms)"
+              ]
+            },
+            {
+              "ms": 833.3,
+              "causas": [
+                "JavaScript del hilo principal (tarea larga de 826 ms)"
+              ]
+            },
+            {
+              "ms": 799.9,
+              "causas": [
+                "JavaScript del hilo principal (tarea larga de 826 ms)"
+              ]
+            }
+          ],
+          "tareasLargas": 13,
+          "tareaLargaMaxMs": 1077,
+          "drawCalls": 115,
+          "triangulos": 290332,
+          "delta": {
+            "programas": 0,
+            "texturas": 0,
+            "geometrias": 0,
+            "reconstrucciones": 0,
+            "reconstruccionMs": 0
+          },
+          "duracionMs": 12160,
+          "esperaMs": 12115
+        },
+        {
+          "accion": "furgon/accesorios: cajon (interruptor/cantidad)",
+          "cuadros3d": 15,
+          "fpsPromedio": null,
+          "fps1PorCiento": null,
+          "cuadroMaxMs": 1183.3,
+          "renderCpuMaxMs": 8.5,
+          "cuadrosMayores50": 14,
+          "largos": [
+            {
+              "ms": 849.9,
+              "causas": [
+                "JavaScript del hilo principal (tarea larga de 862 ms)"
+              ]
+            },
+            {
+              "ms": 1100,
+              "causas": [
+                "reconstrucción del modelo (67 ms)"
+              ]
+            },
+            {
+              "ms": 916.6,
+              "causas": [
+                "JavaScript del hilo principal (tarea larga de 1024 ms)"
+              ]
+            },
+            {
+              "ms": 899.9,
+              "causas": [
+                "JavaScript del hilo principal (tarea larga de 909 ms)"
+              ]
+            },
+            {
+              "ms": 800,
+              "causas": [
+                "JavaScript del hilo principal (tarea larga de 902 ms)"
+              ]
+            },
+            {
+              "ms": 900,
+              "causas": [
+                "JavaScript del hilo principal (tarea larga de 898 ms)"
+              ]
+            },
+            {
+              "ms": 983.3,
+              "causas": [
+                "JavaScript del hilo principal (tarea larga de 974 ms)"
+              ]
+            },
+            {
+              "ms": 1166.6,
+              "causas": [
+                "JavaScript del hilo principal (tarea larga de 1163 ms)"
+              ]
+            },
+            {
+              "ms": 1133.3,
+              "causas": [
+                "JavaScript del hilo principal (tarea larga de 1163 ms)"
+              ]
+            },
+            {
+              "ms": 1149.9,
+              "causas": [
+                "JavaScript del hilo principal (tarea larga de 1150 ms)"
+              ]
+            },
+            {
+              "ms": 1116.6,
+              "causas": [
+                "JavaScript del hilo principal (tarea larga de 1150 ms)"
+              ]
+            },
+            {
+              "ms": 1100,
+              "causas": [
+                "JavaScript del hilo principal (tarea larga de 1122 ms)"
+              ]
+            }
+          ],
+          "tareasLargas": 16,
+          "tareaLargaMaxMs": 1237,
+          "drawCalls": 93,
+          "triangulos": 277766,
+          "delta": {
+            "programas": 0,
+            "texturas": 0,
+            "geometrias": 41,
+            "reconstrucciones": 1,
+            "reconstruccionMs": 66.8
+          },
+          "duracionMs": 14615,
+          "esperaMs": 12606
+        },
+        {
+          "accion": "furgon: paso personalizacion",
+          "cuadros3d": 24,
+          "fpsPromedio": null,
+          "fps1PorCiento": null,
+          "cuadroMaxMs": 1183.3,
+          "renderCpuMaxMs": 2.5,
+          "cuadrosMayores50": 25,
+          "largos": [
+            {
+              "ms": 1066.7,
+              "causas": [
+                "JavaScript del hilo principal (tarea larga de 1073 ms)"
+              ]
+            },
+            {
+              "ms": 1183.3,
+              "causas": [
+                "JavaScript del hilo principal (tarea larga de 1179 ms)"
+              ]
+            },
+            {
+              "ms": 1100,
+              "causas": [
+                "JavaScript del hilo principal (tarea larga de 1179 ms)"
+              ]
+            },
+            {
+              "ms": 1066.6,
+              "causas": [
+                "JavaScript del hilo principal (tarea larga de 1098 ms)"
+              ]
+            },
+            {
+              "ms": 899.9,
+              "causas": [
+                "JavaScript del hilo principal (tarea larga de 1057 ms)"
+              ]
+            },
+            {
+              "ms": 833.3,
+              "causas": [
+                "JavaScript del hilo principal (tarea larga de 903 ms)"
+              ]
+            },
+            {
+              "ms": 800,
+              "causas": [
+                "JavaScript del hilo principal (tarea larga de 829 ms)"
+              ]
+            },
+            {
+              "ms": 883.3,
+              "causas": [
+                "JavaScript del hilo principal (tarea larga de 876 ms)"
+              ]
+            },
+            {
+              "ms": 816.6,
+              "causas": [
+                "JavaScript del hilo principal (tarea larga de 876 ms)"
+              ]
+            },
+            {
+              "ms": 766.7,
+              "causas": [
+                "JavaScript del hilo principal (tarea larga de 819 ms)"
+              ]
+            },
+            {
+              "ms": 849.9,
+              "causas": [
+                "JavaScript del hilo principal (tarea larga de 836 ms)"
+              ]
+            },
+            {
+              "ms": 833.3,
+              "causas": [
+                "JavaScript del hilo principal (tarea larga de 825 ms)"
+              ]
+            }
+          ],
+          "tareasLargas": 25,
+          "tareaLargaMaxMs": 1179,
+          "drawCalls": 115,
+          "triangulos": 291244,
+          "delta": {
+            "programas": 0,
+            "texturas": 0,
+            "geometrias": 0,
+            "reconstrucciones": 0,
+            "reconstruccionMs": 0
+          },
+          "duracionMs": 20894,
+          "esperaMs": 10879
+        },
+        {
+          "accion": "furgon/personalizacion: color RAL 1007",
+          "cuadros3d": 12,
+          "fpsPromedio": null,
+          "fps1PorCiento": null,
+          "cuadroMaxMs": 816.7,
+          "renderCpuMaxMs": 2.7,
+          "cuadrosMayores50": 12,
+          "largos": [
+            {
+              "ms": 816.7,
+              "causas": [
+                "JavaScript del hilo principal (tarea larga de 820 ms)"
+              ]
+            },
+            {
+              "ms": 766.6,
+              "causas": [
+                "JavaScript del hilo principal (tarea larga de 820 ms)"
+              ]
+            },
+            {
+              "ms": 766.7,
+              "causas": [
+                "JavaScript del hilo principal (tarea larga de 771 ms)"
+              ]
+            },
+            {
+              "ms": 750,
+              "causas": [
+                "JavaScript del hilo principal (tarea larga de 765 ms)"
+              ]
+            },
+            {
+              "ms": 766.6,
+              "causas": [
+                "JavaScript del hilo principal (tarea larga de 764 ms)"
+              ]
+            },
+            {
+              "ms": 766.6,
+              "causas": [
+                "JavaScript del hilo principal (tarea larga de 776 ms)"
+              ]
+            },
+            {
+              "ms": 733.3,
+              "causas": [
+                "JavaScript del hilo principal (tarea larga de 776 ms)"
+              ]
+            },
+            {
+              "ms": 750,
+              "causas": [
+                "JavaScript del hilo principal (tarea larga de 760 ms)"
+              ]
+            },
+            {
+              "ms": 766.6,
+              "causas": [
+                "JavaScript del hilo principal (tarea larga de 763 ms)"
+              ]
+            },
+            {
+              "ms": 733.3,
+              "causas": [
+                "JavaScript del hilo principal (tarea larga de 763 ms)"
+              ]
+            },
+            {
+              "ms": 733.4,
+              "causas": [
+                "JavaScript del hilo principal (tarea larga de 734 ms)"
+              ]
+            },
+            {
+              "ms": 716.5,
+              "causas": [
+                "JavaScript del hilo principal (tarea larga de 725 ms)"
+              ]
+            }
+          ],
+          "tareasLargas": 12,
+          "tareaLargaMaxMs": 820,
+          "drawCalls": 115,
+          "triangulos": 291244,
+          "delta": {
+            "programas": 0,
+            "texturas": 0,
+            "geometrias": 0,
+            "reconstrucciones": 0,
+            "reconstruccionMs": 0
+          },
+          "duracionMs": 9884,
+          "esperaMs": 9843
+        },
+        {
+          "accion": "furgon estudio: Ver en acción",
+          "cuadros3d": 27,
+          "fpsPromedio": null,
+          "fps1PorCiento": null,
+          "cuadroMaxMs": 866.6,
+          "renderCpuMaxMs": 3.4,
+          "cuadrosMayores50": 26,
+          "largos": [
+            {
+              "ms": 733.3,
+              "causas": [
+                "JavaScript del hilo principal (tarea larga de 736 ms)"
+              ]
+            },
+            {
+              "ms": 766.7,
+              "causas": [
+                "JavaScript del hilo principal (tarea larga de 763 ms)"
+              ]
+            },
+            {
+              "ms": 766.6,
+              "causas": [
+                "JavaScript del hilo principal (tarea larga de 769 ms)"
+              ]
+            },
+            {
+              "ms": 733.3,
+              "causas": [
+                "JavaScript del hilo principal (tarea larga de 769 ms)"
+              ]
+            },
+            {
+              "ms": 750,
+              "causas": [
+                "JavaScript del hilo principal (tarea larga de 749 ms)"
+              ]
+            },
+            {
+              "ms": 816.6,
+              "causas": [
+                "JavaScript del hilo principal (tarea larga de 818 ms)"
+              ]
+            },
+            {
+              "ms": 866.6,
+              "causas": [
+                "JavaScript del hilo principal (tarea larga de 859 ms)"
+              ]
+            },
+            {
+              "ms": 716.7,
+              "causas": [
+                "JavaScript del hilo principal (tarea larga de 859 ms)"
+              ]
+            },
+            {
+              "ms": 733.3,
+              "causas": [
+                "JavaScript del hilo principal (tarea larga de 725 ms)"
+              ]
+            },
+            {
+              "ms": 733.3,
+              "causas": [
+                "JavaScript del hilo principal (tarea larga de 731 ms)"
+              ]
+            },
+            {
+              "ms": 749.9,
+              "causas": [
+                "JavaScript del hilo principal (tarea larga de 757 ms)"
+              ]
+            },
+            {
+              "ms": 850,
+              "causas": [
+                "JavaScript del hilo principal (tarea larga de 840 ms)"
+              ]
+            }
+          ],
+          "tareasLargas": 26,
+          "tareaLargaMaxMs": 861,
+          "drawCalls": 115,
+          "triangulos": 291244,
+          "delta": {
+            "programas": 0,
+            "texturas": 0,
+            "geometrias": 0,
+            "reconstrucciones": 0,
+            "reconstruccionMs": 0
+          },
+          "duracionMs": 20132,
+          "esperaMs": 20081
+        },
+        {
+          "accion": "furgon estudio: volver a cerrar",
+          "cuadros3d": 38,
+          "fpsPromedio": null,
+          "fps1PorCiento": null,
+          "cuadroMaxMs": 916.6,
+          "renderCpuMaxMs": 3.1,
+          "cuadrosMayores50": 38,
+          "largos": [
+            {
+              "ms": 766.7,
+              "causas": [
+                "JavaScript del hilo principal (tarea larga de 755 ms)"
+              ]
+            },
+            {
+              "ms": 783.3,
+              "causas": [
+                "JavaScript del hilo principal (tarea larga de 797 ms)"
+              ]
+            },
+            {
+              "ms": 900,
+              "causas": [
+                "JavaScript del hilo principal (tarea larga de 889 ms)"
+              ]
+            },
+            {
+              "ms": 733.3,
+              "causas": [
+                "JavaScript del hilo principal (tarea larga de 889 ms)"
+              ]
+            },
+            {
+              "ms": 749.9,
+              "causas": [
+                "JavaScript del hilo principal (tarea larga de 748 ms)"
+              ]
+            },
+            {
+              "ms": 733.4,
+              "causas": [
+                "JavaScript del hilo principal (tarea larga de 748 ms)"
+              ]
+            },
+            {
+              "ms": 749.9,
+              "causas": [
+                "JavaScript del hilo principal (tarea larga de 741 ms)"
+              ]
+            },
+            {
+              "ms": 850,
+              "causas": [
+                "JavaScript del hilo principal (tarea larga de 858 ms)"
+              ]
+            },
+            {
+              "ms": 849.9,
+              "causas": [
+                "JavaScript del hilo principal (tarea larga de 858 ms)"
+              ]
+            },
+            {
+              "ms": 766.6,
+              "causas": [
+                "JavaScript del hilo principal (tarea larga de 841 ms)"
+              ]
+            },
+            {
+              "ms": 866.7,
+              "causas": [
+                "JavaScript del hilo principal (tarea larga de 859 ms)"
+              ]
+            },
+            {
+              "ms": 766.6,
+              "causas": [
+                "JavaScript del hilo principal (tarea larga de 859 ms)"
+              ]
+            }
+          ],
+          "tareasLargas": 38,
+          "tareaLargaMaxMs": 914,
+          "drawCalls": 115,
+          "triangulos": 291244,
+          "delta": {
+            "programas": 0,
+            "texturas": 0,
+            "geometrias": 0,
+            "reconstrucciones": 0,
+            "reconstruccionMs": 0
+          },
+          "duracionMs": 29221,
+          "esperaMs": 20469
+        },
+        {
+          "accion": "furgon exterior: Ver en acción",
+          "cuadros3d": 23,
+          "fpsPromedio": null,
+          "fps1PorCiento": null,
+          "cuadroMaxMs": 1650,
+          "renderCpuMaxMs": 3.6,
+          "cuadrosMayores50": 23,
+          "largos": [
+            {
+              "ms": 1566.6,
+              "causas": [
+                "JavaScript del hilo principal (tarea larga de 1567 ms)"
+              ]
+            },
+            {
+              "ms": 1483.3,
+              "causas": [
+                "JavaScript del hilo principal (tarea larga de 1567 ms)"
+              ]
+            },
+            {
+              "ms": 1499.9,
+              "causas": [
+                "JavaScript del hilo principal (tarea larga de 1496 ms)"
+              ]
+            },
+            {
+              "ms": 1566.6,
+              "causas": [
+                "JavaScript del hilo principal (tarea larga de 1564 ms)"
+              ]
+            },
+            {
+              "ms": 1583.3,
+              "causas": [
+                "JavaScript del hilo principal (tarea larga de 1597 ms)"
+              ]
+            },
+            {
+              "ms": 1466.6,
+              "causas": [
+                "JavaScript del hilo principal (tarea larga de 1478 ms)"
+              ]
+            },
+            {
+              "ms": 1466.7,
+              "causas": [
+                "JavaScript del hilo principal (tarea larga de 1472 ms)"
+              ]
+            },
+            {
+              "ms": 1533.2,
+              "causas": [
+                "JavaScript del hilo principal (tarea larga de 1521 ms)"
+              ]
+            },
+            {
+              "ms": 1566.7,
+              "causas": [
+                "JavaScript del hilo principal (tarea larga de 1574 ms)"
+              ]
+            },
+            {
+              "ms": 1549.9,
+              "causas": [
+                "JavaScript del hilo principal (tarea larga de 1574 ms)"
+              ]
+            },
+            {
+              "ms": 1633.2,
+              "causas": [
+                "JavaScript del hilo principal (tarea larga de 1636 ms)"
+              ]
+            },
+            {
+              "ms": 1583.3,
+              "causas": [
+                "JavaScript del hilo principal (tarea larga de 1636 ms)"
+              ]
+            }
+          ],
+          "tareasLargas": 23,
+          "tareaLargaMaxMs": 1640,
+          "drawCalls": 169,
+          "triangulos": 531354,
+          "delta": {
+            "programas": 0,
+            "texturas": 0,
+            "geometrias": 0,
+            "reconstrucciones": 0,
+            "reconstruccionMs": 0
+          },
+          "duracionMs": 34347,
+          "esperaMs": 20585
+        },
+        {
+          "accion": "furgon exterior: volver a cerrar",
+          "cuadros3d": 25,
+          "fpsPromedio": null,
+          "fps1PorCiento": null,
+          "cuadroMaxMs": 2049.8,
+          "renderCpuMaxMs": 4,
+          "cuadrosMayores50": 25,
+          "largos": [
+            {
+              "ms": 1483.2,
+              "causas": [
+                "espera de la GPU / compositor"
+              ]
+            },
+            {
+              "ms": 1566.6,
+              "causas": [
+                "JavaScript del hilo principal (tarea larga de 1567 ms)"
+              ]
+            },
+            {
+              "ms": 1516.6,
+              "causas": [
+                "JavaScript del hilo principal (tarea larga de 1567 ms)"
+              ]
+            },
+            {
+              "ms": 1533.3,
+              "causas": [
+                "JavaScript del hilo principal (tarea larga de 1527 ms)"
+              ]
+            },
+            {
+              "ms": 1500,
+              "causas": [
+                "JavaScript del hilo principal (tarea larga de 1527 ms)"
+              ]
+            },
+            {
+              "ms": 1533.2,
+              "causas": [
+                "JavaScript del hilo principal (tarea larga de 1528 ms)"
+              ]
+            },
+            {
+              "ms": 1499.9,
+              "causas": [
+                "JavaScript del hilo principal (tarea larga de 1528 ms)"
+              ]
+            },
+            {
+              "ms": 1566.6,
+              "causas": [
+                "JavaScript del hilo principal (tarea larga de 1566 ms)"
+              ]
+            },
+            {
+              "ms": 1766.7,
+              "causas": [
+                "JavaScript del hilo principal (tarea larga de 1776 ms)"
+              ]
+            },
+            {
+              "ms": 1783.2,
+              "causas": [
+                "JavaScript del hilo principal (tarea larga de 1776 ms)"
+              ]
+            },
+            {
+              "ms": 1649.9,
+              "causas": [
+                "JavaScript del hilo principal (tarea larga de 1775 ms)"
+              ]
+            },
+            {
+              "ms": 1716.6,
+              "causas": [
+                "JavaScript del hilo principal (tarea larga de 1714 ms)"
+              ]
+            }
+          ],
+          "tareasLargas": 24,
+          "tareaLargaMaxMs": 2047,
+          "drawCalls": 169,
+          "triangulos": 531354,
+          "delta": {
+            "programas": 0,
+            "texturas": 0,
+            "geometrias": 0,
+            "reconstrucciones": 0,
+            "reconstruccionMs": 0
+          },
+          "duracionMs": 38263,
+          "esperaMs": 20629
+        },
+        {
+          "accion": "escena → exterior",
+          "cuadros3d": 24,
+          "fpsPromedio": null,
+          "fps1PorCiento": null,
+          "cuadroMaxMs": 1983.2,
+          "renderCpuMaxMs": 408,
+          "cuadrosMayores50": 23,
+          "largos": [
+            {
+              "ms": 799.9,
+              "causas": [
+                "JavaScript del hilo principal (tarea larga de 806 ms)"
+              ]
+            },
+            {
+              "ms": 1083.4,
+              "causas": [
+                "subida de 4 textura(s)",
+                "creación de 15 geometría(s)"
+              ]
+            },
+            {
+              "ms": 833.2,
+              "causas": [
+                "JavaScript del hilo principal (tarea larga de 1039 ms)"
+              ]
+            },
+            {
+              "ms": 1650,
+              "causas": [
+                "JavaScript del hilo principal (tarea larga de 834 ms)"
+              ]
+            },
+            {
+              "ms": 1983.2,
+              "causas": [
+                "compilación de 7 shader(s)",
+                "subida de 3 textura(s)",
+                "creación de 8 geometría(s)",
+                "render lento (408 ms de CPU en renderer.render)"
+              ]
+            },
+            {
+              "ms": 1550,
+              "causas": [
+                "JavaScript del hilo principal (tarea larga de 1935 ms)"
+              ]
+            },
+            {
+              "ms": 1500,
+              "causas": [
+                "JavaScript del hilo principal (tarea larga de 1555 ms)"
+              ]
+            },
+            {
+              "ms": 1449.8,
+              "causas": [
+                "JavaScript del hilo principal (tarea larga de 1491 ms)"
+              ]
+            },
+            {
+              "ms": 1483.3,
+              "causas": [
+                "JavaScript del hilo principal (tarea larga de 1474 ms)"
+              ]
+            },
+            {
+              "ms": 1550,
+              "causas": [
+                "JavaScript del hilo principal (tarea larga de 1552 ms)"
+              ]
+            },
+            {
+              "ms": 1516.6,
+              "causas": [
+                "JavaScript del hilo principal (tarea larga de 1552 ms)"
+              ]
+            },
+            {
+              "ms": 1533.3,
+              "causas": [
+                "JavaScript del hilo principal (tarea larga de 1543 ms)"
+              ]
+            }
+          ],
+          "tareasLargas": 24,
+          "tareaLargaMaxMs": 1935,
+          "drawCalls": 169,
+          "triangulos": 531354,
+          "delta": {
+            "programas": 1,
+            "texturas": 1,
+            "geometrias": 15,
+            "reconstrucciones": 0,
+            "reconstruccionMs": 0
+          },
+          "duracionMs": 36439,
+          "esperaMs": 30036
+        },
+        {
+          "accion": "exterior: órbita de cámara 3 s",
+          "cuadros3d": 14,
+          "fpsPromedio": null,
+          "fps1PorCiento": null,
+          "cuadroMaxMs": 1750,
+          "renderCpuMaxMs": 4,
+          "cuadrosMayores50": 13,
+          "largos": [
+            {
+              "ms": 1533.2,
+              "causas": [
+                "JavaScript del hilo principal (tarea larga de 1549 ms)"
+              ]
+            },
+            {
+              "ms": 1516.7,
+              "causas": [
+                "JavaScript del hilo principal (tarea larga de 1549 ms)"
+              ]
+            },
+            {
+              "ms": 1533.2,
+              "causas": [
+                "JavaScript del hilo principal (tarea larga de 1532 ms)"
+              ]
+            },
+            {
+              "ms": 1750,
+              "causas": [
+                "JavaScript del hilo principal (tarea larga de 1749 ms)"
+              ]
+            },
+            {
+              "ms": 1599.9,
+              "causas": [
+                "JavaScript del hilo principal (tarea larga de 1749 ms)"
+              ]
+            },
+            {
+              "ms": 1599.9,
+              "causas": [
+                "JavaScript del hilo principal (tarea larga de 1606 ms)"
+              ]
+            },
+            {
+              "ms": 1600,
+              "causas": [
+                "JavaScript del hilo principal (tarea larga de 1606 ms)"
+              ]
+            },
+            {
+              "ms": 1683.2,
+              "causas": [
+                "JavaScript del hilo principal (tarea larga de 1689 ms)"
+              ]
+            },
+            {
+              "ms": 1650,
+              "causas": [
+                "JavaScript del hilo principal (tarea larga de 1689 ms)"
+              ]
+            },
+            {
+              "ms": 1649.9,
+              "causas": [
+                "JavaScript del hilo principal (tarea larga de 1651 ms)"
+              ]
+            },
+            {
+              "ms": 1699.9,
+              "causas": [
+                "JavaScript del hilo principal (tarea larga de 1702 ms)"
+              ]
+            },
+            {
+              "ms": 1716.6,
+              "causas": [
+                "JavaScript del hilo principal (tarea larga de 1717 ms)"
+              ]
+            }
+          ],
+          "tareasLargas": 14,
+          "tareaLargaMaxMs": 1749,
+          "drawCalls": 169,
+          "triangulos": 531354,
+          "delta": {
+            "programas": 0,
+            "texturas": 0,
+            "geometrias": 0,
+            "reconstrucciones": 0,
+            "reconstruccionMs": 0
+          },
+          "duracionMs": 21389,
+          "esperaMs": 13414
+        },
+        {
+          "accion": "escena → ruta",
+          "cuadros3d": 20,
+          "fpsPromedio": null,
+          "fps1PorCiento": null,
+          "cuadroMaxMs": 1883.3,
+          "renderCpuMaxMs": 3,
+          "cuadrosMayores50": 20,
+          "largos": [
+            {
+              "ms": 1716.6,
+              "causas": [
+                "JavaScript del hilo principal (tarea larga de 1713 ms)"
+              ]
+            },
+            {
+              "ms": 1866.6,
+              "causas": [
+                "JavaScript del hilo principal (tarea larga de 1875 ms)"
+              ]
+            },
+            {
+              "ms": 1666.6,
+              "causas": [
+                "JavaScript del hilo principal (tarea larga de 1875 ms)"
+              ]
+            },
+            {
+              "ms": 1733.2,
+              "causas": [
+                "JavaScript del hilo principal (tarea larga de 1734 ms)"
+              ]
+            },
+            {
+              "ms": 1766.6,
+              "causas": [
+                "JavaScript del hilo principal (tarea larga de 1772 ms)"
+              ]
+            },
+            {
+              "ms": 1683.3,
+              "causas": [
+                "JavaScript del hilo principal (tarea larga de 1772 ms)"
+              ]
+            },
+            {
+              "ms": 1716.6,
+              "causas": [
+                "JavaScript del hilo principal (tarea larga de 1712 ms)"
+              ]
+            },
+            {
+              "ms": 1699.9,
+              "causas": [
+                "JavaScript del hilo principal (tarea larga de 1712 ms)"
+              ]
+            },
+            {
+              "ms": 1766.7,
+              "causas": [
+                "JavaScript del hilo principal (tarea larga de 1764 ms)"
+              ]
+            },
+            {
+              "ms": 1716.5,
+              "causas": [
+                "JavaScript del hilo principal (tarea larga de 1764 ms)"
+              ]
+            },
+            {
+              "ms": 1883.3,
+              "causas": [
+                "JavaScript del hilo principal (tarea larga de 1888 ms)"
+              ]
+            },
+            {
+              "ms": 1716.6,
+              "causas": [
+                "JavaScript del hilo principal (tarea larga de 1888 ms)"
+              ]
+            }
+          ],
+          "tareasLargas": 20,
+          "tareaLargaMaxMs": 1888,
+          "drawCalls": 169,
+          "triangulos": 531354,
+          "delta": {
+            "programas": 0,
+            "texturas": 0,
+            "geometrias": 0,
+            "reconstrucciones": 0,
+            "reconstruccionMs": 0
+          },
+          "duracionMs": 33085,
+          "esperaMs": 31208,
+          "omitida": "la escena \"ruta\" todavía no existe"
+        },
+        {
+          "accion": "escena → estudio",
+          "cuadros3d": 40,
+          "fpsPromedio": null,
+          "fps1PorCiento": null,
+          "cuadroMaxMs": 3599.9,
+          "renderCpuMaxMs": 56.3,
+          "cuadrosMayores50": 40,
+          "largos": [
+            {
+              "ms": 1799.9,
+              "causas": [
+                "espera de la GPU / compositor"
+              ]
+            },
+            {
+              "ms": 1783.3,
+              "causas": [
+                "JavaScript del hilo principal (tarea larga de 1789 ms)"
+              ]
+            },
+            {
+              "ms": 1733.2,
+              "causas": [
+                "JavaScript del hilo principal (tarea larga de 1789 ms)"
+              ]
+            },
+            {
+              "ms": 1816.7,
+              "causas": [
+                "JavaScript del hilo principal (tarea larga de 1819 ms)"
+              ]
+            },
+            {
+              "ms": 1699.9,
+              "causas": [
+                "JavaScript del hilo principal (tarea larga de 1819 ms)"
+              ]
+            },
+            {
+              "ms": 1799.9,
+              "causas": [
+                "JavaScript del hilo principal (tarea larga de 1807 ms)"
+              ]
+            },
+            {
+              "ms": 1699.9,
+              "causas": [
+                "JavaScript del hilo principal (tarea larga de 1807 ms)"
+              ]
+            },
+            {
+              "ms": 1950,
+              "causas": [
+                "JavaScript del hilo principal (tarea larga de 1941 ms)"
+              ]
+            },
+            {
+              "ms": 1733.2,
+              "causas": [
+                "JavaScript del hilo principal (tarea larga de 1941 ms)"
+              ]
+            },
+            {
+              "ms": 1799.9,
+              "causas": [
+                "JavaScript del hilo principal (tarea larga de 1804 ms)"
+              ]
+            },
+            {
+              "ms": 1800,
+              "causas": [
+                "JavaScript del hilo principal (tarea larga de 1804 ms)"
+              ]
+            },
+            {
+              "ms": 1699.9,
+              "causas": [
+                "JavaScript del hilo principal (tarea larga de 1802 ms)"
+              ]
+            }
+          ],
+          "tareasLargas": 40,
+          "tareaLargaMaxMs": 1941,
+          "drawCalls": 115,
+          "triangulos": 291244,
+          "delta": {
+            "programas": -1,
+            "texturas": 4,
+            "geometrias": -15,
+            "reconstrucciones": 0,
+            "reconstruccionMs": 0
+          },
+          "duracionMs": 46418,
+          "esperaMs": 20665
+        },
+        {
+          "accion": "ruta: circular / frenar / abrir / cerrar / arrancar",
+          "omitida": "la escena Ruta todavía no existe (Fase 3-4)"
+        }
+      ]
+    }
+  }
+}
