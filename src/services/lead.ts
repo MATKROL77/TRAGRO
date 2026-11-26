@@ -46,6 +46,9 @@ export async function submitLead(lead: Lead, channel: Channel, subject: string):
   }
   const body = lead.summaryText;
   const url = channel === 'whatsapp' ? buildWhatsappUrl(body) : buildMailto(subject, body);
-  const w = window.open(url, '_blank', 'noopener');
-  if (!w) window.location.href = url;
+  // con 'noopener' window.open siempre devuelve null: se abre sin él y se corta el opener a mano.
+  // Sólo si el navegador bloqueó la ventana se navega en la misma pestaña.
+  const w = window.open(url, '_blank');
+  if (w) w.opener = null;
+  else window.location.href = url;
 }

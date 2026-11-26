@@ -24,7 +24,7 @@ async function svgToPng(url: string, size = 256): Promise<string | null> {
     await img.decode();
     const c = document.createElement('canvas');
     c.width = c.height = size;
-    c.getContext('2d')!.drawImage(img, 0, 0, size, size);
+    c.getContext('2d', { willReadFrequently: true })!.drawImage(img, 0, 0, size, size);
     return c.toDataURL('image/png');
   } catch {
     return null;

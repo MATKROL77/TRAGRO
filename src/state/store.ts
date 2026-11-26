@@ -51,6 +51,9 @@ export interface AppState {
   webgl: boolean;
   hotspot: string | null;
   panelTab: 'config' | 'perf';
+  /** renderizar con la escena Estudio sin cambiar la escena elegida (vistas del resumen/PDF) */
+  studioOverride: boolean;
+  setStudioOverride: (b: boolean) => void;
   setPanelTab: (t: 'config' | 'perf') => void;
 
   setLang: (l: Lang) => void;
@@ -134,6 +137,8 @@ export const useStore = create<AppState>((set, get) => ({
   webgl: true,
   hotspot: null,
   panelTab: 'config',
+  studioOverride: false,
+  setStudioOverride: (studioOverride) => set({ studioOverride }),
   setPanelTab: (panelTab) => set({ panelTab }),
 
   setLang: (lang) => set(get().destinationTouched ? { lang } : { lang, destination: lang === 'es-AR' ? 'local' : 'export' }),

@@ -761,3 +761,22 @@ input[type='range'] { accent-color: var(--primary); }
 .stable.tb-label-wide { display: none; }
 @media (min-width: 1800px) { .stable.tb-label-wide { display: inline-grid; } }
 @media (max-width: 1100px) { .stable.tb-label { display: none; } }
+
+/* "Plegando…": arriba de la barra de herramientas (no choca con la tarjeta de precio) */
+.topbar .pose-badge { position: absolute; top: auto; bottom: calc(100% + 10px); left: 50%; transform: translateX(-50%); z-index: 30; white-space: nowrap; }
+@media (max-width: 900px) { .topbar .pose-badge { top: auto; bottom: calc(100% + 8px); } }
+
+/* tarjeta de precio: título y monto siempre en una línea; la etiqueta de ruta se achica */
+.pcard-head { flex-wrap: nowrap; min-width: 0; }
+.pcard-title, .pcard .ph-amount { white-space: nowrap; flex-shrink: 0; }
+.pcard-toggle { flex: 0 1 auto; margin-left: auto; min-width: 0; }
+.tr-chip { flex: 0 1 auto; min-width: 0; max-width: 100%; overflow: hidden; }
+.tr-chip .light { flex-shrink: 0; }
+.tr-chip-text { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+@media (max-width: 900px) {
+  .pcard .pcard-title { display: inline; }
+  .pcard-toggle { margin-left: auto; }
+}
+@media (max-width: 480px) {
+  .pcard .pcard-title { display: none; }
+}

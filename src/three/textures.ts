@@ -2,7 +2,7 @@ import * as THREE from 'three';
 
 /** Texturas procedurales (canvas). Se generan una sola vez y se comparten. */
 
-function canvas(w: number, h: number, read = false): [HTMLCanvasElement, CanvasRenderingContext2D] {
+function canvas(w: number, h: number, read = true): [HTMLCanvasElement, CanvasRenderingContext2D] {
   const c = document.createElement('canvas');
   c.width = w;
   c.height = h;

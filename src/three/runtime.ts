@@ -16,6 +16,8 @@ export const runtime = {
   timeScale: 1,
   /** contador de frames para medición de fps en pruebas */
   frames: 0,
+  /** la escena Estudio está montada (para capturar las vistas del resumen siempre en estudio) */
+  studioMounted: false,
 };
 
 export function touchInteraction() {

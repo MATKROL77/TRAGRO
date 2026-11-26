@@ -17,7 +17,8 @@
 
 ## Consultas (leads) y modo demo
 
-- Cada consulta se guarda **antes** de abrir WhatsApp/email: `POST /api/lead` al mismo Worker, que la escribe en el KV `surco-configurador-leads` (clave `lead:<fecha>-<id>`, con nombre, canal y n.º de configuración en los metadatos). Se ven en Cloudflare → Storage & Databases → Workers KV → `surco-configurador-leads`.
+- Cada consulta se guarda **antes** de abrir WhatsApp/email: `POST /api/lead` al mismo Worker (`deploy/worker.js`). Valida el JSON (nombre obligatorio), descarta más de 10 KB (413), limita a 10 envíos por IP por hora (429) y responde `201 {ok:true,id}`. Se guarda en el KV `surco-configurador-leads` con las columnas id, ts, name, company, country, region, hectares, phone, email, comments, channel, config_code, price_usd, cfg_url.
+- Para verlas: `GET /api/leads?token=…` devuelve las últimas 50. El token es el secreto `LEADS_TOKEN` del Worker (Cloudflare → Workers → surco-configurador → Settings → Variables and Secrets; se puede rotar ahí). Opcional: secreto `LEAD_WEBHOOK` para recibir un aviso por cada consulta. El deploy conserva los secretos (`keep_bindings`).
 - `brand.demo = true`: WhatsApp y email se abren **sin destinatario** (no le llega a un número inventado) y el formulario muestra un aviso de demo. En la versión de un fabricante: `demo: false` y cargar `whatsapp`/`email` de ventas en `src/config/brand.json`.
 - `VITE_LEAD_WEBHOOK` reemplaza el endpoint por un CRM/webhook propio.
 

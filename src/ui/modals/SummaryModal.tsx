@@ -4,6 +4,7 @@ import { useT } from '../../i18n/useT';
 import { Modal } from './Modal';
 import { buildSummary, moneyOrDash } from '../../services/summaryData';
 import { captureView } from '../../three/capture';
+import { runtime } from '../../three/runtime';
 import { currentShareUrl, shareCurrent } from '../share';
 import { formatDate } from '../../domain/units';
 import { IconCompare, IconPdf, IconShare } from '../icons';
@@ -12,15 +13,42 @@ export type Renders = { front34?: string; top?: string; transport?: string };
 let renderCache: { key: string; renders: Renders } | null = null;
 
 /** Genera (y cachea por configuración) los 3 renders automáticos. */
+/** Espera (por frames) a que se cumpla una condición, con tope de 3 s; después deja pasar 2 frames más. */
+function waitFor(cond: () => boolean): Promise<void> {
+  return new Promise((resolve) => {
+    const t0 = performance.now();
+    let after = -1;
+    const tick = () => {
+      runtime.invalidate();
+      if (after < 0 && (cond() || performance.now() - t0 > 3000)) after = 2;
+      if (after === 0) return resolve();
+      if (after > 0) after--;
+      requestAnimationFrame(tick);
+    };
+    tick();
+  });
+}
+
 export async function getRenders(): Promise<Renders> {
   const st = useStore.getState();
-  const key = JSON.stringify([st.config, st.scene, st.logoUrl]);
+  const key = JSON.stringify([st.config, st.logoUrl]);
   if (renderCache?.key === key) return renderCache.renders;
   if (!st.webgl || !st.viewerReady) return {};
-  const front34 = await captureView('front34', false);
-  const top = await captureView('top', false);
-  const transport = await captureView('front34', true);
-  const renders = { front34, top, transport };
+  // siempre en Estudio (fondo neutro), sin cambiar la escena que el usuario tiene activa
+  const override = st.scene !== 'studio';
+  if (override) {
+    st.setStudioOverride(true);
+    await waitFor(() => runtime.studioMounted);
+  }
+  let renders: Renders;
+  try {
+    const front34 = await captureView('front34', false);
+    const top = await captureView('top', false);
+    const transport = await captureView('front34', true);
+    renders = { front34, top, transport };
+  } finally {
+    if (override) useStore.getState().setStudioOverride(false);
+  }
   renderCache = { key, renders };
   return renders;
 }

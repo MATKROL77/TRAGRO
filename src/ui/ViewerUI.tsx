@@ -74,7 +74,7 @@ export function ViewerToolbar() {
   return (
     <div className="topbar" ref={wrap} role="toolbar" aria-label={t('toolbar.cameras')}>
       <div className="pop-wrap">
-        <button type="button" className="tb-btn" aria-haspopup="menu" aria-expanded={camOpen} onClick={() => { setCamOpen(!camOpen); setMoreOpen(false); }}>
+        <button type="button" className="tb-btn" aria-haspopup="menu" aria-expanded={camOpen} aria-label={t('toolbar.cameras')} title={t('toolbar.cameras')} onClick={() => { setCamOpen(!camOpen); setMoreOpen(false); }}>
           <IconCamera size={17} />
           <span className="tb-label">{t('toolbar.cameras')}</span>
         </button>
@@ -134,6 +134,7 @@ export function ViewerToolbar() {
       <button type="button" className="tb-btn tb-icon hide-sm" aria-label={fs ? t('toolbar.exitFullscreen') : t('toolbar.fullscreen')} title={fs ? t('toolbar.exitFullscreen') : t('toolbar.fullscreen')} onClick={fullscreen}>
         <IconFull size={17} />
       </button>
+      <PoseBadge />
     </div>
   );
 }

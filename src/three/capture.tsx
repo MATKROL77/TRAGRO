@@ -4,7 +4,6 @@ import type { OrbitControls as OrbitControlsImpl } from 'three-stdlib';
 import { runtime } from './runtime';
 import { presetShot, type Pads } from './CameraRig';
 import type { CamPreset } from '../state/store';
-import { useStore } from '../state/store';
 
 interface Req {
   kind: 'view' | 'hires';
@@ -53,7 +52,7 @@ function downscale(src: HTMLCanvasElement, maxW: number, mime: string, aspect?: 
   const c = document.createElement('canvas');
   c.width = Math.min(maxW, sw);
   c.height = Math.round((sh / sw) * c.width);
-  const ctx = c.getContext('2d')!;
+  const ctx = c.getContext('2d', { willReadFrequently: true })!;
   ctx.imageSmoothingQuality = 'high';
   ctx.drawImage(src, sx, sy, sw, sh, 0, 0, c.width, c.height);
   return c.toDataURL(mime, 0.9);
@@ -95,7 +94,8 @@ export function CaptureController() {
         const prevPose = m?.state.poseT ?? 0;
         if (m) m.applyPose(r.transport ? 1 : 0, true);
         const asp = size.width / size.height;
-        const shot = presetShot(r.preset, asp, useStore.getState().scene, { pads: cropPads(asp, r.aspect), transport: !!r.transport, fov: (camera as THREE.PerspectiveCamera).fov });
+        // las vistas del resumen/PDF se encuadran siempre como en Estudio (sin tractor)
+        const shot = presetShot(r.preset, asp, 'studio', { pads: cropPads(asp, r.aspect), transport: !!r.transport, withTractor: false, fov: (camera as THREE.PerspectiveCamera).fov });
         camera.position.copy(shot.pos);
         ctl?.target.copy(shot.target);
         ctl?.update();

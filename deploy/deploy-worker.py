@@ -1,6 +1,9 @@
 #!/usr/bin/env python3
 """Deploy del build (dist/) a Cloudflare Workers + KV.
 Uso: CLOUDFLARE_API_TOKEN=... CLOUDFLARE_ACCOUNT_ID=... python3 deploy/deploy-worker.py
+
+Secretos del Worker (se conservan entre deploys): LEADS_TOKEN (para GET /api/leads?token=…) y,
+opcional, LEAD_WEBHOOK (aviso por cada consulta). Se cargan en Cloudflare → Workers → Settings → Variables.
 """
 import base64, json, mimetypes, os, subprocess, sys, tempfile
 
@@ -56,7 +59,7 @@ for i in range(0, len(items), 25):
 print('Archivos subidos:', len(items))
 
 # 3) script del Worker con el binding
-meta = json.dumps({'main_module': 'worker.js', 'compatibility_date': '2024-11-01', 'bindings': [{'type': 'kv_namespace', 'name': 'ASSETS', 'namespace_id': ns}, {'type': 'kv_namespace', 'name': 'LEADS', 'namespace_id': leads}]})
+meta = json.dumps({'main_module': 'worker.js', 'compatibility_date': '2024-11-01', 'bindings': [{'type': 'kv_namespace', 'name': 'ASSETS', 'namespace_id': ns}, {'type': 'kv_namespace', 'name': 'LEADS', 'namespace_id': leads}], 'keep_bindings': ['secret_text', 'plain_text']})
 here = os.path.dirname(os.path.abspath(__file__))
 curl('PUT', f'{API}/workers/scripts/{NAME}', form=[f'metadata={meta};type=application/json', f'worker.js=@{here}/worker.js;type=application/javascript+module'])
 curl('POST', f'{API}/workers/scripts/{NAME}/subdomain', json.dumps({'enabled': True, 'previews_enabled': False}))

@@ -52,22 +52,27 @@ function Ready() {
 function SceneSwitch() {
   const scene = useStore((s) => s.scene);
   const detail = useStore((s) => s.detail);
+  const override = useStore((s) => s.studioOverride);
+  const studio = scene === 'studio' || override;
   useEffect(() => {
-    setWear(1, scene === 'studio' ? 0.45 : 0.75);
-  }, [scene]);
+    setWear(1, studio ? 0.45 : 0.75);
+  }, [studio]);
   return (
     <>
-      {scene === 'studio' && <StudioScene />}
-      {scene === 'field' && (
-        <Suspense fallback={<StudioScene />}>
-          <FieldScene />
-        </Suspense>
-      )}
-      {scene === 'road' && (
-        <Suspense fallback={<StudioScene />}>
-          <RoadScene />
-        </Suspense>
-      )}
+      {studio && <StudioScene />}
+      {/* Campo/Ruta quedan montados (no se pierde su estado) pero ocultos mientras se capturan vistas en estudio */}
+      <group visible={!override}>
+        {scene === 'field' && (
+          <Suspense fallback={override ? null : <StudioScene />}>
+            <FieldScene />
+          </Suspense>
+        )}
+        {scene === 'road' && (
+          <Suspense fallback={override ? null : <StudioScene />}>
+            <RoadScene />
+          </Suspense>
+        )}
+      </group>
       {detail && (
         <Suspense fallback={null}>
           <RowUnitDetail />

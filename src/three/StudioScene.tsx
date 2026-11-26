@@ -62,9 +62,13 @@ function StudioFloor() {
 export function StudioScene() {
   const { scene } = useThree();
   useEffect(() => {
+    const prev = scene.fog;
     scene.fog = new THREE.Fog('#f2e4cf', 18, 70);
+    runtime.studioMounted = true;
     return () => {
-      scene.fog = null;
+      // al volver de una captura en estudio, se recupera la niebla de Campo/Ruta
+      scene.fog = prev;
+      runtime.studioMounted = false;
     };
   }, [scene]);
   useFrame(() => {

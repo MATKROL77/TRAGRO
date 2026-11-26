@@ -108,8 +108,10 @@ export function MachineView() {
     if (!m || captureState.lock) return;
     const st = useStore.getState();
     const target = st.pose === 'transport' ? 1 : 0;
-    const speed = prefersReducedMotion() ? 1 : 1 / 7;
-    const moving = m.update(Math.min(dt, 0.05) * runtime.timeScale, target, runtime.distance, speed);
+    // plegado/desplegado en 3,5 s de tiempo real (cada fase con easing); dt hasta 0,25 s para que
+    // con pocos FPS no se estire la animación
+    const speed = prefersReducedMotion() ? 1 : 1 / 3.5;
+    const moving = m.update(Math.min(dt, 0.25) * runtime.timeScale, target, runtime.distance, speed);
     if (moving) invalidate();
   });
 

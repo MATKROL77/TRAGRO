@@ -8,7 +8,7 @@ import { PerformancePanel } from './PerformancePanel';
 import { PriceHeader } from './BottomBar';
 import { useMediaQuery } from './hooks';
 import { IconCompare } from './icons';
-import { DetailLegend, HotspotCard, LoadingScreen, NoWebGL, NoticeToast, PoseBadge, SimPanel, ViewerToolbar } from './ViewerUI';
+import { DetailLegend, HotspotCard, LoadingScreen, NoWebGL, NoticeToast, SimPanel, ViewerToolbar } from './ViewerUI';
 import { restartDemo, useEmbedBridge, useFeriaMode, useShortcuts } from './feria';
 import { touchInteraction } from '../three/runtime';
 import { IconReset } from './icons';
@@ -103,7 +103,6 @@ export function App() {
           {embed && <div className="embed-lu"><LangUnitControls /></div>}
           <ViewerToolbar />
           <SimPanel />
-          <PoseBadge />
           <DetailLegend />
           <HotspotCard />
           <NoticeToast />
