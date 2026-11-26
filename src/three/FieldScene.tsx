@@ -6,7 +6,8 @@ import { useStore } from '../state/store';
 import { runtime } from './runtime';
 import { KeyLight } from './StudioScene';
 import { createGroundMaterial } from './ground';
-import { FieldSim } from './fieldSim';
+import { getFieldSim } from './fieldSim';
+import { useWarmup, useWarmupObject } from '../render-kit/warmup';
 import { Tractor, TRACTOR } from './Tractor';
 import { getCrop } from '../domain/agronomy';
 import { computeLayout } from '../machines/seeder/layout';
@@ -14,8 +15,20 @@ import { getMaterials } from './materials';
 
 
 /** Horizonte pampeano: cortinas de eucaliptos, un silo y un molino lejanos (muy livianos). */
+let horizonGroup: THREE.Group | null = null;
 function Horizon() {
-  const g = useMemo(() => {
+  const g = useMemo(() => (horizonGroup ??= buildHorizon()), []);
+  const warm = useWarmupObject(g);
+  useFrame((_, dt) => {
+    const fan = (g.userData.mill as THREE.Group).userData.fan as THREE.Group;
+    fan.rotation.z += dt * 1.2;
+  });
+  return warm ? null : <primitive object={g} dispose={null} />;
+}
+
+/** Silo y molino lejanos: se construyen una vez y se reutilizan en cada visita. */
+function buildHorizon(): THREE.Group {
+  {
     const group = new THREE.Group();
     const mats = getMaterials();
     // silo
@@ -57,27 +70,23 @@ function Horizon() {
     group.add(mill);
     group.userData.mill = mill;
     return group;
-  }, []);
-  useFrame((_, dt) => {
-    const fan = (g.userData.mill as THREE.Group).userData.fan as THREE.Group;
-    fan.rotation.z += dt * 1.2;
-  });
-  return <primitive object={g} />;
+  }
 }
 
 function SowingSim() {
   const config = useStore((s) => s.config);
   const field = useStore((s) => s.field);
+  const warm = useWarmup();
+  // simulación única (precargada): se reinicia al entrar, no se recrea
   const sim = useMemo(() => {
     const lay = computeLayout(useStore.getState().config);
     const crop = getCrop(useStore.getState().field.crop);
-    return new FieldSim({ rowX: lay.rowX, spacing: lay.spacing, seedsPerM: useStore.getState().field.seedsPerM, sectionControl: false, seedColor: crop.color, seedShape: crop.shape });
+    return getFieldSim({ rowX: lay.rowX, spacing: lay.spacing, seedsPerM: useStore.getState().field.seedsPerM, sectionControl: false, seedColor: crop.color, seedShape: crop.shape }, runtime.distance);
   }, []);
   useEffect(() => {
     const dbg = (window as unknown as { __sp?: Record<string, unknown> }).__sp;
-    if (dbg) dbg.sim = sim;
-    return () => sim.dispose();
-  }, [sim]);
+    if (dbg && !warm) dbg.sim = sim;
+  }, [sim, warm]);
   useEffect(() => {
     const lay = computeLayout(config);
     const crop = getCrop(field.crop);
@@ -87,6 +96,7 @@ function SowingSim() {
     );
   }, [config, field.crop, field.seedsPerM, sim]);
   useFrame((_, dt) => {
+    if (warm) return; // precarga: sólo se compila/sube a la GPU, sin simular
     const st = useStore.getState();
     const target = st.sowing && st.pose === 'work' && !st.detail ? st.field.speedKmh / 3.6 : 0;
     const step = Math.min(dt, 0.05) * runtime.timeScale;
@@ -105,7 +115,8 @@ function SowingSim() {
     runtime.sim.headlandPct = s.headlandPct;
     if (runtime.speed > 0 || target > 0) runtime.invalidate();
   });
-  return <primitive object={sim.group} />;
+  const warmObj = useWarmupObject(sim.group);
+  return warmObj ? null : <primitive object={sim.group} dispose={null} />;
 }
 
 function FieldTractor() {
@@ -128,18 +139,22 @@ function FieldTractor() {
   return <Tractor ref={ref} wheelRefs={wheels} />;
 }
 
+let plane: THREE.PlaneGeometry | null = null;
+const fieldPlane = () => (plane ??= new THREE.PlaneGeometry(900, 900, 1, 1));
+
 export default function FieldScene() {
   const { scene } = useThree();
   const stubble = useStore((s) => s.stubble);
   const ground = useMemo(() => createGroundMaterial({ straw: stubble === 'soy' ? 0.75 : 0.95 }), [stubble]);
-  useEffect(() => () => ground.material.dispose(), [ground]);
   useEffect(() => {
     scene.fog = new THREE.Fog('#c9d3db', 70, 430);
     return () => {
       scene.fog = null;
     };
   }, [scene]);
+  const warmScene = useWarmup();
   useFrame(() => {
+    if (warmScene) return;
     ground.uniforms.uOffset.value = runtime.distance;
     runtime.frames++;
   });
@@ -149,9 +164,7 @@ export default function FieldScene() {
       <Environment files={`${base}hdri/sky.hdr`} background environmentIntensity={0.85} backgroundIntensity={1} />
       <hemisphereLight args={['#cfe0f2', '#7a6a50', 0.35]} />
       <KeyLight intensity={2.8} position={[-9, 14, 11]} color="#fff0db" />
-      <mesh rotation-x={-Math.PI / 2} receiveShadow material={ground.material}>
-        <planeGeometry args={[900, 900, 1, 1]} />
-      </mesh>
+      <mesh rotation-x={-Math.PI / 2} receiveShadow material={ground.material} geometry={fieldPlane()} />
       <SowingSim />
       <FieldTractor />
       <Horizon />

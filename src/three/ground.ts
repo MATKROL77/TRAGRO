@@ -7,15 +7,32 @@ export interface GroundUniforms {
   uStraw: { value: number };
 }
 
+const texCache = new Map<string, THREE.Texture>();
+/** Textura cacheada por ruta: se descarga, decodifica y sube a la GPU una sola vez (nunca se libera). */
 export function loadTex(path: string, srgb = false): THREE.Texture {
+  const key = `${path}|${srgb}`;
+  const hit = texCache.get(key);
+  if (hit) return hit;
   const t = new THREE.TextureLoader().load(import.meta.env.BASE_URL + path);
+  texCache.set(key, t);
   t.wrapS = t.wrapT = THREE.RepeatWrapping;
   if (srgb) t.colorSpace = THREE.SRGBColorSpace;
   t.anisotropy = 8;
   return t;
 }
 
+const groundCache = new Map<string, { material: THREE.MeshStandardMaterial; uniforms: GroundUniforms }>();
+/** Material de suelo compartido por parámetros (no se crea ni se libera al cambiar de escena). */
 export function createGroundMaterial(opts: { straw: number; soilScale?: number; strawScale?: number }): { material: THREE.MeshStandardMaterial; uniforms: GroundUniforms } {
+  const key = `${opts.straw}|${opts.soilScale ?? ''}|${opts.strawScale ?? ''}`;
+  const hit = groundCache.get(key);
+  if (hit) return hit;
+  const made = buildGroundMaterial(opts);
+  groundCache.set(key, made);
+  return made;
+}
+
+function buildGroundMaterial(opts: { straw: number; soilScale?: number; strawScale?: number }): { material: THREE.MeshStandardMaterial; uniforms: GroundUniforms } {
   const soilC = loadTex('textures/soil_color.webp', true);
   const soilN = loadTex('textures/soil_normal.webp');
   const soilR = loadTex('textures/soil_rough.webp');
@@ -24,6 +41,7 @@ export function createGroundMaterial(opts: { straw: number; soilScale?: number; 
   const m = new THREE.MeshStandardMaterial({ color: '#ffffff', roughness: 0.95, metalness: 0, normalMap: soilN, normalScale: new THREE.Vector2(1.2, 1.2), map: soilC, roughnessMap: soilR });
   const ss = (opts.soilScale ?? 0.45).toFixed(3);
   const ws = (opts.strawScale ?? 0.42).toFixed(3);
+  m.customProgramCacheKey = () => `ground-${ss}-${ws}`;
   m.onBeforeCompile = (sh) => {
     sh.uniforms.uOffset = uniforms.uOffset;
     sh.uniforms.uStraw = uniforms.uStraw;

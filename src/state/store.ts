@@ -6,11 +6,12 @@ import type { Destination } from '../domain/pricing';
 import type { Configuration, Lang, Notice, UnitSystem } from '../domain/types';
 import { transportDef } from '../domain/transport';
 import brand from '../config/brand.json';
+import { quickGuess, type QualityLevel } from '../render-kit/quality';
 
 export type SceneId = 'studio' | 'field' | 'road';
 export type CamPreset = 'front34' | 'side' | 'rear' | 'top' | 'rowUnit' | 'hoppers' | 'ground';
 export type ModalId = null | 'summary' | 'quote' | 'compare';
-export type Quality = 'high' | 'medium' | 'low';
+export type Quality = QualityLevel;
 
 export interface NoticeEvent { id: number; items: Notice[] }
 
@@ -41,6 +42,12 @@ export interface AppState {
   showHotspots: boolean;
   stubble: 'wheat' | 'soy' | 'maize';
   quality: Quality;
+  /** nivel máximo permitido (por GPU detectada) */
+  qualityMax: Quality;
+  /** true: el nivel se ajusta solo (false si se fijó con ?q=) */
+  qualityAuto: boolean;
+  gpu: string;
+  setQualityInfo: (p: { max?: Quality; auto?: boolean; gpu?: string }) => void;
   modal: ModalId;
   slots: { A?: Configuration; B?: Configuration };
   feria: boolean;
@@ -126,7 +133,11 @@ export const useStore = create<AppState>((set, get) => ({
   showTractor: true,
   showHotspots: true,
   stubble: 'wheat',
-  quality: 'high',
+  quality: quickGuess(),
+  qualityMax: 'high',
+  qualityAuto: true,
+  gpu: '',
+  setQualityInfo: (p) => set({ qualityMax: p.max ?? get().qualityMax, qualityAuto: p.auto ?? get().qualityAuto, gpu: p.gpu ?? get().gpu }),
   modal: null,
   slots: {},
   feria: false,

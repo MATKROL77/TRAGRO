@@ -18,6 +18,12 @@ export const runtime = {
   frames: 0,
   /** la escena Estudio está montada (para capturar las vistas del resumen siempre en estudio) */
   studioMounted: false,
+  /** ms de CPU de la última reconstrucción del modelo (diagnóstico/benchmark) */
+  lastRebuildMs: 0,
+  /** paso más largo de la última reconstrucción por pasos (ms) */
+  lastRebuildMaxSliceMs: 0,
+  /** resultado de la precompilación de escenas (diagnóstico) */
+  warmup: null as null | { id: string; ms: number; programsBefore: number; programsAfter: number }[],
 };
 
 export function touchInteraction() {

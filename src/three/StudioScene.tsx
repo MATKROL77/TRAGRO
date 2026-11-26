@@ -4,6 +4,7 @@ import { Environment, Lightformer } from '@react-three/drei';
 import * as THREE from 'three';
 import { runtime } from './runtime';
 import { useStore } from '../state/store';
+import { QUALITY_PRESETS } from '../render-kit/quality';
 
 /** Luz principal con sombra ajustada al tamaño de la máquina. */
 export function KeyLight({ intensity = 2.2, position = [6, 11, 7] as [number, number, number], color = '#fff6ea' }) {
@@ -25,7 +26,7 @@ export function KeyLight({ intensity = 2.2, position = [6, 11, 7] as [number, nu
     cam.near = 1;
     cam.far = 60;
     cam.updateProjectionMatrix();
-    const res = quality === 'high' ? 4096 : quality === 'medium' ? 2048 : 1024;
+    const res = QUALITY_PRESETS[quality].shadowMapSize;
     if (l.shadow.mapSize.x !== res) {
       l.shadow.mapSize.set(res, res);
       l.shadow.map?.dispose();

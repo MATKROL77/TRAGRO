@@ -33,10 +33,32 @@ export function MachineView() {
     applyPlateTextures(new THREE.TextureLoader());
   }, []);
 
-  // Reconstrucción geométrica (los cuerpos se deslizan desde su posición anterior)
+  // Reconstrucción geométrica (los cuerpos se deslizan desde su posición anterior).
+  // Se construye por pasos con un presupuesto de pocos ms por cuadro; la máquina anterior sigue en
+  // pantalla hasta que la nueva está lista, así ningún cuadro se traba al cambiar una opción.
+  const job = useRef<{ model: SeederModel; steps: Iterator<void>; cpu: number; maxSlice: number } | null>(null);
   useEffect(() => {
     const prev = runtime.model;
-    const m = family.create(useStore.getState().config, mats, prev) as SeederModel;
+    if (job.current) {
+      job.current.model.dispose(); // se descarta la construcción a medio hacer
+      job.current = null;
+    }
+    const cfg = useStore.getState().config;
+    if (prev && family.createSteps) {
+      const j = family.createSteps(cfg, mats, prev);
+      job.current = { model: j.model as SeederModel, steps: j.steps, cpu: 0, maxSlice: 0 };
+      invalidate();
+      return;
+    }
+    const t0 = performance.now();
+    const m = family.create(cfg, mats, prev) as SeederModel;
+    runtime.lastRebuildMs = performance.now() - t0;
+    runtime.lastRebuildMaxSliceMs = runtime.lastRebuildMs;
+    swapIn(m, prev);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [sig]);
+
+  const swapIn = (m: SeederModel, prev: SeederModel | null) => {
     group.current?.add(m.root);
     if (prev) {
       // pasar la calcomanía actual al modelo nuevo
@@ -51,11 +73,37 @@ export function MachineView() {
       if (st.scene !== 'field' && !st.detail) window.setTimeout(() => useStore.getState().focus('overview'), 450);
     }
     invalidate();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [sig]);
+  };
+
+  // consume la construcción pendiente: hasta BUDGET ms por cuadro
+  useFrame(() => {
+    const j = job.current;
+    if (!j) return;
+    const BUDGET = 6;
+    const t0 = performance.now();
+    let done = false;
+    while (performance.now() - t0 < BUDGET) {
+      const s0 = performance.now();
+      const r = j.steps.next();
+      j.maxSlice = Math.max(j.maxSlice, performance.now() - s0);
+      if (r.done) {
+        done = true;
+        break;
+      }
+    }
+    j.cpu += performance.now() - t0;
+    if (done) {
+      job.current = null;
+      runtime.lastRebuildMs = j.cpu;
+      runtime.lastRebuildMaxSliceMs = j.maxSlice;
+      swapIn(j.model, runtime.model);
+    } else invalidate();
+  }, -1);
 
   useEffect(
     () => () => {
+      job.current?.model.dispose();
+      job.current = null;
       runtime.model?.dispose();
       runtime.model = null;
     },
@@ -101,7 +149,8 @@ export function MachineView() {
     return () => {
       cancelled = true;
     };
-  }, [logoUrl, config.text, config.colors.accent, config.colors.main, modelName, sig, invalidate]);
+  // sin `sig`: reconstruir la máquina no regenera la calcomanía (el modelo nuevo recibe la actual)
+  }, [logoUrl, config.text, config.colors.accent, config.colors.main, modelName, invalidate]);
 
   useFrame((_, dt) => {
     const m = runtime.model;

@@ -31,6 +31,32 @@ export interface SimParams {
 
 export interface SimStats { activeRows: number; savedM2: number; overlapM2: number; inHeadland: boolean; headlandPct: number }
 
+const seedGeos = new Map<string, THREE.BufferGeometry>();
+function seedGeometry(shape: SimParams['seedShape']): THREE.BufferGeometry {
+  let g = seedGeos.get(shape);
+  if (!g) {
+    g =
+      shape === 'kernel'
+        ? new THREE.SphereGeometry(0.0075, 8, 6).scale(1, 0.55, 1.2)
+        : shape === 'sunflower'
+          ? new THREE.SphereGeometry(0.006, 8, 6).scale(0.6, 0.5, 1.6)
+          : new THREE.SphereGeometry(0.0055, 8, 6);
+    seedGeos.set(shape, g);
+  }
+  return g;
+}
+
+let shared: FieldSim | null = null;
+/**
+ * Simulación única (se crea una vez, en la precarga): al volver a Campo se reinicia en vez de
+ * recrear geometrías, materiales e InstancedMesh.
+ */
+export function getFieldSim(params: SimParams, distance: number): FieldSim {
+  if (!shared) shared = new FieldSim(params);
+  else shared.reset(params, distance);
+  return shared;
+}
+
 function furrowMaterial(uOffset: { value: number }): THREE.MeshStandardMaterial {
   const m = new THREE.MeshStandardMaterial({ color: '#ffffff', roughness: 0.97, metalness: 0, transparent: true, depthWrite: false, polygonOffset: true, polygonOffsetFactor: -4 });
   m.onBeforeCompile = (sh) => {
@@ -114,7 +140,7 @@ export class FieldSim {
     this.furrows.receiveShadow = true;
     this.furrows.instanceColor = new THREE.InstancedBufferAttribute(new Float32Array(MAX_SEG * 3).fill(1), 3);
     this.furrows.position.y = 0.01;
-    this.seedGeo = new THREE.SphereGeometry(0.0065, 8, 6);
+    this.seedGeo = seedGeometry('sphere');
     this.seedMat = new THREE.MeshStandardMaterial({ color: '#E9B949', roughness: 0.45 });
     this.seeds = new THREE.InstancedMesh(this.seedGeo, this.seedMat, MAX_SEEDS);
     this.seeds.frustumCulled = false;
@@ -135,6 +161,12 @@ export class FieldSim {
     this.setParams(params, 0);
   }
 
+  /** Vuelve al estado inicial (surcos vacíos, sin semillas) conservando los recursos de GPU. */
+  reset(p: SimParams, distance: number) {
+    this.params = undefined as unknown as SimParams;
+    this.setParams(p, distance);
+  }
+
   setParams(p: SimParams, distance: number) {
     const rowsChanged = !this.params || this.params.rowX.length !== p.rowX.length || this.params.spacing !== p.spacing;
     this.params = p;
@@ -145,13 +177,8 @@ export class FieldSim {
       this.started = false;
     }
     this.seedMat.color.set(p.seedColor);
-    const geo =
-      p.seedShape === 'kernel'
-        ? new THREE.SphereGeometry(0.0075, 8, 6).scale(1, 0.55, 1.2)
-        : p.seedShape === 'sunflower'
-          ? new THREE.SphereGeometry(0.006, 8, 6).scale(0.6, 0.5, 1.6)
-          : new THREE.SphereGeometry(0.0055, 8, 6);
-    this.seeds.geometry.dispose();
+    // geometrías de semilla cacheadas: cambiar de cultivo no crea geometría nueva
+    const geo = seedGeometry(p.seedShape);
     this.seeds.geometry = geo;
     this.seedGeo = geo;
     this.seedMat.color.set(p.seedColor);

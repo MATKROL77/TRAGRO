@@ -29,6 +29,11 @@ export interface MachineFamily {
   signature(cfg: Configuration): string;
   /** Crea el modelo 3D (prev permite transiciones suaves desde el modelo anterior). */
   create(cfg: Configuration, mats: MaterialSet, prev: MachineModel | null): MachineModel;
+  /**
+   * Opcional: construcción por pasos (generador). El visor la consume con un presupuesto de pocos ms por
+   * cuadro y mantiene el modelo anterior en pantalla hasta que el nuevo está listo (cero tirones).
+   */
+  createSteps?(cfg: Configuration, mats: MaterialSet, prev: MachineModel | null): { model: MachineModel; steps: Iterator<void> };
   /** Cotas de transporte calculadas desde la misma geometría que se dibuja. */
   transportDims(cfg: Configuration): { width: number; height: number; length: number };
 }
@@ -37,6 +42,10 @@ export const seederFamily: MachineFamily = {
   id: 'seeder',
   signature: seederSignature,
   create: (cfg, mats, prev) => new SeederModel(cfg, mats, prev as SeederModel | null),
+  createSteps: (cfg, mats, prev) => {
+    const model = new SeederModel(cfg, mats, prev as SeederModel | null, true);
+    return { model, steps: model.buildSteps() };
+  },
   transportDims: (cfg) => seederLayout(cfg).transportDims,
 };
 

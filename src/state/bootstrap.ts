@@ -43,7 +43,10 @@ export async function bootstrap() {
   st.setMode({ feria, embed });
   st.setWebgl(detectWebGL());
   const q = url.searchParams.get('q');
-  if (q === 'low' || q === 'medium' || q === 'high') st.setQuality(q);
+  if (q === 'low' || q === 'medium' || q === 'high') {
+    st.setQuality(q);
+    st.setQualityInfo({ auto: false });
+  }
   const lang: Lang | null = shared.lang ?? null;
   // Español (Argentina) por defecto; el idioma se elige en el selector o con ?lang=
   if (lang && (LANGS as string[]).includes(lang) && lang !== 'es-AR') {

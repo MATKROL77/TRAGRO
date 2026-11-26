@@ -8,14 +8,45 @@ import { KeyLight } from './StudioScene';
 import { createGroundMaterial, loadTex } from './ground';
 import { Tractor, TRACTOR } from './Tractor';
 import { computeLayout, DIM } from '../machines/seeder/layout';
+import { useWarmup, useWarmupObject } from '../render-kit/warmup';
 
 const ROAD_W = 7.3;
 const SHOULDER = 1.6;
 /** velocidad y distancia en ruta (compartidas con el tractor) */
 const roadSpeed = { v: 0, d: 0 };
 
+/** Geometrías compartidas de la ruta (se crean una vez). */
+let roadGeo: { ground: THREE.PlaneGeometry; road: THREE.PlaneGeometry; shoulder: THREE.PlaneGeometry; edge: THREE.PlaneGeometry; post: THREE.CylinderGeometry; sign: THREE.BoxGeometry; dashes: THREE.InstancedMesh } | null = null;
+function getRoadGeo(paint: THREE.Material) {
+  if (roadGeo) return roadGeo;
+  const dashGeo = new THREE.PlaneGeometry(0.12, 4.5).rotateX(-Math.PI / 2);
+  const zs: number[] = [];
+  for (let z = -300; z < 300; z += 12) zs.push(z);
+  // líneas discontinuas: un solo InstancedMesh (antes, 50 mallas y 50 geometrías por visita)
+  const dashes = new THREE.InstancedMesh(dashGeo, paint, zs.length);
+  const m = new THREE.Matrix4();
+  zs.forEach((z, i) => dashes.setMatrixAt(i, m.makeTranslation(0, 0.004, z)));
+  dashes.frustumCulled = false;
+  roadGeo = {
+    ground: new THREE.PlaneGeometry(900, 900),
+    road: new THREE.PlaneGeometry(ROAD_W, 600),
+    shoulder: new THREE.PlaneGeometry(SHOULDER, 600),
+    edge: new THREE.PlaneGeometry(0.12, 600),
+    post: new THREE.CylinderGeometry(0.04, 0.04, 2.4, 8),
+    sign: new THREE.BoxGeometry(0.7, 0.7, 0.03),
+    dashes,
+  };
+  return roadGeo;
+}
+
+let roadMats: ReturnType<typeof buildRoadMaterials> | null = null;
+/** Materiales de la ruta: se crean una vez (precarga) y se reutilizan en cada visita. */
 function useRoadMaterials() {
-  return useMemo(() => {
+  return useMemo(() => (roadMats ??= buildRoadMaterials()), []);
+}
+
+function buildRoadMaterials() {
+  {
     const ac = loadTex('textures/asphalt_color.webp', true);
     const an = loadTex('textures/asphalt_normal.webp');
     const ar = loadTex('textures/asphalt_rough.webp');
@@ -28,7 +59,7 @@ function useRoadMaterials() {
     const paint = new THREE.MeshStandardMaterial({ color: '#f2f2ee', roughness: 0.6 });
     const yellow = new THREE.MeshStandardMaterial({ color: '#e8b923', roughness: 0.6 });
     return { asphalt, gravel, paint, yellow };
-  }, []);
+  }
 }
 
 function RoadTractor() {
@@ -53,7 +84,6 @@ export default function RoadScene() {
   const config = useStore((s) => s.config);
   const mats = useRoadMaterials();
   const ground = useMemo(() => createGroundMaterial({ straw: 1 }), []);
-  useEffect(() => () => ground.material.dispose(), [ground]);
   useEffect(() => {
     scene.fog = new THREE.Fog('#c9d3db', 80, 460);
     return () => {
@@ -64,7 +94,9 @@ export default function RoadScene() {
   const road = useRef({ d: 0, v: 0 });
   const dashGroup = useRef<THREE.Group>(null);
   const signGroup = useRef<THREE.Group>(null);
+  const warm = useWarmup();
   useFrame((_, dt) => {
+    if (warm) return;
     runtime.frames++;
     const st = useStore.getState();
     const m = runtime.model;
@@ -89,48 +121,31 @@ export default function RoadScene() {
   const L = computeLayout(config);
   const machineX = L.transport === 'longitudinal' ? (DIM.rowFrontZ + DIM.rowRearZ) / 2 : 0;
   const roadX = machineX - ROAD_W / 4;
-  const dashes = useMemo(() => {
-    const out: number[] = [];
-    for (let z = -300; z < 300; z += 12) out.push(z);
-    return out;
-  }, []);
+  const G = getRoadGeo(mats.paint);
+  const warmDashes = useWarmupObject(G.dashes);
   const base = import.meta.env.BASE_URL;
   return (
     <>
       <Environment files={`${base}hdri/sky.hdr`} background environmentIntensity={0.85} />
       <hemisphereLight args={['#cfe0f2', '#7a6a50', 0.35]} />
       <KeyLight intensity={2.8} position={[-9, 14, 11]} color="#fff0db" />
-      <mesh rotation-x={-Math.PI / 2} position={[0, -0.02, 0]} receiveShadow material={ground.material}>
-        <planeGeometry args={[900, 900]} />
-      </mesh>
-      <mesh rotation-x={-Math.PI / 2} position={[roadX, 0.0, 0]} receiveShadow material={mats.asphalt}>
-        <planeGeometry args={[ROAD_W, 600]} />
-      </mesh>
+      <mesh rotation-x={-Math.PI / 2} position={[0, -0.02, 0]} receiveShadow material={ground.material} geometry={G.ground} />
+      <mesh rotation-x={-Math.PI / 2} position={[roadX, 0.0, 0]} receiveShadow material={mats.asphalt} geometry={G.road} />
       {[-1, 1].map((s) => (
-        <mesh key={s} rotation-x={-Math.PI / 2} position={[roadX + s * (ROAD_W / 2 + SHOULDER / 2), -0.01, 0]} receiveShadow material={mats.gravel}>
-          <planeGeometry args={[SHOULDER, 600]} />
-        </mesh>
+        <mesh key={s} rotation-x={-Math.PI / 2} position={[roadX + s * (ROAD_W / 2 + SHOULDER / 2), -0.01, 0]} receiveShadow material={mats.gravel} geometry={G.shoulder} />
       ))}
       {[-1, 1].map((s) => (
-        <mesh key={`e${s}`} rotation-x={-Math.PI / 2} position={[roadX + s * (ROAD_W / 2 - 0.2), 0.004, 0]} material={mats.paint}>
-          <planeGeometry args={[0.12, 600]} />
-        </mesh>
+        <mesh key={`e${s}`} rotation-x={-Math.PI / 2} position={[roadX + s * (ROAD_W / 2 - 0.2), 0.004, 0]} material={mats.paint} geometry={G.edge} />
       ))}
       <group ref={dashGroup}>
-        {dashes.map((z) => (
-          <mesh key={z} rotation-x={-Math.PI / 2} position={[roadX, 0.004, z]} material={mats.paint}>
-            <planeGeometry args={[0.12, 4.5]} />
-          </mesh>
-        ))}
+        <group position={[roadX, 0, 0]}>
+          {!warmDashes && <primitive object={G.dashes} dispose={null} />}
+        </group>
       </group>
       {/* cartel de advertencia genérico */}
       <group ref={signGroup} position={[roadX + ROAD_W / 2 + SHOULDER + 0.8, 0, 14]}>
-        <mesh position={[0, 1.2, 0]} material={mats.gravel}>
-          <cylinderGeometry args={[0.04, 0.04, 2.4, 8]} />
-        </mesh>
-        <mesh position={[0, 2.3, 0]} rotation={[0, -0.4, Math.PI / 4]} material={mats.yellow}>
-          <boxGeometry args={[0.7, 0.7, 0.03]} />
-        </mesh>
+        <mesh position={[0, 1.2, 0]} material={mats.gravel} geometry={G.post} />
+        <mesh position={[0, 2.3, 0]} rotation={[0, -0.4, Math.PI / 4]} material={mats.yellow} geometry={G.sign} />
       </group>
       <RoadTractor />
     </>

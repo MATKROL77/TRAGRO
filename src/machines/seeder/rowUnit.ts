@@ -55,7 +55,16 @@ export const ROW = {
   tubeExit: V(0, 0.05, -0.64),
 };
 
+/** Igual que `buildRowUnitSteps`, de una sola vez. */
 export function buildRowUnit(o: RowUnitOptions): Part[] {
+  const gen = buildRowUnitSteps(o);
+  let r = gen.next();
+  while (!r.done) r = gen.next();
+  return r.value;
+}
+
+/** Cuerpo de siembra por secciones (cada `yield` permite ceder el cuadro). */
+export function* buildRowUnitSteps(o: RowUnitOptions): Generator<void, Part[], void> {
   const parts: Part[] = [];
   const add = (group: PartGroup, geometry: THREE.BufferGeometry, mat: MatKey, matrix = I, explode = V(0, 0, 0), spin?: number) =>
     parts.push({ group, geometry, mat, matrix: matrix.clone(), explode, spin });
@@ -76,6 +85,7 @@ export function buildRowUnit(o: RowUnitOptions): Part[] {
     add('linkage', hexBolt(0.014, 0.012), 'galvanized', M(V(s * 0.082, by + dy, dz), new THREE.Euler(0, 0, Math.PI / 2)), V(0, 0.1, 0.1));
   }
 
+  yield;
   // ---------- Cuerpo ----------
   add('body', roundedBox(0.13, 0.3, 0.46, 0.02), 'paintMain', M(V(0, 0.48, -0.78)));
   add('body', roundedBox(0.075, 0.34, 0.15, 0.015), 'paintMain', M(V(0, 0.32, -0.5)));
@@ -85,6 +95,7 @@ export function buildRowUnit(o: RowUnitOptions): Part[] {
   add('body', cylinderX(0.016, 0.16, 10), 'paintAccent', M(V(0, 0.69, -1.065)));
   add('body', roundedBox(0.012, 0.12, 0.1, 0.003), 'castIron', M(V(0.05, 0.44, -1.02)));
 
+  yield;
   // ---------- Cuchilla de corte ----------
   const cR = ROW.coulter.R;
   const cp = ROW.coulter.pos;
@@ -100,6 +111,7 @@ export function buildRowUnit(o: RowUnitOptions): Part[] {
   add('coulterSpring', spr, 'paintAccent', M(V(0, by + 0.1, 0.13), new THREE.Euler(-2.3, 0, 0)), V(0, 0.15, 0.45));
   add('coulterSpring', barBetween(V(0, by + 0.1, 0.13), V(0, by - 0.11, 0.37), 0.008), 'steel', I, V(0, 0.15, 0.45));
 
+  yield;
   // ---------- Abresurco de fertilizante ----------
   if (o.fert === 'inline') {
     add('fertOpener', tube([V(0, by + 0.2, 0.08), V(0, by - 0.1, 0.1), V(0, 0.25, 0.17), V(0, 0.05, 0.19)], 0.019, 24, 8), 'plastic', I, V(0, 0.12, 0.22));
@@ -116,6 +128,7 @@ export function buildRowUnit(o: RowUnitOptions): Part[] {
     add('fertOpener', s2, 'paintAccent', M(V(0.11, by - 0.04, 0.04), new THREE.Euler(-0.4, 0, 0)), V(0.32, 0, 0.1));
   }
 
+  yield;
   // ---------- Doble disco desencontrado ----------
   const dR = ROW.disc.R;
   for (const s of [-1, 1]) {
@@ -127,6 +140,7 @@ export function buildRowUnit(o: RowUnitOptions): Part[] {
     add('discs', cylinderX(0.045, 0.035, 16), 'castIron', M(V(s * 0.05, ROW.disc.y, pos.z)), V(s * 0.22, -0.02, 0), dR);
   }
 
+  yield;
   // ---------- Ruedas limitadoras ----------
   const gR = ROW.gauge.R;
   for (const s of [-1, 1]) {
@@ -138,6 +152,7 @@ export function buildRowUnit(o: RowUnitOptions): Part[] {
     add('gauge', barBetween(V(s * 0.075, gR, ROW.gauge.z), V(s * 0.07, 0.42, -0.76), 0.02, 6, true), 'castIron', I, V(s * 0.42, 0, 0));
   }
 
+  yield;
   // ---------- Dosificador ----------
   const mp = ROW.meter.pos;
   const meterMat: MatKey = o.metering === 'chain' || o.metering === 'shaft' ? 'castIron' : 'plastic';
@@ -158,6 +173,7 @@ export function buildRowUnit(o: RowUnitOptions): Part[] {
     }
   }
 
+  yield;
   // ---------- Tolva individual o mini-tolva (central) ----------
   if (o.hopper === 'individual') {
     const w = 0.34;
@@ -173,9 +189,11 @@ export function buildRowUnit(o: RowUnitOptions): Part[] {
     add('hopper', frustumGeo(0.16, 0.18, 0.08, 0.08, 0.08), 'plastic', M(V(0, mp.y + 0.12, mp.z)), V(0, 0.4, 0));
   }
 
+  yield;
   // ---------- Tubo de bajada ----------
   add('seedTube', tube([V(0, mp.y - 0.14, mp.z + 0.02), V(0, 0.4, -0.72), V(0, 0.2, -0.66), ROW.tubeExit], 0.016, 24, 8), 'plastic', I, V(-0.3, 0, 0));
 
+  yield;
   // ---------- Apretador ----------
   if (o.firmer) {
     const g = tube([V(0, 0.3, -0.64), V(0, 0.15, -0.72), V(0, 0.04, -0.8), V(0, 0.015, -0.86)], 0.011, 20, 6);
@@ -184,6 +202,7 @@ export function buildRowUnit(o: RowUnitOptions): Part[] {
     add('firmer', roundedBox(0.03, 0.015, 0.07, 0.005), 'plastic', M(V(0, 0.012, -0.87)), V(0, -0.05, -0.2));
   }
 
+  yield;
   // ---------- Ruedas tapadoras en V ----------
   const kR = ROW.closing.R;
   const kz = ROW.closing.z;
@@ -203,6 +222,7 @@ export function buildRowUnit(o: RowUnitOptions): Part[] {
   const ks = springGeo(0.022, 0.005, 6, 0.24);
   add('closing', ks, 'paintAccent', M(V(0, 0.56, -1.02), new THREE.Euler(-2.6, 0, 0)), V(0, 0.05, -0.3));
 
+  yield;
   // ---------- Presión descendente ----------
   if (o.downforce === 'spring') {
     for (const s of [-1, 1]) {

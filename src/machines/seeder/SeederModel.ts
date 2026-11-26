@@ -2,10 +2,9 @@ import * as THREE from 'three';
 import type { Configuration } from '../../domain/types';
 import type { MaterialSet } from '../../three/materials';
 import { DIM, computeLayout, type SeederLayout } from './layout';
-import { ROW, ROW_HOTSPOTS, buildRowUnit, type MatKey, type Part, type RowUnitOptions } from './rowUnit';
+import { ROW, ROW_HOTSPOTS, buildRowUnitSteps, type MatKey, type RowUnitOptions } from './rowUnit';
 import {
-  barBetween, cylinderX, cylinderZ, frustumGeo, hexBolt, mergeAll, roundedBox, sagHose, tube, wheelSet,
-} from './parts';
+  barBetween, cylinderX, cylinderZ, frustumGeo, hexBolt, mergeAll, roundedBox, sagHose, tube, wheelSet, updateTube } from './parts';
 import { warningStripes } from '../../three/textures';
 
 const V = (x: number, y: number, z: number) => new THREE.Vector3(x, y, z);
@@ -14,11 +13,75 @@ const phase = (t: number, a: number, b: number) => ease((t - a) / (b - a));
 /** pivote de la lanza de trabajo (x del anclaje derecho) */
 const DRAW_PIVOT = 0.36;
 
+/*
+ * Materiales propios del modelo, compartidos entre reconstrucciones: cambiar una opción no crea
+ * materiales (y por lo tanto no compila ni libera programas de shader).
+ */
+let warnMatShared: THREE.MeshStandardMaterial | null = null;
+const warnMaterial = () => (warnMatShared ??= new THREE.MeshStandardMaterial({ map: warningStripes(), roughness: 0.4 }));
+let decalMatShared: THREE.MeshStandardMaterial | null = null;
+const decalMaterial = (texture: THREE.Texture) => {
+  if (!decalMatShared) decalMatShared = new THREE.MeshStandardMaterial({ map: texture, transparent: true, roughness: 0.35, metalness: 0, polygonOffset: true, polygonOffsetFactor: -2, depthWrite: false });
+  else if (decalMatShared.map !== texture) decalMatShared.map = texture; // cambiar de textura no cambia el programa
+  return decalMatShared;
+};
+let decalGeoShared: THREE.PlaneGeometry | null = null;
+const wheelGeoCache = new Map<string, ReturnType<typeof wheelSet>>();
+
 /* ------------------------------------------------------------------ */
 /* Cuerpos de siembra instanciados                                      */
 /* ------------------------------------------------------------------ */
 
 interface SpinMesh { mesh: THREE.InstancedMesh; part: THREE.Matrix4; radius: number }
+
+/**
+ * Geometrías del cuerpo de siembra para una combinación de opciones: piezas fijas fusionadas por
+ * material + piezas que giran. Se cachean (LRU): volver a una opción ya vista no crea geometría.
+ */
+interface RowKit { key: string; statics: { mat: MatKey; geometry: THREE.BufferGeometry }[]; spins: { mat: MatKey; geometry: THREE.BufferGeometry; matrix: THREE.Matrix4; radius: number }[] }
+const KIT_LRU = 6;
+const kitCache = new Map<string, RowKit>();
+const kitsInUse = new Map<string, number>();
+/** Kit del cuerpo de siembra (de la caché, o construido por pasos si es una combinación nueva). */
+function* getRowKitSteps(opts: RowUnitOptions): Generator<void, RowKit, void> {
+  const key = JSON.stringify(opts);
+  const hit = kitCache.get(key);
+  if (hit) {
+    kitCache.delete(key);
+    kitCache.set(key, hit); // más reciente
+    return hit;
+  }
+  const parts = yield* buildRowUnitSteps(opts);
+  yield;
+  const byMat = new Map<MatKey, THREE.BufferGeometry[]>();
+  const kit: RowKit = { key, statics: [], spins: [] };
+  for (const p of parts) {
+    if (p.spin) {
+      kit.spins.push({ mat: p.mat, geometry: p.geometry, matrix: p.matrix, radius: p.spin });
+      continue;
+    }
+    const arr = byMat.get(p.mat) ?? [];
+    arr.push(p.geometry.clone().applyMatrix4(p.matrix));
+    byMat.set(p.mat, arr);
+    p.geometry.dispose();
+  }
+  yield;
+  for (const [mat, geos] of byMat) {
+    kit.statics.push({ mat, geometry: mergeAll(geos) });
+    geos.forEach((g) => g.dispose());
+    yield;
+  }
+  kitCache.set(key, kit);
+  // desalojar los más viejos que no estén en uso
+  for (const [k, v] of kitCache) {
+    if (kitCache.size <= KIT_LRU) break;
+    if ((kitsInUse.get(k) ?? 0) > 0) continue;
+    kitCache.delete(k);
+    v.statics.forEach((x) => x.geometry.dispose());
+    v.spins.forEach((x) => x.geometry.dispose());
+  }
+  return kit;
+}
 
 class RowUnitBatch {
   group = new THREE.Group();
@@ -28,34 +91,22 @@ class RowUnitBatch {
   private tmp2 = new THREE.Matrix4();
   private rot = new THREE.Matrix4();
 
-  constructor(parts: Part[], mats: MaterialSet, count: number, ownGeoms: THREE.BufferGeometry[]) {
-    const byMat = new Map<MatKey, THREE.BufferGeometry[]>();
-    for (const p of parts) {
-      if (p.spin) continue;
-      const g = p.geometry.clone().applyMatrix4(p.matrix);
-      const arr = byMat.get(p.mat) ?? [];
-      arr.push(g);
-      byMat.set(p.mat, arr);
-    }
+  constructor(kit: RowKit, mats: MaterialSet, count: number) {
     const n = Math.max(1, count);
-    for (const [mat, geos] of byMat) {
-      const merged = mergeAll(geos);
-      geos.forEach((g) => g.dispose());
-      ownGeoms.push(merged);
-      const im = new THREE.InstancedMesh(merged, mats[mat], n);
+    for (const st of kit.statics) {
+      const im = new THREE.InstancedMesh(st.geometry, mats[st.mat], n);
       im.castShadow = true;
       im.receiveShadow = true;
       im.frustumCulled = false;
       this.statics.push(im);
       this.group.add(im);
     }
-    for (const p of parts) {
-      if (!p.spin) continue;
+    for (const p of kit.spins) {
       const im = new THREE.InstancedMesh(p.geometry, mats[p.mat], n);
       im.castShadow = true;
       im.receiveShadow = true;
       im.frustumCulled = false;
-      this.spins.push({ mesh: im, part: p.matrix, radius: p.spin });
+      this.spins.push({ mesh: im, part: p.matrix, radius: p.radius });
       this.group.add(im);
     }
     this.setCount(count);
@@ -66,9 +117,12 @@ class RowUnitBatch {
     for (const s of this.spins) s.mesh.count = count;
   }
 
-  update(xs: number[], dist: number, staticsToo: boolean) {
+  /** `bases[i]`: transformación de la sección del surco i (ala plegándose) o null para el centro. */
+  update(xs: number[], dist: number, staticsToo: boolean, bases?: (THREE.Matrix4 | null)[]) {
     for (let i = 0; i < xs.length; i++) {
       this.tmp.makeTranslation(xs[i], 0, 0);
+      const base = bases?.[i];
+      if (base) this.tmp.premultiply(base);
       if (staticsToo) for (const m of this.statics) m.setMatrixAt(i, this.tmp);
       for (const s of this.spins) {
         this.rot.makeRotationX(dist / s.radius);
@@ -157,7 +211,10 @@ export class SeederModel {
   anchors: Record<string, THREE.Object3D> = {};
   private geoms: THREE.BufferGeometry[] = [];
   private ownedMaterials: THREE.Material[] = [];
-  private batches: { id: string; batch: RowUnitBatch; rows: number[] }[] = [];
+  private batches: { id: string; rows: number[] }[] = [];
+  private rowBatch!: RowUnitBatch;
+  private rowBases: (THREE.Matrix4 | null)[] = [];
+  private secMats: Record<string, THREE.Matrix4> = {};
   private bars: { id: string; mesh: THREE.Mesh }[] = [];
   private wingPivots: Record<'L' | 'R', { pivot: THREE.Group; inner: THREE.Group } | undefined> = { L: undefined, R: undefined };
   private cylinders: HydCylinder[] = [];
@@ -176,15 +233,26 @@ export class SeederModel {
   private hingeX = 0;
   hitchLocal = V(0, 0.55, DIM.hitchZ);
 
-  constructor(public cfg: Configuration, private mats: MaterialSet, prev?: SeederModel | null) {
+  /**
+   * `deferred`: no construye en el constructor; hay que consumir `buildSteps()` (por ejemplo, unos ms por
+   * cuadro) y la máquina anterior sigue en pantalla mientras tanto. Así ningún cuadro se traba.
+   */
+  constructor(public cfg: Configuration, private mats: MaterialSet, private prev?: SeederModel | null, deferred = false) {
     this.layout = computeLayout(cfg);
     this.targetX = this.layout.rowX.slice();
     this.curX = this.initialX(prev);
     this.root.add(this.chassis);
     this.root.name = 'seeder';
-    this.build();
+    if (!deferred) for (const _ of this.buildSteps()) void _;
+  }
+
+  /** Construcción en pasos cortos (cada `yield` es un punto donde se puede ceder el cuadro). */
+  *buildSteps(): Generator<void, void, void> {
+    yield* this.build();
     this.updateRows(0, true);
-    this.applyPose(prev ? prev.state.poseT : 0, true);
+    yield;
+    this.applyPose(this.prev ? this.prev.state.poseT : 0, true);
+    this.prev = null;
   }
 
   state: SeederState = { poseT: 0, distance: 0 };
@@ -229,7 +297,7 @@ export class SeederModel {
 
   /* -------------------------- construcción -------------------------- */
 
-  private build() {
+  private *build(): Generator<void, void, void> {
     const L = this.layout;
     const mats = this.mats;
     const s = this.cfg.selections;
@@ -243,7 +311,10 @@ export class SeederModel {
       hopper: L.hasCentralSeed ? 'central' : 'individual',
       hopperL: L.individualHopperL,
     };
-    const parts = buildRowUnit(opts);
+    const kit = yield* getRowKitSteps(opts);
+    this.kitKey = kit.key;
+    kitsInUse.set(kit.key, (kitsInUse.get(kit.key) ?? 0) + 1);
+    yield;
 
     // Secciones: centro + alas
     for (const sec of L.sections) {
@@ -256,26 +327,91 @@ export class SeederModel {
         this.wingPivots[sec.id] = { pivot, inner };
         parent = inner;
       }
-      const batch = new RowUnitBatch(parts, mats, sec.rows.length, this.geoms);
-      parent.add(batch.group);
-      this.batches.push({ id: sec.id, batch, rows: sec.rows });
+      this.batches.push({ id: sec.id, rows: sec.rows });
       // tubo porta-herramientas (geometría de largo 1, se escala)
       const barGeo = roundedBox(1, DIM.barSize, DIM.barSize, 0.012, 1);
       const bar = this.mesh(barGeo, mats.paintMain, parent);
       bar.position.set(0, DIM.barY, 0);
       this.bars.push({ id: sec.id, mesh: bar });
     }
-    // las piezas estáticas ya se fusionaron (se liberan sus originales); las que giran se usan tal cual y se liberan al desmontar
-    parts.forEach((p) => (p.spin ? this.geoms.push(p.geometry) : p.geometry.dispose()));
-
+    // un solo juego de InstancedMesh para todos los surcos (centro y alas): las alas se aplican como
+    // transformación por instancia, así los draw calls no se multiplican por sección
+    this.rowBatch = new RowUnitBatch(kit, mats, L.rowX.length);
+    this.chassis.add(this.rowBatch.group);
+    yield;
     this.buildDrawbar();
+    yield;
     this.buildMainWheels();
+    yield;
     this.buildTanks();
+    yield;
     this.buildHoses();
+    yield;
     this.buildEndKits();
+    yield;
     if (L.transport === 'fold') this.buildFoldKit();
     else this.buildLongitudinalKit();
+    yield;
     this.buildHotspotAnchors();
+    yield* this.mergeStatics();
+    this.trimShadowCasters();
+  }
+  private kitKey = '';
+
+  /**
+   * Las piezas chicas (bulones, cromados, caños finos, mangueras, cables, luces, vidrio) no proyectan
+   * sombra: a la escala de la máquina no se distinguen y cada una costaba un draw call en el mapa de sombras.
+   */
+  private trimShadowCasters() {
+    const m = this.mats;
+    const small = new Set<THREE.Material>([m.chrome, m.steel, m.plastic, m.hose, m.cable, m.glass, m.plate, m.seedHose, m.lightAmber, m.lightRed].filter(Boolean));
+    this.root.traverse((o) => {
+      const mesh = o as THREE.Mesh;
+      if (mesh.isMesh && small.has(mesh.material as THREE.Material)) mesh.castShadow = false;
+    });
+  }
+
+  /**
+   * Fusiona las piezas fijas (bulones, chapas, soportes, caños…) de cada grupo en una malla por
+   * material: misma imagen, muchísimos menos draw calls (cada grupo móvil —alas, lanza, ruedas— conserva
+   * su propia malla fusionada, así las animaciones siguen igual).
+   */
+  private *mergeStatics(): Generator<void, void, void> {
+    const exclude = new Set<THREE.Object3D>();
+    for (const b of this.bars) exclude.add(b.mesh);
+    for (const c of this.cylinders) exclude.add(c.barrel).add(c.rod);
+    for (const h of this.bridgeHoses) exclude.add(h.mesh);
+    const parents = new Set<THREE.Object3D>();
+    this.root.traverse((o) => {
+      if ((o as THREE.Mesh).isMesh && !(o as THREE.InstancedMesh).isInstancedMesh && !exclude.has(o) && o.parent) parents.add(o.parent);
+    });
+    for (const p of parents) {
+      const buckets = new Map<string, THREE.Mesh[]>();
+      for (const c of p.children) {
+        const m = c as THREE.Mesh;
+        if (!m.isMesh || (m as THREE.InstancedMesh).isInstancedMesh || exclude.has(m) || m.children.length || !m.visible || Array.isArray(m.material)) continue;
+        const key = `${(m.material as THREE.Material).uuid}|${m.castShadow}|${m.receiveShadow}`;
+        const list = buckets.get(key) ?? [];
+        list.push(m);
+        buckets.set(key, list);
+      }
+      for (const list of buckets.values()) {
+        if (list.length < 2) continue;
+        const geos = list.map((m) => {
+          m.updateMatrix();
+          return m.geometry.clone().applyMatrix4(m.matrix);
+        });
+        const merged = this.track(mergeAll(geos));
+        geos.forEach((g) => g.dispose());
+        const mm = new THREE.Mesh(merged, list[0].material);
+        mm.castShadow = list[0].castShadow;
+        mm.receiveShadow = list[0].receiveShadow;
+        mm.name = 'merged';
+        for (const m of list) p.remove(m);
+        p.add(mm);
+        yield;
+      }
+    }
   }
 
   private buildDrawbar() {
@@ -325,11 +461,11 @@ export class SeederModel {
   /** Rueda completa (cubierta, tacos, llanta, bulones) como grupo; eje X. */
   private wheelGroup(R: number, W: number, outward: number, rimR?: number): THREE.Group {
     const key = `${R}|${W}|${outward}|${rimR}`;
-    let w = this.wheelCache.get(key);
+    // geometrías de rueda compartidas entre reconstrucciones (pocas medidas posibles; no se liberan)
+    let w = wheelGeoCache.get(key);
     if (!w) {
       w = wheelSet(R, W, { outward, rimR });
-      Object.values(w).forEach((g) => this.track(g));
-      this.wheelCache.set(key, w);
+      wheelGeoCache.set(key, w);
     }
     const g = new THREE.Group();
     const darkMat = this.mats.paintDark;
@@ -341,7 +477,6 @@ export class SeederModel {
     }
     return g;
   }
-  private wheelCache = new Map<string, ReturnType<typeof wheelSet>>();
 
   private buildMainWheels() {
     const mats = this.mats;
@@ -476,7 +611,8 @@ export class SeederModel {
           this.mesh(cylinderZ(0.07, 0.14, 14), mats.plastic, parent, head);
           const a = this.anchor(`bridgeA-${f.kind}-${sec.id}`, this.chassis, V(tank.x + (sec.id === 'L' ? -0.12 : 0.12), outY, tank.z));
           const b = this.anchor(`bridgeB-${f.kind}-${sec.id}`, parent, head.clone().add(V(0, 0.06, 0)));
-          const mesh = this.mesh(new THREE.BufferGeometry(), f.mat, this.chassis, undefined, undefined, false);
+          // tubo con la cantidad de vértices definitiva; applyPose reescribe su forma en el lugar
+          const mesh = this.mesh(tube([V(0, 0, 0), V(0.5, 0, 0), V(1, 0, 0)], f.r * 2.2, 28, 8), f.mat, this.chassis, undefined, undefined, false);
           this.bridgeHoses.push({ mesh, a, b, sag: 0.15, r: f.r * 2.2 });
         } else {
           geos.push(cylinderZ(0.09, 0.16, 16).translate(head.x, head.y, head.z));
@@ -521,8 +657,7 @@ export class SeederModel {
   private buildEndKits() {
     // faros, reflectivos y franjas de advertencia en los extremos (siguen al extremo del tubo)
     const mats = this.mats;
-    const warnMat = new THREE.MeshStandardMaterial({ map: warningStripes(), roughness: 0.4 });
-    this.ownedMaterials.push(warnMat);
+    const warnMat = warnMaterial();
     for (const side of [-1, 1]) {
       const g = new THREE.Group();
       const sec = side < 0 ? this.layout.sections[0] : this.layout.sections[this.layout.sections.length - 1];
@@ -655,17 +790,13 @@ export class SeederModel {
   /* -------------------------- decals -------------------------- */
 
   setDecal(texture: THREE.Texture | null) {
-    for (const m of this.decalMeshes) {
-      m.removeFromParent();
-      (m.material as THREE.Material).dispose();
-    }
+    for (const m of this.decalMeshes) m.removeFromParent();
     this.decalMeshes = [];
     if (!texture) return;
     const place = (anchor: THREE.Object3D | undefined, w: number, rotY: number) => {
       if (!anchor) return;
       const h = w * 0.375;
-      const mat = new THREE.MeshStandardMaterial({ map: texture, transparent: true, roughness: 0.35, metalness: 0, polygonOffset: true, polygonOffsetFactor: -2, depthWrite: false });
-      const m = new THREE.Mesh(this.decalGeo, mat);
+      const m = new THREE.Mesh(this.decalGeo, decalMaterial(texture));
       m.scale.set(w, h, 1);
       m.rotation.y = rotY;
       anchor.add(m);
@@ -681,7 +812,7 @@ export class SeederModel {
       place(a, 0.45, 0);
     }
   }
-  private decalGeo = this.track(new THREE.PlaneGeometry(1, 1));
+  private decalGeo = (decalGeoShared ??= new THREE.PlaneGeometry(1, 1));
 
   /* -------------------------- animación -------------------------- */
 
@@ -722,10 +853,6 @@ export class SeederModel {
   private updateRows(distance: number, statics: boolean) {
     this.state.distance = distance;
     this.lastDist = distance;
-    for (const b of this.batches) {
-      const xs = b.rows.map((ri) => this.curX[ri]);
-      b.batch.update(xs, distance, statics);
-    }
     // extremos del tubo y bisagra según posiciones actuales
     const sp = this.layout.spacing;
     const n = this.curX.length;
@@ -762,6 +889,23 @@ export class SeederModel {
       if (this.tHitch) this.tHitch.position.x = left;
     }
     for (const e of this.endKits) e.group.position.x = e.side < 0 ? left : right;
+    if (statics) this.updateRowBases();
+    this.rowBatch.update(this.curX, distance, statics, this.rowBases);
+  }
+
+  /** Transformación de cada surco según su sección (identidad en el centro; la del ala al plegar). */
+  private updateRowBases() {
+    for (const sec of this.layout.sections) {
+      const wp = sec.id === 'C' ? undefined : this.wingPivots[sec.id as 'L' | 'R'];
+      if (!wp) {
+        for (const r of sec.rows) this.rowBases[r] = null;
+        continue;
+      }
+      wp.pivot.updateMatrix();
+      wp.inner.updateMatrix();
+      const m = (this.secMats[sec.id] ??= new THREE.Matrix4()).multiplyMatrices(wp.pivot.matrix, wp.inner.matrix);
+      for (const r of sec.rows) this.rowBases[r] = m;
+    }
   }
 
   private setBar(id: string, x0: number, x1: number) {
@@ -794,6 +938,9 @@ export class SeederModel {
       const f = phase(t, 0.22, 0.95) * DIM.foldAngle;
       if (this.wingPivots.L) this.wingPivots.L.pivot.rotation.z = -f;
       if (this.wingPivots.R) this.wingPivots.R.pivot.rotation.z = f;
+      // los cuerpos de las alas son instancias del lote único: se mueven con el ala
+      this.updateRowBases();
+      this.rowBatch.update(this.curX, this.state.distance, true, this.rowBases);
       this.setMainWheelsGrounded(lift, 0);
     } else {
       const p1 = phase(t, 0, 0.18);
@@ -826,9 +973,8 @@ export class SeederModel {
       this.chassis.worldToLocal(b);
       const mid = a.clone().lerp(b, 0.5);
       mid.y = Math.max(a.y, b.y) + 0.25;
-      const old = h.mesh.geometry;
-      h.mesh.geometry = tube([a, a.clone().lerp(mid, 0.6).add(V(0, 0.1, 0)), mid, b.clone().lerp(mid, 0.4), b], h.r, 28, 8);
-      old.dispose();
+      // misma geometría, vértices reescritos (no se crea geometría por cuadro durante el plegado)
+      updateTube(h.mesh.geometry, [a, a.clone().lerp(mid, 0.6).add(V(0, 0.1, 0)), mid, b.clone().lerp(mid, 0.4), b], h.r, 28, 8);
     }
   }
 
@@ -855,9 +1001,9 @@ export class SeederModel {
 
   dispose() {
     this.root.removeFromParent();
+    if (this.kitKey) kitsInUse.set(this.kitKey, Math.max(0, (kitsInUse.get(this.kitKey) ?? 1) - 1));
     for (const g of this.geoms) g.dispose();
     for (const h of this.bridgeHoses) h.mesh.geometry.dispose();
-    for (const m of this.decalMeshes) (m.material as THREE.Material).dispose();
     for (const m of this.ownedMaterials) m.dispose();
     this.root.traverse((o) => {
       if ((o as THREE.InstancedMesh).isInstancedMesh) (o as THREE.InstancedMesh).dispose();

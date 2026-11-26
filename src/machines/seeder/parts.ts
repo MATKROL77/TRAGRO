@@ -364,3 +364,36 @@ export function wheelSet(R: number, W: number, opts: { rimR?: number; lugs?: num
 export function disposeWheel(w: WheelGeos) {
   Object.values(w).forEach((g) => g.dispose());
 }
+
+/**
+ * Reescribe en el lugar los vértices de un tubo creado con `tube(points, r, tubular, radial)`: misma
+ * cantidad de vértices, sin crear geometría nueva (para mangueras que se mueven al plegar).
+ */
+const _tubeCurve = new THREE.CatmullRomCurve3([new THREE.Vector3(), new THREE.Vector3(1, 0, 0)], false, 'centripetal');
+const _P = new THREE.Vector3();
+const _N = new THREE.Vector3();
+export function updateTube(geo: THREE.BufferGeometry, points: THREE.Vector3[], r: number, tubular: number, radial: number) {
+  _tubeCurve.points = points;
+  _tubeCurve.updateArcLengths();
+  const frames = _tubeCurve.computeFrenetFrames(tubular, false);
+  const pos = geo.getAttribute('position') as THREE.BufferAttribute;
+  const nor = geo.getAttribute('normal') as THREE.BufferAttribute;
+  let k = 0;
+  for (let i = 0; i <= tubular; i++) {
+    _tubeCurve.getPointAt(i / tubular, _P);
+    const Nn = frames.normals[i];
+    const B = frames.binormals[i];
+    for (let j = 0; j <= radial; j++) {
+      const v = (j / radial) * Math.PI * 2;
+      const sin = Math.sin(v);
+      const cos = -Math.cos(v);
+      _N.set(cos * Nn.x + sin * B.x, cos * Nn.y + sin * B.y, cos * Nn.z + sin * B.z).normalize();
+      nor.setXYZ(k, _N.x, _N.y, _N.z);
+      pos.setXYZ(k, _P.x + r * _N.x, _P.y + r * _N.y, _P.z + r * _N.z);
+      k++;
+    }
+  }
+  pos.needsUpdate = true;
+  nor.needsUpdate = true;
+  geo.computeBoundingSphere();
+}

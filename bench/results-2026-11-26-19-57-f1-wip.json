@@ -1,0 +1,214 @@
+{
+  "date": "2026-11-26T19:57:29.084Z",
+  "url": "http://localhost:4173",
+  "label": "f1-wip",
+  "headless": true,
+  "runs": [
+    {
+      "profile": "desktop",
+      "cpuThrottle": 1,
+      "load": {
+        "firstModelFrameMs": 4958,
+        "transferredBytesUntilModel": 1182277,
+        "requestsUntilModel": 15,
+        "gpu": "ANGLE (Google, Vulkan 1.3.0 (SwiftShader Device (Subzero) (0x0000C0DE)), SwiftShader driver)",
+        "programsAtLoad": 33,
+        "warmup": [
+          {
+            "id": "field",
+            "ms": 1611,
+            "programsBefore": 49,
+            "programsAfter": 70
+          },
+          {
+            "id": "road",
+            "ms": 1044,
+            "programsBefore": 70,
+            "programsAfter": 72
+          }
+        ]
+      },
+      "summary": {
+        "maxFrameMs": 1500,
+        "worstAction": "Estudio → Campo (siembra)",
+        "actionsWithFramesOver50ms": [
+          "Estudio → Campo (siembra)",
+          "Campo → Ruta (plegado + andar)",
+          "Ruta → Estudio"
+        ],
+        "totalNewPrograms": 2
+      },
+      "drawStatsLastFrame": {
+        "calls": 646,
+        "triangles": 2864984
+      },
+      "actions": [
+        {
+          "action": "Estudio → Campo (siembra)",
+          "seconds": 9.09,
+          "fpsAvg": 1.9,
+          "fpsP1": 0.7,
+          "maxFrameMs": 1500,
+          "framesOver50ms": 10,
+          "longTasks": 11,
+          "longestTaskMs": 1484,
+          "renderedFrames": 11,
+          "renderedFps": 1.2,
+          "newPrograms": 1,
+          "newGeometries": 8,
+          "newTextures": 0,
+          "gl": {
+            "texture": {
+              "ms": 6.1,
+              "calls": 37
+            },
+            "buffer": {
+              "ms": 0.7,
+              "calls": 167
+            },
+            "compile": {
+              "ms": 176.6,
+              "calls": 801
+            },
+            "draw": {
+              "ms": 1.6,
+              "calls": 3937
+            }
+          }
+        },
+        {
+          "action": "Campo → Ruta (plegado + andar)",
+          "seconds": 24.3,
+          "fpsAvg": 1.4,
+          "fpsP1": 1.2,
+          "maxFrameMs": 866.6,
+          "framesOver50ms": 35,
+          "longTasks": 34,
+          "longestTaskMs": 863,
+          "renderedFrames": 35,
+          "renderedFps": 1.4,
+          "newPrograms": 0,
+          "newGeometries": 4,
+          "newTextures": 0,
+          "gl": {
+            "texture": {
+              "ms": 4,
+              "calls": 15
+            },
+            "buffer": {
+              "ms": 0.9,
+              "calls": 355
+            },
+            "compile": {
+              "ms": 12.3,
+              "calls": 18
+            },
+            "draw": {
+              "ms": 7.6,
+              "calls": 12045
+            }
+          }
+        },
+        {
+          "action": "Ruta → Estudio",
+          "seconds": 21.67,
+          "fpsAvg": 6.2,
+          "fpsP1": 1.2,
+          "maxFrameMs": 866.7,
+          "framesOver50ms": 30,
+          "longTasks": 30,
+          "longestTaskMs": 861,
+          "renderedFrames": 29,
+          "renderedFps": 1.3,
+          "newPrograms": 1,
+          "newGeometries": 4,
+          "newTextures": 1,
+          "gl": {
+            "texture": {
+              "ms": 1.2,
+              "calls": 18
+            },
+            "buffer": {
+              "ms": 0.1,
+              "calls": 65
+            },
+            "compile": {
+              "ms": 18.2,
+              "calls": 61
+            },
+            "draw": {
+              "ms": 6.9,
+              "calls": 11396
+            }
+          }
+        },
+        {
+          "action": "Ver sembrando",
+          "seconds": 18.04,
+          "fpsAvg": 60,
+          "fpsP1": 59.5,
+          "maxFrameMs": 16.8,
+          "framesOver50ms": 0,
+          "longTasks": 0,
+          "longestTaskMs": 0,
+          "renderedFrames": 0,
+          "renderedFps": 0,
+          "newPrograms": 0,
+          "newGeometries": 0,
+          "newTextures": 0,
+          "gl": {
+            "texture": {
+              "ms": 0,
+              "calls": 0
+            },
+            "buffer": {
+              "ms": 0,
+              "calls": 0
+            },
+            "compile": {
+              "ms": 0,
+              "calls": 0
+            },
+            "draw": {
+              "ms": 0,
+              "calls": 0
+            }
+          }
+        },
+        {
+          "action": "Detener",
+          "seconds": 13.03,
+          "fpsAvg": 60,
+          "fpsP1": 59.5,
+          "maxFrameMs": 16.8,
+          "framesOver50ms": 0,
+          "longTasks": 0,
+          "longestTaskMs": 0,
+          "renderedFrames": 0,
+          "renderedFps": 0,
+          "newPrograms": 0,
+          "newGeometries": 0,
+          "newTextures": 0,
+          "gl": {
+            "texture": {
+              "ms": 0,
+              "calls": 0
+            },
+            "buffer": {
+              "ms": 0,
+              "calls": 0
+            },
+            "compile": {
+              "ms": 0,
+              "calls": 0
+            },
+            "draw": {
+              "ms": 0,
+              "calls": 0
+            }
+          }
+        }
+      ]
+    }
+  ]
+}

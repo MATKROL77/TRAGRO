@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { useStore } from '../state/store';
 import { useT } from '../i18n/useT';
 import { useFmt } from './format';
-import { useCountUp, usePerformance, usePrice, useTransportCheck } from './hooks';
+import { useCountUpText, usePerformance, usePrice, useTransportCheck } from './hooks';
 import { leadTimeDays } from '../domain/pricing';
 import { catalog, isBasic, isRecommended } from '../domain/catalog';
 import { IconChevron } from './icons';
@@ -23,8 +23,8 @@ export function PriceHeader() {
   const price = usePrice();
   const perf = usePerformance();
   const chk = useTransportCheck();
-  const shown = useCountUp(price.total);
   const hide = useStore((s) => s.hidePrices);
+  const amountRef = useCountUpText<HTMLSpanElement>(price.total, (v) => (hide ? t('price.hidden') : f.money(Math.round(v / 10) * 10)));
   const destination = useStore((s) => s.destination);
   const openModal = useStore((s) => s.openModal);
   const config = useStore((s) => s.config);
@@ -44,9 +44,7 @@ export function PriceHeader() {
         </button>
         <button type="button" className="pcard-toggle" aria-expanded={open} onClick={() => setOpen(!open)}>
           <span className="pcard-title">{t('price.label')}</span>
-          <span className="ph-amount bb-amount" aria-live="polite" aria-atomic="true" title={legend}>
-            {hide ? t('price.hidden') : f.money(Math.round(shown / 10) * 10)}
-          </span>
+          <span ref={amountRef} className="ph-amount bb-amount" aria-live="polite" aria-atomic="true" title={legend} />
           <span className={`chev${open ? ' up' : ''}`} aria-hidden><IconChevron size={14} /></span>
         </button>
       </div>

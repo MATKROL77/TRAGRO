@@ -9,8 +9,14 @@ import { roundedBox, cylinderX, barBetween, tube, wheelSet, type WheelGeos } fro
  */
 export interface TractorHandle { group: THREE.Group; wheels: THREE.Object3D[] }
 
+let partsCache: ReturnType<typeof buildTractorParts> | null = null;
+/** Ruedas del tractor: se crean una vez y se comparten entre visitas a Campo/Ruta. */
 function useTractorParts() {
-  return useMemo(() => {
+  return useMemo(() => (partsCache ??= buildTractorParts()), []);
+}
+
+function buildTractorParts() {
+  {
     const m = getMaterials();
     const RR = 0.92;
     const RF = 0.62;
@@ -21,20 +27,13 @@ function useTractorParts() {
       f0: wheelSet(RF, 0.42, { rimR: RF * 0.6, outward: -1, lugH: 0.05 }),
     };
     return { m, RR, RF, wheels };
-  }, []);
+  }
 }
 
-export const Tractor = forwardRef<THREE.Group, { wheelRefs?: React.MutableRefObject<THREE.Object3D[]> }>(function Tractor({ wheelRefs }, ref) {
-  const p = useTractorParts();
-  const { m } = p;
-  const body = m.tractorBody;
-  const dark = m.paintDark;
-  const reg = (o: THREE.Object3D | null) => {
-    if (o && wheelRefs && !wheelRefs.current.includes(o)) wheelRefs.current.push(o);
-  };
-  const wb = 2.75; // distancia entre ejes
-  const geo = useMemo(
-    () => ({
+let geoCache: ReturnType<typeof buildTractorGeo> | null = null;
+/** Geometrías del tractor (compartidas, nunca se liberan: no se recrean al cambiar de escena). */
+function buildTractorGeo() {
+  return {
       hood: roundedBox(0.95, 0.85, 2.3, 0.12, 3),
       grille: roundedBox(0.82, 0.62, 0.05, 0.03),
       chassis: roundedBox(0.7, 0.45, 3.4, 0.05),
@@ -70,9 +69,19 @@ export const Tractor = forwardRef<THREE.Group, { wheelRefs?: React.MutableRefObj
       seat: roundedBox(0.5, 0.5, 0.45, 0.08),
       wheelArch: roundedBox(0.36, 0.06, 1.0, 0.02),
       hose: tube([new THREE.Vector3(-0.2, 1.0, -0.8), new THREE.Vector3(-0.15, 0.8, -1.05), new THREE.Vector3(-0.1, 0.7, -1.15)], 0.012, 12, 6),
-    }),
-    [],
-  );
+    };
+}
+
+export const Tractor = forwardRef<THREE.Group, { wheelRefs?: React.MutableRefObject<THREE.Object3D[]> }>(function Tractor({ wheelRefs }, ref) {
+  const p = useTractorParts();
+  const { m } = p;
+  const body = m.tractorBody;
+  const dark = m.paintDark;
+  const reg = (o: THREE.Object3D | null) => {
+    if (o && wheelRefs && !wheelRefs.current.includes(o)) wheelRefs.current.push(o);
+  };
+  const wb = 2.75; // distancia entre ejes
+  const geo = useMemo(() => (geoCache ??= buildTractorGeo()), []);
   return (
     <group ref={ref} name="tractor">
       {/* chasis y capot */}
