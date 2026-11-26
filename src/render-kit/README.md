@@ -19,7 +19,11 @@ movimiento está en [`vehicle/`](./vehicle/README.md).
 | `precompile/` | Compilación anticipada de shaders (`compileMaterials`, `compileObject`), cuadros de calentamiento (`warmScene`) y subida anticipada de texturas (`uploadTextures`). |
 | `quality/` | Niveles de calidad (`tiers.ts`), nivel inicial según la GPU (`detectTier.ts`, detect-gpu con tablas servidas desde el propio sitio) y calidad adaptativa (`AdaptiveQuality.tsx`). |
 | `transition/` | Fundido cruzado dentro de la GPU (`FrameCrossfade.tsx`): copia el cuadro con `copyFramebufferToTexture`, sin leer píxeles a la CPU. |
-| `vehicle/` | Vehículo circulando y máquina de estados de acciones (Fase 4). |
+| `materials/` | `patchMaterial` (encadenar `onBeforeCompile` con clave de programa estable) y `addDirt` (suciedad por altura en espacio de mundo). |
+| `post/` | `Exposure`: exposición por escena por uniform (no recrea el postprocesado). |
+| `refine/` | Refinado progresivo al quedarse quieto (`ProgressiveRefine`) y acumulador GPU con jitter subpíxel, de luz y de lente (`accumulator.ts`); también lo usan las capturas. |
+| `models/` | `loadProgressive` (GLB liviano primero, completo con fundido) y `findNodes` (nombres de la especificación). Pipeline: `scripts/models-build.mjs`, especificación en `docs/model-spec.md`. |
+| `vehicle/` | Vehículo circulando: ruta infinita, cinemática, máquina de estados de acciones, objetos de la ruta en la GPU, teclado y joystick. Ver [`vehicle/README.md`](./vehicle/README.md). |
 
 ## Cómo usarlo en otro configurador
 
@@ -75,3 +79,33 @@ en un `useFrame` de prioridad muy negativa.
 
 Montar `<FrameCrossfade />` junto al `EffectComposer` y llamar `frameCrossfade.start(ms)`
 justo antes de cambiar el modelo o la escena.
+
+### 5. Luz y materiales
+
+- Encadenar parches de shader con `patchMaterial(mat, 'clave', fn)`: cada parche suma su clave
+  al `customProgramCacheKey`, así la precompilación sigue sirviendo.
+- `addDirt(material, { top, bottom, amount })`: barro y salpicaduras en la parte baja.
+- Barniz con piel de naranja: `clearcoatNormalMap` con un relieve fino (no en el normal de base).
+- `Exposure` dentro del `EffectComposer`, antes del tone mapping: `ref.current.exposure = x`.
+
+### 6. Refinado al quedarse quieto
+
+```tsx
+// Junto al EffectComposer (dibuja después de él).
+<ProgressiveRefine enabled={quieto} settings={{ samples: 96, lightRadius: 0.9, aperture: 0.012 }} isBusy={isActive} focus={() => controls.target} />
+// Cualquier cambio de estado de la app: refineControl.poke()
+```
+
+Las capturas refinadas usan el mismo `FrameAccumulator` + `applyJitter` (ver
+`snapshotRefined` en `src/three/Viewer.tsx`), con tope de tiempo y progreso.
+
+### 7. Niveles de calidad (qué queda en cada uno)
+
+| | Alta | Media | Baja |
+|---|---|---|---|
+| Resolución máx. | 2 | 1,5 | 1 (y 0,75 mientras se mueve la cámara) |
+| Sombras | 2048 | 1024 | 1024 |
+| Postprocesado | N8AO + SMAA + bloom sutil + viñeta | N8AO a media resolución + SMAA | FXAA |
+| Vidrio del tractor | transmisión física | transparente | transparente |
+| Refinado | 96 muestras, sombras suaves, profundidad de campo (estudio) | 48 muestras, sombras suaves | 16 muestras (solo antialiasing) |
+| Vegetación de la ruta | 100 % | 55 % | 25 % |

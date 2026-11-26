@@ -14,7 +14,9 @@ El comprador arma su equipo (tolva cerealera, batea volcadora, plataforma con ba
 - Ficha técnica con tara, carga útil y **validación legal** (semáforo verde / amarillo / rojo). Si una medida pasa el máximo legal se avisa en el mismo paso (el slider marca el tramo en rojo y dice el máximo), en la tarjeta de precio, en el resumen, en el PDF y en el mensaje de consulta.
 - Cambiar de tipo conserva lo que se eligió y sea compatible (medidas, ejes, rodado, colores, logo); lo que no entra se ajusta, se lista en el aviso y se puede deshacer. Cada tarjeta de tipo muestra el precio que va a quedar al elegirla.
 - Cada paso mueve la cámara a lo que se está editando. En celular, visor arriba, opciones abajo y una barra fija con el precio y "Siguiente".
-- Estudio y exterior (ruta), cámaras predefinidas, puntos de interés, modo inactivo.
+- Tres escenas: **Estudio**, **Exterior** (predio de acopio con rejilla de descarga, silos y galpón; "Ver en acción" con carga visible) y **Ruta** (el camión circula por una ruta de campo infinita con curvas; "Ver en acción" frena en la banquina y recién detenido abre; modo **Manejar** con teclado o joystick). Cámaras predefinidas, puntos de interés, modo inactivo.
+- Render de producto: materiales PBR (barniz con piel de naranja, galvanizado, aluminio anisotrópico, lona con sheen, suciedad en la parte baja), y al quedarse quieto la imagen se **refina** sola (antialiasing, sombras suaves, profundidad de campo); capturas, resumen y PDF salen refinados.
+- Sin tirones: geometría en un Web Worker, shaders precompilados, escenas preparadas en segundo plano, calidad adaptativa en tres niveles según la GPU.
 - Resumen, comparador A/B, link compartible, PDF de cotización, consulta por WhatsApp o mail.
 - Modo vendedor (`?modo=vendedor`) y modo embebido (`/embed`).
 - Español rioplatense (por defecto), inglés, portugués de Brasil y ruso, con selector en el encabezado. Sistema métrico (m · kg) o imperial (ft · lb).
@@ -57,11 +59,19 @@ npm run build && npm run preview
 npm run e2e
 ```
 
-Generan las capturas en `screenshots/` y los resultados en `tests/e2e/out/`. Se puede correr una sola suite: `npm run e2e flujo`, `npm run e2e capturas` o `npm run e2e rendimiento`.
+Generan las capturas en `screenshots/` y los resultados en `tests/e2e/out/`. Se puede correr una sola suite: `npm run e2e flujo`, `npm run e2e ruta`, `npm run e2e capturas`, `npm run e2e espera` (imágenes de la pantalla de carga) o `npm run e2e rendimiento`.
 
 En una máquina con GPU usá `E2E_GPU=1 npm run e2e` para que las mediciones de fps sean reales. Sin esa variable Chromium dibuja por software: sirve para verificar el flujo y las fugas de memoria, pero es lento (cada suite tarda varios minutos) y sus fps no significan nada.
 
-Otros scripts: `node scripts/fallback.cjs` regenera las imágenes que se muestran cuando no hay WebGL (`public/fallback/`) y `scripts/assets/` documenta cómo se bajaron y convirtieron a KTX2 las texturas CC0.
+### Benchmark de rendimiento
+
+```bash
+npm run bench -- --gpu --headed
+```
+
+Recorre tipos, pasos, opciones, "Ver en acción", las tres escenas y la secuencia de la Ruta, en escritorio (1920×1080) y celular (375×812, CPU 4× más lenta), y guarda `bench/results-<fecha>.json` con fps promedio, 1 % más bajo, cuadro más largo y la causa de cada cuadro de más de 50 ms. `node bench/comparar.cjs A.json B.json` compara dos corridas. `?debug=1` muestra el panel de rendimiento en la página. Los informes por fase están en `docs/informes/`.
+
+Otros scripts: `npm run models:build` optimiza los modelos GLB de `models/src/` (ver `docs/model-spec.md`); `node scripts/fallback.cjs` regenera las imágenes que se muestran cuando no hay WebGL (`public/fallback/`) y `scripts/assets/` documenta cómo se bajaron y convirtieron a KTX2 las texturas CC0.
 
 ## Cómo editar catálogo, precios y reglas (sin tocar código)
 
@@ -129,8 +139,10 @@ No hay nombres ni logos de fabricantes reales en el repo.
 | `?moneda=ARS` | Moneda inicial |
 | `?tipo=batea` | Tipo inicial (`tolva`, `batea`, `plataforma`, `furgon`) |
 | `?precios=0` | Arranca con los precios ocultos |
+| `?calidad=alta` / `media` / `baja` | Fija el nivel de calidad (si no, se elige según la GPU y se ajusta solo) |
+| `?debug=1` | Panel de rendimiento (fps, cuadro más largo, draw calls, triángulos, memoria) |
 
-Atajos del modo vendedor: `1`–`7` cámaras, `A` o espacio "Ver en acción", `L` lona, `E` estudio/exterior, `T` tractor, `H` puntos de interés, `P` precios, `F` pantalla completa del visor, `←` `→` pasos, `R` reiniciar.
+Atajos del modo vendedor: `1`–`7` cámaras, `A` o espacio "Ver en acción", `L` lona, `E` estudio → exterior → ruta, `T` tractor, `H` puntos de interés, `P` precios, `F` pantalla completa del visor, `←` `→` pasos, `R` reiniciar.
 
 ## Cómo embeberlo en la web del fabricante
 
@@ -189,10 +201,16 @@ El build es 100 % estático: se puede servir desde cualquier hosting de archivos
 src/config/   catálogo, precios, reglas, normativa, colores y marca (JSON editables)
 src/core/     lógica pura y testeada: reglas, precio, layout, tara, validación legal, URL
 src/state/    estado (Zustand), valores derivados, arranque desde la URL
-src/three/    generadores paramétricos, materiales, escenas, cámaras, capturas
-  kit/        primitivas, ensamblador (fusiona piezas por material) y texturas procedurales
-  parts/      chasis, tren rodante, ruedas, accesorios, lonas
+src/three/    generadores paramétricos, materiales, escenas (estudio, exterior, ruta), cámaras, capturas
+  kit/        primitivas, ensamblador (fusiona piezas por material), buffers del worker y texturas procedurales
+  parts/      chasis, tren rodante, ruedas, accesorios, lonas, tractor
   bodies/     tolva, batea, plataforma, furgón/sider
+  buildWorker.ts, modelBuilder.ts   geometría en un Web Worker
+  RouteController.tsx               el camión en la ruta
+src/render-kit/  render reutilizable: debug, precompilación, calidad, transición, refinado, modelos
+  vehicle/    ruta infinita, cinemática, máquina de estados, objetos de la ruta en la GPU
+bench/        benchmark (Playwright) y comparador de resultados
+docs/         especificación de modelos e informes por fase
 src/ui/       paneles, pasos, barra de precio, ficha técnica, modales
 src/pdf/      PDF de cotización (se descarga aparte, bajo demanda)
 src/lead/     armado y envío de la consulta
@@ -203,11 +221,12 @@ tests/        unitarios (Vitest) y de punta a punta (Playwright)
 
 ## Rendimiento
 
-- Ruedas, grano y hebillas con `InstancedMesh`; el resto se fusiona en pocas mallas por material.
-- La geometría solo se reconstruye cuando cambia un parámetro geométrico; los colores cambian uniformes.
-- `frameloop="demand"`: sin interacción ni animación no se dibuja nada.
-- Calidad adaptativa: si caen los fps baja resolución, AO, antialiasing y sombras (ver `NOTAS.md`).
-- PDF, modales y escena exterior en chunks separados.
+- Ruedas, grano y hebillas con `InstancedMesh`; el resto se fusiona en pocas mallas por material. Ruedas con nivel de detalle según la distancia.
+- La geometría de un cambio de opción se genera en un **Web Worker**; el hilo principal solo arma el esqueleto (nodos y animaciones). Caché de configuraciones recientes. Los colores y las llantas cambian materiales, no geometría.
+- Shaders precompilados y escenas preparadas en segundo plano; las tres escenas comparten la misma firma de luces y entorno: cambiar de escena no compila nada.
+- `frameloop="demand"` en Estudio y Exterior; en la Ruta, continuo solo mientras algo se mueve.
+- Calidad en tres niveles (alta / media / baja) con el nivel inicial según la GPU (detect-gpu) y ajuste automático.
+- PDF, modales, panel de rendimiento, escenas exterior y ruta y controlador del camión en chunks separados.
 - Al reconstruir se liberan geometrías y texturas (hay una prueba de estrés de 200 cambios).
 
 Las mediciones y sus límites están en [`NOTAS.md`](./NOTAS.md).

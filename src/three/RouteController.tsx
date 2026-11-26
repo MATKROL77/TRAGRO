@@ -326,7 +326,7 @@ export default function RouteController() {
     // --- Render continuo solo cuando algo se mueve ---
     const busy = p.v > 0.01 || m.state !== 'DETENIDO' && m.state !== 'ABIERTO' || cam.current.dragging || cam.current.time - cam.current.releasedAt < 4 || k.changingLane;
     const loop = busy ? 'always' : 'demand';
-    if (state.frameloop !== loop) setFrameloop(loop);
+    if (state.frameloop !== loop && !vehicleClock.manualFrames) setFrameloop(loop);
     if (busy) markActive(400);
   });
 

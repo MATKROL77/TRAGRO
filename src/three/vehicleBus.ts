@@ -12,7 +12,7 @@ export function onVehicleRequest(fn: (r: VehicleRequest) => void): () => void {
 }
 
 /** Reloj del vehículo: la captura PNG lo pausa un instante para que la imagen salga nítida. */
-export const vehicleClock = { paused: false, /** Solo para pruebas automáticas (render por software lento). */ scale: 1 };
+export const vehicleClock = { paused: false, /** Solo para pruebas automáticas (render por software lento). */ scale: 1, /** Video cuadro a cuadro: el controlador no cambia el frameloop. */ manualFrames: false };
 if (typeof window !== 'undefined') (window as unknown as { __vehicleClock: unknown }).__vehicleClock = vehicleClock;
 
 /** Estado del camión para el benchmark y las pruebas (window.__vehicle). */
