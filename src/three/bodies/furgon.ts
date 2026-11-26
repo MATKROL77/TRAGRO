@@ -8,7 +8,8 @@ import { box, boxUV, cyl, rbox } from '../kit/geo';
 import { PleatCurtain } from '../parts/tarp';
 import type { MatKey } from '../materials';
 
-const DOOR_OPEN = (250 * Math.PI) / 180;
+/** Las puertas abren 270° hasta trabarse contra el lateral (un pelo menos, para no tocar la chapa). */
+const DOOR_OPEN = (268 * Math.PI) / 180;
 
 export function buildFurgon(ctx: BuildCtx): void {
   const { asm, L, sel } = ctx;

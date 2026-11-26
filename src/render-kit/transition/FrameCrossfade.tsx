@@ -14,10 +14,12 @@ import { compileObject } from '../precompile/compile';
 interface State {
   start: (ms?: number) => boolean;
   available: boolean;
+  /** true mientras dura un fundido. */
+  active: boolean;
 }
 
 /** API global: el visor la usa si el componente está montado; si no, cae al fundido por canvas 2D. */
-export const frameCrossfade: State = { start: () => false, available: false };
+export const frameCrossfade: State = { start: () => false, available: false, active: false };
 
 const VERT = 'varying vec2 vUv; void main(){ vUv = position.xy * 0.5 + 0.5; gl_Position = vec4(position.xy, 0.0, 1.0); }';
 const FRAG = 'uniform sampler2D map; uniform float opacity; varying vec2 vUv; void main(){ gl_FragColor = vec4(texture2D(map, vUv).rgb, opacity); }';
@@ -62,6 +64,7 @@ export function FrameCrossfade({ priority = 2 }: { priority?: number }) {
       res.fade.t0 = performance.now();
       res.fade.ms = ms;
       res.fade.on = true;
+      frameCrossfade.active = true;
       res.mat.uniforms.opacity.value = 1;
       invalidate();
       return true;
@@ -86,8 +89,10 @@ export function FrameCrossfade({ priority = 2 }: { priority?: number }) {
     gl.setRenderTarget(null);
     gl.render(res.scene, res.cam);
     gl.autoClear = auto;
-    if (k >= 1) f.on = false;
-    else invalidate();
+    if (k >= 1) {
+      f.on = false;
+      frameCrossfade.active = false;
+    } else invalidate();
   }, priority);
 
   return null;

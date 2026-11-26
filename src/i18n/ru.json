@@ -323,5 +323,17 @@
   "legal.banner.titulo": "Эта конфигурация превышает допустимый предел",
   "legal.banner.texto": "{lista}. Запрос можно отправить: производитель предложит изменения.",
   "lead.msg.excede": "⚠️ Превышает допустимый предел: {lista}.",
-  "tipo.precioAyuda": "Цена с уже выбранными параметрами (размеры, оси, колёса, цвета). Именно её вы увидите после выбора."
+  "tipo.precioAyuda": "Цена с уже выбранными параметрами (размеры, оси, колёса, цвета). Именно её вы увидите после выбора.",
+  "visor.ruta": "Трасса",
+  "visor.ruta.frenando": "Торможение…",
+  "visor.ruta.abriendo": "Открытие…",
+  "visor.ruta.cerrando": "Закрытие…",
+  "visor.ruta.arrancando": "Трогается…",
+  "visor.ruta.arrancar": "Поехать",
+  "visor.ruta.manejar": "Вести",
+  "visor.ruta.manejarAyuda": "W / S: газ и тормоз · A / D: руль. Отпустите — включится автопилот.",
+  "visor.cam.seguimiento": "Следовать",
+  "visor.cam.lateralRuta": "Сбоку",
+  "visor.cam.dron": "Дрон",
+  "visor.refinando": "Уточнение изображения…"
 }

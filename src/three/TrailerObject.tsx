@@ -8,6 +8,7 @@ import type { AnimState } from './build';
 import { upgradeMaterials } from './ktx';
 import { composeFlapPrint, composeLivery, liveryTexture } from './livery';
 import { materialLibrary } from './materialsLib';
+import { CARGO_COLOR } from './cargoFx';
 import { buildTrailer, geometryKey, type ModelBuffers, type TrailerModel } from './model';
 import { requestBuffers, warmUpBuilder } from './modelBuilder';
 import { viewer } from './viewerApi';
@@ -15,6 +16,15 @@ import { buildStats } from '@/render-kit/debug/frameStats';
 
 /** Modelo actual (para cámaras, hotspots y capturas). */
 export const currentModel: { value: TrailerModel | null } = { value: null };
+
+/** Estado de animación ya amortiguado (lo lee el controlador de la ruta para saber si terminó de abrir o cerrar). */
+export const animState: { current: AnimState & { luces: number } } = { current: { accion: 0, lona: 0, susp: 0, elevado: 1, patas: 0, luces: 0, time: 0, dt: 0 } };
+
+/** Cierre inmediato (cambio de tipo con el equipo abierto en la ruta). */
+export function snapAnim(values: Partial<AnimState>): void {
+  Object.assign(animState.current, values);
+  currentModel.value?.update(animState.current);
+}
 
 /** Tiempos de reconstrucción del modelo (ms), para las mediciones de rendimiento. */
 export const buildTimes: number[] = [];
@@ -74,7 +84,7 @@ export function TrailerObject() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [key, model]);
 
-  const anim = useRef<AnimState & { luces: number }>({ accion: 0, lona: 0, susp: 0, elevado: 1, patas: 0, luces: 0, time: 0, dt: 0 });
+  const anim = useRef<AnimState & { luces: number }>(animState.current);
   const suspPulse = useRef(0);
 
   useEffect(() => {
@@ -87,6 +97,13 @@ export function TrailerObject() {
       model.dispose();
     };
   }, [model, invalidate]);
+
+  // Color del grano / material según "Producto a cargar" (Datos técnicos).
+  const carga = config.sel.carga;
+  useEffect(() => {
+    (lib.mats.grain as THREE.MeshStandardMaterial).color.set(CARGO_COLOR[String(carga)] ?? CARGO_COLOR.soja);
+    invalidate();
+  }, [carga, lib, invalidate]);
 
   // Llantas de acero o aluminio: solo cambia el material de las llantas instanciadas.
   const llantas = config.sel.llantas;
@@ -219,7 +236,8 @@ export function TrailerObject() {
     }
     a.dt = dt;
     a.time += dt;
-    lib.setLights(a.luces);
+    // En la ruta las luces las maneja el controlador del camión (posición, freno, giros, balizas).
+    if (st.ui.env !== 'ruta') lib.setLights(a.luces);
     const colors = lib.tick(dt);
     const busy = model.isBusy();
     if (moving || busy) {

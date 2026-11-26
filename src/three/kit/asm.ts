@@ -32,7 +32,7 @@ export interface BuiltAssembly {
  * Piezas chicas o planas que no aportan sombra visible: no entran en la pasada de
  * sombras (menos draw calls por cuadro).
  */
-const NO_SHADOW: MatKey[] = ['lensRed', 'lensAmber', 'lensWhite', 'reflex', 'plate', 'speed', 'flapPrint', 'glass'];
+const NO_SHADOW: MatKey[] = ['lensRed', 'lensAmber', 'lensWhite', 'lensTurnL', 'lensTurnR', 'reflex', 'plate', 'speed', 'flapPrint', 'glass'];
 
 /** Materiales cuya geometría lleva el atributo de proyección del logo/texto. */
 const LIVERY_MATS: MatKey[] = ['bodyPaint', 'lona'];

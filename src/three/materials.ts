@@ -40,6 +40,8 @@ export type MatKey =
   | 'lensRed'
   | 'lensAmber'
   | 'lensWhite'
+  | 'lensTurnL'
+  | 'lensTurnR'
   | 'redPaint'
   | 'yellowPaint'
   | 'whitePlastic'
@@ -75,6 +77,8 @@ export interface MaterialLibrary {
   /** Devuelve true mientras algún color siga cambiando. */
   tick: (dt: number) => boolean;
   setLights: (on: number) => void;
+  /** Luces del vehículo en la ruta: posición, freno, giro izquierdo / derecho (0..1, ya con el parpadeo). */
+  setVehicleLights: (l: { position: number; brake: number; left: number; right: number; head: number }) => void;
   setEnvIntensity: (v: number) => void;
   dispose: () => void;
 }
@@ -222,6 +226,8 @@ export function createMaterials(): MaterialLibrary {
     lensRed: lens('#a20e12', '#ff1a1a'),
     lensAmber: lens('#c46a05', '#ff8a00'),
     lensWhite: lens('#e9eef2', '#ffffff'),
+    lensTurnL: lens('#c46a05', '#ff8a00'),
+    lensTurnR: lens('#c46a05', '#ff8a00'),
     redPaint: phys({ color: '#b8171b', roughness: 0.35, clearcoat: 0.6, clearcoatRoughness: 0.2 }),
     yellowPaint: std({ color: '#e6a400', roughness: 0.5, metalness: 0 }),
     whitePlastic: std({ color: '#e8e8e3', roughness: 0.55, metalness: 0 }),
@@ -281,7 +287,20 @@ export function createMaterials(): MaterialLibrary {
     return a || b || c;
   };
 
+  const em = (k: MatKey, v: number) => ((mats[k] as THREE.MeshPhysicalMaterial).emissiveIntensity = v);
+  const setVehicleLights: MaterialLibrary['setVehicleLights'] = (l) => {
+    // Posición: rojo atrás y demarcadoras ámbar encendidas; freno: el mismo rojo más fuerte.
+    em('lensRed', 0.05 + l.position * 1.1 + l.brake * 2.6);
+    em('lensAmber', 0.05 + l.position * 1.4);
+    em('lensTurnL', 0.05 + l.left * 3.4);
+    em('lensTurnR', 0.05 + l.right * 3.4);
+    em('lensWhite', 0.02 + l.head * 1.6);
+    (mats.reflex as THREE.MeshStandardMaterial).emissiveIntensity = 0.12;
+  };
+
   const setLights: MaterialLibrary['setLights'] = (on) => {
+    em('lensTurnL', 0.05 + on * 2.6);
+    em('lensTurnR', 0.05 + on * 2.6);
     (mats.lensRed as THREE.MeshPhysicalMaterial).emissiveIntensity = 0.05 + on * 3.2;
     (mats.lensAmber as THREE.MeshPhysicalMaterial).emissiveIntensity = 0.05 + on * 2.6;
     (mats.lensWhite as THREE.MeshPhysicalMaterial).emissiveIntensity = 0.02 + on * 1.4;
@@ -297,5 +316,5 @@ export function createMaterials(): MaterialLibrary {
   };
 
   setLights(0);
-  return { mats, livery, setColorTargets, tick, setLights, setEnvIntensity, dispose };
+  return { mats, livery, setColorTargets, tick, setLights, setVehicleLights, setEnvIntensity, dispose };
 }

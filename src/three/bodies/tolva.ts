@@ -7,6 +7,7 @@ import type { BuildCtx } from '../build';
 import { stage } from '../build';
 import { bar, box, cyl, extrudeAlong, pipe, quad, rbox, realGeometry, rod, sheet, type P2 } from '../kit/geo';
 import { RollTarp } from '../parts/tarp';
+import { cargoFx } from '../cargoFx';
 
 const GATE_TRAVEL = 0.64;
 
@@ -307,7 +308,8 @@ export function buildTolva(ctx: BuildCtx): void {
       if (g) g.position.z = (g.userData.rest as THREE.Vector3).z + open * GATE_TRAVEL;
       if (w) w.rotation.z = -open * Math.PI * 5;
 
-      const emit = open > 0.18;
+      // En la ruta el equipo va vacío: no cae grano.
+      const emit = open > 0.18 && cargoFx.grain;
       if (emit) flowing = true;
       const spread = 0.05 + open * 0.2;
       const dt = Math.min(a.dt, 0.05);
@@ -334,7 +336,8 @@ export function buildTolva(ctx: BuildCtx): void {
         grains.setMatrixAt(j, m4);
       }
       // El montículo crece mientras descarga y desaparece al cerrar.
-      pileSize[i] = emit ? Math.min(1, pileSize[i] + dt * 0.16) : a.accion <= 0.001 ? Math.max(0, pileSize[i] - dt * 0.9) : pileSize[i];
+      // En el predio el grano se va por la rejilla: no se forma montículo.
+      pileSize[i] = emit && cargoFx.grainPiles ? Math.min(1, pileSize[i] + dt * 0.16) : a.accion <= 0.001 || !cargoFx.grainPiles ? Math.max(0, pileSize[i] - dt * 0.9) : pileSize[i];
       if (pileSize[i] > 0.001 && !emit && a.accion <= 0.001) flowing = true;
       const sc = Math.max(0.0001, pileSize[i]);
       piles[i].scale.set(0.35 + sc * 0.65, sc, 0.35 + sc * 0.65);

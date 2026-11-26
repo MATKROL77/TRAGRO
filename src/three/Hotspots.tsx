@@ -21,6 +21,8 @@ export function Hotspots() {
   const active = useStore((s) => s.activeHotspot);
   const setHotspot = useStore((s) => s.setHotspot);
   const moving = useStore((s) => (s.anim.accion ?? 0) > 0.01);
+  // En la ruta el equipo se mueve: sin puntos de interés.
+  const ruta = useStore((s) => s.ui.env === 'ruta');
   const refs = useRef<Record<string, HTMLButtonElement | null>>({});
 
   const items = useMemo(() => {
@@ -51,7 +53,7 @@ export function Hotspots() {
     }
   });
 
-  if (!show || moving) return null;
+  if (!show || moving || ruta) return null;
   return (
     <>
       {items.map((it) => (

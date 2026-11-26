@@ -7,6 +7,8 @@ import type { BuildCtx } from '../build';
 import { stage } from '../build';
 import { bar, box, cyl, extrudeAlong, extrudeSide, pipe, rbox, type P2 } from '../kit/geo';
 import { RollTarp } from '../parts/tarp';
+import { realGeometry } from '../kit/geo';
+import { cargoFx } from '../cargoFx';
 
 export const TIP_ANGLE = (45 * Math.PI) / 180;
 const STAGES = 5;
@@ -201,6 +203,46 @@ export function buildBatea(ctx: BuildCtx): void {
   ctx.livery = { side: [0.1, fy + ch + (L.H - ch) / 2 + 0.02, Math.min(L.L - 1.8, 6.5), L.H - ch - 0.22], front: null };
   ctx.marking = { y: fy + ch + 0.05, z: hw + 0.049, x0: x0 + 0.3, x1: x1 - 0.2, node: 'bed' };
 
+  // --- Carga (solo en el predio): se desliza hacia atrás al volcar y forma una pila ------------
+  const loadLen = L.L - 0.7;
+  const loadH = L.H * 0.62;
+  const { load, pile, stream } = realGeometry(() => {
+    // Sección del material: trapecio de la cuba con lomo redondeado.
+    const sh = new THREE.Shape();
+    const iw = hw - 0.02;
+    sh.moveTo(-iw + ch, fy + 0.005);
+    sh.lineTo(iw - ch, fy + 0.005);
+    sh.lineTo(iw, fy + ch);
+    sh.lineTo(iw, fy + loadH * 0.72);
+    sh.quadraticCurveTo(0, fy + loadH * 1.25, -iw, fy + loadH * 0.72);
+    sh.lineTo(-iw, fy + ch);
+    sh.closePath();
+    const g = new THREE.ExtrudeGeometry(sh, { depth: loadLen, bevelEnabled: false, curveSegments: 10 });
+    // Extruida en +Z: se gira para que el largo vaya en +X desde el extremo trasero.
+    g.rotateY(Math.PI / 2);
+    g.computeVertexNormals();
+    const load = new THREE.Mesh(g, mats.grain);
+    load.position.x = x0 + 0.3;
+    load.castShadow = true;
+    const pg = new THREE.ConeGeometry(1.6, 1, 28, 3);
+    pg.translate(0, 0.5, 0);
+    const pile = new THREE.Mesh(pg, mats.grain);
+    pile.position.set(x0 - 1.7, 0, 0);
+    pile.scale.setScalar(0.0001);
+    pile.receiveShadow = pile.castShadow = true;
+    const sg = new THREE.CylinderGeometry(0.55, 0.9, 1, 16, 1, true);
+    sg.translate(0, -0.5, 0);
+    const stream = new THREE.Mesh(sg, mats.grain);
+    stream.visible = false;
+    return { load, pile, stream };
+  });
+  load.visible = false;
+  asm.attach(load, 'bed');
+  asm.attach(pile, 'root');
+  asm.attach(stream, 'root');
+  ctx.disposers.push(() => [load, pile, stream].forEach((m) => m.geometry.dispose()));
+  const tailW = new THREE.Vector3();
+
   // --- Animación: portón, vuelco y cilindro por etapas -----------------------------------
   const topW = new THREE.Vector3();
   const dir = new THREE.Vector3();
@@ -218,6 +260,22 @@ export function buildBatea(ctx: BuildCtx): void {
       nodes.gate.rotation.z = -tip * 1.04;
     }
     tarp?.update(Math.max(a.lona, stage(a.accion, 0, 0.18)));
+
+    // Material: se desliza cuando la cuba pasa ~25° y termina formando la pila de atrás.
+    const loaded = cargoFx.bateaLoad;
+    const f = loaded ? stage(a.accion, 0.42, 0.97) : 0;
+    load.visible = loaded && f < 0.995;
+    load.scale.x = Math.max(0.001, 1 - f);
+    pile.visible = loaded && f > 0.01;
+    pile.scale.set(0.25 + f * 0.75, Math.max(0.0001, f * 1.15), 0.25 + f * 0.75);
+    // Chorro entre el borde trasero de la cuba y la pila mientras descarga.
+    stream.visible = loaded && f > 0.02 && f < 0.97;
+    if (stream.visible) {
+      tailW.set(x0 + 0.05, fy + 0.15, 0).sub(pv).applyAxisAngle(new THREE.Vector3(0, 0, 1), tip).add(pv);
+      const h = Math.max(0.1, tailW.y - f * 1.15 * 0.6);
+      stream.position.set(tailW.x - 0.25, tailW.y, 0);
+      stream.scale.set(0.7, h, 0.7);
+    }
 
     // Punto superior del cilindro, girado con la cuba.
     topW.copy(restTop).sub(pv).applyAxisAngle(new THREE.Vector3(0, 0, 1), tip).add(pv);

@@ -31,7 +31,26 @@ export interface TractorModel {
   key: string;
   buckets: Map<string, THREE.Mesh>;
   setAluminium: (alu: boolean) => void;
+  /** Ángulo girado por las ruedas traseras y delanteras al avanzar (rad). */
+  setWheelRoll: (rear: number, front: number) => void;
+  /** Datos para la cinemática: el perno rey está `hitch` m por delante del centro de los ejes traseros. */
+  info: { hitch: number; wheelR: number; frontWheelR: number; rearX: number[] };
   dispose: () => void;
+}
+
+/**
+ * Vidrio de la cabina según el nivel de calidad: en alto, vidrio físico con transmisión
+ * (se ve el interior); en medio y bajo, vidrio transparente común (la transmisión agrega
+ * una pasada de render de la escena).
+ */
+export function setCabGlassQuality(high: boolean): void {
+  const { glass } = cabMaterials();
+  const want = high ? 1 : 0;
+  if (glass.transmission === want) return;
+  glass.transmission = want;
+  glass.transparent = !high;
+  glass.opacity = high ? 1 : 0.42;
+  glass.needsUpdate = true;
 }
 
 export function tractorKey(o: TractorOptions): string {
@@ -50,7 +69,7 @@ export function tractorMaterials(): THREE.Material[] {
 function cabMaterials(): { paint: THREE.MeshPhysicalMaterial; glass: THREE.MeshPhysicalMaterial } {
   // Color neutro: no compite con el semi, que es el protagonista.
   cabPaint ??= new THREE.MeshPhysicalMaterial({ color: '#dfe2e5', roughness: 0.36, metalness: 0, clearcoat: 0.7, clearcoatRoughness: 0.12 });
-  cabGlass ??= new THREE.MeshPhysicalMaterial({ color: '#0d1217', roughness: 0.16, metalness: 0, clearcoat: 0.35, clearcoatRoughness: 0.1, envMapIntensity: 0.55 });
+  cabGlass ??= new THREE.MeshPhysicalMaterial({ color: '#9fb0b8', roughness: 0.04, metalness: 0, ior: 1.52, thickness: 0.006, transmission: 0, transparent: true, opacity: 0.42, envMapIntensity: 0.9, side: THREE.DoubleSide });
   return { paint: cabPaint, glass: cabGlass };
 }
 
@@ -134,7 +153,7 @@ function buildTractorImpl(o: TractorOptions, mats: MaterialSet): TractorModel {
   asm.add('blackSteel', rbox(0.08, 0.16, 1.9, xEnd + 0.02, frameTop - 0.16, 0, 0.01));
   for (const s of [1, -1]) {
     asm.add('lensRed', rbox(0.02, 0.09, 0.22, xEnd - 0.03, frameTop - 0.16, s * 0.78, 0.006));
-    asm.add('lensAmber', rbox(0.02, 0.09, 0.1, xEnd - 0.03, frameTop - 0.16, s * 0.6, 0.006));
+    asm.add(s > 0 ? 'lensTurnR' : 'lensTurnL', rbox(0.02, 0.09, 0.1, xEnd - 0.03, frameTop - 0.16, s * 0.6, 0.006));
   }
 
   // --- Plato de enganche ------------------------------------------------------------
@@ -210,6 +229,14 @@ function buildTractorImpl(o: TractorOptions, mats: MaterialSet): TractorModel {
   // --- Cabina --------------------------------------------------------------------------
   asm.add('bodyPaint', cabShell(xB, xF, Rf));
   const zs = 1.23 + 0.004;
+  // Interior (se ve a través del vidrio): tablero, asientos y volante.
+  asm.add('plastic', rbox(0.55, 0.28, 2.2, xB - 0.42, 1.98, 0, 0.04));
+  for (const z of [0.55, -0.55]) {
+    asm.add('plastic', rbox(0.5, 0.12, 0.5, xB - 1.15, 1.62, z, 0.04), rbox(0.12, 0.72, 0.48, xB - 1.42, 1.98, z, 0.04));
+  }
+  const wheelRing = new THREE.TorusGeometry(0.22, 0.018, 6, 24);
+  wheelRing.rotateY(Math.PI / 2).rotateZ(-0.55).translate(xB - 0.72, 2.02, 0.55);
+  asm.add('blackSteel', wheelRing, cyl(0.03, 0.4, 'y', xB - 0.62, 1.86, 0.55, 8));
   // Parabrisas.
   const wb: [number, number] = [xB - 0.04 + 0.012, 2.12];
   const wt: [number, number] = [xB - 0.29 + 0.012, 2.9];
@@ -235,7 +262,7 @@ function buildTractorImpl(o: TractorOptions, mats: MaterialSet): TractorModel {
     asm.add('plastic', rbox(0.09, 0.5, 0.2, xB - 0.11, 2.56, mz + s * 0.03, 0.03));
     asm.add('chrome', box(0.004, 0.44, 0.16, xB - 0.158, 2.56, mz + s * 0.03));
     // Luces de posición laterales.
-    asm.add('lensAmber', rbox(0.07, 0.03, 0.012, xB - 1.9, 1.16, s * (zs + 0.002), 0.004));
+    asm.add(s > 0 ? 'lensTurnR' : 'lensTurnL', rbox(0.07, 0.03, 0.012, xB - 1.9, 1.16, s * (zs + 0.002), 0.004));
   }
   // Parrilla genérica de lamas horizontales, deflectores de esquina y limpiaparabrisas.
   asm.add('plastic', rbox(0.03, 0.86, 1.86, xB + 0.004, 1.5, 0, 0.02));
@@ -252,7 +279,7 @@ function buildTractorImpl(o: TractorOptions, mats: MaterialSet): TractorModel {
   for (const s of [1, -1]) {
     asm.add('chrome', rbox(0.02, 0.19, 0.46, xB + 0.016, 0.8, s * 0.88, 0.01));
     asm.add('lensWhite', rbox(0.02, 0.15, 0.3, xB + 0.026, 0.8, s * 0.93, 0.01));
-    asm.add('lensAmber', rbox(0.02, 0.15, 0.1, xB + 0.026, 0.8, s * 0.7, 0.01));
+    asm.add(s > 0 ? 'lensTurnR' : 'lensTurnL', rbox(0.02, 0.15, 0.1, xB + 0.026, 0.8, s * 0.7, 0.01));
     asm.add('lensWhite', cyl(0.05, 0.02, 'x', xB + 0.022, 0.56, s * 0.8, 16));
   }
   // Balizas de techo.
@@ -302,8 +329,14 @@ function buildTractorImpl(o: TractorOptions, mats: MaterialSet): TractorModel {
 
   const built = asm.build(tractorMats);
   built.root.name = 'tractor';
+  const rearCenter = rear.reduce((a, b) => a + b, 0) / rear.length;
   return {
     root: built.root,
+    info: { hitch: kx - rearCenter, wheelR: R, frontWheelR: Rf, rearX: rear },
+    setWheelRoll: (r: number, f: number) => {
+      wBack.setRoll(r);
+      wFront.setRoll(f);
+    },
     key: tractorKey(o),
     buckets: built.buckets,
     setAluminium: (alu) => {

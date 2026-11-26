@@ -23,6 +23,9 @@ interface Transition {
 
 /** Bloquea el rig mientras se hacen capturas con otra cámara. */
 export const rigLock = { locked: false };
+
+/** En la ruta la cámara la maneja el controlador del camión (sigue al conjunto en movimiento). */
+const inRoute = () => useStore.getState().ui.env === 'ruta';
 const ACCESSORY_FOCUS = new Set(['cajon', 'portaauxilio', 'tanqueAgua', 'matafuego']);
 
 const ease = (x: number) => (x < 0.5 ? 4 * x * x * x : 1 - Math.pow(-2 * x + 2, 3) / 2);
@@ -59,7 +62,7 @@ export function CameraRig() {
   useEffect(() => {
     const model = currentModel.value;
     const c = controls.current;
-    if (!model || !c) return;
+    if (!model || !c || (inRoute() && !first.current)) return;
     const pose = poseFor(preset.preset, model, framing());
     home.current = null;
     if (first.current) {
@@ -123,13 +126,21 @@ export function CameraRig() {
     lastFrame.current = key;
     const id = requestAnimationFrame(() => {
       const model = currentModel.value;
-      if (!model || home.current) return;
+      if (!model || home.current || inRoute()) return;
       const p = useStore.getState().camera.preset;
       goTo(poseFor(p, model, framing()), 0.8);
     });
     return () => cancelAnimationFrame(id);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [modelVersion, tractor, aspect]);
+
+  // Al salir de la ruta se vuelve al encuadre de tres cuartos.
+  const envNow = useStore((s) => s.ui.env);
+  const prevEnv = useRef(envNow);
+  useEffect(() => {
+    if (prevEnv.current === 'ruta' && envNow !== 'ruta') useStore.getState().setPreset(STEP_PRESET[useStore.getState().ui.paso] ?? 'tresCuartos');
+    prevEnv.current = envNow;
+  }, [envNow]);
 
   // Cada paso tiene su cámara (apunta a lo que se está editando).
   const paso = useStore((s) => s.ui.paso);
@@ -140,7 +151,7 @@ export function CameraRig() {
       return;
     }
     const st = useStore.getState();
-    if (st.activeHotspot) return;
+    if (st.activeHotspot || inRoute()) return;
     home.current = null;
     st.setPreset(STEP_PRESET[paso] ?? 'tresCuartos');
   }, [paso]);
@@ -150,7 +161,7 @@ export function CameraRig() {
   useEffect(() => {
     if (!lastChange) return;
     const st = useStore.getState();
-    if (!st.ui.autoFoco || lastChange.foco === 'lateral' || lastChange.foco === 'ninguno') return;
+    if (!st.ui.autoFoco || lastChange.foco === 'lateral' || lastChange.foco === 'ninguno' || inRoute()) return;
     const id = window.setTimeout(() => {
       const model = currentModel.value;
       const c = controls.current;
@@ -220,6 +231,16 @@ export function CameraRig() {
   useFrame((_, rawDt) => {
     const c = controls.current;
     if (!c || rigLock.locked) return;
+    if (inRoute()) {
+      transition.current = null;
+      home.current = null;
+      zoomTw.current = null;
+      if (rotating.current) {
+        rotating.current = false;
+        c.autoRotate = false;
+      }
+      return;
+    }
     const now = performance.now();
     // Con frameloop "demand" el delta del reloj puede ser enorme: se usa tiempo real acotado.
     const wall = Math.min(2.5, (now - lastTick.current) / 1000);

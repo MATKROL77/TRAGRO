@@ -35,6 +35,9 @@ export interface TrailerModel {
   /** true mientras haya partículas u otra animación propia en curso. */
   isBusy: () => boolean;
   setAluminium: (alu: boolean) => void;
+  /** Ruta: ángulo girado por las ruedas y movimiento de la carrocería (cabeceo, rolido, subir/bajar). */
+  setWheelRoll: (angle: number) => void;
+  setBody: (pitch: number, roll: number, heave: number) => void;
   /** Mallas fusionadas (para que el worker extraiga sus buffers). */
   buckets: Map<string, THREE.Mesh>;
   dispose: () => void;
@@ -149,9 +152,16 @@ function buildTrailerImpl(cfg: Config, mats: MaterialSet): TrailerModel {
   const air = L.suspension === 'neumatica';
   const liftIndex = L.axles.findIndex((a) => a.lifted);
 
+  const body = { pitch: 0, roll: 0, heave: 0 };
+  let suspY = 0;
+  const applyBody = () => {
+    nodes.sprung.position.y = suspY + body.heave;
+    nodes.sprung.rotation.set(body.roll, 0, -body.pitch);
+  };
   const update = (a: AnimState) => {
     const s = air ? a.susp * SUSP_TRAVEL : 0;
-    nodes.sprung.position.y = s;
+    suspY = s;
+    applyBody();
     if (nodes.legs) nodes.legs.position.y = a.patas * LEG_RETRACT - s;
     L.axles.forEach((_, i) => {
       const lift = i === liftIndex ? a.elevado * LIFT_HEIGHT : 0;
@@ -169,6 +179,13 @@ function buildTrailerImpl(cfg: Config, mats: MaterialSet): TrailerModel {
     key: geometryKey(cfg),
     buckets: built.buckets,
     setAluminium: (alu: boolean) => wheels.setAluminium(alu),
+    setWheelRoll: (angle: number) => wheels.setRoll(angle),
+    setBody: (pitch: number, roll: number, heave: number) => {
+      body.pitch = pitch;
+      body.roll = roll;
+      body.heave = heave;
+      applyBody();
+    },
     layout: L,
     anchors: ctx.anchors,
     livery: ctx.livery,

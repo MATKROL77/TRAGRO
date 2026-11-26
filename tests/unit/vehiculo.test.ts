@@ -1,0 +1,99 @@
+import { describe, expect, it } from 'vitest';
+import { RoadPath } from '@/render-kit/vehicle/road';
+import { TruckKinematics } from '@/render-kit/vehicle/kinematics';
+import { ActionMachine, type Command } from '@/render-kit/vehicle/actionMachine';
+
+const geo = { trailerL: 8.2, hitch: 0.45, trailerWheelR: 0.53, tractorWheelR: 0.53, tractorFrontWheelR: 0.53, airSuspension: false };
+
+describe('ruta', () => {
+  it('el eje es periódico y la derivada coincide con la diferencia finita', () => {
+    const r = new RoadPath();
+    expect(r.z(0)).toBeCloseTo(r.z(r.shape.period), 6);
+    for (const x of [13, 250, 777]) expect(r.dz(x)).toBeCloseTo((r.z(x + 0.001) - r.z(x - 0.001)) / 0.002, 3);
+  });
+});
+
+describe('cinemática del camión', () => {
+  it('frena de 80 a 0 en 4–6 s, sin golpe al final', () => {
+    const k = new TruckKinematics(geo);
+    for (let i = 0; i < 120; i++) k.step(1 / 60);
+    k.brakeToStop();
+    let t = 0;
+    let lastA = 0;
+    let maxJerk = 0;
+    while (!k.stopped && t < 12) {
+      const p = k.step(1 / 60);
+      maxJerk = Math.max(maxJerk, Math.abs(p.a - lastA) * 60);
+      lastA = p.a;
+      t += 1 / 60;
+    }
+    expect(t).toBeGreaterThan(4);
+    expect(t).toBeLessThan(6.5);
+    expect(maxJerk).toBeLessThan(6);
+    expect(Math.abs(lastA)).toBeLessThan(0.2);
+  });
+
+  it('las ruedas no patinan: ángulo × radio = distancia', () => {
+    const k = new TruckKinematics(geo);
+    let p = k.step(0);
+    const start = p.odometer;
+    for (let i = 0; i < 600; i++) p = k.step(1 / 60);
+    const dist = p.odometer - start;
+    expect(Math.abs(p.wheelAngle.trailer * geo.trailerWheelR - dist) / dist).toBeLessThan(0.02);
+  });
+
+  it('el semi nunca se cruza con el tractor (articulación chica en las curvas)', () => {
+    const k = new TruckKinematics(geo);
+    let maxArt = 0;
+    for (let i = 0; i < 60 * 120; i++) maxArt = Math.max(maxArt, Math.abs(k.step(1 / 60).articulation));
+    expect(maxArt).toBeLessThan(0.2);
+  });
+
+  it('la articulación depende del largo del semi', () => {
+    const art = (L: number) => {
+      const k = new TruckKinematics({ ...geo, trailerL: L });
+      let m = 0;
+      for (let i = 0; i < 60 * 60; i++) m = Math.max(m, Math.abs(k.step(1 / 60).articulation));
+      return m;
+    };
+    expect(art(10)).toBeGreaterThan(art(6));
+  });
+});
+
+describe('máquina de estados', () => {
+  it('frena, se detiene y recién ahí abre; ignora toques repetidos', () => {
+    const cmds: Command[] = [];
+    const m = new ActionMachine({ onCommand: (c) => cmds.push(c) });
+    expect(m.toggle()).toBe(true);
+    expect(m.state).toBe('FRENANDO');
+    expect(m.toggle()).toBe(false);
+    m.update(0.1, { stopped: false, opened: false, closed: true, cruising: false });
+    expect(cmds).toEqual(['frenar']);
+    m.update(0.1, { stopped: true, opened: false, closed: true, cruising: false });
+    expect(m.state).toBe('ABRIENDO');
+    expect(cmds).toEqual(['frenar', 'abrir']);
+    m.update(0.1, { stopped: true, opened: true, closed: false, cruising: false });
+    expect(m.state).toBe('ABIERTO');
+    m.toggle();
+    expect(m.state).toBe('CERRANDO');
+    m.update(0.1, { stopped: true, opened: false, closed: true, cruising: false });
+    expect(m.state).toBe('DETENIDO');
+    m.update(0.6, { stopped: true, opened: false, closed: true, cruising: false });
+    expect(m.state).toBe('DETENIDO');
+    m.update(0.5, { stopped: true, opened: false, closed: true, cruising: false });
+    expect(m.state).toBe('ARRANCANDO');
+    m.update(0.1, { stopped: false, opened: false, closed: true, cruising: true });
+    expect(m.state).toBe('CIRCULANDO');
+    expect(cmds).toEqual(['frenar', 'abrir', 'cerrar', 'arrancar']);
+  });
+
+  it('cambio de tipo abierto: cierra sin animación y queda detenido', () => {
+    const cmds: Command[] = [];
+    const m = new ActionMachine({ onCommand: (c) => cmds.push(c) }, 'ABIERTO');
+    m.closeImmediately();
+    expect(m.state).toBe('DETENIDO');
+    m.update(5, { stopped: true, opened: false, closed: true, cruising: false });
+    expect(m.state).toBe('DETENIDO');
+    expect(cmds).toEqual(['cerrarYa']);
+  });
+});

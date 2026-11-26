@@ -151,6 +151,18 @@ export function grainNormal(): THREE.Texture {
   });
 }
 
+/** Chapa ondulada (silos, galpón): ondas horizontales en V (repetir en V). */
+export function corrugatedNormal(): THREE.Texture {
+  return cached('corrugated', () => {
+    const W = 8;
+    const H = 128;
+    const h = new Float32Array(W * H);
+    for (let y = 0; y < H; y++) for (let x = 0; x < W; x++) h[y * W + x] = 0.5 + 0.5 * Math.sin((y / H) * Math.PI * 2 * 4);
+    const t = normalFromHeights(h, W, H, 6);
+    return t;
+  });
+}
+
 /** Piel de naranja del barniz: relieve muy fino y suave (se usa en el normal del clearcoat). */
 export function orangePeelNormal(): THREE.Texture {
   return cached('orangePeel', () => {

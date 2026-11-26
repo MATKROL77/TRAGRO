@@ -227,6 +227,8 @@ export interface WheelSet {
   setAxleLift: (axle: number, dy: number) => void;
   /** Llanta de aluminio o de acero: solo cambia el material (no se regenera nada). */
   setAluminium: (alu: boolean) => void;
+  /** Ángulo girado por las ruedas al avanzar (rad). Las de ejes levantados no giran. */
+  setRoll: (angle: number) => void;
   dispose: () => void;
 }
 
@@ -272,14 +274,21 @@ export function createWheelSet(poses: WheelPose[], dual: boolean, aluminium: boo
   rim.name = 'wheels:rim';
 
   const lift = new Map<number, number>();
+  let roll = 0;
+  // El ángulo de giro se suma al de cada rueda; las ruedas espejadas (del otro lado) giran al revés en su marco.
+  const rolled = (p: WheelPose): WheelPose => {
+    if (roll === 0 || (lift.get(p.axle) ?? 0) > 0.001 || p.euler) return p;
+    const flipped = (p.side === 1) === !p.inner ? 1 : -1;
+    return { ...p, spin: (p.spin ?? 0) - roll * flipped };
+  };
   const apply = () => {
     poses.forEach((p, i) => {
-      const m = poseMatrix(p, lift.get(p.axle) ?? 0);
+      const m = poseMatrix(rolled(p), lift.get(p.axle) ?? 0);
       tire.setMatrixAt(i, m);
       rim.setMatrixAt(i, m);
     });
     outer.forEach((p, i) => {
-      const m = poseMatrix(p, lift.get(p.axle) ?? 0);
+      const m = poseMatrix(rolled(p), lift.get(p.axle) ?? 0);
       hub.setMatrixAt(i, m);
       nuts.setMatrixAt(i, m);
     });
@@ -289,6 +298,11 @@ export function createWheelSet(poses: WheelPose[], dual: boolean, aluminium: boo
 
   return {
     objects,
+    setRoll: (angle) => {
+      if (angle === roll) return;
+      roll = angle;
+      apply();
+    },
     setAluminium: (alu) => {
       rim.material = alu ? mats.rimAlu : mats.rimSteel;
     },

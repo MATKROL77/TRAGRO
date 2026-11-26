@@ -12,6 +12,7 @@ import { useStore } from '@/state/store';
 import { compileMaterials, warmScene } from '@/render-kit/precompile/compile';
 import { idleQueue, saveData } from '@/render-kit/scheduling/idle';
 import { materialLibrary } from './materialsLib';
+import { tierSettings } from '@/render-kit/quality/tiers';
 import { tractorMaterials } from './parts/tractor';
 
 /** Espera (hasta `ms`) a que aparezca un objeto en la escena. */
@@ -50,17 +51,25 @@ export function Preloader() {
         if (cancelled || saveData()) return;
         const mod = await import('./Exterior');
         await mod.prepareExterior(gl, camera);
-        log('escena exterior lista');
+        log('escena exterior (predio) lista');
       },
       async () => {
-        // Cuadros de calentamiento con el tractor y el exterior a la vista (variantes de sombra incluidas).
+        if (cancelled || saveData()) return;
+        const mod = await import('./Route');
+        await mod.prepareRoute(gl, camera, tierSettings(useStore.getState().ui.calidad).vegetation);
+        log('escena ruta lista');
+      },
+      async () => {
+        // Cuadros de calentamiento con el tractor y cada escena a la vista (variantes de sombra incluidas).
         const tractor = await waitFor(() => scene.getObjectByName('tractor'));
         const exterior = await waitFor(() => scene.getObjectByName('exterior'));
+        const ruta = await waitFor(() => scene.getObjectByName('ruta'));
         if (cancelled) return;
         const studio = scene.getObjectByName('studio');
         if (useStore.getState().ui.env !== 'estudio') return;
         warmScene(gl, scene, camera, [[tractor, true]]);
-        if (exterior) warmScene(gl, scene, camera, [[studio, false], [exterior, true], [tractor, true]]);
+        if (exterior) warmScene(gl, scene, camera, [[studio, false], [exterior, true], [tractor, false]]);
+        if (ruta) warmScene(gl, scene, camera, [[studio, false], [ruta, true], [tractor, true]]);
         log('cuadros de calentamiento listos');
       },
     ]).catch((e) => console.warn('[configurador] precarga incompleta', e));

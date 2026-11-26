@@ -209,9 +209,10 @@ export function buildRearEnd(asm: Assembly, L: Layout, o: RearOptions): void {
   for (const s of [1, -1]) {
     const zc = s * (L.W / 2 - 0.36);
     asm.add('blackSteel', rbox(0.035, 0.15, 0.52, x - 0.012, o.beamY, zc, 0.012));
-    const lamps: ['lensRed' | 'lensAmber' | 'lensWhite', number][] = [
+    // Giro: +z es la derecha del equipo (avanza hacia +x).
+    const lamps: ['lensRed' | 'lensTurnL' | 'lensTurnR' | 'lensWhite', number][] = [
       ['lensRed', 0.16],
-      ['lensAmber', 0],
+      [s > 0 ? 'lensTurnR' : 'lensTurnL', 0],
       ['lensWhite', -0.16],
     ];
     for (const [mat, dz] of lamps) {

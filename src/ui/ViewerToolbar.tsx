@@ -4,6 +4,12 @@ import { useStore } from '@/state/store';
 import { PRESETS } from '@/three/camera';
 import { downloadCapture } from '@/three/capture';
 import { Icon } from './Icon';
+import { requestVehicle } from '@/three/vehicleBus';
+
+const RUTA_CAMS = ['seguimiento', 'lateral', 'dron'] as const;
+const RUTA_CAM_LABEL: Record<string, string> = { seguimiento: 'visor.cam.seguimiento', lateral: 'visor.cam.lateralRuta', dron: 'visor.cam.dron' };
+/** Estados de transición: el botón queda deshabilitado y dice qué está pasando. */
+const BUSY_LABEL: Record<string, string> = { FRENANDO: 'visor.ruta.frenando', ABRIENDO: 'visor.ruta.abriendo', CERRANDO: 'visor.ruta.cerrando' };
 
 function usePopover() {
   const [open, setOpen] = useState(false);
@@ -57,7 +63,10 @@ export function ViewerToolbar() {
     return () => document.removeEventListener('fullscreenchange', on);
   }, []);
 
-  const active = (anim.accion ?? 0) > 0.5;
+  const ruta = ui.env === 'ruta';
+  const vState = ui.vehiculo;
+  const busy = ruta && vState in BUSY_LABEL;
+  const active = ruta ? vState === 'ABIERTO' : (anim.accion ?? 0) > 0.5;
   const hasTarp = cfg.tipo === 'tolva' || (cfg.tipo === 'batea' && cfg.sel.cobertor === true);
   const hasLift = cfg.sel.ejeElevable === true;
   const tarpOpen = (anim.lona ?? 0) > 0.5;
@@ -72,7 +81,17 @@ export function ViewerToolbar() {
           <Icon name="camara" size={18} />
           <span className="tb-label">{t('visor.camaras')}</span>
         </button>
-        {cams.open ? (
+        {cams.open && ruta ? (
+          <div className="popover pop-down" role="menu">
+            {RUTA_CAMS.map((p, i) => (
+              <button key={p} type="button" role="menuitemradio" aria-checked={ui.rutaCam === p} className={ui.rutaCam === p ? 'is-on' : ''} data-cam={p} onClick={() => { setUi({ rutaCam: p }); cams.setOpen(false); }}>
+                {t(RUTA_CAM_LABEL[p])}
+                <kbd>{i + 1}</kbd>
+              </button>
+            ))}
+          </div>
+        ) : null}
+        {cams.open && !ruta ? (
           <div className="popover pop-down" role="menu">
             {PRESETS.map((p, i) => (
               <button key={p} type="button" role="menuitemradio" aria-checked={preset === p} className={preset === p ? 'is-on' : ''} data-cam={p} onClick={() => { setPreset(p); cams.setOpen(false); }}>
@@ -88,21 +107,46 @@ export function ViewerToolbar() {
         <button type="button" aria-pressed={ui.env === 'estudio'} className={`tb-btn ${ui.env === 'estudio' ? 'is-sel' : ''}`} onClick={() => setUi({ env: 'estudio', tractor: false })} data-testid="tb-estudio">
           {t('visor.estudio')}
         </button>
-        <button type="button" aria-pressed={ui.env === 'exterior'} aria-busy={ui.cargandoEntorno} className={`tb-btn ${ui.env === 'exterior' ? 'is-sel' : ''} ${ui.cargandoEntorno ? 'is-loading' : ''}`} onClick={() => setUi({ env: 'exterior', tractor: true })} data-testid="tb-exterior">
+        <button type="button" aria-pressed={ui.env === 'exterior'} aria-busy={ui.cargandoEntorno && ui.env === 'exterior'} className={`tb-btn ${ui.env === 'exterior' ? 'is-sel' : ''} ${ui.cargandoEntorno && ui.env === 'exterior' ? 'is-loading' : ''}`} onClick={() => setUi({ env: 'exterior', tractor: false })} data-testid="tb-exterior">
           {t('visor.exterior')}
         </button>
+        <button type="button" aria-pressed={ruta} aria-busy={ui.cargandoEntorno && ruta} className={`tb-btn ${ruta ? 'is-sel' : ''} ${ui.cargandoEntorno && ruta ? 'is-loading' : ''}`} onClick={() => setUi({ env: 'ruta', tractor: true })} data-testid="tb-ruta">
+          {t('visor.ruta')}
+        </button>
       </div>
-      <button type="button" className={`tb-btn tb-primary ${active ? 'is-on' : ''}`} aria-pressed={active} title={actionLabel} onClick={() => toggleAnim('accion')} data-testid="tb-accion">
+      <button
+        type="button"
+        className={`tb-btn tb-primary ${active ? 'is-on' : ''}`}
+        aria-pressed={active}
+        aria-disabled={busy}
+        disabled={busy}
+        title={actionLabel}
+        onClick={() => (ruta ? requestVehicle('accion') : toggleAnim('accion'))}
+        data-testid="tb-accion"
+        data-estado={ruta ? vState : undefined}
+      >
         <Icon name={active ? 'rebobinar' : 'play'} size={16} />
-        <span className="tb-label">{active ? t('visor.detener') : t('visor.accion')}</span>
+        <span className="tb-label">{busy ? t(BUSY_LABEL[vState]) : active ? t('visor.detener') : t('visor.accion')}</span>
       </button>
-      {hasTarp ? (
+      {ruta && vState === 'DETENIDO' && ui.vehiculoQuieto ? (
+        <button type="button" className="tb-btn" onClick={() => requestVehicle('arrancar')} data-testid="tb-arrancar">
+          <Icon name="camion" size={16} />
+          <span className="tb-label">{t('visor.ruta.arrancar')}</span>
+        </button>
+      ) : null}
+      {ruta ? (
+        <button type="button" className={`tb-btn ${ui.manejar ? 'is-sel' : ''}`} aria-pressed={ui.manejar} title={t('visor.ruta.manejarAyuda')} onClick={() => setUi({ manejar: !ui.manejar })} data-testid="tb-manejar">
+          <Icon name="eje" size={16} />
+          <span className="tb-label">{t('visor.ruta.manejar')}</span>
+        </button>
+      ) : null}
+      {hasTarp && !ruta ? (
         <button type="button" className={`tb-btn tb-icon ${tarpOpen ? 'is-sel' : ''}`} aria-pressed={tarpOpen} aria-label={tarpLabel} title={tarpLabel} onClick={() => toggleAnim('lona')} data-testid="tb-lona">
           <Icon name="lona" size={18} />
           <span className="tb-label tb-label-wide">{tarpLabel}</span>
         </button>
       ) : null}
-      {hasLift ? (
+      {hasLift && !ruta ? (
         <button type="button" className={`tb-btn tb-icon ${lifted ? 'is-sel' : ''}`} aria-pressed={lifted} aria-label={t('visor.accion.eje')} title={t('visor.accion.eje')} onClick={() => toggleAnim('elevado')} data-testid="tb-eje">
           <Icon name="eje" size={18} />
           <span className="tb-label tb-label-wide">{t('visor.accion.eje')}</span>
@@ -115,7 +159,7 @@ export function ViewerToolbar() {
         </button>
         {more.open ? (
           <div className="popover pop-down pop-right" role="menu">
-            <button type="button" role="menuitemcheckbox" aria-checked={ui.tractor} className={ui.tractor ? 'is-on' : ''} onClick={() => setUi({ tractor: !ui.tractor })} data-testid="tb-tractor">
+            <button type="button" role="menuitemcheckbox" aria-checked={ui.tractor} disabled={ruta} className={ui.tractor ? 'is-on' : ''} onClick={() => setUi({ tractor: !ui.tractor })} data-testid="tb-tractor">
               <Icon name="camion" size={16} />
               {t('visor.accion.tractor')}
               <kbd>T</kbd>
@@ -136,7 +180,7 @@ export function ViewerToolbar() {
           </div>
         ) : null}
       </div>
-      <button type="button" className="tb-btn tb-icon hide-sm" aria-label={t('visor.captura')} title={t('visor.captura')} onClick={() => downloadCapture()} data-testid="tb-captura">
+      <button type="button" className="tb-btn tb-icon hide-sm" aria-label={t('visor.captura')} title={t('visor.captura')} onClick={() => void downloadCapture()} data-testid="tb-captura">
         <Icon name="imagen" size={18} />
       </button>
       <button type="button" className={`tb-btn tb-icon hide-sm ${full ? 'is-sel' : ''}`} aria-pressed={full} aria-label={full ? t('visor.salirPantallaCompleta') : t('visor.pantallaCompleta')} title={full ? t('visor.salirPantallaCompleta') : t('visor.pantallaCompleta')} onClick={toggleViewerFullscreen} data-testid="tb-pantalla">

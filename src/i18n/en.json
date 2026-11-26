@@ -323,5 +323,17 @@
   "legal.banner.titulo": "This configuration exceeds a legal limit",
   "legal.banner.texto": "{lista}. You can still request a quote: the manufacturer will suggest adjustments.",
   "lead.msg.excede": "⚠️ Exceeds a legal limit: {lista}.",
-  "tipo.precioAyuda": "Price with what you have already chosen (dimensions, axles, wheels, colors). It is what you will see when you pick it."
+  "tipo.precioAyuda": "Price with what you have already chosen (dimensions, axles, wheels, colors). It is what you will see when you pick it.",
+  "visor.ruta": "Road",
+  "visor.ruta.frenando": "Braking…",
+  "visor.ruta.abriendo": "Opening…",
+  "visor.ruta.cerrando": "Closing…",
+  "visor.ruta.arrancando": "Pulling away…",
+  "visor.ruta.arrancar": "Drive off",
+  "visor.ruta.manejar": "Drive",
+  "visor.ruta.manejarAyuda": "W / S: throttle and brake · A / D: steering. Let go and the autopilot takes over.",
+  "visor.cam.seguimiento": "Chase",
+  "visor.cam.lateralRuta": "Side tracking",
+  "visor.cam.dron": "Drone",
+  "visor.refinando": "Refining the image…"
 }

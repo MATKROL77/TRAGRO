@@ -323,5 +323,17 @@
   "legal.banner.titulo": "Esta configuração ultrapassa um limite legal",
   "legal.banner.texto": "{lista}. Você pode pedir a cotação mesmo assim: o fabricante vai sugerir os ajustes.",
   "lead.msg.excede": "⚠️ Ultrapassa um limite legal: {lista}.",
-  "tipo.precioAyuda": "Preço com o que você já escolheu (medidas, eixos, rodado, cores). É o que você verá ao escolhê-lo."
+  "tipo.precioAyuda": "Preço com o que você já escolheu (medidas, eixos, rodado, cores). É o que você verá ao escolhê-lo.",
+  "visor.ruta": "Estrada",
+  "visor.ruta.frenando": "Freando…",
+  "visor.ruta.abriendo": "Abrindo…",
+  "visor.ruta.cerrando": "Fechando…",
+  "visor.ruta.arrancando": "Partindo…",
+  "visor.ruta.arrancar": "Partir",
+  "visor.ruta.manejar": "Dirigir",
+  "visor.ruta.manejarAyuda": "W / S: acelerar e frear · A / D: volante. Ao soltar, volta o piloto automático.",
+  "visor.cam.seguimiento": "Seguir",
+  "visor.cam.lateralRuta": "Lateral paralela",
+  "visor.cam.dron": "Drone",
+  "visor.refinando": "Refinando a imagem…"
 }

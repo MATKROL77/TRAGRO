@@ -8,7 +8,10 @@ import { brand } from '@/core/catalog';
 import { applyChange, changeType, defaultConfig } from '@/core/rules';
 import type { AdjustedItem, Config, Lang, LogoConfig, Notice, TextConfig, TypeId, Units, Value } from '@/core/types';
 
-export type EnvId = 'estudio' | 'exterior';
+export type EnvId = 'estudio' | 'exterior' | 'ruta';
+/** Estado del camión en la ruta (espejo de render-kit/vehicle/actionMachine para la UI). */
+export type VehiculoEstado = 'CIRCULANDO' | 'FRENANDO' | 'DETENIDO' | 'ABRIENDO' | 'ABIERTO' | 'CERRANDO' | 'ARRANCANDO';
+export type RutaCam = 'seguimiento' | 'lateral' | 'dron';
 export type Quality = 'alta' | 'media' | 'baja';
 export type PanelTab = 'config' | 'tecnico';
 
@@ -26,6 +29,15 @@ export interface UiState {
   pestana: PanelTab;
   paso: string;
   env: EnvId;
+  /** Cámara elegida en la ruta. */
+  rutaCam: RutaCam;
+  /** Estado del camión en la ruta y si espera que el usuario lo ponga en marcha. */
+  vehiculo: VehiculoEstado;
+  vehiculoQuieto: boolean;
+  /** Control manual en la ruta (teclado / joystick). */
+  manejar: boolean;
+  /** Progreso (0..1) de una captura refinada en curso, o null. */
+  refinando: number | null;
   tractor: boolean;
   hotspots: boolean;
   autoFoco: boolean;
@@ -96,6 +108,11 @@ const initialUi: UiState = {
   pestana: 'config',
   paso: 'tipo',
   env: 'estudio',
+  rutaCam: 'seguimiento',
+  vehiculo: 'CIRCULANDO',
+  vehiculoQuieto: false,
+  manejar: false,
+  refinando: null,
   tractor: false,
   hotspots: true,
   autoFoco: true,
@@ -165,7 +182,7 @@ export const useStore = create<AppState>()(
         activeHotspot: null,
         compare: { a: null, b: null },
         camera: { preset: 'tresCuartos', nonce: nonce++ },
-        ui: { ...s.ui, paso: 'tipo', pestana: 'config', env: 'estudio', tractor: false, luces: false },
+        ui: { ...s.ui, paso: 'tipo', pestana: 'config', env: 'estudio', tractor: false, luces: false, manejar: false },
       })),
     dismissNotice: (key) => set((s) => ({ notices: s.notices.filter((n) => n.key !== key) })),
     undoNotice: (key) => {

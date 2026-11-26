@@ -21,11 +21,19 @@ import { detectTier } from '@/render-kit/quality/detectTier';
 import { TIERS } from '@/render-kit/quality/tiers';
 import { workerStats } from './modelBuilder';
 import { frameCrossfade } from '@/render-kit/transition/FrameCrossfade';
+import { vehicleClock } from './vehicleBus';
+import { FrameAccumulator, applyJitter } from '@/render-kit/refine/accumulator';
+import { findShadowLight, refineState } from '@/render-kit/refine/ProgressiveRefine';
+import { tierSettings } from '@/render-kit/quality/tiers';
+
+let snapAcc: FrameAccumulator | null = null;
 
 // El postprocesado (≈160 KB) se baja aparte, en paralelo con el HDRI: no pesa en la carga inicial.
 const Effects = lazy(() => import('./Effects'));
 // Panel de rendimiento: solo con ?debug=1 (chunk aparte, no entra en el bundle principal).
 const PerfOverlay = lazy(() => import('@/render-kit/debug/PerfOverlay'));
+// Camión circulando en la ruta: se carga con la escena (chunk aparte).
+const RouteController = lazy(() => import('./RouteController'));
 const DEBUG = typeof window !== 'undefined' && /[?&]debug(=1|&|$)/.test(window.location.search);
 /** El benchmark (bench/bench.cjs) pide las muestras por cuadro antes de cargar la página. */
 const BENCH = typeof window !== 'undefined' && (window as unknown as { __benchRec?: boolean }).__benchRec === true;
@@ -87,6 +95,7 @@ function Bridge({ overlay }: { overlay: React.RefObject<HTMLCanvasElement> }) {
       const view = cam.view?.enabled ? { ...cam.view } : null;
       if (view) cam.clearViewOffset();
       rigLock.locked = true;
+      vehicleClock.paused = true;
       c.enableDamping = false;
       c.autoRotate = false;
       let url: string | null = null;
@@ -126,11 +135,95 @@ function Bridge({ overlay }: { overlay: React.RefObject<HTMLCanvasElement> }) {
         c.autoRotate = saved.auto;
         rigLock.locked = false;
         advance(performance.now());
+        vehicleClock.paused = false;
+      }
+      return url;
+    };
+
+    /** Igual que snapshot, pero promediando muestras con jitter hasta `maxMs`. */
+    const snapshotRefined = async (o: SnapshotOptions, maxMs: number, onProgress?: (p: number) => void): Promise<string | null> => {
+      const { gl, camera, controls, size, advance, scene } = get();
+      const model = currentModel.value;
+      const c = controls as unknown as OrbitImpl | null;
+      if (!model || !c) return snapshot(o);
+      const cam = camera as THREE.PerspectiveCamera;
+      const saved = { pos: cam.position.clone(), quat: cam.quaternion.clone(), target: c.target.clone(), dpr: gl.getPixelRatio(), damping: c.enableDamping, auto: c.autoRotate };
+      const canvasAspect = size.width / size.height;
+      const cropAspect = o.width / o.height;
+      const cropW = cropAspect < canvasAspect ? size.height * cropAspect : size.width;
+      const cropH = cropAspect < canvasAspect ? size.height : size.width / cropAspect;
+      let dpr = Math.max(1, o.width / cropW);
+      dpr = Math.min(dpr, 4, Math.sqrt(MAX_PIXELS / (size.width * size.height)));
+      const view = cam.view?.enabled ? { ...cam.view } : null;
+      if (view) cam.clearViewOffset();
+      rigLock.locked = true;
+      vehicleClock.paused = true;
+      refineState.suspended = true;
+      c.enableDamping = false;
+      c.autoRotate = false;
+      let url: string | null = null;
+      const samples = tierSettings(useStore.getState().ui.calidad).refine.samples;
+      try {
+        if (o.preset) {
+          const fovEff = 2 * THREE.MathUtils.radToDeg(Math.atan(Math.tan(THREE.MathUtils.degToRad(FOV / 2)) * Math.min(1, canvasAspect / cropAspect)));
+          const pose = poseFor(o.preset, model, { aspect: cropAspect, fov: fovEff, margin: 0.9, shift: 0, tractor: useStore.getState().ui.tractor });
+          cam.position.copy(pose.position);
+          c.target.copy(pose.target);
+          cam.lookAt(pose.target);
+          cam.updateMatrixWorld();
+        }
+        gl.setPixelRatio(dpr);
+        composerRef.current?.setSize(size.width, size.height);
+        snapAcc ??= new FrameAccumulator();
+        snapAcc.reset();
+        const t0 = performance.now();
+        const light = findShadowLight(scene);
+        const W = size.width * dpr;
+        const H = size.height * dpr;
+        for (let i = 0; i < Math.max(1, samples); i++) {
+          const restore = applyJitter({ camera: cam, light, lightRadius: tierSettings(useStore.getState().ui.calidad).refine.lightRadius, aperture: 0, focusDistance: 20 }, i, W, H);
+          advance(performance.now());
+          restore();
+          snapAcc.add(gl);
+          onProgress?.((i + 1) / samples);
+          if (performance.now() - t0 > maxMs) break;
+          await new Promise<void>((r) => requestAnimationFrame(() => r()));
+        }
+        // El promedio a pantalla y de ahí, recortado, a la imagen (en la misma tarea).
+        advance(performance.now());
+        snapAcc.present(gl);
+        const src = gl.domElement;
+        const sx = ((size.width - cropW) / 2) * dpr;
+        const sy = ((size.height - cropH) / 2) * dpr;
+        const out = document.createElement('canvas');
+        out.width = o.width;
+        out.height = o.height;
+        const ctx = out.getContext('2d');
+        if (ctx) {
+          ctx.imageSmoothingQuality = 'high';
+          ctx.drawImage(src, sx, sy, cropW * dpr, cropH * dpr, 0, 0, o.width, o.height);
+          url = out.toDataURL(o.type ?? 'image/jpeg', o.quality ?? 0.9);
+        }
+      } finally {
+        gl.setPixelRatio(saved.dpr);
+        composerRef.current?.setSize(size.width, size.height);
+        cam.position.copy(saved.pos);
+        cam.quaternion.copy(saved.quat);
+        c.target.copy(saved.target);
+        cam.updateMatrixWorld();
+        if (view) cam.setViewOffset(view.fullWidth, view.fullHeight, view.offsetX, view.offsetY, view.width, view.height);
+        c.enableDamping = saved.damping;
+        c.autoRotate = saved.auto;
+        rigLock.locked = false;
+        refineState.suspended = false;
+        advance(performance.now());
+        vehicleClock.paused = false;
       }
       return url;
     };
 
     registerViewer({
+      snapshotRefined,
       renderNow: () => get().advance(performance.now()),
       invalidate: () => get().invalidate(),
       crossfade: (ms = 260) => {
@@ -188,6 +281,8 @@ function Bridge({ overlay }: { overlay: React.RefObject<HTMLCanvasElement> }) {
 function Quality() {
   const tier = useStore((s) => s.ui.calidad);
   const locked = useStore((s) => s.ui.calidadFija);
+  // En la ruta el camión circula: render continuo, PerformanceMonitor de drei.
+  const continuous = useStore((s) => s.ui.env === 'ruta' && s.ui.vehiculo !== 'DETENIDO' && s.ui.vehiculo !== 'ABIERTO');
   const size = useThree((s) => s.size);
   useEffect(() => {
     if (useStore.getState().ui.calidadFija) return;
@@ -203,11 +298,22 @@ function Quality() {
     <AdaptiveQuality
       tier={tier}
       locked={locked}
+      continuous={continuous}
       onChange={(t) => useStore.getState().setUi({ calidad: t })}
       isActive={isActive}
       onResolution={() => composerRef.current?.setSize(size.width, size.height)}
     />
   );
+}
+
+/** El controlador del camión existe solo con la ruta a la vista. */
+function RouteMount() {
+  const ruta = useStore((s) => s.ui.env === 'ruta');
+  return ruta ? (
+    <Suspense fallback={null}>
+      <RouteController />
+    </Suspense>
+  ) : null;
 }
 
 /** Avisa a la UI cuando el primer cuadro completo ya está en pantalla. */
@@ -254,6 +360,7 @@ export function Viewer() {
         <CameraRig />
         <Bridge overlay={overlay} />
         <Preloader />
+        <RouteMount />
         {DEBUG ? (
           <Suspense fallback={null}>
             <PerfOverlay />

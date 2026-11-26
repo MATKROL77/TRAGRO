@@ -5,7 +5,7 @@ import { useI18n } from '@/i18n';
 import { formatDate, quoteGroups, quoteSubtitle, typeName } from '@/lead/quote';
 import { usePrice, useSpecs } from '@/state/derived';
 import { useStore } from '@/state/store';
-import { captureRenderSet, captureThumb, whenModelCurrent, type RenderSet } from '@/three/capture';
+import { captureRenderSetRefined, captureThumb, whenModelCurrent, type RenderSet } from '@/three/capture';
 import { Icon } from '../Icon';
 import { Button, Modal, StatusDot } from '../primitives';
 import { LegalBanner, TechBody } from '../TechPanel';
@@ -31,7 +31,9 @@ export default function SummaryModal() {
   // Los renders se generan una sola vez, después de pintar el modal.
   useEffect(() => {
     const id = window.setTimeout(() => {
-      void whenModelCurrent().then(() => setRenders(captureRenderSet()));
+      void whenModelCurrent()
+        .then(() => captureRenderSetRefined())
+        .then(setRenders);
       setPending(false);
     }, 90);
     return () => window.clearTimeout(id);
@@ -49,7 +51,7 @@ export default function SummaryModal() {
     try {
       const { downloadQuotePdf } = await import('@/pdf/quotePdf');
       const st = useStore.getState();
-      await downloadQuotePdf({ config: st.config, lang: st.ui.lang, moneda: st.ui.moneda, units: st.ui.unidades, hidePrices: st.ui.preciosOcultos, renders: renders ?? captureRenderSet(), href: window.location.href });
+      await downloadQuotePdf({ config: st.config, lang: st.ui.lang, moneda: st.ui.moneda, units: st.ui.unidades, hidePrices: st.ui.preciosOcultos, renders: renders ?? (await captureRenderSetRefined()), href: window.location.href });
     } catch (e) {
       console.error('[configurador] no se pudo generar el PDF', e);
       setPdfError(true);

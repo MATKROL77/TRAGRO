@@ -19,14 +19,14 @@ export interface TierSettings {
   post: 'alto' | 'medio' | 'bajo';
   /** Densidad de vegetación y objetos de la ruta (0..1). */
   vegetation: number;
-  /** Refinado progresivo al quedarse quieto. */
-  refine: 'pathtracer' | 'acumulativo' | 'ninguno';
+  /** Refinado progresivo al quedarse quieto: muestras, sombras suaves (radio de la luz) y profundidad de campo (apertura, solo estudio). */
+  refine: { samples: number; lightRadius: number; aperture: number };
 }
 
 export const TIER_SETTINGS: Record<Tier, TierSettings> = {
-  alta: { dprMax: 2, movingDpr: 1, shadowMapSize: 2048, cascades: 3, post: 'alto', vegetation: 1, refine: 'pathtracer' },
-  media: { dprMax: 1.5, movingDpr: 0.8, shadowMapSize: 1024, cascades: 2, post: 'medio', vegetation: 0.55, refine: 'acumulativo' },
-  baja: { dprMax: 1, movingDpr: 0.75, shadowMapSize: 1024, cascades: 1, post: 'bajo', vegetation: 0.25, refine: 'ninguno' },
+  alta: { dprMax: 2, movingDpr: 1, shadowMapSize: 2048, cascades: 3, post: 'alto', vegetation: 1, refine: { samples: 96, lightRadius: 0.9, aperture: 0.03 } },
+  media: { dprMax: 1.5, movingDpr: 0.8, shadowMapSize: 1024, cascades: 2, post: 'medio', vegetation: 0.55, refine: { samples: 48, lightRadius: 0.6, aperture: 0 } },
+  baja: { dprMax: 1, movingDpr: 0.75, shadowMapSize: 1024, cascades: 1, post: 'bajo', vegetation: 0.25, refine: { samples: 16, lightRadius: 0, aperture: 0 } },
 };
 
 export function tierSettings(t: Tier): TierSettings {

@@ -20,6 +20,8 @@ export interface ViewerApi {
   crossfade: (ms?: number) => void;
   /** Render fuera de pantalla desde un preset de cámara. */
   snapshot: (o: SnapshotOptions) => string | null;
+  /** Igual, pero refinado: promedio de muestras con jitter (sin aliasing, sombras suaves), con tope de tiempo. */
+  snapshotRefined: (o: SnapshotOptions, maxMs: number, onProgress?: (p: number) => void) => Promise<string | null>;
   invalidate: () => void;
   stats: () => { triangles: number; calls: number; geometries: number; textures: number; fps: number };
   /** Posición y objetivo actuales de la cámara (para pruebas). */

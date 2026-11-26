@@ -20,6 +20,8 @@ import { StepsPanel } from './ui/StepsPanel';
 import { TechTab } from './ui/TechPanel';
 import { useShortcuts } from './ui/useShortcuts';
 import { ViewerToolbar } from './ui/ViewerToolbar';
+import { DriveJoystick } from './ui/DriveJoystick';
+import { RefineProgress } from './ui/RefineProgress';
 
 const SummaryModal = lazy(() => import('./ui/modals/SummaryModal'));
 const LeadModal = lazy(() => import('./ui/modals/LeadModal'));
@@ -206,6 +208,8 @@ export function App() {
               </div>
             )}
             <ViewerToolbar />
+            <DriveJoystick />
+            <RefineProgress />
             {mobile ? null : <CompareFab />}
             <Notices />
             <HotspotCard />

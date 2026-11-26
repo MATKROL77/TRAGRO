@@ -5,7 +5,7 @@ import { useStore } from '@/state/store';
 import { whenIdle } from '@/render-kit/scheduling/idle';
 import { materialLibrary } from './materialsLib';
 import { requestBuffers } from './modelBuilder';
-import { buildTractor, tractorKey, type TractorModel, type TractorOptions } from './parts/tractor';
+import { buildTractor, setCabGlassQuality, tractorKey, type TractorModel, type TractorOptions } from './parts/tractor';
 import { currentModel } from './TrailerObject';
 import { viewer } from './viewerApi';
 
@@ -15,8 +15,12 @@ import { viewer } from './viewerApi';
  * (geometría en el worker, en un momento ocioso) y queda montado: mostrarlo u
  * ocultarlo no genera nada.
  */
+/** Tractor actual (lo mueve el controlador de la ruta). */
+export const currentTractor: { value: TractorModel | null } = { value: null };
+
 export function Tractor() {
-  const show = useStore((s) => s.ui.tractor);
+  // En la ruta el tractor está siempre.
+  const show = useStore((s) => s.ui.tractor || s.ui.env === 'ruta');
   const ready = useStore((s) => s.ready);
   const version = useStore((s) => s.modelVersion);
   const id = useStore((s) => (s.config.sel.tractor === '4x2' ? '4x2' : '6x2'));
@@ -74,12 +78,20 @@ export function Tractor() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [key, show, ready]);
 
-  useEffect(
-    () => () => {
+  useEffect(() => {
+    currentTractor.value = model;
+    return () => {
+      if (currentTractor.value === model) currentTractor.value = null;
       model?.dispose();
-    },
-    [model],
-  );
+    };
+  }, [model]);
+
+  // Vidrio físico con transmisión solo en calidad alta.
+  const high = useStore((s) => s.ui.calidad === 'alta');
+  useEffect(() => {
+    setCabGlassQuality(high);
+    invalidate();
+  }, [high, invalidate]);
 
   useEffect(() => {
     model?.setAluminium(aluminium);
