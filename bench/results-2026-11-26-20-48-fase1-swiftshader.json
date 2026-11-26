@@ -1,0 +1,2393 @@
+{
+  "date": "2026-11-26T20:48:12.484Z",
+  "url": "http://localhost:4173/?q=high",
+  "label": "fase1-swiftshader",
+  "headless": true,
+  "runs": [
+    {
+      "profile": "desktop",
+      "cpuThrottle": 1,
+      "load": {
+        "firstModelFrameMs": 5046,
+        "transferredBytesUntilModel": 1190968,
+        "requestsUntilModel": 15,
+        "gpu": "ANGLE (Google, Vulkan 1.3.0 (SwiftShader Device (Subzero) (0x0000C0DE)), SwiftShader driver)",
+        "programsAtLoad": 33,
+        "warmup": [
+          {
+            "id": "field",
+            "ms": 1361,
+            "programsBefore": 49,
+            "programsAfter": 70
+          },
+          {
+            "id": "road",
+            "ms": 2191,
+            "programsBefore": 70,
+            "programsAfter": 72
+          }
+        ]
+      },
+      "summary": {
+        "maxFrameMs": 1666.6,
+        "worstAction": "Estudio → Campo (siembra)",
+        "actionsWithFramesOver50ms": [
+          "paso 1 (Modelo)",
+          "opción 1 del paso 1",
+          "opción 2 del paso 1",
+          "opción 3 del paso 1",
+          "paso 2 (Surcos)",
+          "opción 1 del paso 2",
+          "opción 2 del paso 2",
+          "opción 3 del paso 2",
+          "paso 3 (Transporte)",
+          "opción 1 del paso 3",
+          "opción 2 del paso 3",
+          "paso 4 (Tolvas)",
+          "opción 1 del paso 4",
+          "opción 2 del paso 4",
+          "opción 3 del paso 4",
+          "paso 5 (Tren de siembra)",
+          "opción 1 del paso 5",
+          "opción 2 del paso 5",
+          "opción 3 del paso 5",
+          "paso 6 (Tecnología)",
+          "opción 1 del paso 6",
+          "opción 2 del paso 6",
+          "opción 3 del paso 6",
+          "paso 7 (Personalizar)",
+          "opción 1 del paso 7",
+          "opción 2 del paso 7",
+          "opción 3 del paso 7",
+          "Estudio → Campo (siembra)",
+          "Campo → Ruta (plegado + andar)",
+          "Ruta → Estudio",
+          "Ver sembrando",
+          "Detener"
+        ],
+        "totalNewPrograms": 1
+      },
+      "drawStatsLastFrame": {
+        "calls": 412,
+        "triangles": 4865710
+      },
+      "actions": [
+        {
+          "action": "paso 1 (Modelo)",
+          "seconds": 2.59,
+          "fpsAvg": 41.7,
+          "fpsP1": 59.5,
+          "maxFrameMs": 816.7,
+          "framesOver50ms": 1,
+          "longTasks": 1,
+          "longestTaskMs": 817,
+          "renderedFrames": 1,
+          "renderedFps": 0.4,
+          "modelRebuildMs": 0,
+          "newPrograms": 0,
+          "newGeometries": 0,
+          "newTextures": 0,
+          "gl": {
+            "texture": {
+              "ms": 0,
+              "calls": 0
+            },
+            "buffer": {
+              "ms": 0,
+              "calls": 0
+            },
+            "compile": {
+              "ms": 0,
+              "calls": 0
+            },
+            "draw": {
+              "ms": 0.1,
+              "calls": 168
+            }
+          }
+        },
+        {
+          "action": "  opción 1 del paso 1",
+          "seconds": 4.13,
+          "fpsAvg": 2.4,
+          "fpsP1": 1.1,
+          "maxFrameMs": 883.3,
+          "framesOver50ms": 4,
+          "longTasks": 4,
+          "longestTaskMs": 881,
+          "renderedFrames": 5,
+          "renderedFps": 1.2,
+          "modelRebuildMs": 0,
+          "newPrograms": 0,
+          "newGeometries": 0,
+          "newTextures": 0,
+          "gl": {
+            "texture": {
+              "ms": 2.7,
+              "calls": 3
+            },
+            "buffer": {
+              "ms": 0,
+              "calls": 0
+            },
+            "compile": {
+              "ms": 0,
+              "calls": 0
+            },
+            "draw": {
+              "ms": 0.6,
+              "calls": 840
+            }
+          }
+        },
+        {
+          "action": "  opción 2 del paso 1",
+          "seconds": 6.53,
+          "fpsAvg": 2.3,
+          "fpsP1": 1.3,
+          "maxFrameMs": 783.3,
+          "framesOver50ms": 9,
+          "longTasks": 10,
+          "longestTaskMs": 789,
+          "renderedFrames": 9,
+          "renderedFps": 1.4,
+          "modelRebuildMs": 50.4,
+          "newPrograms": 0,
+          "newGeometries": 0,
+          "newTextures": 0,
+          "gl": {
+            "texture": {
+              "ms": 3.3,
+              "calls": 3
+            },
+            "buffer": {
+              "ms": 0.9,
+              "calls": 163
+            },
+            "compile": {
+              "ms": 0,
+              "calls": 0
+            },
+            "draw": {
+              "ms": 0.6,
+              "calls": 1512
+            }
+          }
+        },
+        {
+          "action": "  opción 3 del paso 1",
+          "seconds": 13.69,
+          "fpsAvg": 1.3,
+          "fpsP1": 1,
+          "maxFrameMs": 1033.4,
+          "framesOver50ms": 15,
+          "longTasks": 16,
+          "longestTaskMs": 1038,
+          "renderedFrames": 15,
+          "renderedFps": 1.1,
+          "modelRebuildMs": 52.4,
+          "newPrograms": 0,
+          "newGeometries": 0,
+          "newTextures": 0,
+          "gl": {
+            "texture": {
+              "ms": 4,
+              "calls": 3
+            },
+            "buffer": {
+              "ms": 3.7,
+              "calls": 295
+            },
+            "compile": {
+              "ms": 0,
+              "calls": 0
+            },
+            "draw": {
+              "ms": 3.8,
+              "calls": 2454
+            }
+          }
+        },
+        {
+          "action": "paso 2 (Surcos)",
+          "seconds": 9.65,
+          "fpsAvg": 17,
+          "fpsP1": 1,
+          "maxFrameMs": 1000,
+          "framesOver50ms": 9,
+          "longTasks": 9,
+          "longestTaskMs": 989,
+          "renderedFrames": 8,
+          "renderedFps": 0.8,
+          "modelRebuildMs": 0,
+          "newPrograms": 0,
+          "newGeometries": 0,
+          "newTextures": 0,
+          "gl": {
+            "texture": {
+              "ms": 0,
+              "calls": 0
+            },
+            "buffer": {
+              "ms": 0.4,
+              "calls": 132
+            },
+            "compile": {
+              "ms": 0,
+              "calls": 0
+            },
+            "draw": {
+              "ms": 0.6,
+              "calls": 1289
+            }
+          }
+        },
+        {
+          "action": "  opción 1 del paso 2",
+          "seconds": 2.75,
+          "fpsAvg": 2.5,
+          "fpsP1": 1.1,
+          "maxFrameMs": 933.3,
+          "framesOver50ms": 2,
+          "longTasks": 2,
+          "longestTaskMs": 939,
+          "renderedFrames": 3,
+          "renderedFps": 1.1,
+          "modelRebuildMs": 0,
+          "newPrograms": 0,
+          "newGeometries": 0,
+          "newTextures": 0,
+          "gl": {
+            "texture": {
+              "ms": 0,
+              "calls": 0
+            },
+            "buffer": {
+              "ms": 0,
+              "calls": 0
+            },
+            "compile": {
+              "ms": 0,
+              "calls": 0
+            },
+            "draw": {
+              "ms": 0.2,
+              "calls": 504
+            }
+          }
+        },
+        {
+          "action": "  opción 2 del paso 2",
+          "seconds": 11.72,
+          "fpsAvg": 1.5,
+          "fpsP1": 1,
+          "maxFrameMs": 966.6,
+          "framesOver50ms": 14,
+          "longTasks": 14,
+          "longestTaskMs": 955,
+          "renderedFrames": 14,
+          "renderedFps": 1.2,
+          "modelRebuildMs": 72.3,
+          "newPrograms": 0,
+          "newGeometries": 0,
+          "newTextures": 0,
+          "gl": {
+            "texture": {
+              "ms": 0,
+              "calls": 0
+            },
+            "buffer": {
+              "ms": 1.4,
+              "calls": 295
+            },
+            "compile": {
+              "ms": 0,
+              "calls": 0
+            },
+            "draw": {
+              "ms": 1.3,
+              "calls": 2352
+            }
+          }
+        },
+        {
+          "action": "  opción 3 del paso 2",
+          "seconds": 12.38,
+          "fpsAvg": 1.5,
+          "fpsP1": 1,
+          "maxFrameMs": 966.6,
+          "framesOver50ms": 14,
+          "longTasks": 14,
+          "longestTaskMs": 973,
+          "renderedFrames": 14,
+          "renderedFps": 1.1,
+          "modelRebuildMs": 59.6,
+          "newPrograms": 0,
+          "newGeometries": 0,
+          "newTextures": 0,
+          "gl": {
+            "texture": {
+              "ms": 0,
+              "calls": 0
+            },
+            "buffer": {
+              "ms": 0.6,
+              "calls": 295
+            },
+            "compile": {
+              "ms": 0,
+              "calls": 0
+            },
+            "draw": {
+              "ms": 1.6,
+              "calls": 2352
+            }
+          }
+        },
+        {
+          "action": "paso 3 (Transporte)",
+          "seconds": 10.05,
+          "fpsAvg": 2.3,
+          "fpsP1": 1,
+          "maxFrameMs": 966.6,
+          "framesOver50ms": 13,
+          "longTasks": 12,
+          "longestTaskMs": 928,
+          "renderedFrames": 12,
+          "renderedFps": 1.2,
+          "modelRebuildMs": 51.7,
+          "newPrograms": 0,
+          "newGeometries": 0,
+          "newTextures": 0,
+          "gl": {
+            "texture": {
+              "ms": 0,
+              "calls": 0
+            },
+            "buffer": {
+              "ms": 1.6,
+              "calls": 295
+            },
+            "compile": {
+              "ms": 0,
+              "calls": 0
+            },
+            "draw": {
+              "ms": 1,
+              "calls": 2008
+            }
+          }
+        },
+        {
+          "action": "  opción 1 del paso 3",
+          "seconds": 2.64,
+          "fpsAvg": 2.7,
+          "fpsP1": 1.2,
+          "maxFrameMs": 850,
+          "framesOver50ms": 2,
+          "longTasks": 2,
+          "longestTaskMs": 834,
+          "renderedFrames": 3,
+          "renderedFps": 1.1,
+          "modelRebuildMs": 0,
+          "newPrograms": 0,
+          "newGeometries": 0,
+          "newTextures": 0,
+          "gl": {
+            "texture": {
+              "ms": 0,
+              "calls": 0
+            },
+            "buffer": {
+              "ms": 0,
+              "calls": 0
+            },
+            "compile": {
+              "ms": 0,
+              "calls": 0
+            },
+            "draw": {
+              "ms": 0.2,
+              "calls": 478
+            }
+          }
+        },
+        {
+          "action": "  opción 2 del paso 3",
+          "seconds": 6.7,
+          "fpsAvg": 1.2,
+          "fpsP1": 1.1,
+          "maxFrameMs": 900,
+          "framesOver50ms": 8,
+          "longTasks": 8,
+          "longestTaskMs": 904,
+          "renderedFrames": 8,
+          "renderedFps": 1.2,
+          "modelRebuildMs": 96.3,
+          "newPrograms": 0,
+          "newGeometries": 15,
+          "newTextures": 0,
+          "gl": {
+            "texture": {
+              "ms": 0,
+              "calls": 0
+            },
+            "buffer": {
+              "ms": 0.7,
+              "calls": 211
+            },
+            "compile": {
+              "ms": 0,
+              "calls": 0
+            },
+            "draw": {
+              "ms": 1.6,
+              "calls": 1212
+            }
+          }
+        },
+        {
+          "action": "  opción 3 del paso 3",
+          "seconds": 2.51,
+          "fpsAvg": 60.2,
+          "fpsP1": 59.5,
+          "maxFrameMs": 16.8,
+          "framesOver50ms": 0,
+          "longTasks": 0,
+          "longestTaskMs": 0,
+          "renderedFrames": 0,
+          "renderedFps": 0,
+          "modelRebuildMs": 0,
+          "newPrograms": 0,
+          "newGeometries": 0,
+          "newTextures": 0,
+          "gl": {
+            "texture": {
+              "ms": 0,
+              "calls": 0
+            },
+            "buffer": {
+              "ms": 0,
+              "calls": 0
+            },
+            "compile": {
+              "ms": 0,
+              "calls": 0
+            },
+            "draw": {
+              "ms": 0,
+              "calls": 0
+            }
+          }
+        },
+        {
+          "action": "paso 4 (Tolvas)",
+          "seconds": 3.05,
+          "fpsAvg": 3,
+          "fpsP1": 1.1,
+          "maxFrameMs": 949.9,
+          "framesOver50ms": 2,
+          "longTasks": 2,
+          "longestTaskMs": 960,
+          "renderedFrames": 3,
+          "renderedFps": 1,
+          "modelRebuildMs": 0,
+          "newPrograms": 0,
+          "newGeometries": 0,
+          "newTextures": 0,
+          "gl": {
+            "texture": {
+              "ms": 0,
+              "calls": 0
+            },
+            "buffer": {
+              "ms": 0,
+              "calls": 0
+            },
+            "compile": {
+              "ms": 0,
+              "calls": 0
+            },
+            "draw": {
+              "ms": 0.2,
+              "calls": 458
+            }
+          }
+        },
+        {
+          "action": "  opción 1 del paso 4",
+          "seconds": 3.18,
+          "fpsAvg": 2.2,
+          "fpsP1": 0.9,
+          "maxFrameMs": 1066.7,
+          "framesOver50ms": 2,
+          "longTasks": 2,
+          "longestTaskMs": 1048,
+          "renderedFrames": 3,
+          "renderedFps": 0.9,
+          "modelRebuildMs": 0,
+          "newPrograms": 0,
+          "newGeometries": 0,
+          "newTextures": 0,
+          "gl": {
+            "texture": {
+              "ms": 0,
+              "calls": 0
+            },
+            "buffer": {
+              "ms": 0,
+              "calls": 0
+            },
+            "compile": {
+              "ms": 0,
+              "calls": 0
+            },
+            "draw": {
+              "ms": 0.3,
+              "calls": 435
+            }
+          }
+        },
+        {
+          "action": "  opción 2 del paso 4",
+          "seconds": 12.69,
+          "fpsAvg": 1.3,
+          "fpsP1": 0.9,
+          "maxFrameMs": 1066.6,
+          "framesOver50ms": 13,
+          "longTasks": 13,
+          "longestTaskMs": 1058,
+          "renderedFrames": 13,
+          "renderedFps": 1,
+          "modelRebuildMs": 139.9,
+          "newPrograms": 0,
+          "newGeometries": 19,
+          "newTextures": 0,
+          "gl": {
+            "texture": {
+              "ms": 0,
+              "calls": 0
+            },
+            "buffer": {
+              "ms": 2,
+              "calls": 228
+            },
+            "compile": {
+              "ms": 0,
+              "calls": 0
+            },
+            "draw": {
+              "ms": 0.9,
+              "calls": 1931
+            }
+          }
+        },
+        {
+          "action": "  opción 3 del paso 4",
+          "seconds": 15.02,
+          "fpsAvg": 1.2,
+          "fpsP1": 0.8,
+          "maxFrameMs": 1283.2,
+          "framesOver50ms": 15,
+          "longTasks": 14,
+          "longestTaskMs": 1275,
+          "renderedFrames": 15,
+          "renderedFps": 1,
+          "modelRebuildMs": 120.4,
+          "newPrograms": 0,
+          "newGeometries": 22,
+          "newTextures": 0,
+          "gl": {
+            "texture": {
+              "ms": 0,
+              "calls": 0
+            },
+            "buffer": {
+              "ms": 1.6,
+              "calls": 228
+            },
+            "compile": {
+              "ms": 0,
+              "calls": 0
+            },
+            "draw": {
+              "ms": 1.6,
+              "calls": 2303
+            }
+          }
+        },
+        {
+          "action": "paso 5 (Tren de siembra)",
+          "seconds": 13.27,
+          "fpsAvg": 1.3,
+          "fpsP1": 1,
+          "maxFrameMs": 1033.3,
+          "framesOver50ms": 14,
+          "longTasks": 13,
+          "longestTaskMs": 1039,
+          "renderedFrames": 14,
+          "renderedFps": 1.1,
+          "modelRebuildMs": 78,
+          "newPrograms": 0,
+          "newGeometries": 15,
+          "newTextures": 0,
+          "gl": {
+            "texture": {
+              "ms": 0,
+              "calls": 0
+            },
+            "buffer": {
+              "ms": 1.1,
+              "calls": 203
+            },
+            "compile": {
+              "ms": 0,
+              "calls": 0
+            },
+            "draw": {
+              "ms": 1.6,
+              "calls": 2053
+            }
+          }
+        },
+        {
+          "action": "  opción 1 del paso 5",
+          "seconds": 3.07,
+          "fpsAvg": 2.6,
+          "fpsP1": 1,
+          "maxFrameMs": 1016.7,
+          "framesOver50ms": 2,
+          "longTasks": 2,
+          "longestTaskMs": 1026,
+          "renderedFrames": 3,
+          "renderedFps": 1,
+          "modelRebuildMs": 0,
+          "newPrograms": 0,
+          "newGeometries": 0,
+          "newTextures": 0,
+          "gl": {
+            "texture": {
+              "ms": 0,
+              "calls": 0
+            },
+            "buffer": {
+              "ms": 0,
+              "calls": 0
+            },
+            "compile": {
+              "ms": 0,
+              "calls": 0
+            },
+            "draw": {
+              "ms": 0.3,
+              "calls": 419
+            }
+          }
+        },
+        {
+          "action": "  opción 2 del paso 5",
+          "seconds": 12.34,
+          "fpsAvg": 1.3,
+          "fpsP1": 0.9,
+          "maxFrameMs": 1066.6,
+          "framesOver50ms": 13,
+          "longTasks": 12,
+          "longestTaskMs": 1051,
+          "renderedFrames": 13,
+          "renderedFps": 1.1,
+          "modelRebuildMs": 92.7,
+          "newPrograms": 0,
+          "newGeometries": 20,
+          "newTextures": 0,
+          "gl": {
+            "texture": {
+              "ms": 0,
+              "calls": 0
+            },
+            "buffer": {
+              "ms": 1.4,
+              "calls": 203
+            },
+            "compile": {
+              "ms": 0,
+              "calls": 0
+            },
+            "draw": {
+              "ms": 1.2,
+              "calls": 1829
+            }
+          }
+        },
+        {
+          "action": "  opción 3 del paso 5",
+          "seconds": 14.22,
+          "fpsAvg": 1.3,
+          "fpsP1": 1,
+          "maxFrameMs": 1033.2,
+          "framesOver50ms": 15,
+          "longTasks": 14,
+          "longestTaskMs": 1028,
+          "renderedFrames": 15,
+          "renderedFps": 1.1,
+          "modelRebuildMs": 111.3,
+          "newPrograms": 0,
+          "newGeometries": 22,
+          "newTextures": 0,
+          "gl": {
+            "texture": {
+              "ms": 0,
+              "calls": 0
+            },
+            "buffer": {
+              "ms": 1.5,
+              "calls": 211
+            },
+            "compile": {
+              "ms": 0,
+              "calls": 0
+            },
+            "draw": {
+              "ms": 1.9,
+              "calls": 2115
+            }
+          }
+        },
+        {
+          "action": "paso 6 (Tecnología)",
+          "seconds": 13.44,
+          "fpsAvg": 1.3,
+          "fpsP1": 0.9,
+          "maxFrameMs": 1133.3,
+          "framesOver50ms": 14,
+          "longTasks": 14,
+          "longestTaskMs": 1131,
+          "renderedFrames": 14,
+          "renderedFps": 1,
+          "modelRebuildMs": 93.1,
+          "newPrograms": 0,
+          "newGeometries": -2,
+          "newTextures": 0,
+          "gl": {
+            "texture": {
+              "ms": 0,
+              "calls": 0
+            },
+            "buffer": {
+              "ms": 0.8,
+              "calls": 201
+            },
+            "compile": {
+              "ms": 0,
+              "calls": 0
+            },
+            "draw": {
+              "ms": 1.1,
+              "calls": 1982
+            }
+          }
+        },
+        {
+          "action": "  opción 1 del paso 6",
+          "seconds": 5,
+          "fpsAvg": 2.2,
+          "fpsP1": 0.9,
+          "maxFrameMs": 1099.9,
+          "framesOver50ms": 4,
+          "longTasks": 4,
+          "longestTaskMs": 1106,
+          "renderedFrames": 5,
+          "renderedFps": 1,
+          "modelRebuildMs": 0,
+          "newPrograms": 0,
+          "newGeometries": 0,
+          "newTextures": 0,
+          "gl": {
+            "texture": {
+              "ms": 0,
+              "calls": 0
+            },
+            "buffer": {
+              "ms": 0,
+              "calls": 0
+            },
+            "compile": {
+              "ms": 0,
+              "calls": 0
+            },
+            "draw": {
+              "ms": 0.7,
+              "calls": 685
+            }
+          }
+        },
+        {
+          "action": "  opción 2 del paso 6",
+          "seconds": 5.79,
+          "fpsAvg": 2.1,
+          "fpsP1": 1,
+          "maxFrameMs": 1033.2,
+          "framesOver50ms": 6,
+          "longTasks": 5,
+          "longestTaskMs": 1007,
+          "renderedFrames": 6,
+          "renderedFps": 1,
+          "modelRebuildMs": 59.4,
+          "newPrograms": 0,
+          "newGeometries": 7,
+          "newTextures": 0,
+          "gl": {
+            "texture": {
+              "ms": 0,
+              "calls": 0
+            },
+            "buffer": {
+              "ms": 1.2,
+              "calls": 161
+            },
+            "compile": {
+              "ms": 0,
+              "calls": 0
+            },
+            "draw": {
+              "ms": 0.4,
+              "calls": 728
+            }
+          }
+        },
+        {
+          "action": "  opción 3 del paso 6",
+          "seconds": 9.41,
+          "fpsAvg": 1.4,
+          "fpsP1": 1,
+          "maxFrameMs": 1016.7,
+          "framesOver50ms": 10,
+          "longTasks": 9,
+          "longestTaskMs": 983,
+          "renderedFrames": 10,
+          "renderedFps": 1.1,
+          "modelRebuildMs": 57.5,
+          "newPrograms": 0,
+          "newGeometries": -1,
+          "newTextures": 0,
+          "gl": {
+            "texture": {
+              "ms": 0,
+              "calls": 0
+            },
+            "buffer": {
+              "ms": 0.9,
+              "calls": 169
+            },
+            "compile": {
+              "ms": 0,
+              "calls": 0
+            },
+            "draw": {
+              "ms": 0.9,
+              "calls": 1183
+            }
+          }
+        },
+        {
+          "action": "paso 7 (Personalizar)",
+          "seconds": 5.93,
+          "fpsAvg": 5.1,
+          "fpsP1": 0.9,
+          "maxFrameMs": 1066.6,
+          "framesOver50ms": 8,
+          "longTasks": 8,
+          "longestTaskMs": 1061,
+          "renderedFrames": 7,
+          "renderedFps": 1.2,
+          "modelRebuildMs": 59.1,
+          "newPrograms": 0,
+          "newGeometries": 28,
+          "newTextures": 0,
+          "gl": {
+            "texture": {
+              "ms": 0,
+              "calls": 0
+            },
+            "buffer": {
+              "ms": 1.1,
+              "calls": 196
+            },
+            "compile": {
+              "ms": 0,
+              "calls": 0
+            },
+            "draw": {
+              "ms": 0.8,
+              "calls": 907
+            }
+          }
+        },
+        {
+          "action": "  opción 1 del paso 7",
+          "seconds": 2.59,
+          "fpsAvg": 24.3,
+          "fpsP1": 1.3,
+          "maxFrameMs": 800,
+          "framesOver50ms": 2,
+          "longTasks": 2,
+          "longestTaskMs": 808,
+          "renderedFrames": 2,
+          "renderedFps": 0.8,
+          "modelRebuildMs": 0,
+          "newPrograms": 0,
+          "newGeometries": 0,
+          "newTextures": 0,
+          "gl": {
+            "texture": {
+              "ms": 2.9,
+              "calls": 3
+            },
+            "buffer": {
+              "ms": 0,
+              "calls": 0
+            },
+            "compile": {
+              "ms": 0,
+              "calls": 0
+            },
+            "draw": {
+              "ms": 0.1,
+              "calls": 286
+            }
+          }
+        },
+        {
+          "action": "  opción 2 del paso 7",
+          "seconds": 2.58,
+          "fpsAvg": 22.1,
+          "fpsP1": 1.2,
+          "maxFrameMs": 850,
+          "framesOver50ms": 2,
+          "longTasks": 2,
+          "longestTaskMs": 844,
+          "renderedFrames": 2,
+          "renderedFps": 0.8,
+          "modelRebuildMs": 0,
+          "newPrograms": 0,
+          "newGeometries": 0,
+          "newTextures": 0,
+          "gl": {
+            "texture": {
+              "ms": 3.1,
+              "calls": 3
+            },
+            "buffer": {
+              "ms": 0,
+              "calls": 0
+            },
+            "compile": {
+              "ms": 0,
+              "calls": 0
+            },
+            "draw": {
+              "ms": 0.1,
+              "calls": 286
+            }
+          }
+        },
+        {
+          "action": "  opción 3 del paso 7",
+          "seconds": 2.6,
+          "fpsAvg": 26.2,
+          "fpsP1": 1.3,
+          "maxFrameMs": 783.3,
+          "framesOver50ms": 2,
+          "longTasks": 2,
+          "longestTaskMs": 792,
+          "renderedFrames": 2,
+          "renderedFps": 0.8,
+          "modelRebuildMs": 0,
+          "newPrograms": 0,
+          "newGeometries": 0,
+          "newTextures": 0,
+          "gl": {
+            "texture": {
+              "ms": 2.9,
+              "calls": 3
+            },
+            "buffer": {
+              "ms": 0,
+              "calls": 0
+            },
+            "compile": {
+              "ms": 0,
+              "calls": 0
+            },
+            "draw": {
+              "ms": 0.1,
+              "calls": 286
+            }
+          }
+        },
+        {
+          "action": "Estudio → Campo (siembra)",
+          "seconds": 6.78,
+          "fpsAvg": 1.5,
+          "fpsP1": 0.6,
+          "maxFrameMs": 1666.6,
+          "framesOver50ms": 5,
+          "longTasks": 5,
+          "longestTaskMs": 1650,
+          "renderedFrames": 6,
+          "renderedFps": 0.9,
+          "modelRebuildMs": 0,
+          "newPrograms": 1,
+          "newGeometries": 10,
+          "newTextures": 0,
+          "gl": {
+            "texture": {
+              "ms": 3.5,
+              "calls": 12
+            },
+            "buffer": {
+              "ms": 1.2,
+              "calls": 112
+            },
+            "compile": {
+              "ms": 116.3,
+              "calls": 721
+            },
+            "draw": {
+              "ms": 0.7,
+              "calls": 1218
+            }
+          }
+        },
+        {
+          "action": "Campo → Ruta (plegado + andar)",
+          "seconds": 27.16,
+          "fpsAvg": 1,
+          "fpsP1": 0.9,
+          "maxFrameMs": 1116.7,
+          "framesOver50ms": 27,
+          "longTasks": 26,
+          "longestTaskMs": 1105,
+          "renderedFrames": 27,
+          "renderedFps": 1,
+          "modelRebuildMs": 0,
+          "newPrograms": 0,
+          "newGeometries": 0,
+          "newTextures": 0,
+          "gl": {
+            "texture": {
+              "ms": 0,
+              "calls": 0
+            },
+            "buffer": {
+              "ms": 4.9,
+              "calls": 405
+            },
+            "compile": {
+              "ms": 0,
+              "calls": 0
+            },
+            "draw": {
+              "ms": 3.8,
+              "calls": 5562
+            }
+          }
+        },
+        {
+          "action": "Ruta → Estudio",
+          "seconds": 24.65,
+          "fpsAvg": 1,
+          "fpsP1": 0.9,
+          "maxFrameMs": 1166.7,
+          "framesOver50ms": 25,
+          "longTasks": 24,
+          "longestTaskMs": 1174,
+          "renderedFrames": 25,
+          "renderedFps": 1,
+          "modelRebuildMs": 0,
+          "newPrograms": 0,
+          "newGeometries": 0,
+          "newTextures": 0,
+          "gl": {
+            "texture": {
+              "ms": 0,
+              "calls": 0
+            },
+            "buffer": {
+              "ms": 4.7,
+              "calls": 375
+            },
+            "compile": {
+              "ms": 0,
+              "calls": 0
+            },
+            "draw": {
+              "ms": 1.6,
+              "calls": 5150
+            }
+          }
+        },
+        {
+          "action": "Ver sembrando",
+          "seconds": 27.73,
+          "fpsAvg": 1,
+          "fpsP1": 0.9,
+          "maxFrameMs": 1166.6,
+          "framesOver50ms": 27,
+          "longTasks": 28,
+          "longestTaskMs": 1172,
+          "renderedFrames": 27,
+          "renderedFps": 1,
+          "modelRebuildMs": 0,
+          "newPrograms": 0,
+          "newGeometries": 0,
+          "newTextures": 0,
+          "gl": {
+            "texture": {
+              "ms": 0,
+              "calls": 0
+            },
+            "buffer": {
+              "ms": 5.5,
+              "calls": 405
+            },
+            "compile": {
+              "ms": 0,
+              "calls": 0
+            },
+            "draw": {
+              "ms": 3,
+              "calls": 5562
+            }
+          }
+        },
+        {
+          "action": "Detener",
+          "seconds": 22.91,
+          "fpsAvg": 1,
+          "fpsP1": 0.9,
+          "maxFrameMs": 1149.9,
+          "framesOver50ms": 22,
+          "longTasks": 23,
+          "longestTaskMs": 1143,
+          "renderedFrames": 22,
+          "renderedFps": 1,
+          "modelRebuildMs": 0,
+          "newPrograms": 0,
+          "newGeometries": 0,
+          "newTextures": 0,
+          "gl": {
+            "texture": {
+              "ms": 0,
+              "calls": 0
+            },
+            "buffer": {
+              "ms": 4.1,
+              "calls": 330
+            },
+            "compile": {
+              "ms": 0,
+              "calls": 0
+            },
+            "draw": {
+              "ms": 2.6,
+              "calls": 4532
+            }
+          }
+        }
+      ]
+    },
+    {
+      "profile": "mobile",
+      "cpuThrottle": 4,
+      "load": {
+        "firstModelFrameMs": 6266,
+        "transferredBytesUntilModel": 1190968,
+        "requestsUntilModel": 15,
+        "gpu": "ANGLE (Google, Vulkan 1.3.0 (SwiftShader Device (Subzero) (0x0000C0DE)), SwiftShader driver)",
+        "programsAtLoad": 33,
+        "warmup": [
+          {
+            "id": "field",
+            "ms": 2009,
+            "programsBefore": 49,
+            "programsAfter": 70
+          },
+          {
+            "id": "road",
+            "ms": 3481,
+            "programsBefore": 70,
+            "programsAfter": 72
+          }
+        ]
+      },
+      "summary": {
+        "maxFrameMs": 1633.4,
+        "worstAction": "Estudio → Campo (siembra)",
+        "actionsWithFramesOver50ms": [
+          "paso 1 (Modelo)",
+          "opción 1 del paso 1",
+          "opción 2 del paso 1",
+          "opción 3 del paso 1",
+          "paso 2 (Surcos)",
+          "opción 1 del paso 2",
+          "opción 2 del paso 2",
+          "opción 3 del paso 2",
+          "paso 3 (Transporte)",
+          "opción 1 del paso 3",
+          "opción 2 del paso 3",
+          "opción 3 del paso 3",
+          "paso 4 (Tolvas)",
+          "opción 1 del paso 4",
+          "opción 2 del paso 4",
+          "opción 3 del paso 4",
+          "paso 5 (Tren de siembra)",
+          "opción 1 del paso 5",
+          "opción 2 del paso 5",
+          "opción 3 del paso 5",
+          "paso 6 (Tecnología)",
+          "opción 1 del paso 6",
+          "opción 2 del paso 6",
+          "opción 3 del paso 6",
+          "paso 7 (Personalizar)",
+          "opción 1 del paso 7",
+          "opción 2 del paso 7",
+          "opción 3 del paso 7",
+          "Estudio → Campo (siembra)",
+          "Campo → Ruta (plegado + andar)",
+          "Ruta → Estudio",
+          "Ver sembrando",
+          "Detener"
+        ],
+        "totalNewPrograms": 1
+      },
+      "drawStatsLastFrame": {
+        "calls": 450,
+        "triangles": 5041514
+      },
+      "actions": [
+        {
+          "action": "paso 1 (Modelo)",
+          "seconds": 19.16,
+          "fpsAvg": 1.5,
+          "fpsP1": 1.3,
+          "maxFrameMs": 783.3,
+          "framesOver50ms": 28,
+          "longTasks": 28,
+          "longestTaskMs": 770,
+          "renderedFrames": 28,
+          "renderedFps": 1.5,
+          "modelRebuildMs": 0,
+          "newPrograms": 0,
+          "newGeometries": 0,
+          "newTextures": 0,
+          "gl": {
+            "texture": {
+              "ms": 0,
+              "calls": 0
+            },
+            "buffer": {
+              "ms": 0,
+              "calls": 0
+            },
+            "compile": {
+              "ms": 0,
+              "calls": 0
+            },
+            "draw": {
+              "ms": 22.8,
+              "calls": 4704
+            }
+          }
+        },
+        {
+          "action": "  opción 1 del paso 1",
+          "seconds": 11.51,
+          "fpsAvg": 1.8,
+          "fpsP1": 1.2,
+          "maxFrameMs": 816.5,
+          "framesOver50ms": 16,
+          "longTasks": 16,
+          "longestTaskMs": 791,
+          "renderedFrames": 16,
+          "renderedFps": 1.4,
+          "modelRebuildMs": 0,
+          "newPrograms": 0,
+          "newGeometries": 0,
+          "newTextures": 0,
+          "gl": {
+            "texture": {
+              "ms": 13.5,
+              "calls": 3
+            },
+            "buffer": {
+              "ms": 0,
+              "calls": 0
+            },
+            "compile": {
+              "ms": 0,
+              "calls": 0
+            },
+            "draw": {
+              "ms": 7.6,
+              "calls": 2688
+            }
+          }
+        },
+        {
+          "action": "  opción 2 del paso 1",
+          "seconds": 15.41,
+          "fpsAvg": 1.8,
+          "fpsP1": 1.2,
+          "maxFrameMs": 833.3,
+          "framesOver50ms": 22,
+          "longTasks": 21,
+          "longestTaskMs": 832,
+          "renderedFrames": 22,
+          "renderedFps": 1.4,
+          "modelRebuildMs": 290.7,
+          "newPrograms": 0,
+          "newGeometries": 0,
+          "newTextures": 0,
+          "gl": {
+            "texture": {
+              "ms": 17.3,
+              "calls": 3
+            },
+            "buffer": {
+              "ms": 4.1,
+              "calls": 163
+            },
+            "compile": {
+              "ms": 0,
+              "calls": 0
+            },
+            "draw": {
+              "ms": 10.4,
+              "calls": 3696
+            }
+          }
+        },
+        {
+          "action": "  opción 3 del paso 1",
+          "seconds": 15.99,
+          "fpsAvg": 1.5,
+          "fpsP1": 1.1,
+          "maxFrameMs": 883.3,
+          "framesOver50ms": 21,
+          "longTasks": 21,
+          "longestTaskMs": 878,
+          "renderedFrames": 21,
+          "renderedFps": 1.3,
+          "modelRebuildMs": 228.2,
+          "newPrograms": 0,
+          "newGeometries": 0,
+          "newTextures": 0,
+          "gl": {
+            "texture": {
+              "ms": 13.6,
+              "calls": 3
+            },
+            "buffer": {
+              "ms": 4.6,
+              "calls": 295
+            },
+            "compile": {
+              "ms": 0,
+              "calls": 0
+            },
+            "draw": {
+              "ms": 11.3,
+              "calls": 3454
+            }
+          }
+        },
+        {
+          "action": "paso 2 (Surcos)",
+          "seconds": 19.78,
+          "fpsAvg": 1.2,
+          "fpsP1": 0.9,
+          "maxFrameMs": 1166.7,
+          "framesOver50ms": 24,
+          "longTasks": 24,
+          "longestTaskMs": 1168,
+          "renderedFrames": 24,
+          "renderedFps": 1.2,
+          "modelRebuildMs": 317.3,
+          "newPrograms": 0,
+          "newGeometries": 0,
+          "newTextures": 0,
+          "gl": {
+            "texture": {
+              "ms": 0,
+              "calls": 0
+            },
+            "buffer": {
+              "ms": 6.9,
+              "calls": 295
+            },
+            "compile": {
+              "ms": 0,
+              "calls": 0
+            },
+            "draw": {
+              "ms": 19.7,
+              "calls": 3974
+            }
+          }
+        },
+        {
+          "action": "  opción 1 del paso 2",
+          "seconds": 19.87,
+          "fpsAvg": 1.3,
+          "fpsP1": 1.1,
+          "maxFrameMs": 900,
+          "framesOver50ms": 25,
+          "longTasks": 24,
+          "longestTaskMs": 891,
+          "renderedFrames": 25,
+          "renderedFps": 1.3,
+          "modelRebuildMs": 0,
+          "newPrograms": 0,
+          "newGeometries": 0,
+          "newTextures": 0,
+          "gl": {
+            "texture": {
+              "ms": 0,
+              "calls": 0
+            },
+            "buffer": {
+              "ms": 0,
+              "calls": 0
+            },
+            "compile": {
+              "ms": 0,
+              "calls": 0
+            },
+            "draw": {
+              "ms": 14.6,
+              "calls": 4200
+            }
+          }
+        },
+        {
+          "action": "  opción 2 del paso 2",
+          "seconds": 19.66,
+          "fpsAvg": 1.2,
+          "fpsP1": 1,
+          "maxFrameMs": 983.3,
+          "framesOver50ms": 24,
+          "longTasks": 25,
+          "longestTaskMs": 986,
+          "renderedFrames": 24,
+          "renderedFps": 1.2,
+          "modelRebuildMs": 0,
+          "newPrograms": 0,
+          "newGeometries": 0,
+          "newTextures": 0,
+          "gl": {
+            "texture": {
+              "ms": 0,
+              "calls": 0
+            },
+            "buffer": {
+              "ms": 0,
+              "calls": 0
+            },
+            "compile": {
+              "ms": 0,
+              "calls": 0
+            },
+            "draw": {
+              "ms": 10.8,
+              "calls": 4032
+            }
+          }
+        },
+        {
+          "action": "  opción 3 del paso 2",
+          "seconds": 20.18,
+          "fpsAvg": 1.2,
+          "fpsP1": 1.1,
+          "maxFrameMs": 883.3,
+          "framesOver50ms": 25,
+          "longTasks": 25,
+          "longestTaskMs": 936,
+          "renderedFrames": 25,
+          "renderedFps": 1.2,
+          "modelRebuildMs": 0,
+          "newPrograms": 0,
+          "newGeometries": 0,
+          "newTextures": 0,
+          "gl": {
+            "texture": {
+              "ms": 0,
+              "calls": 0
+            },
+            "buffer": {
+              "ms": 0,
+              "calls": 0
+            },
+            "compile": {
+              "ms": 0,
+              "calls": 0
+            },
+            "draw": {
+              "ms": 15.4,
+              "calls": 4200
+            }
+          }
+        },
+        {
+          "action": "paso 3 (Transporte)",
+          "seconds": 19.91,
+          "fpsAvg": 1.3,
+          "fpsP1": 1.1,
+          "maxFrameMs": 883.3,
+          "framesOver50ms": 25,
+          "longTasks": 25,
+          "longestTaskMs": 874,
+          "renderedFrames": 25,
+          "renderedFps": 1.3,
+          "modelRebuildMs": 0,
+          "newPrograms": 0,
+          "newGeometries": 0,
+          "newTextures": 0,
+          "gl": {
+            "texture": {
+              "ms": 0,
+              "calls": 0
+            },
+            "buffer": {
+              "ms": 0,
+              "calls": 0
+            },
+            "compile": {
+              "ms": 0,
+              "calls": 0
+            },
+            "draw": {
+              "ms": 9.4,
+              "calls": 4200
+            }
+          }
+        },
+        {
+          "action": "  opción 1 del paso 3",
+          "seconds": 18.52,
+          "fpsAvg": 1.3,
+          "fpsP1": 1.1,
+          "maxFrameMs": 899.9,
+          "framesOver50ms": 23,
+          "longTasks": 25,
+          "longestTaskMs": 882,
+          "renderedFrames": 23,
+          "renderedFps": 1.2,
+          "modelRebuildMs": 0,
+          "newPrograms": 0,
+          "newGeometries": 0,
+          "newTextures": 0,
+          "gl": {
+            "texture": {
+              "ms": 0,
+              "calls": 0
+            },
+            "buffer": {
+              "ms": 0,
+              "calls": 0
+            },
+            "compile": {
+              "ms": 0,
+              "calls": 0
+            },
+            "draw": {
+              "ms": 13.4,
+              "calls": 3730
+            }
+          }
+        },
+        {
+          "action": "  opción 2 del paso 3",
+          "seconds": 6.55,
+          "fpsAvg": 1.2,
+          "fpsP1": 1.1,
+          "maxFrameMs": 900,
+          "framesOver50ms": 8,
+          "longTasks": 8,
+          "longestTaskMs": 895,
+          "renderedFrames": 8,
+          "renderedFps": 1.2,
+          "modelRebuildMs": 0,
+          "newPrograms": 0,
+          "newGeometries": 0,
+          "newTextures": 0,
+          "gl": {
+            "texture": {
+              "ms": 0,
+              "calls": 0
+            },
+            "buffer": {
+              "ms": 0,
+              "calls": 0
+            },
+            "compile": {
+              "ms": 0,
+              "calls": 0
+            },
+            "draw": {
+              "ms": 7.4,
+              "calls": 1340
+            }
+          }
+        },
+        {
+          "action": "  opción 3 del paso 3",
+          "seconds": 3.26,
+          "fpsAvg": 47,
+          "fpsP1": 1.4,
+          "maxFrameMs": 866.6,
+          "framesOver50ms": 2,
+          "longTasks": 1,
+          "longestTaskMs": 731,
+          "renderedFrames": 1,
+          "renderedFps": 0.3,
+          "modelRebuildMs": 0,
+          "newPrograms": 0,
+          "newGeometries": 0,
+          "newTextures": 0,
+          "gl": {
+            "texture": {
+              "ms": 0,
+              "calls": 0
+            },
+            "buffer": {
+              "ms": 0,
+              "calls": 0
+            },
+            "compile": {
+              "ms": 0,
+              "calls": 0
+            },
+            "draw": {
+              "ms": 0.2,
+              "calls": 168
+            }
+          }
+        },
+        {
+          "action": "paso 4 (Tolvas)",
+          "seconds": 3.69,
+          "fpsAvg": 2.7,
+          "fpsP1": 1.1,
+          "maxFrameMs": 916.7,
+          "framesOver50ms": 3,
+          "longTasks": 3,
+          "longestTaskMs": 915,
+          "renderedFrames": 4,
+          "renderedFps": 1.1,
+          "modelRebuildMs": 0,
+          "newPrograms": 0,
+          "newGeometries": 0,
+          "newTextures": 0,
+          "gl": {
+            "texture": {
+              "ms": 0,
+              "calls": 0
+            },
+            "buffer": {
+              "ms": 0,
+              "calls": 0
+            },
+            "compile": {
+              "ms": 0,
+              "calls": 0
+            },
+            "draw": {
+              "ms": 1.8,
+              "calls": 603
+            }
+          }
+        },
+        {
+          "action": "  opción 1 del paso 4",
+          "seconds": 4.91,
+          "fpsAvg": 2,
+          "fpsP1": 1,
+          "maxFrameMs": 999.9,
+          "framesOver50ms": 4,
+          "longTasks": 5,
+          "longestTaskMs": 1033,
+          "renderedFrames": 5,
+          "renderedFps": 1,
+          "modelRebuildMs": 0,
+          "newPrograms": 0,
+          "newGeometries": 0,
+          "newTextures": 0,
+          "gl": {
+            "texture": {
+              "ms": 0,
+              "calls": 0
+            },
+            "buffer": {
+              "ms": 0,
+              "calls": 0
+            },
+            "compile": {
+              "ms": 0,
+              "calls": 0
+            },
+            "draw": {
+              "ms": 4.6,
+              "calls": 725
+            }
+          }
+        },
+        {
+          "action": "  opción 2 del paso 4",
+          "seconds": 20.35,
+          "fpsAvg": 1.2,
+          "fpsP1": 1,
+          "maxFrameMs": 966.6,
+          "framesOver50ms": 25,
+          "longTasks": 25,
+          "longestTaskMs": 945,
+          "renderedFrames": 25,
+          "renderedFps": 1.2,
+          "modelRebuildMs": 526.5,
+          "newPrograms": 0,
+          "newGeometries": 27,
+          "newTextures": 0,
+          "gl": {
+            "texture": {
+              "ms": 0,
+              "calls": 0
+            },
+            "buffer": {
+              "ms": 8.4,
+              "calls": 255
+            },
+            "compile": {
+              "ms": 0,
+              "calls": 0
+            },
+            "draw": {
+              "ms": 10.7,
+              "calls": 4227
+            }
+          }
+        },
+        {
+          "action": "  opción 3 del paso 4",
+          "seconds": 19.85,
+          "fpsAvg": 1.2,
+          "fpsP1": 1,
+          "maxFrameMs": 966.7,
+          "framesOver50ms": 24,
+          "longTasks": 23,
+          "longestTaskMs": 953,
+          "renderedFrames": 24,
+          "renderedFps": 1.2,
+          "modelRebuildMs": 0,
+          "newPrograms": 0,
+          "newGeometries": 0,
+          "newTextures": 0,
+          "gl": {
+            "texture": {
+              "ms": 0,
+              "calls": 0
+            },
+            "buffer": {
+              "ms": 0,
+              "calls": 0
+            },
+            "compile": {
+              "ms": 0,
+              "calls": 0
+            },
+            "draw": {
+              "ms": 10.5,
+              "calls": 4151
+            }
+          }
+        },
+        {
+          "action": "paso 5 (Tren de siembra)",
+          "seconds": 15.07,
+          "fpsAvg": 1.2,
+          "fpsP1": 1,
+          "maxFrameMs": 983.4,
+          "framesOver50ms": 18,
+          "longTasks": 19,
+          "longestTaskMs": 979,
+          "renderedFrames": 18,
+          "renderedFps": 1.2,
+          "modelRebuildMs": 0,
+          "newPrograms": 0,
+          "newGeometries": 0,
+          "newTextures": 0,
+          "gl": {
+            "texture": {
+              "ms": 0,
+              "calls": 0
+            },
+            "buffer": {
+              "ms": 0,
+              "calls": 0
+            },
+            "compile": {
+              "ms": 0,
+              "calls": 0
+            },
+            "draw": {
+              "ms": 9.8,
+              "calls": 3204
+            }
+          }
+        },
+        {
+          "action": "  opción 1 del paso 5",
+          "seconds": 19.39,
+          "fpsAvg": 1.3,
+          "fpsP1": 1.2,
+          "maxFrameMs": 849.9,
+          "framesOver50ms": 26,
+          "longTasks": 25,
+          "longestTaskMs": 844,
+          "renderedFrames": 26,
+          "renderedFps": 1.3,
+          "modelRebuildMs": 0,
+          "newPrograms": 0,
+          "newGeometries": 0,
+          "newTextures": 0,
+          "gl": {
+            "texture": {
+              "ms": 0,
+              "calls": 0
+            },
+            "buffer": {
+              "ms": 0,
+              "calls": 0
+            },
+            "compile": {
+              "ms": 0,
+              "calls": 0
+            },
+            "draw": {
+              "ms": 11.8,
+              "calls": 4218
+            }
+          }
+        },
+        {
+          "action": "  opción 2 del paso 5",
+          "seconds": 16.92,
+          "fpsAvg": 1.5,
+          "fpsP1": 1.1,
+          "maxFrameMs": 883.3,
+          "framesOver50ms": 22,
+          "longTasks": 23,
+          "longestTaskMs": 870,
+          "renderedFrames": 22,
+          "renderedFps": 1.3,
+          "modelRebuildMs": 303.8,
+          "newPrograms": 0,
+          "newGeometries": 9,
+          "newTextures": 0,
+          "gl": {
+            "texture": {
+              "ms": 0,
+              "calls": 0
+            },
+            "buffer": {
+              "ms": 5.4,
+              "calls": 198
+            },
+            "compile": {
+              "ms": 0,
+              "calls": 0
+            },
+            "draw": {
+              "ms": 12.3,
+              "calls": 3321
+            }
+          }
+        },
+        {
+          "action": "  opción 3 del paso 5",
+          "seconds": 15.63,
+          "fpsAvg": 1.5,
+          "fpsP1": 1.1,
+          "maxFrameMs": 900,
+          "framesOver50ms": 20,
+          "longTasks": 21,
+          "longestTaskMs": 896,
+          "renderedFrames": 20,
+          "renderedFps": 1.3,
+          "modelRebuildMs": 265.8,
+          "newPrograms": 0,
+          "newGeometries": 20,
+          "newTextures": 0,
+          "gl": {
+            "texture": {
+              "ms": 0,
+              "calls": 0
+            },
+            "buffer": {
+              "ms": 6.3,
+              "calls": 198
+            },
+            "compile": {
+              "ms": 0,
+              "calls": 0
+            },
+            "draw": {
+              "ms": 7.3,
+              "calls": 2808
+            }
+          }
+        },
+        {
+          "action": "paso 6 (Tecnología)",
+          "seconds": 16.79,
+          "fpsAvg": 1.4,
+          "fpsP1": 1.1,
+          "maxFrameMs": 933.3,
+          "framesOver50ms": 21,
+          "longTasks": 22,
+          "longestTaskMs": 936,
+          "renderedFrames": 21,
+          "renderedFps": 1.3,
+          "modelRebuildMs": 444.1,
+          "newPrograms": 0,
+          "newGeometries": 9,
+          "newTextures": 0,
+          "gl": {
+            "texture": {
+              "ms": 0,
+              "calls": 0
+            },
+            "buffer": {
+              "ms": 8.9,
+              "calls": 231
+            },
+            "compile": {
+              "ms": 0,
+              "calls": 0
+            },
+            "draw": {
+              "ms": 12.3,
+              "calls": 3088
+            }
+          }
+        },
+        {
+          "action": "  opción 1 del paso 6",
+          "seconds": 4.74,
+          "fpsAvg": 2.5,
+          "fpsP1": 1.1,
+          "maxFrameMs": 949.9,
+          "framesOver50ms": 4,
+          "longTasks": 5,
+          "longestTaskMs": 941,
+          "renderedFrames": 5,
+          "renderedFps": 1.1,
+          "modelRebuildMs": 0,
+          "newPrograms": 0,
+          "newGeometries": 0,
+          "newTextures": 0,
+          "gl": {
+            "texture": {
+              "ms": 0,
+              "calls": 0
+            },
+            "buffer": {
+              "ms": 0,
+              "calls": 0
+            },
+            "compile": {
+              "ms": 0,
+              "calls": 0
+            },
+            "draw": {
+              "ms": 1.5,
+              "calls": 700
+            }
+          }
+        },
+        {
+          "action": "  opción 2 del paso 6",
+          "seconds": 19.66,
+          "fpsAvg": 1.3,
+          "fpsP1": 1,
+          "maxFrameMs": 966.6,
+          "framesOver50ms": 25,
+          "longTasks": 24,
+          "longestTaskMs": 950,
+          "renderedFrames": 25,
+          "renderedFps": 1.3,
+          "modelRebuildMs": 423.4,
+          "newPrograms": 0,
+          "newGeometries": -4,
+          "newTextures": 0,
+          "gl": {
+            "texture": {
+              "ms": 0,
+              "calls": 0
+            },
+            "buffer": {
+              "ms": 6.8,
+              "calls": 223
+            },
+            "compile": {
+              "ms": 0,
+              "calls": 0
+            },
+            "draw": {
+              "ms": 13.2,
+              "calls": 4063
+            }
+          }
+        },
+        {
+          "action": "  opción 3 del paso 6",
+          "seconds": 16.5,
+          "fpsAvg": 1.3,
+          "fpsP1": 0.9,
+          "maxFrameMs": 1066.6,
+          "framesOver50ms": 20,
+          "longTasks": 21,
+          "longestTaskMs": 1051,
+          "renderedFrames": 20,
+          "renderedFps": 1.2,
+          "modelRebuildMs": 258.5,
+          "newPrograms": 0,
+          "newGeometries": 1,
+          "newTextures": 0,
+          "gl": {
+            "texture": {
+              "ms": 0,
+              "calls": 0
+            },
+            "buffer": {
+              "ms": 3.5,
+              "calls": 161
+            },
+            "compile": {
+              "ms": 0,
+              "calls": 0
+            },
+            "draw": {
+              "ms": 9.5,
+              "calls": 3118
+            }
+          }
+        },
+        {
+          "action": "paso 7 (Personalizar)",
+          "seconds": 15.67,
+          "fpsAvg": 2.7,
+          "fpsP1": 1.2,
+          "maxFrameMs": 866.6,
+          "framesOver50ms": 21,
+          "longTasks": 20,
+          "longestTaskMs": 861,
+          "renderedFrames": 20,
+          "renderedFps": 1.3,
+          "modelRebuildMs": 393.5,
+          "newPrograms": 0,
+          "newGeometries": 20,
+          "newTextures": 0,
+          "gl": {
+            "texture": {
+              "ms": 0,
+              "calls": 0
+            },
+            "buffer": {
+              "ms": 5.2,
+              "calls": 231
+            },
+            "compile": {
+              "ms": 0,
+              "calls": 0
+            },
+            "draw": {
+              "ms": 8.3,
+              "calls": 3280
+            }
+          }
+        },
+        {
+          "action": "  opción 1 del paso 7",
+          "seconds": 4.26,
+          "fpsAvg": 37.6,
+          "fpsP1": 1.3,
+          "maxFrameMs": 833.3,
+          "framesOver50ms": 2,
+          "longTasks": 2,
+          "longestTaskMs": 818,
+          "renderedFrames": 2,
+          "renderedFps": 0.5,
+          "modelRebuildMs": 0,
+          "newPrograms": 0,
+          "newGeometries": 0,
+          "newTextures": 0,
+          "gl": {
+            "texture": {
+              "ms": 14.1,
+              "calls": 3
+            },
+            "buffer": {
+              "ms": 0,
+              "calls": 0
+            },
+            "compile": {
+              "ms": 0,
+              "calls": 0
+            },
+            "draw": {
+              "ms": 0.4,
+              "calls": 328
+            }
+          }
+        },
+        {
+          "action": "  opción 2 del paso 7",
+          "seconds": 4.12,
+          "fpsAvg": 38.9,
+          "fpsP1": 1.4,
+          "maxFrameMs": 766.6,
+          "framesOver50ms": 2,
+          "longTasks": 2,
+          "longestTaskMs": 745,
+          "renderedFrames": 2,
+          "renderedFps": 0.5,
+          "modelRebuildMs": 0,
+          "newPrograms": 0,
+          "newGeometries": 0,
+          "newTextures": 0,
+          "gl": {
+            "texture": {
+              "ms": 12,
+              "calls": 3
+            },
+            "buffer": {
+              "ms": 0,
+              "calls": 0
+            },
+            "compile": {
+              "ms": 0,
+              "calls": 0
+            },
+            "draw": {
+              "ms": 1.8,
+              "calls": 328
+            }
+          }
+        },
+        {
+          "action": "  opción 3 del paso 7",
+          "seconds": 4.2,
+          "fpsAvg": 38.4,
+          "fpsP1": 1.4,
+          "maxFrameMs": 816.6,
+          "framesOver50ms": 2,
+          "longTasks": 2,
+          "longestTaskMs": 788,
+          "renderedFrames": 2,
+          "renderedFps": 0.5,
+          "modelRebuildMs": 0,
+          "newPrograms": 0,
+          "newGeometries": 0,
+          "newTextures": 0,
+          "gl": {
+            "texture": {
+              "ms": 19.3,
+              "calls": 3
+            },
+            "buffer": {
+              "ms": 0,
+              "calls": 0
+            },
+            "compile": {
+              "ms": 0,
+              "calls": 0
+            },
+            "draw": {
+              "ms": 0.9,
+              "calls": 328
+            }
+          }
+        },
+        {
+          "action": "Estudio → Campo (siembra)",
+          "seconds": 8.75,
+          "fpsAvg": 1.5,
+          "fpsP1": 0.6,
+          "maxFrameMs": 1633.4,
+          "framesOver50ms": 7,
+          "longTasks": 10,
+          "longestTaskMs": 1564,
+          "renderedFrames": 8,
+          "renderedFps": 0.9,
+          "modelRebuildMs": 0,
+          "newPrograms": 1,
+          "newGeometries": 5,
+          "newTextures": 0,
+          "gl": {
+            "texture": {
+              "ms": 19.9,
+              "calls": 12
+            },
+            "buffer": {
+              "ms": 6.4,
+              "calls": 124
+            },
+            "compile": {
+              "ms": 124.1,
+              "calls": 721
+            },
+            "draw": {
+              "ms": 8.1,
+              "calls": 1789
+            }
+          }
+        },
+        {
+          "action": "Campo → Ruta (plegado + andar)",
+          "seconds": 27.7,
+          "fpsAvg": 1,
+          "fpsP1": 0.9,
+          "maxFrameMs": 1066.7,
+          "framesOver50ms": 28,
+          "longTasks": 27,
+          "longestTaskMs": 1062,
+          "renderedFrames": 28,
+          "renderedFps": 1,
+          "modelRebuildMs": 0,
+          "newPrograms": 0,
+          "newGeometries": 0,
+          "newTextures": 0,
+          "gl": {
+            "texture": {
+              "ms": 0,
+              "calls": 0
+            },
+            "buffer": {
+              "ms": 23,
+              "calls": 420
+            },
+            "compile": {
+              "ms": 0,
+              "calls": 0
+            },
+            "draw": {
+              "ms": 22.6,
+              "calls": 6300
+            }
+          }
+        },
+        {
+          "action": "Ruta → Estudio",
+          "seconds": 24.92,
+          "fpsAvg": 1,
+          "fpsP1": 0.9,
+          "maxFrameMs": 1116.6,
+          "framesOver50ms": 25,
+          "longTasks": 26,
+          "longestTaskMs": 1123,
+          "renderedFrames": 25,
+          "renderedFps": 1,
+          "modelRebuildMs": 0,
+          "newPrograms": 0,
+          "newGeometries": 0,
+          "newTextures": 0,
+          "gl": {
+            "texture": {
+              "ms": 0,
+              "calls": 0
+            },
+            "buffer": {
+              "ms": 22.5,
+              "calls": 375
+            },
+            "compile": {
+              "ms": 0,
+              "calls": 0
+            },
+            "draw": {
+              "ms": 16.8,
+              "calls": 5625
+            }
+          }
+        },
+        {
+          "action": "Ver sembrando",
+          "seconds": 27.01,
+          "fpsAvg": 1,
+          "fpsP1": 0.9,
+          "maxFrameMs": 1100,
+          "framesOver50ms": 27,
+          "longTasks": 27,
+          "longestTaskMs": 1100,
+          "renderedFrames": 27,
+          "renderedFps": 1,
+          "modelRebuildMs": 0,
+          "newPrograms": 0,
+          "newGeometries": 0,
+          "newTextures": 0,
+          "gl": {
+            "texture": {
+              "ms": 0,
+              "calls": 0
+            },
+            "buffer": {
+              "ms": 25.8,
+              "calls": 405
+            },
+            "compile": {
+              "ms": 0,
+              "calls": 0
+            },
+            "draw": {
+              "ms": 20.9,
+              "calls": 6075
+            }
+          }
+        },
+        {
+          "action": "Detener",
+          "seconds": 22.99,
+          "fpsAvg": 1,
+          "fpsP1": 0.8,
+          "maxFrameMs": 1266.6,
+          "framesOver50ms": 22,
+          "longTasks": 23,
+          "longestTaskMs": 1248,
+          "renderedFrames": 22,
+          "renderedFps": 1,
+          "modelRebuildMs": 0,
+          "newPrograms": 0,
+          "newGeometries": 0,
+          "newTextures": 0,
+          "gl": {
+            "texture": {
+              "ms": 0,
+              "calls": 0
+            },
+            "buffer": {
+              "ms": 21.1,
+              "calls": 330
+            },
+            "compile": {
+              "ms": 0,
+              "calls": 0
+            },
+            "draw": {
+              "ms": 13.5,
+              "calls": 4950
+            }
+          }
+        }
+      ]
+    }
+  ]
+}

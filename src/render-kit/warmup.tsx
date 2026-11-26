@@ -121,10 +121,23 @@ export function SceneWarmup({ targets, extraObjects, allowed = () => true, pause
         gl.setRenderTarget(rt);
         await gl.compileAsync(o, cam, portalScene);
       }
-      // un cuadro oculto: sube texturas/geometrías, genera el PMREM y compila los shaders de sombra
-      gl.setRenderTarget(rt);
-      gl.shadowMap.needsUpdate = true;
-      gl.render(portalScene, cam);
+      // un cuadro oculto: sube texturas/geometrías, genera el PMREM y compila los shaders de sombra.
+      // Los objetos externos (la máquina) se mueven a la escena oculta sólo durante este render
+      // sincrónico y vuelven a su lugar antes del próximo cuadro (el usuario no lo ve).
+      const moved: { o: THREE.Object3D; parent: THREE.Object3D }[] = [];
+      for (const o of extraObjects?.() ?? []) {
+        if (o.parent) {
+          moved.push({ o, parent: o.parent });
+          portalScene.add(o);
+        }
+      }
+      try {
+        gl.setRenderTarget(rt);
+        gl.shadowMap.needsUpdate = true;
+        gl.render(portalScene, cam);
+      } finally {
+        for (const { o, parent } of moved) parent.add(o);
+      }
     } catch {
       /* si algo falla, la escena se compilará al entrar, como antes */
     } finally {
