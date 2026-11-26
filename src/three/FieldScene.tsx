@@ -132,7 +132,7 @@ function FieldTractor() {
     g.position.set(hitch.x, 0, hitch.z + TRACTOR.hitchBehindAxle);
     g.visible = show && m.state.poseT < 0.02;
     wheels.current.forEach((w, i) => {
-      const r = i < 2 ? TRACTOR.rearR : TRACTOR.frontR;
+      const r = i < 4 ? TRACTOR.rearR : TRACTOR.frontR;
       w.rotation.x = runtime.distance / r;
     });
   });

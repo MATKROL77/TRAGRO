@@ -17,8 +17,16 @@ let ktx2Failed = false;
 const pending: (() => void)[] = [];
 const cache = new Map<string, THREE.Texture>();
 
+/** ?ktx2=0: fuerza WebP (diagnóstico / comparación). */
+const NO_KTX2 = typeof window !== 'undefined' && new URLSearchParams(window.location.search).get('ktx2') === '0';
+
 export function initTextures(renderer: THREE.WebGLRenderer, transcoderPath = `${import.meta.env.BASE_URL}basis/`) {
-  if (ktx2) return;
+  if (ktx2 || ktx2Failed) return;
+  if (NO_KTX2) {
+    ktx2Failed = true;
+    pending.splice(0).forEach((fn) => fn());
+    return;
+  }
   try {
     ktx2 = new KTX2Loader().setTranscoderPath(transcoderPath).detectSupport(renderer);
   } catch {

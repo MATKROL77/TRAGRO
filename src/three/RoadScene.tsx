@@ -75,7 +75,7 @@ function RoadTractor() {
     m.getHitch(hitch);
     g.position.set(hitch.x, 0, hitch.z + TRACTOR.hitchBehindAxle);
     g.visible = show && m.state.poseT > 0.985;
-    wheels.current.forEach((w, i) => (w.rotation.x = roadSpeed.d / (i < 2 ? TRACTOR.rearR : TRACTOR.frontR)));
+    wheels.current.forEach((w, i) => (w.rotation.x = roadSpeed.d / (i < 4 ? TRACTOR.rearR : TRACTOR.frontR)));
   });
   return <Tractor ref={ref} wheelRefs={wheels} />;
 }
@@ -133,10 +133,11 @@ export default function RoadScene() {
       <hemisphereLight args={['#cfe0f2', '#7a6a50', 0.22]} />
       {/* sol alineado con el del HDR: las sombras coinciden con el cielo */}
       <KeyLight intensity={3.4} position={sunPosition(SKY_SUN_DIR)} color="#fff0db" />
-      <mesh rotation-x={-Math.PI / 2} position={[0, -0.02, 0]} receiveShadow material={ground.material} geometry={G.ground} />
+      {/* el campo queda 8 cm más abajo que el asfalto (y con polygonOffset): sin pelea de profundidad con buffers de 16 bits */}
+      <mesh rotation-x={-Math.PI / 2} position={[0, -0.08, 0]} receiveShadow material={ground.material} geometry={G.ground} />
       <mesh rotation-x={-Math.PI / 2} position={[roadX, 0.0, 0]} receiveShadow material={mats.asphalt} geometry={G.road} />
       {[-1, 1].map((s) => (
-        <mesh key={s} rotation-x={-Math.PI / 2} position={[roadX + s * (ROAD_W / 2 + SHOULDER / 2), -0.01, 0]} receiveShadow material={mats.gravel} geometry={G.shoulder} />
+        <mesh key={s} rotation-x={-Math.PI / 2} position={[roadX + s * (ROAD_W / 2 + SHOULDER / 2), -0.03, 0]} receiveShadow material={mats.gravel} geometry={G.shoulder} />
       ))}
       {[-1, 1].map((s) => (
         <mesh key={`e${s}`} rotation-x={-Math.PI / 2} position={[roadX + s * (ROAD_W / 2 - 0.2), 0.004, 0]} material={mats.paint} geometry={G.edge} />

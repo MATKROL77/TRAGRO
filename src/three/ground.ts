@@ -34,6 +34,10 @@ function buildGroundMaterial(opts: { straw: number; soilScale?: number; strawSca
   const { color: strawC, normal: strawN } = strawResidueTextures();
   const uniforms: GroundUniforms = { uOffset: { value: 0 }, uStraw: { value: opts.straw } };
   const m = new THREE.MeshStandardMaterial({ color: '#ffffff', roughness: 0.95, metalness: 0, normalMap: soilN, normalScale: new THREE.Vector2(1.2, 1.2), map: soilC, roughnessMap: soilR });
+  // el suelo siempre detrás de lo que se apoya sobre él (ruta, banquinas, surcos)
+  m.polygonOffset = true;
+  m.polygonOffsetFactor = 2;
+  m.polygonOffsetUnits = 4;
   const ss = (opts.soilScale ?? 0.45).toFixed(3);
   const ws = (opts.strawScale ?? 0.42).toFixed(3);
   m.customProgramCacheKey = () => `ground-${ss}-${ws}`;

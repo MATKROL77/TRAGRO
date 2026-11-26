@@ -21,7 +21,7 @@ for (const [label, vp] of [['desktop', { width: 1440, height: 900 }], ['mobile',
   await page.waitForFunction(() => window.__sp?.store.getState().viewerReady === true, null, { timeout: 240000 });
   await page.evaluate(() => { window.__sp.runtime.timeScale = 4; const s = window.__sp.store.getState(); if (s.showHotspots) s.toggle('showHotspots'); });
   await page.addStyleTag({ content: '.price-float,.topbar,.compare-fab,.toast-zone,.sim,.hs-card,.pose-badge,.dim-label{visibility:hidden!important}' });
-  const shot = async (name, wait) => { await page.waitForTimeout(wait); await page.locator('.viewer').screenshot({ path: `${OUT}/${label}-${name}.png` }); };
+  const shot = async (name, wait) => { await page.waitForTimeout(wait); await page.locator('.viewer').screenshot({ path: `${OUT}/${label}-${name}.png`, timeout: 180000 }); };
   await shot('estudio', 6000);
   await page.evaluate(() => window.__sp.store.getState().setScene('field'));
   // esperar a que haya sembrado un tramo (sin GPU los cuadros son lentos y la simulación avanza por cuadro)
