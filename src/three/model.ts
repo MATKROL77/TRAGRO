@@ -37,6 +37,8 @@ export interface TrailerModel {
   setAluminium: (alu: boolean) => void;
   /** Ruta: ángulo girado por las ruedas y movimiento de la carrocería (cabeceo, rolido, subir/bajar). */
   setWheelRoll: (angle: number) => void;
+  /** Detalle de las ruedas según la distancia de la cámara. */
+  setWheelDetail: (d: 'high' | 'low') => void;
   setBody: (pitch: number, roll: number, heave: number) => void;
   /** Mallas fusionadas (para que el worker extraiga sus buffers). */
   buckets: Map<string, THREE.Mesh>;
@@ -180,6 +182,7 @@ function buildTrailerImpl(cfg: Config, mats: MaterialSet): TrailerModel {
     buckets: built.buckets,
     setAluminium: (alu: boolean) => wheels.setAluminium(alu),
     setWheelRoll: (angle: number) => wheels.setRoll(angle),
+    setWheelDetail: (d: 'high' | 'low') => wheels.setDetail(d),
     setBody: (pitch: number, roll: number, heave: number) => {
       body.pitch = pitch;
       body.roll = roll;

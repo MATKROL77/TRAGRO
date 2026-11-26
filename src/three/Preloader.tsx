@@ -14,6 +14,7 @@ import { idleQueue, saveData } from '@/render-kit/scheduling/idle';
 import { materialLibrary } from './materialsLib';
 import { tierSettings } from '@/render-kit/quality/tiers';
 import { tractorMaterials } from './parts/tractor';
+import { prepareWheelDetail } from './parts/wheels';
 
 /** Espera (hasta `ms`) a que aparezca un objeto en la escena. */
 function waitFor<T>(get: () => T | undefined, ms = 8000): Promise<T | undefined> {
@@ -45,6 +46,8 @@ export function Preloader() {
       async () => {
         if (cancelled) return;
         const n = await compileMaterials(gl, camera, scene, [...Object.values(materialLibrary().mats), ...tractorMaterials()]);
+        // Ruedas de detalle bajo (para cuando la cámara se aleja) listas de antemano.
+        prepareWheelDetail();
         log(`shaders del equipo: ${n} programas nuevos`);
       },
       async () => {

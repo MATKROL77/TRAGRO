@@ -1,0 +1,2 @@
+Modelos de origen exportados de Blender o CAD (ver docs/model-spec.md).
+npm run models:build los optimiza y los deja en public/models/.

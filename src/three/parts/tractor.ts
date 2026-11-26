@@ -33,6 +33,7 @@ export interface TractorModel {
   setAluminium: (alu: boolean) => void;
   /** Ángulo girado por las ruedas traseras y delanteras al avanzar (rad). */
   setWheelRoll: (rear: number, front: number) => void;
+  setWheelDetail: (d: 'high' | 'low') => void;
   /** Datos para la cinemática: el perno rey está `hitch` m por delante del centro de los ejes traseros. */
   info: { hitch: number; wheelR: number; frontWheelR: number; rearX: number[] };
   dispose: () => void;
@@ -333,6 +334,10 @@ function buildTractorImpl(o: TractorOptions, mats: MaterialSet): TractorModel {
   return {
     root: built.root,
     info: { hitch: kx - rearCenter, wheelR: R, frontWheelR: Rf, rearX: rear },
+    setWheelDetail: (d: 'high' | 'low') => {
+      wBack.setDetail(d);
+      wFront.setDetail(d);
+    },
     setWheelRoll: (r: number, f: number) => {
       wBack.setRoll(r);
       wFront.setRoll(f);

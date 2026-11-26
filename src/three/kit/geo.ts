@@ -45,6 +45,9 @@ export function realGeometry<T>(fn: () => T): T {
 
 export function box(w: number, h: number, d: number, x = 0, y = 0, z = 0): THREE.BufferGeometry {
   if (geoMode.stub) return stub();
+  // Piezas grandes y con espesor: chaflán corto (las aristas vivas no agarran luz).
+  const mn = Math.min(w, h, d);
+  if (Math.max(w, h, d) > 0.35 && mn > 0.03) return rbox(w, h, d, x, y, z, Math.min(0.012, mn / 4));
   return new THREE.BoxGeometry(w, h, d).translate(x, y, z);
 }
 

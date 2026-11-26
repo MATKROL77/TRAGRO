@@ -19,12 +19,22 @@ export interface WheelGeometry {
 
 const cache = new Map<string, WheelGeometry>();
 
+/** Nivel de detalle: alto (≈6 k triángulos por rueda) y bajo, para lejos (≈1,7 k, sin tuercas). */
+export type WheelDetail = 'high' | 'low';
+const LOD = {
+  high: { tireSeg: 52, tireN: 26, barrel: 48, discR: 10, discT: 9, hub: 28 },
+  low: { tireSeg: 24, tireN: 12, barrel: 24, discR: 5, discT: 5, hub: 14 },
+};
+let lod = LOD.high;
+
 const smoothstep = (a: number, b: number, x: number) => {
   const t = Math.min(1, Math.max(0, (x - a) / (b - a)));
   return t * t * (3 - 2 * t);
 };
 
 function tireGeometry(R: number, w: number): THREE.BufferGeometry {
+  const N = lod.tireN;
+  const seg = lod.tireSeg;
   const Rb = 0.292;
   const h = w / 2;
   // [radio, posición axial, v] — un flanco, banda, otro flanco.
@@ -40,7 +50,6 @@ function tireGeometry(R: number, w: number): THREE.BufferGeometry {
   ];
   const ctrl: [number, number, number][] = [...half, [R + 0.003, 0, 0.5], ...half.map(([r, t, v]) => [r, -t, 1 - v] as [number, number, number]).reverse()];
   const curve = new THREE.SplineCurve(ctrl.map(([r, t]) => new THREE.Vector2(r, t)));
-  const N = 44;
   const pts: THREE.Vector2[] = [];
   const vs: number[] = [];
   for (let i = 0; i <= N; i++) {
@@ -50,7 +59,6 @@ function tireGeometry(R: number, w: number): THREE.BufferGeometry {
     const i0 = Math.min(ctrl.length - 2, Math.floor(f));
     vs.push(ctrl[i0][2] + (ctrl[i0 + 1][2] - ctrl[i0][2]) * (f - i0));
   }
-  const seg = 56;
   const g = new THREE.LatheGeometry(pts, seg);
   const uv = g.getAttribute('uv') as THREE.BufferAttribute;
   for (let i = 0; i <= seg; i++) for (let j = 0; j <= N; j++) uv.setY(i * (N + 1) + j, vs[j]);
@@ -86,7 +94,7 @@ function rimGeometry(w: number, mount: number): THREE.BufferGeometry {
       [0.301, -h + 0.008],
       [0.309, -h + 0.02],
     ].map(([r, t]) => new THREE.Vector2(r, t)),
-    48,
+    lod.barrel,
   );
   barrel.rotateX(Math.PI / 2);
 
@@ -103,8 +111,8 @@ function discGeometry(mount: number): THREE.BufferGeometry {
   const R0 = 0.098;
   const R1 = 0.271;
   const HOLES = 10;
-  const NR = 13;
-  const NT = 12;
+  const NR = lod.discR;
+  const NT = lod.discT;
   const rc = 0.226;
   const ha = 0.027; // semieje radial del agujero
   const hb = 0.034; // semieje tangencial
@@ -167,7 +175,7 @@ function hubGeometry(mount: number): THREE.BufferGeometry {
       [0.03, 0.13],
       [0, 0.131],
     ].map(([r, t]) => new THREE.Vector2(r, t)),
-    28,
+    lod.hub,
   );
   g.rotateX(Math.PI / 2);
   g.translate(0, 0, mount + 0.004);
@@ -193,17 +201,27 @@ function nutsGeometry(mount: number): THREE.BufferGeometry {
 }
 
 /** Geometrías de rueda (cacheadas). El eje de giro es Z y la cara exterior mira a +Z. */
-export function wheelGeometry(dual: boolean): WheelGeometry {
-  const key = dual ? 'dual' : 'single';
+export function wheelGeometry(dual: boolean, detail: WheelDetail = 'high'): WheelGeometry {
+  const key = `${dual ? 'dual' : 'single'}|${detail}`;
   let g = cache.get(key);
   if (!g) {
     const radius = dual ? 0.522 : 0.536;
     const width = dual ? 0.295 : 0.385;
     const mount = dual ? -0.17 : 0.12;
-    g = { tire: tireGeometry(radius, width), rim: rimGeometry(width, mount), hub: hubGeometry(mount), nuts: nutsGeometry(mount), radius, width, mount };
+    lod = LOD[detail];
+    try {
+      g = { tire: tireGeometry(radius, width), rim: rimGeometry(width, mount), hub: hubGeometry(mount), nuts: nutsGeometry(mount), radius, width, mount };
+    } finally {
+      lod = LOD.high;
+    }
     cache.set(key, g);
   }
   return g;
+}
+
+/** Genera de antemano las geometrías de detalle bajo (para que cambiar de nivel no genere nada). */
+export function prepareWheelDetail(): void {
+  for (const dual of [true, false]) wheelGeometry(dual, 'low');
 }
 
 export interface WheelPose {
@@ -229,6 +247,8 @@ export interface WheelSet {
   setAluminium: (alu: boolean) => void;
   /** Ángulo girado por las ruedas al avanzar (rad). Las de ejes levantados no giran. */
   setRoll: (angle: number) => void;
+  /** Nivel de detalle según la distancia de la cámara (solo cambia geometrías ya generadas). */
+  setDetail: (d: WheelDetail) => void;
   dispose: () => void;
 }
 
@@ -298,6 +318,14 @@ export function createWheelSet(poses: WheelPose[], dual: boolean, aluminium: boo
 
   return {
     objects,
+    setDetail: (d) => {
+      const g = wheelGeometry(dual, d);
+      if (tire.geometry === g.tire) return;
+      tire.geometry = g.tire;
+      rim.geometry = g.rim;
+      hub.geometry = g.hub;
+      nuts.visible = d === 'high';
+    },
     setRoll: (angle) => {
       if (angle === roll) return;
       roll = angle;

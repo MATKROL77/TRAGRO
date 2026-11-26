@@ -46,7 +46,7 @@ export function ProgressiveRefine({ enabled, settings, isBusy, focus, idleMs = 8
   const invalidate = useThree((s) => s.invalidate);
   const size = useThree((s) => s.size);
   const acc = useMemo(() => new FrameAccumulator(), []);
-  const st = useRef({ refining: false, done: false, i: 0, lastChange: performance.now(), restore: null as null | (() => void), lastMatrix: new THREE.Matrix4(), stop: false });
+  const st = useRef({ refining: false, done: false, i: 0, lastChange: performance.now(), restore: null as null | (() => void), lastMatrix: new THREE.Matrix4(), startMatrix: new THREE.Matrix4(), startProj: new THREE.Matrix4(), stop: false });
 
   useEffect(() => {
     acc.compile(gl);
@@ -99,6 +99,9 @@ export function ProgressiveRefine({ enabled, settings, isBusy, focus, idleMs = 8
       if (performance.now() - s.lastChange < idleMs) return;
       s.refining = true;
       s.i = 0;
+      // Cámara de referencia: si cambia durante el refinado (amortiguamiento, controles), se descarta.
+      s.startMatrix.copy(camera.matrixWorld);
+      s.startProj.copy(camera.projectionMatrix);
       acc.reset();
       refineState.refining = true;
       invalidate();
@@ -128,12 +131,18 @@ export function ProgressiveRefine({ enabled, settings, isBusy, focus, idleMs = 8
     const s = st.current;
     // Ya convergió y nada cambió: cualquier cuadro extra (temporizadores) vuelve a mostrar el promedio.
     if (!s.refining && s.done) {
-      acc.present(gl);
+      if (camera.matrixWorld.equals(s.startMatrix) && camera.projectionMatrix.equals(s.startProj)) acc.present(gl);
+      else stop();
       return;
     }
     if (!s.refining || !s.restore) return;
     s.restore();
     s.restore = null;
+    // Otro sistema movió la cámara en este cuadro (después del chequeo previo): no se suma.
+    if (!camera.matrixWorld.equals(s.startMatrix) || !camera.projectionMatrix.equals(s.startProj)) {
+      stop();
+      return;
+    }
     acc.add(gl);
     acc.present(gl);
     s.i++;

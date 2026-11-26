@@ -98,7 +98,8 @@ export class RollTarp {
         const s = -SKIRT + ((sEnd + SKIRT) * j) / this.nu;
         this.point(s, p);
         const w = s > 0 && s < 1 ? Math.sin(Math.PI * s) : 0;
-        pos.setXYZ(i * (this.nu + 1) + j, x, p.y + 0.012 - 0.03 * sagX * w, p.x);
+        // Comba entre arcos (más marcada en el centro del techo).
+        pos.setXYZ(i * (this.nu + 1) + j, x, p.y + 0.012 - 0.048 * sagX * w * w, p.x);
       }
     }
     pos.needsUpdate = true;

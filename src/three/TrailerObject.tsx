@@ -9,6 +9,7 @@ import { upgradeMaterials } from './ktx';
 import { composeFlapPrint, composeLivery, liveryTexture } from './livery';
 import { materialLibrary } from './materialsLib';
 import { CARGO_COLOR } from './cargoFx';
+import { currentTractor } from './Tractor';
 import { buildTrailer, geometryKey, type ModelBuffers, type TrailerModel } from './model';
 import { requestBuffers, warmUpBuilder } from './modelBuilder';
 import { viewer } from './viewerApi';
@@ -206,6 +207,21 @@ export function TrailerObject() {
 
   // Cambios de objetivo de animación despiertan el render.
   useEffect(() => useStore.subscribe((s) => [s.anim, s.ui.tractor, s.ui.luces], () => invalidate(), { equalityFn: (a, b) => a[0] === b[0] && a[1] === b[1] && a[2] === b[2] }), [invalidate]);
+
+  // Nivel de detalle de ruedas (semi y tractor) según la distancia de la cámara, con histéresis.
+  const camera = useThree((s) => s.camera);
+  const detail = useRef<'high' | 'low'>('high');
+  useFrame(() => {
+    const d = camera.position.distanceTo(model.root.position);
+    const next = detail.current === 'high' ? (d > 34 ? 'low' : 'high') : d < 27 ? 'high' : 'low';
+    if (next === detail.current) return;
+    detail.current = next;
+    model.setWheelDetail(next);
+    currentTractor.value?.setWheelDetail(next);
+  });
+  useEffect(() => {
+    model.setWheelDetail(detail.current);
+  }, [model]);
 
   useFrame((_, rawDt) => {
     // Delta acotado: al volver de una pestaña oculta no hay saltos.
