@@ -1,5 +1,6 @@
 import * as THREE from 'three';
-import { discColor, discRoughness, paintRoughness, rubberSidewallNormal, tireTreadNormal } from './textures';
+import { loadTexture } from '../render-kit/textures';
+import { discColor, discRoughness, metalScratches, paintRoughness, rubberSidewallNormal, tireTreadNormal } from './textures';
 
 /**
  * Materiales PBR compartidos. Se crean una sola vez; cambiar colores NO reconstruye geometría
@@ -126,12 +127,14 @@ export function getMaterials(): MaterialSet {
       roughnessMap: discRoughness(),
       envMapIntensity: 1.1,
     }),
-    steel: new THREE.MeshStandardMaterial({ color: '#8d9196', metalness: 0.9, roughness: 0.38 }),
+    // metal desnudo (ejes, chapas, cuchillas): metálico puro, rugosidad 0,25–0,4 con rayones
+    steel: new THREE.MeshStandardMaterial({ color: '#9a9ea3', metalness: 1, roughness: 1, roughnessMap: metalScratches() }),
     castIron: new THREE.MeshStandardMaterial({ color: '#3d4043', metalness: 0.55, roughness: 0.62 }),
     chrome: new THREE.MeshStandardMaterial({ color: '#f2f4f6', metalness: 1, roughness: 0.07, envMapIntensity: 1.4 }),
     rubber: new THREE.MeshStandardMaterial({ color: '#171717', metalness: 0, roughness: 0.88, normalMap: rubberSidewallNormal(), normalScale: new THREE.Vector2(0.4, 0.4) }),
     tire: new THREE.MeshStandardMaterial({ color: '#161616', metalness: 0, roughness: 0.9, normalMap: tread, normalScale: new THREE.Vector2(1.6, 1.6) }),
-    hose: new THREE.MeshStandardMaterial({ color: '#121212', metalness: 0.05, roughness: 0.5 }),
+    // mangueras: plástico negro semimate
+    hose: new THREE.MeshStandardMaterial({ color: '#141414', metalness: 0, roughness: 0.58 }),
     seedHose: new THREE.MeshPhysicalMaterial({ color: '#2b2f33', metalness: 0, roughness: 0.35, clearcoat: 0.6, clearcoatRoughness: 0.3 }),
     plastic: new THREE.MeshStandardMaterial({ color: '#1d1f21', metalness: 0, roughness: 0.48 }),
     galvanized: new THREE.MeshStandardMaterial({ color: '#b7bcc1', metalness: 0.85, roughness: 0.42 }),
@@ -158,15 +161,12 @@ export function setMachineColors(main: string, accent: string) {
 export function applyPlateTextures(loader: THREE.TextureLoader) {
   const m = getMaterials();
   if (m.plate.map) return;
-  const base = import.meta.env.BASE_URL + 'textures/';
-  const color = loader.load(base + 'plate_color.webp');
-  color.colorSpace = THREE.SRGBColorSpace;
-  const normal = loader.load(base + 'plate_normal.webp');
-  const rough = loader.load(base + 'plate_rough.webp');
-  for (const t of [color, normal, rough]) {
-    t.wrapS = t.wrapT = THREE.RepeatWrapping;
-    t.repeat.set(4, 1);
-  }
+  void loader;
+  // KTX2 (con respaldo WebP): ver render-kit/textures.ts
+  const color = loadTexture('textures/plate_color', { srgb: true });
+  const normal = loadTexture('textures/plate_normal');
+  const rough = loadTexture('textures/plate_rough');
+  for (const t of [color, normal, rough]) t.repeat.set(4, 1);
   m.plate.map = color;
   m.plate.normalMap = normal;
   m.plate.roughnessMap = rough;

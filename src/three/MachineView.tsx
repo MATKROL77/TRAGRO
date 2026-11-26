@@ -59,6 +59,7 @@ export function MachineView() {
   }, [sig]);
 
   const swapIn = (m: SeederModel, prev: SeederModel | null) => {
+    runtime.modelVersion++;
     group.current?.add(m.root);
     if (prev) {
       // pasar la calcomanía actual al modelo nuevo

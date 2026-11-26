@@ -20,6 +20,8 @@ export const runtime = {
   studioMounted: false,
   /** ms de CPU de la última reconstrucción del modelo (diagnóstico/benchmark) */
   lastRebuildMs: 0,
+  /** sube cada vez que se reemplaza el modelo (sombras de contacto, refinado) */
+  modelVersion: 0,
   /** paso más largo de la última reconstrucción por pasos (ms) */
   lastRebuildMaxSliceMs: 0,
   /** resultado de la precompilación de escenas (diagnóstico) */

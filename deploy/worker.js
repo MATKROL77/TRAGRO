@@ -2,7 +2,7 @@
 const TYPES = {
   html: 'text/html; charset=utf-8', js: 'text/javascript; charset=utf-8', css: 'text/css; charset=utf-8',
   json: 'application/json', svg: 'image/svg+xml', png: 'image/png', jpg: 'image/jpeg', webp: 'image/webp',
-  woff2: 'font/woff2', woff: 'font/woff', ttf: 'font/ttf', hdr: 'application/octet-stream', ico: 'image/x-icon', txt: 'text/plain',
+  woff2: 'font/woff2', wasm: 'application/wasm', ktx2: 'image/ktx2', woff: 'font/woff', ttf: 'font/ttf', hdr: 'application/octet-stream', ico: 'image/x-icon', txt: 'text/plain',
 };
 
 const MAX_LEAD = 10 * 1024; // bytes
@@ -115,7 +115,7 @@ export default {
     });
     if (isEmbed) headers.set('Content-Security-Policy', 'frame-ancestors *');
     // HDR y JSON sin comprimir de origen: el runtime de Workers los comprime al ver Content-Encoding
-    if ((ext === 'hdr' || ext === 'json' || ext === 'svg') && /\bgzip\b/.test(request.headers.get('accept-encoding') ?? '')) headers.set('Content-Encoding', 'gzip');
+    if (['hdr', 'json', 'svg', 'js', 'css', 'html', 'wasm', 'txt'].includes(ext) && /\bgzip\b/.test(request.headers.get('accept-encoding') ?? '')) headers.set('Content-Encoding', 'gzip');
     return new Response(body, { headers });
   },
 };

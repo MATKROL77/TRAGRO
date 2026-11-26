@@ -320,3 +320,65 @@ export function strawResidueTextures(size = 1024): { color: THREE.Texture; norma
   strawTex = { color, normal };
   return strawTex;
 }
+
+let scratchTex: THREE.Texture | null = null;
+/**
+ * Rugosidad de metal desnudo con rayones finos (lijado/uso) para ejes, chapas y piezas sin pintar.
+ * Canal G = rugosidad (convención de three.js). Base 0,32 con rayones más pulidos y manchas más ásperas.
+ */
+export function metalScratches(): THREE.Texture {
+  if (scratchTex) return scratchTex;
+  const S = 512;
+  const [c, ctx] = canvas(S, S);
+  ctx.fillStyle = 'rgb(82,82,82)';
+  ctx.fillRect(0, 0, S, S);
+  let seed = 9173;
+  const rnd = () => ((seed = (seed * 16807) % 2147483647) / 2147483647);
+  // manchas de oxidación/huella (más ásperas)
+  for (let i = 0; i < 60; i++) {
+    const x = rnd() * S;
+    const y = rnd() * S;
+    const r = 10 + rnd() * 40;
+    const g = ctx.createRadialGradient(x, y, 0, x, y, r);
+    g.addColorStop(0, 'rgba(140,140,140,0.25)');
+    g.addColorStop(1, 'rgba(140,140,140,0)');
+    ctx.fillStyle = g;
+    ctx.fillRect(x - r, y - r, r * 2, r * 2);
+  }
+  // rayones (más pulidos) en direcciones aleatorias
+  for (let i = 0; i < 900; i++) {
+    const x = rnd() * S;
+    const y = rnd() * S;
+    const a = rnd() * Math.PI;
+    const l = 6 + rnd() * 60;
+    const v = 40 + rnd() * 30;
+    ctx.strokeStyle = `rgba(${v},${v},${v},${0.25 + rnd() * 0.4})`;
+    ctx.lineWidth = 0.5 + rnd() * 0.8;
+    ctx.beginPath();
+    ctx.moveTo(x, y);
+    ctx.lineTo(x + Math.cos(a) * l, y + Math.sin(a) * l);
+    ctx.stroke();
+  }
+  scratchTex = tex(c, false, true);
+  return scratchTex;
+}
+
+let studioBgTex: THREE.Texture | null = null;
+/** Fondo de estudio: degradé vertical suave (más claro arriba) que termina en el color del piso. */
+export function studioBackdrop(top: string, bottom: string): THREE.Texture {
+  if (studioBgTex) return studioBgTex;
+  const [c, ctx] = canvas(4, 256);
+  const g = ctx.createLinearGradient(0, 0, 0, 256);
+  g.addColorStop(0, top);
+  g.addColorStop(0.62, bottom);
+  g.addColorStop(1, bottom);
+  ctx.fillStyle = g;
+  ctx.fillRect(0, 0, 4, 256);
+  const t = new THREE.CanvasTexture(c);
+  t.colorSpace = THREE.SRGBColorSpace;
+  t.magFilter = THREE.LinearFilter;
+  t.minFilter = THREE.LinearFilter;
+  t.generateMipmaps = false;
+  studioBgTex = t;
+  return t;
+}

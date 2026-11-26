@@ -1,5 +1,6 @@
 import * as THREE from 'three';
 import { strawResidueTextures } from './textures';
+import { loadTexture } from '../render-kit/textures';
 
 /** Material de suelo en siembra directa: tierra + rastrojo mezclados por ruido, con UV en espacio mundo desplazable. */
 export interface GroundUniforms {
@@ -7,18 +8,12 @@ export interface GroundUniforms {
   uStraw: { value: number };
 }
 
-const texCache = new Map<string, THREE.Texture>();
-/** Textura cacheada por ruta: se descarga, decodifica y sube a la GPU una sola vez (nunca se libera). */
+/**
+ * Textura PBR cacheada por ruta (KTX2 comprimida en GPU, con respaldo WebP): se descarga y sube una
+ * sola vez y nunca se libera.
+ */
 export function loadTex(path: string, srgb = false): THREE.Texture {
-  const key = `${path}|${srgb}`;
-  const hit = texCache.get(key);
-  if (hit) return hit;
-  const t = new THREE.TextureLoader().load(import.meta.env.BASE_URL + path);
-  texCache.set(key, t);
-  t.wrapS = t.wrapT = THREE.RepeatWrapping;
-  if (srgb) t.colorSpace = THREE.SRGBColorSpace;
-  t.anisotropy = 8;
-  return t;
+  return loadTexture(path, { srgb });
 }
 
 const groundCache = new Map<string, { material: THREE.MeshStandardMaterial; uniforms: GroundUniforms }>();

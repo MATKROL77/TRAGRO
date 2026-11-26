@@ -12,6 +12,7 @@ import { CaptureController } from './capture';
 import { Hotspots } from './Hotspots';
 import { TransportDims } from './TransportDims';
 import { setWear } from './materials';
+import { initTextures } from '../render-kit/textures';
 import { QUALITY_PRESETS, detectQuality, fpsBounds, higher, isMobileDevice, lower } from '../render-kit/quality';
 import { SceneWarmup, type WarmupStats } from '../render-kit/warmup';
 import { Line } from '@react-three/drei';
@@ -28,10 +29,12 @@ function StoreInvalidator() {
   const { invalidate, gl, scene } = useThree();
   useEffect(() => {
     runtime.invalidate = invalidate;
+    initTextures(gl);
     const dbg = (window as unknown as { __sp?: Record<string, unknown> }).__sp;
     if (dbg) {
       dbg.scene = scene;
       dbg.gl = gl;
+      dbg.THREE = THREE;
     }
     const unsub = useStore.subscribe(() => invalidate());
     const lost = (e: Event) => {

@@ -1,10 +1,10 @@
 import { useEffect, useMemo, useRef } from 'react';
 import { useFrame, useThree } from '@react-three/fiber';
-import { Environment } from '@react-three/drei';
 import * as THREE from 'three';
 import { useStore } from '../state/store';
 import { runtime } from './runtime';
 import { KeyLight } from './StudioScene';
+import { SKY_HORIZON, SKY_ROT_Y, SKY_SUN_DIR, SharedEnvironment, sunPosition, useExposure } from '../render-kit/lighting';
 import { createGroundMaterial } from './ground';
 import { getFieldSim } from './fieldSim';
 import { useWarmup, useWarmupObject } from '../render-kit/warmup';
@@ -147,12 +147,14 @@ export default function FieldScene() {
   const stubble = useStore((s) => s.stubble);
   const ground = useMemo(() => createGroundMaterial({ straw: stubble === 'soy' ? 0.75 : 0.95 }), [stubble]);
   useEffect(() => {
-    scene.fog = new THREE.Fog('#c9d3db', 70, 430);
+    // neblina exponencial del tono del horizonte (FogExp2)
+    scene.fog = new THREE.FogExp2(SKY_HORIZON, 0.0042);
     return () => {
       scene.fog = null;
     };
   }, [scene]);
   const warmScene = useWarmup();
+  useExposure(0.95);
   useFrame(() => {
     if (warmScene) return;
     ground.uniforms.uOffset.value = runtime.distance;
@@ -160,14 +162,16 @@ export default function FieldScene() {
   });
   const base = import.meta.env.BASE_URL;
   return (
-    <>
-      <Environment files={`${base}hdri/sky.hdr`} background environmentIntensity={0.85} backgroundIntensity={1} />
-      <hemisphereLight args={['#cfe0f2', '#7a6a50', 0.35]} />
-      <KeyLight intensity={2.8} position={[-9, 14, 11]} color="#fff0db" />
+    // dispose={null}: geometrías/materiales/texturas compartidos (cacheados); R3F no debe liberarlos al desmontar
+    <group dispose={null}>
+      <SharedEnvironment files={`${base}hdri/sky.hdr`} background environmentIntensity={0.7} backgroundIntensity={1} backgroundRotation={[0, SKY_ROT_Y, 0]} environmentRotation={[0, SKY_ROT_Y, 0]} />
+      <hemisphereLight args={['#cfe0f2', '#7a6a50', 0.22]} />
+      {/* sol alineado con el del HDR: las sombras coinciden con el cielo */}
+      <KeyLight intensity={3.4} position={sunPosition(SKY_SUN_DIR)} color="#fff0db" />
       <mesh rotation-x={-Math.PI / 2} receiveShadow material={ground.material} geometry={fieldPlane()} />
       <SowingSim />
       <FieldTractor />
       <Horizon />
-    </>
+    </group>
   );
 }

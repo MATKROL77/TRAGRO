@@ -83,7 +83,7 @@ export const Tractor = forwardRef<THREE.Group, { wheelRefs?: React.MutableRefObj
   const wb = 2.75; // distancia entre ejes
   const geo = useMemo(() => (geoCache ??= buildTractorGeo()), []);
   return (
-    <group ref={ref} name="tractor">
+    <group ref={ref} name="tractor" dispose={null}>
       {/* chasis y capot */}
       <mesh geometry={geo.chassis} material={dark} position={[0, 0.75, wb / 2 + 0.1]} castShadow />
       <mesh geometry={geo.hood} material={body} position={[0, 1.45, wb - 0.35]} castShadow receiveShadow />

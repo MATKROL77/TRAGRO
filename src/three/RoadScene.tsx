@@ -1,10 +1,10 @@
 import { useEffect, useMemo, useRef } from 'react';
 import { useFrame, useThree } from '@react-three/fiber';
-import { Environment } from '@react-three/drei';
 import * as THREE from 'three';
 import { useStore } from '../state/store';
 import { runtime } from './runtime';
 import { KeyLight } from './StudioScene';
+import { SKY_HORIZON, SKY_ROT_Y, SKY_SUN_DIR, SharedEnvironment, sunPosition, useExposure } from '../render-kit/lighting';
 import { createGroundMaterial, loadTex } from './ground';
 import { Tractor, TRACTOR } from './Tractor';
 import { computeLayout, DIM } from '../machines/seeder/layout';
@@ -51,11 +51,12 @@ function buildRoadMaterials() {
     const an = loadTex('textures/asphalt_normal.webp');
     const ar = loadTex('textures/asphalt_rough.webp');
     for (const t of [ac, an, ar]) t.repeat.set(ROAD_W / 3, 200);
-    const asphalt = new THREE.MeshStandardMaterial({ map: ac, normalMap: an, roughnessMap: ar, roughness: 1, color: '#9a9a9a' });
+    // envMapIntensity bajo: el asfalto no es espejo (a contraluz reflejaba el cielo y se veía lavado)
+    const asphalt = new THREE.MeshStandardMaterial({ map: ac, normalMap: an, roughnessMap: ar, roughness: 1, color: '#9a9a9a', envMapIntensity: 0.45 });
     const gc = loadTex('textures/gravel_color.webp', true);
     const gn = loadTex('textures/gravel_normal.webp');
     for (const t of [gc, gn]) t.repeat.set(SHOULDER / 1.5, 400);
-    const gravel = new THREE.MeshStandardMaterial({ map: gc, normalMap: gn, roughness: 0.95, color: '#b8b0a2' });
+    const gravel = new THREE.MeshStandardMaterial({ map: gc, normalMap: gn, roughness: 0.95, color: '#b8b0a2', envMapIntensity: 0.6 });
     const paint = new THREE.MeshStandardMaterial({ color: '#f2f2ee', roughness: 0.6 });
     const yellow = new THREE.MeshStandardMaterial({ color: '#e8b923', roughness: 0.6 });
     return { asphalt, gravel, paint, yellow };
@@ -85,7 +86,7 @@ export default function RoadScene() {
   const mats = useRoadMaterials();
   const ground = useMemo(() => createGroundMaterial({ straw: 1 }), []);
   useEffect(() => {
-    scene.fog = new THREE.Fog('#c9d3db', 80, 460);
+    scene.fog = new THREE.FogExp2(SKY_HORIZON, 0.004);
     return () => {
       scene.fog = null;
     };
@@ -95,6 +96,7 @@ export default function RoadScene() {
   const dashGroup = useRef<THREE.Group>(null);
   const signGroup = useRef<THREE.Group>(null);
   const warm = useWarmup();
+  useExposure(0.95);
   useFrame((_, dt) => {
     if (warm) return;
     runtime.frames++;
@@ -125,10 +127,12 @@ export default function RoadScene() {
   const warmDashes = useWarmupObject(G.dashes);
   const base = import.meta.env.BASE_URL;
   return (
-    <>
-      <Environment files={`${base}hdri/sky.hdr`} background environmentIntensity={0.85} />
-      <hemisphereLight args={['#cfe0f2', '#7a6a50', 0.35]} />
-      <KeyLight intensity={2.8} position={[-9, 14, 11]} color="#fff0db" />
+    // dispose={null}: geometrías/materiales/texturas compartidos (cacheados); R3F no debe liberarlos al desmontar
+    <group dispose={null}>
+      <SharedEnvironment files={`${base}hdri/sky.hdr`} background environmentIntensity={0.7} backgroundRotation={[0, SKY_ROT_Y, 0]} environmentRotation={[0, SKY_ROT_Y, 0]} />
+      <hemisphereLight args={['#cfe0f2', '#7a6a50', 0.22]} />
+      {/* sol alineado con el del HDR: las sombras coinciden con el cielo */}
+      <KeyLight intensity={3.4} position={sunPosition(SKY_SUN_DIR)} color="#fff0db" />
       <mesh rotation-x={-Math.PI / 2} position={[0, -0.02, 0]} receiveShadow material={ground.material} geometry={G.ground} />
       <mesh rotation-x={-Math.PI / 2} position={[roadX, 0.0, 0]} receiveShadow material={mats.asphalt} geometry={G.road} />
       {[-1, 1].map((s) => (
@@ -148,6 +152,6 @@ export default function RoadScene() {
         <mesh position={[0, 2.3, 0]} rotation={[0, -0.4, Math.PI / 4]} material={mats.yellow} geometry={G.sign} />
       </group>
       <RoadTractor />
-    </>
+    </group>
   );
 }
