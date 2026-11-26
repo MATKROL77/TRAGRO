@@ -151,6 +151,15 @@ export function grainNormal(): THREE.Texture {
   });
 }
 
+/** Piel de naranja del barniz: relieve muy fino y suave (se usa en el normal del clearcoat). */
+export function orangePeelNormal(): THREE.Texture {
+  return cached('orangePeel', () => {
+    const t = normalFromHeights(fbm(256, 77, 22, 3, 0.55), 256, 256, 1.6);
+    t.repeat.set(9, 9);
+    return t;
+  });
+}
+
 /** Banda de rodamiento + flancos con texto en relieve. Una vuelta completa en U. */
 export function tireNormal(label: string): THREE.Texture {
   return cached(`tire:${label}`, () => {

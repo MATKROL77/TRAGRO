@@ -76,6 +76,8 @@ export function Studio({ visible = true }: { visible?: boolean }) {
         <Lightformer form="rect" intensity={1.15} color="#fff4e6" position={[10, 6, 22]} rotation-y={Math.PI} scale={[26, 6, 1]} />
         <Lightformer form="rect" intensity={1.3} color="#e6eeff" position={[-24, 6, -4]} rotation-y={Math.PI / 2} scale={[16, 8, 1]} />
         <Lightformer form="rect" intensity={0.9} color="#ffffff" position={[26, 4, -6]} rotation-y={-Math.PI / 2} scale={[14, 6, 1]} />
+        {/* Contraluz alto por detrás: dibuja un filo de luz en el contorno y separa el semi del fondo. */}
+        <Lightformer form="rect" intensity={3.2} color="#fff6ea" position={[-16, 9, -18]} rotation-y={Math.PI * 0.22} scale={[22, 3, 1]} />
         {/* Rebote del piso claro: da algo de luz a la parte de abajo del chasis. */}
         <Lightformer form="rect" intensity={0.5} color="#c6beb1" position={[0, -6, 0]} rotation-x={-Math.PI / 2} scale={[80, 80, 1]} />
       </Environment>

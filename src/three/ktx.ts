@@ -72,14 +72,14 @@ async function apply(id: SetId, gl: THREE.WebGLRenderer, lib: MaterialLibrary): 
     const r: [number, number] = [1 / 2.3, 1 / 2.3];
     const [c, n, ro] = await Promise.all([loadKtx(gl, 'wood_color', { repeat: r, anisotropy: 16 }), loadKtx(gl, 'wood_normal', { repeat: r }), loadKtx(gl, 'wood_rough', { repeat: r })]);
     const mat = m.wood as Std;
-    const old = [mat.map, mat.normalMap, mat.roughnessMap];
+    // El mapa de color procedural también lo usa el fenólico: no se libera.
+    const old = [mat.normalMap, mat.roughnessMap];
     mat.map = c;
     mat.normalMap = n;
     mat.roughnessMap = ro;
     mat.normalScale.set(0.9, 0.9);
     mat.roughness = 1;
     mat.color.set('#d9cfc4');
-    // Las procedurales de madera solo las usaba este material.
     old.forEach((t) => t?.dispose());
   } else if (id === 'diamond') {
     const [n, ro] = await Promise.all([loadKtx(gl, 'diamond_normal', { anisotropy: 16 }), loadKtx(gl, 'diamond_rough')]);

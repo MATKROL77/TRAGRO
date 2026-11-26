@@ -3,11 +3,13 @@
  * las reconstrucciones del modelo: cambiar un color NO reconstruye geometría.
  */
 import * as THREE from 'three';
+import { addDirt } from '@/render-kit/materials/patch';
 import {
   diamondPlateNormal,
   galvanizedRoughness,
   grainNormal,
   licensePlate,
+  orangePeelNormal,
   panelNormal,
   reflectiveTape,
   speedSign,
@@ -159,12 +161,15 @@ export function createMaterials(): MaterialLibrary {
     uLivFrontRect: { value: new THREE.Vector4(0, 2, 2, 1) },
   };
 
+  // Pintura de caja: barniz (clearcoat) con piel de naranja muy leve en su propio relieve.
   const bodyPaint = phys({
     color: '#bb1e10',
-    roughness: 0.42,
+    roughness: 0.38,
     metalness: 0.0,
-    clearcoat: 0.55,
-    clearcoatRoughness: 0.16,
+    clearcoat: 0.42,
+    clearcoatRoughness: 0.14,
+    clearcoatNormalMap: orangePeelNormal(),
+    clearcoatNormalScale: new THREE.Vector2(0.045, 0.045),
     roughnessMap: wear,
     normalMap: panelN,
     normalScale: new THREE.Vector2(0.1, 0.1),
@@ -176,14 +181,17 @@ export function createMaterials(): MaterialLibrary {
 
   const chassisPaint = phys({
     color: '#2f3234',
-    roughness: 0.5,
+    roughness: 0.45,
     metalness: 0.0,
-    clearcoat: 0.3,
+    clearcoat: 0.32,
     clearcoatRoughness: 0.3,
+    clearcoatNormalMap: orangePeelNormal(),
+    clearcoatNormalScale: new THREE.Vector2(0.04, 0.04),
     roughnessMap: wear,
   });
 
-  const lona = std({ color: '#1b1c1e', roughness: 0.78, metalness: 0, normalMap: tarpN, normalScale: new THREE.Vector2(0.55, 0.55), side: THREE.DoubleSide });
+  // Lona de PVC: tejido con brillo rasante (sheen) y trama en el relieve.
+  const lona = phys({ color: '#1b1c1e', roughness: 0.74, metalness: 0, sheen: 0.28, sheenRoughness: 0.6, sheenColor: new THREE.Color('#5c6066'), normalMap: tarpN, normalScale: new THREE.Vector2(0.55, 0.55), side: THREE.DoubleSide });
   addLivery(lona, livery);
 
   const lens = (color: string, emissive: string) =>
@@ -197,7 +205,8 @@ export function createMaterials(): MaterialLibrary {
     bodyInner,
     chassisPaint,
     blackSteel: std({ color: '#17181a', roughness: 0.55, metalness: 0.25, roughnessMap: wear }),
-    galvanized: std({ color: '#aab0b5', map: placeholder([255, 255, 255, 255]), roughness: 0.55, metalness: 0.85, roughnessMap: galvanizedRoughness() }),
+    // Galvanizado: metal puro, rugosidad variable 0,35–0,6 (mapa) y flor de zinc (KTX2 en el color).
+    galvanized: std({ color: '#aab0b5', map: placeholder([255, 255, 255, 255]), roughness: 0.6, metalness: 1, roughnessMap: galvanizedRoughness() }),
     alu: std({ color: '#d9dcde', roughness: 0.16, metalness: 1 }),
     aluBrushed: std({ color: '#c3c7ca', roughness: 0.42, metalness: 0.9, roughnessMap: wear }),
     chrome: std({ color: '#f1f2f3', roughness: 0.06, metalness: 1 }),
@@ -207,7 +216,8 @@ export function createMaterials(): MaterialLibrary {
     lona,
     wood: std({ color: '#ffffff', map: wood.map, normalMap: wood.normalMap, roughnessMap: wood.roughnessMap, roughness: 1, metalness: 0 }),
     diamond: std({ color: '#b9bec2', roughness: 0.42, metalness: 0.9, normalMap: diamondPlateNormal(), normalScale: new THREE.Vector2(1.1, 1.1), roughnessMap: wear }),
-    phenolic: std({ color: '#3b2a22', roughness: 0.6, metalness: 0, normalMap: grainN, normalScale: new THREE.Vector2(0.8, 0.8) }),
+    // Fenólico: multilaminado marrón con veta y film semimate.
+    phenolic: std({ color: '#7a5038', map: wood.map, roughness: 0.55, metalness: 0, normalMap: grainN, normalScale: new THREE.Vector2(0.5, 0.5) }),
     reflex: std({ color: '#ffffff', map: tape.map, normalMap: tape.normalMap, normalScale: new THREE.Vector2(0.4, 0.4), roughness: 0.35, metalness: 0.1, emissive: '#ffffff', emissiveMap: tape.map, emissiveIntensity: 0.12 }),
     lensRed: lens('#a20e12', '#ff1a1a'),
     lensAmber: lens('#c46a05', '#ff8a00'),
@@ -222,10 +232,19 @@ export function createMaterials(): MaterialLibrary {
     tireDual: tire('295/80 R22.5'),
     tireSingle: tire('385/65 R22.5'),
     rimSteel: phys({ color: '#b9bcc0', roughness: 0.42, metalness: 0.55, clearcoat: 0.4, clearcoatRoughness: 0.3, roughnessMap: wear, side: THREE.DoubleSide }),
-    rimAlu: std({ color: '#e3e5e7', roughness: 0.14, metalness: 1, side: THREE.DoubleSide }),
+    // Aluminio pulido: metal, poco rugoso y con anisotropía (reflejo estirado del torneado).
+    rimAlu: phys({ color: '#e3e5e7', roughness: 0.16, metalness: 1, anisotropy: 0.35, side: THREE.DoubleSide }),
     flapPrint: std({ color: '#ffffff', map: placeholder([0, 0, 0, 0]), roughness: 0.9, metalness: 0, transparent: true, alphaTest: 0.35 }),
     glass: phys({ color: '#aab7bf', roughness: 0.05, metalness: 0, transmission: 0, transparent: true, opacity: 0.35 }),
   };
+
+  // Suciedad leve en la parte baja: chasis, guardabarros, llantas y bajos de la caja.
+  addDirt(chassisPaint, { top: 1.05, bottom: 0.25, amount: 0.5 });
+  addDirt(mats.rimSteel as THREE.MeshStandardMaterial, { top: 0.95, bottom: 0.05, amount: 0.38 });
+  addDirt(mats.rimAlu as THREE.MeshStandardMaterial, { top: 0.9, bottom: 0.05, amount: 0.18 });
+  addDirt(mats.blackSteel as THREE.MeshStandardMaterial, { top: 0.9, bottom: 0.2, amount: 0.35 });
+  addDirt(mats.plastic as THREE.MeshStandardMaterial, { top: 0.9, bottom: 0.15, amount: 0.5 });
+  addDirt(bodyPaint, { top: 1.35, bottom: 0.55, amount: 0.3 });
 
   const targets = { chasis: new THREE.Color('#2f3234'), caja: new THREE.Color('#bb1e10'), lona: new THREE.Color('#1b1c1e') };
   let first = true;

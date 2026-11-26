@@ -1,6 +1,8 @@
 import { EffectComposer, N8AO, Bloom, ToneMapping, SMAA, FXAA, HueSaturation, BrightnessContrast, Vignette } from '@react-three/postprocessing';
 import { ToneMappingMode, type EffectComposer as ComposerImpl } from 'postprocessing';
+import { useEffect, useRef } from 'react';
 import { useStore } from '@/state/store';
+import { Exposure, type ExposureEffect } from '@/render-kit/post/Exposure';
 import { tierSettings } from '@/render-kit/quality/tiers';
 import { composerRef } from './composerRef';
 import { FrameCrossfade } from '@/render-kit/transition/FrameCrossfade';
@@ -15,9 +17,17 @@ import { FrameCrossfade } from '@/render-kit/transition/FrameCrossfade';
  * lava los colores RAL). Los parámetros no cambian con la escena: si cambiaran, el AO se
  * recrearía y compilaría sus shaders justo al cambiar de escena (un tirón).
  */
+/** Exposición calibrada por escena (se aplica por uniform: no recompila nada). */
+export const SCENE_EXPOSURE: Record<string, number> = { estudio: 1, exterior: 1.02, ruta: 1.02 };
+
 export default function Effects() {
   const calidad = useStore((s) => s.ui.calidad);
   const post = tierSettings(calidad).post;
+  const exposure = useRef<ExposureEffect>(null);
+  const env = useStore((s) => s.ui.env);
+  useEffect(() => {
+    if (exposure.current) exposure.current.exposure = SCENE_EXPOSURE[env] ?? 1;
+  }, [env]);
   return (
     <>
       <FrameCrossfade />
@@ -30,6 +40,7 @@ export default function Effects() {
       >
         {post === 'bajo' ? <></> : <N8AO aoRadius={0.55} intensity={1.9} distanceFalloff={0.8} quality={post === 'alto' ? 'medium' : 'performance'} halfRes={post !== 'alto'} />}
         {post === 'alto' ? <Bloom intensity={0.32} luminanceThreshold={1.15} luminanceSmoothing={0.15} mipmapBlur /> : <></>}
+        <Exposure ref={exposure} />
         <ToneMapping mode={ToneMappingMode.AGX} />
         <HueSaturation saturation={0.22} />
         <BrightnessContrast brightness={-0.02} contrast={0.16} />
