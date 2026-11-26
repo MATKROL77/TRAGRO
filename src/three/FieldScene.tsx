@@ -12,65 +12,90 @@ import { Tractor, TRACTOR } from './Tractor';
 import { getCrop } from '../domain/agronomy';
 import { computeLayout } from '../machines/seeder/layout';
 import { getMaterials } from './materials';
+import { DustEmitter, StrawField, fieldHorizon } from './fieldDetail';
+import { QUALITY_PRESETS } from '../render-kit/quality';
+import { ROW } from '../machines/seeder/rowUnit';
 
 
-/** Horizonte pampeano: cortinas de eucaliptos, un silo y un molino lejanos (muy livianos). */
-let horizonGroup: THREE.Group | null = null;
+/** Horizonte: cortinas de árboles, alambrado, silos y galpón (instanciados; se construyen una vez) + molino. */
+let millGroup: THREE.Group | null = null;
 function Horizon() {
-  const g = useMemo(() => (horizonGroup ??= buildHorizon()), []);
-  const warm = useWarmupObject(g);
+  const g = useMemo(() => fieldHorizon(), []);
+  const mill = useMemo(() => (millGroup ??= buildMill()), []);
+  const warmA = useWarmupObject(g);
+  const warmB = useWarmupObject(mill);
   useFrame((_, dt) => {
-    const fan = (g.userData.mill as THREE.Group).userData.fan as THREE.Group;
-    fan.rotation.z += dt * 1.2;
+    (mill.userData.fan as THREE.Group).rotation.z += dt * 1.2;
   });
-  return warm ? null : <primitive object={g} dispose={null} />;
+  return warmA || warmB ? null : (
+    <>
+      <primitive object={g} dispose={null} />
+      <primitive object={mill} dispose={null} />
+    </>
+  );
 }
 
-/** Silo y molino lejanos: se construyen una vez y se reutilizan en cada visita. */
-function buildHorizon(): THREE.Group {
-  {
-    const group = new THREE.Group();
-    const mats = getMaterials();
-    // silo
-    const silo = new THREE.Group();
-    for (let i = 0; i < 3; i++) {
-      const c = new THREE.Mesh(new THREE.CylinderGeometry(4, 4, 12, 24), mats.galvanized);
-      c.position.set(i * 9, 6, 0);
-      const roof = new THREE.Mesh(new THREE.ConeGeometry(4.2, 2.6, 24), mats.galvanized);
-      roof.position.set(i * 9, 13.3, 0);
-      silo.add(c, roof);
-    }
-    silo.position.set(-150, 0, 260);
-    group.add(silo);
-    // molino
-    const mill = new THREE.Group();
-    const leg = new THREE.CylinderGeometry(0.08, 0.12, 11, 6);
-    for (const [x, z] of [[-1, -1], [1, -1], [-1, 1], [1, 1]]) {
-      const m = new THREE.Mesh(leg, mats.galvanized);
-      m.position.set(x * 0.9, 5.5, z * 0.9);
-      m.rotation.set(-z * 0.08, 0, x * 0.08);
-      mill.add(m);
-    }
-    const fan = new THREE.Group();
-    for (let i = 0; i < 16; i++) {
-      const b = new THREE.Mesh(new THREE.BoxGeometry(0.25, 1.6, 0.02), mats.galvanized);
-      b.position.y = 1.0;
-      const piv = new THREE.Group();
-      piv.rotation.z = (i / 16) * Math.PI * 2;
-      piv.add(b);
-      fan.add(piv);
-    }
-    fan.position.set(0, 11.2, 0.4);
-    mill.add(fan);
-    const tail = new THREE.Mesh(new THREE.BoxGeometry(0.05, 1.2, 2.2), mats.galvanized);
-    tail.position.set(0, 11.2, -1.4);
-    mill.add(tail);
-    mill.position.set(95, 0, 170);
-    mill.userData.fan = fan;
-    group.add(mill);
-    group.userData.mill = mill;
-    return group;
+function buildMill(): THREE.Group {
+  const mats = getMaterials();
+  const mill = new THREE.Group();
+  const leg = new THREE.CylinderGeometry(0.08, 0.12, 11, 6);
+  for (const [x, z] of [[-1, -1], [1, -1], [-1, 1], [1, 1]]) {
+    const m = new THREE.Mesh(leg, mats.galvanized);
+    m.position.set(x * 0.9, 5.5, z * 0.9);
+    m.rotation.set(-z * 0.08, 0, x * 0.08);
+    mill.add(m);
   }
+  const fan = new THREE.Group();
+  const blade = new THREE.BoxGeometry(0.25, 1.6, 0.02);
+  for (let i = 0; i < 16; i++) {
+    const b = new THREE.Mesh(blade, mats.galvanized);
+    b.position.y = 1.0;
+    const piv = new THREE.Group();
+    piv.rotation.z = (i / 16) * Math.PI * 2;
+    piv.add(b);
+    fan.add(piv);
+  }
+  fan.position.set(0, 11.2, 0.4);
+  mill.add(fan);
+  const tail = new THREE.Mesh(new THREE.BoxGeometry(0.05, 1.2, 2.2), mats.galvanized);
+  tail.position.set(0, 11.2, -1.4);
+  mill.add(tail);
+  mill.position.set(95, 0, 170);
+  mill.userData.fan = fan;
+  return mill;
+}
+
+let straw: StrawField | null = null;
+let dust: DustEmitter | null = null;
+/** Rastrojo 3D y polvo (densidad según calidad; polvo sólo en alto y medio). */
+function FieldDetail() {
+  const quality = useStore((s) => s.quality);
+  const config = useStore((s) => s.config);
+  const st = useMemo(() => (straw ??= new StrawField()), []);
+  const du = useMemo(() => (dust ??= new DustEmitter()), []);
+  const warmA = useWarmupObject(st.mesh);
+  const warmB = useWarmupObject(du.mesh);
+  const lay = useMemo(() => computeLayout(config), [config]);
+  useEffect(() => {
+    st.setDensity(QUALITY_PRESETS[quality].detailDensity);
+    st.update(runtime.distance, true);
+  }, [quality, st]);
+  useEffect(() => () => du.clear(), [du]);
+  useFrame((_, dt) => {
+    if (warmA) return;
+    st.update(runtime.distance);
+    if (quality !== 'low') {
+      const step = Math.min(dt, 0.05) * runtime.timeScale;
+      if (du.update(step, runtime.speed, lay.rowX, ROW.closing.z - 0.2)) runtime.invalidate();
+    }
+  });
+  if (warmA || warmB) return null;
+  return (
+    <>
+      <primitive object={st.mesh} dispose={null} />
+      {quality !== 'low' && <primitive object={du.mesh} dispose={null} />}
+    </>
+  );
 }
 
 function SowingSim() {
@@ -171,6 +196,7 @@ export default function FieldScene() {
       <mesh rotation-x={-Math.PI / 2} receiveShadow material={ground.material} geometry={fieldPlane()} />
       <SowingSim />
       <FieldTractor />
+      <FieldDetail />
       <Horizon />
     </group>
   );
