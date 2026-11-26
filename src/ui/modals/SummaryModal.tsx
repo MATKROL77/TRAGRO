@@ -8,7 +8,7 @@ import { useStore } from '@/state/store';
 import { captureRenderSet, captureThumb, type RenderSet } from '@/three/capture';
 import { Icon } from '../Icon';
 import { Button, Modal, StatusDot } from '../primitives';
-import { TechBody } from '../TechPanel';
+import { LegalBanner, TechBody } from '../TechPanel';
 
 const VIEWS: (keyof RenderSet)[] = ['tresCuartos', 'lateral', 'trasero'];
 
@@ -86,6 +86,7 @@ export default function SummaryModal() {
       }
     >
       <div className="sum" data-testid="resumen">
+        <LegalBanner />
         <header className="sum-head">
           <div>
             <h3>{typeName(config, lang)}</h3>

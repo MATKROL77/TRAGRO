@@ -44,7 +44,11 @@ export function initFromUrl(): Lang | null {
   if (reduce?.matches) ui.reducedMotion = true;
   reduce?.addEventListener?.('change', (e) => useStore.getState().setUi({ reducedMotion: e.matches }));
   // En celulares se arranca un escalón más abajo; si el equipo rinde, la calidad sube sola.
-  if (window.matchMedia?.('(max-width: 900px), (pointer: coarse)').matches) ui.calidad = 'media';
+  if (window.matchMedia?.('(max-width: 900px), (pointer: coarse)').matches) {
+    ui.calidad = 'media';
+    // En pantallas táctiles los puntos de interés se prenden desde "···" (no hay hover).
+    ui.hotspots = false;
+  }
   if (Object.keys(ui).length) st.setUi(ui);
 
   const code = q.get('c');

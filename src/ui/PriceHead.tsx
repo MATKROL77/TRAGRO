@@ -24,16 +24,27 @@ export function PriceHead() {
   const tara = (kg: number) => (units === 'metric' ? `${n(kg / 1000, 2)} t` : ton(kg / 1000));
   return (
     <div className={`price-head pcard ${open ? '' : 'is-closed'}`}>
-      <button type="button" className="pcard-head" aria-expanded={open} onClick={() => setOpen(!open)} title={t(`tec.resumen.${specs.level}`)} data-testid="pcard-toggle">
-        <StatusDot level={specs.level} />
-        <span className="pcard-title ph-label">{hide ? t('barra.precioOculto') : t('barra.precio')}</span>
-        <span className="ph-amount" aria-live="polite" aria-atomic="true" title={legend}>
-          {hide ? <span>—</span> : <span data-testid="precio-total"><AnimatedNumber value={price.totalUsd} format={(v) => money(v)} /></span>}
-        </span>
-        <span className={`chev ${open ? 'up' : ''}`} aria-hidden="true">
-          <Icon name="chevronArriba" size={14} />
-        </span>
-      </button>
+      <div className="pcard-head">
+        <button type="button" className="pcard-dot" onClick={() => setUi({ pestana: 'tecnico' })} aria-label={`${t('tec.ver')}: ${t(`tec.resumen.${specs.level}`)}`} title={t(`tec.resumen.${specs.level}`)} data-testid="pcard-legal">
+          <StatusDot level={specs.level} />
+        </button>
+        <button type="button" className="pcard-toggle" aria-expanded={open} onClick={() => setOpen(!open)} data-testid="pcard-toggle">
+          <span className="pcard-title ph-label">{hide ? t('barra.precioOculto') : t('barra.precio')}</span>
+          <span className="ph-amount" aria-live="polite" aria-atomic="true" title={legend}>
+            {hide ? <span>—</span> : <span data-testid="precio-total"><AnimatedNumber value={price.totalUsd} format={(v) => money(v)} /></span>}
+          </span>
+          <span className={`chev ${open ? 'up' : ''}`} aria-hidden="true">
+            <Icon name="chevronArriba" size={14} />
+          </span>
+        </button>
+      </div>
+      {specs.level === 'bad' ? (
+        <button type="button" className="pcard-alert" onClick={() => setUi({ pestana: 'tecnico' })} data-testid="pcard-excede">
+          <Icon name="alerta" size={16} />
+          <span>{t('tec.resumen.bad')}</span>
+          <span className="pcard-alert-ver">{t('tec.ver')} ›</span>
+        </button>
+      ) : null}
       <span className="sr-only leyenda">{legend}</span>
       {open ? (
         <div className="pcard-kpis" data-testid="kpis">

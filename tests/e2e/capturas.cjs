@@ -14,7 +14,7 @@ async function run() {
     const { page, errors } = await openApp(browser, { mobile });
     await setUi(page, { autoFoco: false });
     for (const tipo of TIPOS) {
-      await page.evaluate((t) => window.__store.getState().setTipo(t), tipo);
+      await page.evaluate((t) => { window.__store.getState().setTipo(t); window.__store.setState({ notices: [] }); }, tipo);
       for (const env of ['estudio', 'exterior']) {
         // En exterior el equipo se muestra enganchado al tractor, como en la interfaz.
         await setUi(page, { env, tractor: env === 'exterior' });

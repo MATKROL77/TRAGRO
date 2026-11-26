@@ -76,6 +76,7 @@ export function buildAccessories(ctx: BuildCtx): void {
       const x = L.frontX + 0.215 + i * 0.32;
       ctx.spares.push({ x, y, z, euler: [0, Math.PI / 2, 0] });
     }
+    if (nSpare > 0) ctx.anchors.portaauxilio = [L.frontX + 0.3, y, z];
     if (nSpare > 0) {
       const depthX = 0.1 + nSpare * 0.32;
       asm.add('chassisPaint', rbox(depthX, 0.09, 0.09, L.frontX + depthX / 2, y, z, 0.01), rbox(0.03, 0.6, 0.09, L.frontX + 0.02, y, z, 0.006), rbox(0.03, 0.09, 0.6, L.frontX + 0.02, y, z, 0.006));
@@ -90,6 +91,7 @@ export function buildAccessories(ctx: BuildCtx): void {
       const z = p.side * 0.76;
       const y = frameY - 0.42;
       ctx.spares.push({ x: p.x, y, z, euler: [Math.PI / 2, 0, 0] });
+      if (i === 0) ctx.anchors.portaauxilio = [p.x, y, p.side * zFace];
       // Canasto: dos travesaños, aro de apoyo y tensores al chasis.
       for (const dx of [-0.3, 0.3]) {
         asm.add('chassisPaint', rbox(0.05, 0.04, 1.08, p.x + dx, y - 0.17, z, 0.005));
@@ -126,6 +128,7 @@ export function buildAccessories(ctx: BuildCtx): void {
     if (p) {
       const z = p.side * (zFace - 0.13);
       const y = topY - 0.17;
+      ctx.anchors.tanqueAgua = [p.x, y, p.side * zFace];
       asm.add('whitePlastic', rbox(len, 0.28, 0.24, p.x, y, z, 0.04));
       asm.add('plastic', cyl(0.045, 0.03, 'y', p.x - 0.14, y + 0.15, z, 14));
       asm.add('redPaint', cyl(0.014, 0.05, 'z', p.x + 0.17, y - 0.1, z + p.side * 0.13, 8), box(0.012, 0.03, 0.03, p.x + 0.17, y - 0.08, z + p.side * 0.16));
@@ -141,6 +144,7 @@ export function buildAccessories(ctx: BuildCtx): void {
     if (p) {
       const z = p.side * (zFace - 0.1);
       const y0 = topY - 0.56;
+      ctx.anchors.matafuego = [p.x, y0 + 0.3, p.side * zFace];
       asm.add('redPaint', cyl(0.078, 0.44, 'y', p.x, y0 + 0.25, z, 20), cyl(0.078, 0.06, 'y', p.x, y0 + 0.49, z, 20, 0.035));
       asm.add('blackSteel', cyl(0.024, 0.07, 'y', p.x, y0 + 0.55, z, 10), box(0.11, 0.016, 0.03, p.x + 0.03, y0 + 0.59, z));
       asm.add('rubber', pipe([[p.x - 0.02, y0 + 0.56, z], [p.x - 0.1, y0 + 0.5, z], [p.x - 0.1, y0 + 0.2, z + p.side * 0.02]], 0.011, 6, true));

@@ -3,8 +3,8 @@
  * Todos los valores salen de src/config/pricing.json (valores de DEMO).
  */
 import { groupsForType, pricing, rangeFor, typeDef } from './catalog';
-import { counts, isGroupVisible } from './rules';
-import type { Config, GroupDef, Per, Tx, Value } from './types';
+import { changeType, counts, defaultConfig, isGroupVisible } from './rules';
+import type { Config, GroupDef, Per, Tx, TypeId, Value } from './types';
 
 export interface PriceLine {
   key: string;
@@ -135,4 +135,14 @@ export function rangeHasPrice(cfg: Config, key: 'largo' | 'alto'): number {
   const r = rangeFor(cfg.tipo, key);
   if (!r) return 0;
   return key === 'largo' ? p.usdPorMetroLargo : p.usdPorMetroAlto;
+}
+
+/** Precio con el que arranca cada tipo: el "desde" de las tarjetas coincide con lo que se ve al entrar. */
+export function startingPriceUsd(tipo: TypeId): number {
+  return priceBreakdown(defaultConfig(tipo)).totalUsd;
+}
+
+/** Precio exacto que se va a ver al pasar a ese tipo con lo que ya está elegido (medidas, ejes, rodado, colores…). */
+export function priceIfType(cfg: Config, tipo: TypeId): number {
+  return priceBreakdown(tipo === cfg.tipo ? cfg : changeType(cfg, tipo).config).totalUsd;
 }

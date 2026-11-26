@@ -35,7 +35,7 @@ export interface TrailerModel {
 /** Campos de la configuración que afectan la geometría (los colores no). */
 export function geometryKey(cfg: Config): string {
   const s = cfg.sel;
-  const keys = ['largo', 'alto', 'ejes', 'suspension', 'ruedas', 'llantas', 'ejeElevable', 'bocas', 'accionamientoLona', 'porton', 'cobertor', 'piso', 'modulosBaranda', 'amarre', 'variante', 'pisoFurgon', 'puertas', 'cajon', 'portaauxilio', 'tanqueAgua', 'matafuego', 'pasarela', 'lucesLed', 'faldones'];
+  const keys = ['largo', 'alto', 'ejes', 'suspension', 'ruedas', 'llantas', 'ejeElevable', 'bocas', 'accionamientoLona', 'porton', 'cobertor', 'piso', 'modulosBaranda', 'amarre', 'variante', 'parantes', 'tablillas', 'techo', 'tensado', 'pisoFurgon', 'puertas', 'cajon', 'portaauxilio', 'tanqueAgua', 'matafuego', 'pasarela', 'lucesLed', 'faldones'];
   return cfg.tipo + '|' + keys.map((k) => s[k] ?? '').join('|');
 }
 

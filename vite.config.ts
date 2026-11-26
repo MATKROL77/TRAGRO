@@ -15,8 +15,11 @@ export default defineConfig({
     rollupOptions: {
       output: {
         manualChunks(id) {
+          // Ayudantes de Vite/Rollup en un chunk propio: si no, caen dentro del chunk del PDF
+          // y la página lo precarga entero al abrir.
+          if (id.includes('preload-helper') || id.includes('commonjsHelpers')) return 'helpers';
           if (id.includes('node_modules/three/')) return 'three';
-          if (id.includes('node_modules/jspdf') || id.includes('node_modules/fflate')) return 'pdf';
+          if (id.includes('node_modules/jspdf')) return 'pdf';
           if (id.includes('node_modules/postprocessing') || id.includes('node_modules/n8ao')) return 'post';
           return undefined;
         },

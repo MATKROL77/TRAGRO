@@ -12,6 +12,8 @@ Decisiones tomadas, límites conocidos, valores de demo que hay que confirmar e 
 - Tipo de cambio ARS/USD: valor de ejemplo con fecha; se actualiza a mano.
 - Recargos por logo y texto: inventados.
 
+- Opciones del sider (parantes corredizos, tablillas de aluminio o madera, techo corredizo, tensado con trinquete): precios y pesos de ejemplo como el resto.
+
 ### Pesos y plazos (`catalog.json`)
 
 - Tara de estructura por tipo (`tipos[].tara`), peso por eje según suspensión, peso por rueda, ahorro de las llantas de aluminio y peso de cada accesorio: estimaciones típicas, no datos de ingeniería.
@@ -71,6 +73,10 @@ Son reglas de demo, aunque varias salen de la geometría del modelo:
 - **Estructura.** La lógica pura está en `src/core/` (el documento sugería `src/state/` para validaciones; la separé para poder testearla sin React).
 - **Precios en dos archivos.** Las opciones se definen en `catalog.json` y sus precios en `pricing.json`, para que el área comercial toque un solo archivo.
 
+- **Auditoría de UX (noviembre).** Se corrigieron los puntos de la revisión externa: sider con lateral libre real y opciones propias; celular con opciones a la vista y barra de precio fija; avisos legales en el mismo paso, con máximo y tramo rojo en el slider (y en resumen, PDF y mensaje); cambio de tipo que conserva lo que la persona eligió y sea compatible (lo que seguía en el valor sugerido toma el sugerido del tipo nuevo), con Deshacer; slider de largo sin zona muerta (el mínimo que imponen otras opciones es el mínimo del slider y se explica debajo); cada tarjeta de tipo muestra el precio exacto que va a quedar al elegirla ("desde" mientras no se cambió nada); cámara por paso que nunca atraviesa el equipo; el panel ya no salta al elegir Sider; puntos de interés solo al pasar el mouse (y apagados en celular); largo con tractor realista (~14 m para una caja de 10 m); vista previa al compartir el link (og:image); carga inicial más liviana (PDF, posprocesado, HDR de 256 px en celular y fuente cirílica solo en ruso; imagen del equipo mientras carga); KPIs sin cortes a 1024 px; foco del slider que no tapa las etiquetas; textos duplicados, "6×2", h1 y nombres accesibles en todos los botones; Comparar dentro del menú en celular.
+- **Lo que se mantuvo a propósito.** El nombre "Umbral_exp" y el ruso como cuarto idioma se dejaron porque los pidió el titular del proyecto. El aviso de compilación de shader X3595 que aparece en algunas placas con Windows/ANGLE sale de un shader de una librería de terceros (three.js / postprocesado), no de código propio, y no afecta el render.
+- **Imagen para compartir.** `public/og.jpg` es una imagen fija (tolva de estudio): no cambia según la configuración del link, porque eso requeriría un servidor que renderice.
+
 ## 3. Limitaciones conocidas
 
 - **Rendimiento medido solo por software.** Este entorno no tiene GPU: Chromium dibuja con SwiftShader. Los fps medidos acá no dicen nada sobre una notebook con Iris Xe ni sobre un celular; ver sección 5. **Hay que medir en hardware real antes de prometer 60 / 30 fps.**
@@ -89,8 +95,8 @@ Son reglas de demo, aunque varias salen de la geometría del modelo:
 
 ## 4. Qué se verificó y cómo
 
-- `npm run verificar`: typecheck, ESLint sin warnings, 65 tests unitarios (precio, reglas de compatibilidad, tara y carga útil, validación legal, layout, serialización de la URL, mensaje de la consulta, CUIT, paridad es/pt, contraste AA de la marca) y build.
-- `npm run e2e flujo` (Playwright, 53 verificaciones, todas pasan): elegir tipo, cambiar cada paso, regla con autoajuste y aviso, opción deshabilitada con motivo, RAL con buscador, subir logo, texto, cámaras, "Ver en acción" reversible, hotspots, acercamiento automático y regreso, resumen con 3 renders, PDF, link compartido que reconstruye exactamente la misma configuración (con logo), comparador, formulario y mensaje de WhatsApp, modo vendedor con atajos, `/embed`, fallback sin WebGL y uso en celular (objetivos táctiles ≥ 44 px, sin desborde).
+- `npm run verificar`: typecheck, ESLint sin warnings, 79 tests unitarios (precio, reglas de compatibilidad, cambio de tipo, opciones del sider, máximos legales, tara y carga útil, validación legal, layout, serialización de la URL, mensaje de la consulta, CUIT, paridad es/pt, contraste AA de la marca) y build.
+- `npm run e2e flujo` (Playwright, 75 verificaciones, todas pasan): elegir tipo, cambiar cada paso, regla con autoajuste y aviso, opción deshabilitada con motivo, RAL con buscador, subir logo, texto, cámaras, "Ver en acción" reversible, hotspots, acercamiento automático y regreso, resumen con 3 renders, PDF, link compartido que reconstruye exactamente la misma configuración (con logo), comparador, formulario y mensaje de WhatsApp, modo vendedor con atajos, `/embed`, fallback sin WebGL, uso en celular (objetivos táctiles ≥ 44 px, opciones a la vista, barra de precio, sin desborde) y los puntos de la auditoría (aviso legal en el paso, cambio de tipo con Deshacer, precio de las tarjetas, opciones del sider).
 - `npm run e2e capturas`: las 16 capturas de `screenshots/` (4 tipos × estudio/exterior × escritorio 1440×900 / iPhone 13 emulado), revisadas a ojo.
 - `npm run e2e rendimiento`: carga, fps y la prueba de estrés de 200 cambios.
 - PDF revisado página por página (3 páginas, con y sin datos de cliente).

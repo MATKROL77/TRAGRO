@@ -1,4 +1,4 @@
-import { Suspense, useEffect, useRef } from 'react';
+import { lazy, Suspense, useEffect, useRef } from 'react';
 import * as THREE from 'three';
 import { Canvas, useFrame, useThree } from '@react-three/fiber';
 import { useProgress } from '@react-three/drei';
@@ -7,12 +7,15 @@ import { useStore } from '@/state/store';
 import { isActive } from './activity';
 import { poseFor } from './camera';
 import { CameraRig, FOV, rigLock } from './CameraRig';
-import { composerRef, Effects } from './Effects';
+import { composerRef } from './composerRef';
 import { Hotspots } from './Hotspots';
 import { Scene } from './Scene';
 import { Tractor } from './Tractor';
 import { TrailerObject, buildTimes, currentModel, useGeometryCrossfade } from './TrailerObject';
 import { registerViewer, type SnapshotOptions } from './viewerApi';
+
+// El postprocesado (≈160 KB) se baja aparte, en paralelo con el HDRI: no pesa en la carga inicial.
+const Effects = lazy(() => import('./Effects'));
 
 const MAX_PIXELS = 9_000_000;
 
@@ -261,10 +264,11 @@ export function Viewer() {
           <TrailerObject />
           <Tractor />
           <Hotspots />
+          {/* Dentro del mismo Suspense: el equipo aparece ya con su tono final, sin destello. */}
+          <Effects />
           <ReadySignal />
         </Suspense>
         <CameraRig />
-        <Effects />
         <Bridge overlay={overlay} />
       </Canvas>
       <canvas ref={overlay} className="viewer-fade" aria-hidden="true" />

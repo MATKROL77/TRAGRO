@@ -7,7 +7,7 @@
  * - `sanitize` reconstruye una configuración válida a partir de datos no confiables (URL).
  */
 import { groupDef, groupsForType, isRal, isTypeId, matches, optionsFor, rangeFor, rules, typeDef } from './catalog';
-import type { Config, FontId, GroupDef, Notice, RangeDef, Tx, TypeId, Value } from './types';
+import type { AdjustedItem, Config, FontId, GroupDef, Notice, RangeDef, Tx, TypeId, Value } from './types';
 
 const MAX_ITER = 8;
 const FONTS: FontId[] = ['manrope', 'barlow', 'slab'];
@@ -189,20 +189,53 @@ export function applyChange(cfg: Config, key: string, value: Value): { config: C
   return resolve({ ...cfg, sel: { ...cfg.sel, [key]: v } });
 }
 
-/** Cambia el tipo de semirremolque conservando lo que siga teniendo sentido. */
-export function changeType(cfg: Config, tipo: TypeId): { config: Config; notices: Notice[] } {
-  if (tipo === cfg.tipo) return { config: cfg, notices: [] };
+const sameValue = (a: Value | undefined, b: Value | undefined) => (typeof a === 'number' && typeof b === 'number' ? Math.abs(a - b) < 1e-9 : a === b);
+
+/** Elecciones que se intentan conservar al cambiar de tipo (si el tipo nuevo las admite). */
+const CARRY = ['largo', 'alto', 'ejes', 'ejeElevable', 'suspension', 'ruedas', 'llantas', 'frenos', 'colorLona', 'cajon', 'portaauxilio', 'tanqueAgua', 'matafuego', 'lucesLed', 'faldones', 'tractor'];
+
+/**
+ * Cambia el tipo de semirremolque conservando todo lo compatible: ejes, rodado, frenos,
+ * medidas dentro del rango del tipo nuevo, colores, logo y texto. Devuelve lo que no se
+ * pudo conservar para avisarlo (con opción de deshacer).
+ */
+export function changeType(cfg: Config, tipo: TypeId): { config: Config; notices: Notice[]; adjusted: AdjustedItem[] } {
+  if (tipo === cfg.tipo) return { config: cfg, notices: [], adjusted: [] };
   const next = defaultConfig(tipo);
-  // Se conservan los grupos comunes que no dependen del tipo (rodado, accesorios, tractor)…
-  const keep = ['suspension', 'ruedas', 'llantas', 'frenos', 'cajon', 'portaauxilio', 'tanqueAgua', 'matafuego', 'lucesLed', 'faldones', 'tractor'];
-  for (const key of keep) {
+  // Solo se lleva lo que la persona eligió: lo que sigue en el valor sugerido del tipo anterior
+  // toma el sugerido del tipo nuevo (así, sin tocar nada, cada tipo arranca en su "desde").
+  const base = defaultConfig(cfg.tipo);
+  const wanted: Record<string, Value> = {};
+  for (const key of CARRY) {
     const g = groupDef(key);
-    if (g && key in next.sel && key in cfg.sel && isValidValue(g, tipo, cfg.sel[key])) next.sel[key] = cfg.sel[key];
+    if (!g || !(key in next.sel) || !(key in cfg.sel)) continue;
+    const v = cfg.sel[key];
+    if (sameValue(v, base.sel[key])) continue;
+    if (g.tipo === 'rango') {
+      const r = rangeFor(tipo, key);
+      if (!r || typeof v !== 'number') continue;
+      // La altura mide cosas distintas según el tipo (caja, baranda, interior): solo se conserva si entra en el rango.
+      if (key === 'alto' && (v < r.min - 1e-9 || v > r.max + 1e-9)) continue;
+      wanted[key] = v;
+      next.sel[key] = snap(v, r);
+    } else if (isValidValue(g, tipo, v)) {
+      wanted[key] = v;
+      next.sel[key] = v;
+    } else if (key === 'colorLona' || key === 'ejes') {
+      wanted[key] = v;
+    }
   }
-  // …y la personalización (logo y texto). Los colores vuelven a los sugeridos para el tipo.
+  if (cfg.colores.chasis !== base.colores.chasis) next.colores.chasis = cfg.colores.chasis;
+  if (cfg.colores.caja !== base.colores.caja) next.colores.caja = cfg.colores.caja;
   next.logo = { ...cfg.logo };
   next.texto = { ...cfg.texto };
-  return resolve(next);
+  const out = resolve(next);
+  const adjusted: AdjustedItem[] = [];
+  for (const [key, v] of Object.entries(wanted)) {
+    const final = out.config.sel[key];
+    if (final !== undefined && final !== v) adjusted.push({ key, from: v, to: final });
+  }
+  return { ...out, adjusted };
 }
 
 function num(v: unknown, min: number, max: number, fallback: number): number {

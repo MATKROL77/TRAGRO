@@ -149,15 +149,24 @@ h1, h2, h3, h4, p { margin: 0; }
 .slider { padding: 0.25rem 0 0; }
 .slider-track-wrap { position: relative; height: 44px; display: flex; align-items: center; }
 .slider input[type='range'] { -webkit-appearance: none; appearance: none; width: 100%; height: 44px; margin: 0; background: transparent; position: relative; z-index: 2; }
-.slider input[type='range']::-webkit-slider-runnable-track { height: 4px; border-radius: 2px; background: linear-gradient(90deg, var(--acento) var(--pct), var(--borde-btn) var(--pct)); }
-.slider input[type='range']::-moz-range-track { height: 4px; border-radius: 2px; background: var(--borde-btn); }
-.slider input[type='range']::-moz-range-progress { height: 4px; border-radius: 2px; background: var(--acento); }
+.slider input[type='range']::-webkit-slider-runnable-track { height: 5px; border-radius: 3px; background: var(--track); }
+.slider input[type='range']::-moz-range-track { height: 5px; border-radius: 3px; background: var(--track); }
+
 .slider input[type='range']::-webkit-slider-thumb { -webkit-appearance: none; width: 20px; height: 20px; margin-top: -8px; border-radius: 50%; background: var(--acento); border: 3px solid #fff; box-shadow: 0 1px 6px rgba(20, 33, 43, 0.35); }
 .slider input[type='range']::-moz-range-thumb { width: 16px; height: 16px; border-radius: 50%; background: var(--acento); border: 3px solid #fff; }
 .slider-ticks { position: absolute; left: 11px; right: 11px; top: 50%; display: flex; justify-content: space-between; pointer-events: none; transform: translateY(8px); }
 .slider-ticks i { width: 1px; height: 5px; background: var(--borde-btn); }
-.slider-track-wrap::after { content: ''; position: absolute; left: 0; top: 50%; height: 6px; margin-top: -3px; width: var(--blocked); border-radius: 3px 0 0 3px; background: repeating-linear-gradient(135deg, var(--borde-fuerte) 0 4px, var(--sup) 4px 8px); z-index: 1; pointer-events: none; }
-.slider-scale { display: flex; justify-content: space-between; font-size: 12px; color: var(--apagado); margin-top: -4px; }
+.slider-legal { position: absolute; top: 50%; left: calc(11px + (100% - 22px) * var(--legal) / 100%); width: 2px; height: 16px; margin: -8px 0 0 -1px; background: var(--error); border-radius: 1px; pointer-events: none; z-index: 1; }
+/* El foco va alrededor del riel, sin tapar las etiquetas de mínimo y máximo. */
+.slider input[type='range']:focus-visible { outline: none; }
+.slider-track-wrap:focus-within { outline: 2px solid var(--acento); outline-offset: 0; border-radius: 10px; }
+.slider-scale { display: flex; justify-content: space-between; font-size: 12px; color: var(--apagado); margin-top: 6px; }
+.legal-max { font-size: 12.5px; color: var(--texto2); margin: -2px 0 0; }
+.legal-warn { display: flex; gap: 8px; align-items: flex-start; margin-top: 8px; padding: 8px 10px; border-radius: 0 8px 8px 0; border-left: 4px solid var(--error); background: #fdeaea; color: #7d1d16; font-size: 13px; line-height: 1.35; }
+.legal-warn svg { flex: none; margin-top: 1px; color: var(--error); }
+.legal-near { margin-top: 6px; font-size: 12.5px; color: var(--alerta); }
+.group-head .valor.is-bad { color: var(--error); }
+.range-note { margin-top: 6px; }
 
 /* ---------- Panel lateral: pestañas Configurar / Datos técnicos ---------- */
 .embed-lu { display: flex; justify-content: flex-end; padding: 10px 14px 0; flex: none; }
@@ -322,7 +331,7 @@ textarea.input { padding: 10px 12px; min-height: 84px; resize: vertical; }
 kbd { display: inline-grid; place-items: center; min-width: 1.6em; padding: 0.05em 0.4em; border-radius: 5px; border: 1px solid var(--borde); background: var(--tinte); font: 700 11px ui-monospace, monospace; color: var(--texto2); }
 
 /* Tarjeta de precio y datos (arriba a la izquierda) */
-.price-float { position: absolute; left: 14px; top: 14px; z-index: 11; width: min(400px, 46%); }
+.price-float { position: absolute; left: 14px; top: 14px; z-index: 11; width: clamp(310px, 46%, 400px); }
 .pcard { flex: none; display: flex; flex-direction: column; background: rgba(247, 245, 241, 0.98); border-radius: 14px; box-shadow: 0 6px 24px rgba(27, 39, 71, 0.12); overflow: hidden; }
 .pcard-head { display: flex; align-items: center; gap: 8px; width: 100%; min-height: 44px; padding: 10px 14px; border: 0; background: transparent; text-align: left; }
 .pcard-title { font-weight: 700; font-size: 14px; color: var(--texto); }
@@ -353,7 +362,11 @@ kbd { display: inline-grid; place-items: center; min-width: 1.6em; padding: 0.05
 /* Puntos de interés: anillo fino */
 .hotspot { width: 30px; height: 30px; margin: -15px 0 0 -15px; border-radius: 50%; border: 0; padding: 0; background: transparent; display: grid; place-items: center; position: relative; }
 .hotspot::before { content: ''; position: absolute; inset: -7px; }
-.hotspot i { width: 18px; height: 18px; border-radius: 50%; background: #fff; border: 2.5px solid var(--acento); box-shadow: 0 1px 4px rgba(0, 0, 0, 0.25); transition: transform 0.15s, background 0.15s; }
+.hotspot i { width: 14px; height: 14px; border-radius: 50%; background: #fff; border: 2.5px solid var(--acento); box-shadow: 0 1px 4px rgba(0, 0, 0, 0.25); transition: transform 0.15s, background 0.15s; }
+/* Con mouse, los puntos aparecen solo al pasar por el visor: el render queda limpio. */
+@media (hover: hover) {
+  .stage:not(:hover) .hotspot:not(.is-on) { opacity: 0 !important; pointer-events: none !important; }
+}
 .hotspot:hover i { transform: scale(1.25); }
 .hotspot.is-on i { background: var(--acento); }
 .hotcard { position: absolute; left: 14px; bottom: 84px; width: min(340px, calc(100% - 36px)); padding: 16px 8px 16px 18px; border-radius: 14px; background: rgba(250, 248, 244, 0.98); border-left: 4px solid var(--acento); box-shadow: var(--sombra); z-index: 15; display: grid; grid-template-columns: 1fr auto; gap: 4px 6px; }
@@ -422,47 +435,69 @@ kbd { display: inline-grid; place-items: center; min-width: 1.6em; padding: 0.05
   .ayuda-visor { display: none; }
 }
 
-/* ---------- Celular y tablet vertical ---------- */
+/* ---------- Celular y tablet vertical ----------
+   Visor arriba (36 % del alto), pasos en una fila deslizable, opciones a la vista y
+   una barra fija abajo con precio, semáforo (abre Datos técnicos) y "Siguiente". */
 @media (max-width: 900px) {
   :root { --head-h: 52px; }
   body { font-size: 14.5px; }
-  .main { grid-template-columns: minmax(0, 1fr); grid-template-rows: minmax(300px, 50dvh) minmax(0, 1fr); }
+  .app { grid-template-rows: var(--head-h) minmax(0, 1fr) auto; }
+  .app.embed { grid-template-rows: minmax(0, 1fr) auto; }
+  .main { grid-template-columns: minmax(0, 1fr); grid-template-rows: 36svh minmax(0, 1fr); }
   .header { padding: 0 10px; gap: 8px; }
   .demo-badge, .hide-sm, .brand-tag, .pill-vendedor { display: none; }
   .lu-lang { height: 40px; }
   .seg-mini button { min-height: 34px; }
-  /* El panel es una hoja que se desliza sobre el visor y se recorre entera. */
-  .side { border-left: 0; border-radius: 18px 18px 0 0; margin-top: -16px; box-shadow: 0 -8px 24px rgba(20, 33, 43, 0.1); overflow-y: auto; }
-  .side::before { content: ''; display: block; width: 40px; height: 4px; border-radius: 4px; background: #cfd4d6; margin: 8px auto 0; flex-shrink: 0; }
-  .side .pcard { position: sticky; top: 0; z-index: 3; border-radius: 0; box-shadow: none; background: var(--sup); border-bottom: 1px solid var(--borde); }
-  .side .pcard-head { padding: 8px 14px 2px; }
-  .side .pcard .ph-amount { font-size: 20px; }
-  .side .pcard-kpis { display: none; }
-  .side .pcard .chev { display: none; }
-  .side .pcard .ph-actions { border-top: 0; padding: 6px 14px 10px; }
-  .side .pcard .ph-actions .btn { min-height: 44px; font-size: 13.5px; }
-  .config, .tech { flex: none; overflow: visible; }
-  .steps-body { overflow: visible; }
-  .steps-nav ol { grid-template-columns: repeat(3, minmax(0, 1fr)); row-gap: 4px; }
-  .step-tab { font-size: 11.5px; min-height: 50px; }
-  .steps-foot { position: sticky; bottom: 0; z-index: 2; }
-  .topbar { top: auto; bottom: 26px; padding: 4px; border-radius: 14px; max-width: calc(100% - 16px); transform: none; }
+  .side { border-left: 0; border-radius: 16px 16px 0 0; margin-top: -12px; box-shadow: 0 -6px 18px rgba(20, 33, 43, 0.1); overflow: hidden; }
+  .config { flex: 1; min-height: 0; }
+  .steps-nav { border-bottom: 1px solid var(--borde); }
+  .steps-nav ol { display: flex; gap: 6px; overflow-x: auto; padding: 7px 12px 6px; scrollbar-width: none; scroll-snap-type: x proximity; }
+  .steps-nav ol::-webkit-scrollbar { display: none; }
+  .steps-nav li { flex: none; scroll-snap-align: center; }
+  .step-tab { flex-direction: row; gap: 6px; width: auto; min-width: 44px; min-height: 44px; padding: 0 10px; border-radius: 999px; border: 1px solid var(--borde); background: var(--tarjeta); font-size: 13px; justify-content: center; }
+  .step-tab.is-on { box-shadow: none; border-color: var(--acento); background: var(--acento); color: var(--acento-texto); border-radius: 999px; padding: 0 14px 0 6px; }
+  .step-tab.is-on .num { background: var(--acento-texto); color: var(--acento); border-color: var(--acento-texto); }
+  /* Solo el paso activo muestra el nombre; el resto, el número. */
+  .step-tab:not(.is-on) .step-name { display: none; }
+  /* El número de paso ya está en las píldoras: el encabezado queda en dos líneas cortas. */
+  .step-head { padding: 8px 16px 0; }
+  .step-head .kicker { display: none; }
+  .step-head h2 { font-size: 17px; line-height: 1.2; }
+  .step-head p { font-size: 12.5px; margin-top: 1px; }
+  .steps-body { padding: 8px 16px 14px; }
+  .steps-foot { display: none; }
+  .mbar { display: flex; align-items: center; gap: 10px; padding: 5px 12px calc(5px + env(safe-area-inset-bottom)); background: var(--sup); border-top: 1px solid var(--borde); box-shadow: 0 -4px 16px rgba(20, 33, 43, 0.08); z-index: 7; }
+  .mbar-price { display: grid; flex: 1; min-width: 0; gap: 0; justify-items: start; min-height: 46px; padding: 0 4px; border: 0; background: transparent; text-align: left; }
+  .mbar-k { display: flex; align-items: center; gap: 6px; font-size: 10.5px; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; color: var(--apagado); }
+  .mbar-v { font-size: 19px; font-weight: 800; line-height: 1.1; font-variant-numeric: tabular-nums; white-space: nowrap; }
+  .mbar-link { display: inline-flex; align-items: center; gap: 2px; font-size: 12px; font-weight: 600; color: var(--acento); }
+  .mbar-go { min-height: 46px; padding: 0 18px; flex: none; }
+  .topbar { top: auto; bottom: 22px; padding: 4px; border-radius: 14px; max-width: calc(100% - 16px); transform: none; }
   .tb-btn, .tb-btn.tb-icon { min-height: 44px; min-width: 44px; padding: 0 8px; font-size: 12.5px; justify-content: center; }
   .tb-label { display: none !important; }
   .tb-sep { display: none; }
   .tb-primary { padding: 0 12px; margin: 0 2px; }
-  .compare-fab { top: 10px; bottom: auto; right: 10px; min-height: 46px; padding: 0 16px; font-size: 13.5px; }
-  .popover { max-height: calc(50dvh - 7rem); overflow-y: auto; }
-  .lu-langs button { min-width: 28px; padding: 0 6px; }
+  .popover { max-height: calc(36svh - 5rem); overflow-y: auto; }
   .lu .seg-mini button { padding: 0 7px; }
   .header-right { gap: 4px; }
-  .notices { top: 66px; right: 10px; }
-  .hotcard { top: auto; bottom: 84px; left: 10px; right: 10px; width: auto; }
+  .notices { top: 8px; right: 8px; width: calc(100% - 16px); }
+  /* Aviso compacto: no debe tapar el equipo. */
+  .notice { padding: 7px 4px 7px 10px; gap: 6px; font-size: 12.5px; border-radius: 12px; }
+  .notice .icon-btn { width: 30px; height: 30px; margin: -5px 0; }
+  .notice-list { margin: 2px 0 0; font-size: 12.5px; }
+  .notice-undo { min-height: 30px; margin-top: 4px; padding: 0 12px; font-size: 12.5px; }
+  .hotcard { top: auto; bottom: 80px; left: 10px; right: 10px; width: auto; }
   .ayuda-visor { display: none; }
   .kpi-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-  .tipo-card { min-height: 0; }
+  .tipo-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
+  .tipo-card { min-height: 0; padding: 10px 11px 9px; gap: 2px; }
+  .tipo-card .nombre { font-size: 15px; }
+  .tipo-card .desc { font-size: 11.5px; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+  .tipo-card .desde { font-size: 12px; padding-top: 4px; }
+  .tipo-card svg { height: 22px; margin-top: 4px; }
   .modal-backdrop { padding: 0; align-items: end; }
   .modal { width: 100%; max-height: 92dvh; border-radius: 18px 18px 0 0; }
+  .modal .tech { padding: 0; overflow: visible; }
   .renders { grid-template-columns: 1fr 1fr; grid-template-rows: auto; }
   .renders img:first-child { grid-column: 1 / -1; grid-row: auto; }
   .grid-2 { grid-template-columns: 1fr; }
@@ -470,14 +505,16 @@ kbd { display: inline-grid; place-items: center; min-width: 1.6em; padding: 0.05
 @media (max-width: 420px) {
   .brand-name { display: none; }
   .lu .seg-mini button { padding: 0 7px; font-size: 12px; }
+  .tipo-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+@media (max-width: 340px) {
   .tipo-grid { grid-template-columns: minmax(0, 1fr); }
 }
 @media (max-width: 900px) and (orientation: landscape) and (max-height: 520px) {
-  .app { grid-template-rows: minmax(0, 1fr); }
+  .app { grid-template-rows: minmax(0, 1fr) auto; }
   .header { display: none; }
   .main { grid-template-columns: minmax(0, 1fr) 46vw; grid-template-rows: minmax(0, 1fr); }
   .side { margin-top: 0; border-radius: 0; border-left: 1px solid var(--borde); }
-  .side::before { display: none; }
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -589,3 +626,38 @@ kbd { display: inline-grid; place-items: center; min-width: 1.6em; padding: 0.05
   .share-row { flex-direction: column; }
   .lead-ok-actions .btn { flex: 1 1 100%; }
 }
+
+/* ---------- avisos con detalle y "Deshacer" ---------- */
+.notice-list { margin: 6px 0 4px; padding-left: 18px; display: grid; gap: 2px; font-size: 13px; }
+.notice-undo { margin-top: 6px; min-height: 36px; padding: 0 14px; border-radius: 999px; border: 1.5px solid var(--acento); background: transparent; color: var(--acento); font-weight: 700; font-size: 13px; }
+.notice-undo:hover { background: var(--acento); color: var(--acento-texto); }
+
+/* ---------- tarjeta de precio: semáforo que abre Datos técnicos ---------- */
+.pcard-head { display: flex; align-items: center; gap: 2px; padding: 0 6px 0 4px; }
+.pcard-dot { display: grid; place-items: center; width: 40px; height: 44px; border: 0; background: transparent; border-radius: 10px; flex: none; }
+.pcard-dot:hover { background: var(--sup2); }
+.pcard-toggle { display: flex; align-items: center; gap: 8px; flex: 1; min-width: 0; min-height: 44px; padding: 8px 8px 8px 2px; border: 0; background: transparent; text-align: left; }
+.pcard-alert { display: flex; align-items: center; gap: 8px; width: 100%; min-height: 40px; padding: 6px 14px; border: 0; border-top: 1px solid #f3c9c6; background: #fdeaea; color: #7d1d16; font-weight: 650; font-size: 13px; text-align: left; }
+.pcard-alert svg { color: var(--error); flex: none; }
+.pcard-alert-ver { margin-left: auto; white-space: nowrap; text-decoration: underline; }
+
+/* ---------- cartel de límite legal (Resumen y consulta) ---------- */
+.legal-banner { display: flex; gap: 10px; align-items: flex-start; padding: 12px 14px; border-radius: 0 10px 10px 0; border-left: 4px solid var(--error); background: #fdeaea; color: #5c1611; }
+.legal-banner svg { flex: none; color: var(--error); margin-top: 1px; }
+.legal-banner strong { display: block; font-size: 15px; }
+.legal-banner p { margin: 2px 0 0; font-size: 13.5px; }
+
+/* ---------- carga: imagen real del equipo mientras baja el 3D ---------- */
+.loading { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 10px; background: var(--escenario); }
+.loading-img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; opacity: 0.9; }
+.loading .loading-box { position: relative; margin-top: auto; margin-bottom: 9%; width: min(360px, 80%); padding: 14px 18px; border-radius: 14px; background: rgba(247, 245, 241, 0.94); box-shadow: var(--sombra); text-align: left; }
+.loading .loading-box h2 { margin-top: 0; font-size: 15px; }
+.loading .loading-box p { font-size: 12.5px; }
+.loading .progress { margin-top: 10px; }
+
+@media (max-width: 1180px) {
+  .pcard-kpis > div { padding: 8px 10px; }
+  .pcard-kpis > div > span { font-size: 10px; letter-spacing: 0.04em; }
+}
+.lu-lang select, .lu-lang option { font-family: 'Inter UI Latin', system-ui, sans-serif; }
+:lang(ru) .lu-lang select, :lang(ru) .lu-lang option { font-family: inherit; }

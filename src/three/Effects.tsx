@@ -1,16 +1,14 @@
 import { EffectComposer, N8AO, Bloom, ToneMapping, SMAA, HueSaturation, BrightnessContrast } from '@react-three/postprocessing';
 import { ToneMappingMode, type EffectComposer as ComposerImpl } from 'postprocessing';
 import { useStore } from '@/state/store';
-
-/** Referencia al compositor para las capturas en alta resolución. */
-export const composerRef: { current: ComposerImpl | null } = { current: null };
+import { composerRef } from './composerRef';
 
 /**
  * Postprocesado sobrio, de fotografía de producto: oclusión ambiental (N8AO),
  * bloom mínimo solo para las luces, tone mapping AgX con una corrección leve
  * de contraste y saturación (AgX solo lava los colores RAL) y antialiasing.
  */
-export function Effects() {
+export default function Effects() {
   const calidad = useStore((s) => s.ui.calidad);
   const exterior = useStore((s) => s.ui.env === 'exterior');
   const high = calidad === 'alta';

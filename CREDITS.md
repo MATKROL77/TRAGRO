@@ -15,6 +15,7 @@ usar comercialmente, modificar y redistribuir sin atribución. Se los acredita i
 | Archivo final | Original | Autor | Origen | Licencia | Proceso |
 |---|---|---|---|---|---|
 | `public/assets/hdri/studio_512.hdr` | Studio Small 08 (`studio_small_08`, 1K) | Sergej Majboroda | https://polyhaven.com/a/studio_small_08 | CC0 1.0 | Reducido a 512×256 con filtro de área (liviano para la primera carga) |
+| `public/assets/hdri/studio_256.hdr` | Studio Small 08 (`studio_small_08`) | Sergej Majboroda | https://polyhaven.com/a/studio_small_08 | CC0 1.0 | Misma imagen reducida a 256×128 para celulares |
 | `public/assets/hdri/sky_1k.hdr` | Sunflowers (Pure Sky) (`sunflowers_puresky`, 1K) | Sergej Majboroda (original), Jarod Guest (edición de cielo) | https://polyhaven.com/a/sunflowers_puresky | CC0 1.0 | Disco solar recortado a radiancia 30 (el sol lo aporta una luz direccional) y hemisferio inferior reemplazado por rebote de suelo |
 | `public/assets/hdri/sky_4k.jpg` | Sunflowers (Pure Sky), JPG tonemapped 8K | Sergej Majboroda, Jarod Guest | https://polyhaven.com/a/sunflowers_puresky | CC0 1.0 | Reducido a 4096×2048; bajo el horizonte se extiende la bruma |
 

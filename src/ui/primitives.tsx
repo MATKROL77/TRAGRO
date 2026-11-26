@@ -34,7 +34,7 @@ export function Segmented<T extends string>({ options, value, onChange, label, s
   return (
     <div className={`seg seg-${size}`} role="radiogroup" aria-label={label}>
       {options.map((o) => (
-        <button key={o.value} type="button" role="radio" aria-checked={o.value === value} className={o.value === value ? 'is-on' : ''} onClick={() => onChange(o.value)}>
+        <button key={o.value} type="button" role="radio" aria-checked={o.value === value} aria-label={`${label}: ${o.label}`} className={o.value === value ? 'is-on' : ''} onClick={() => onChange(o.value)}>
           {o.icon ? <Icon name={o.icon} size={16} /> : null}
           <span>{o.label}</span>
         </button>
@@ -66,26 +66,27 @@ export function Stepper({ value, min = 0, max, onChange, label, canIncrease = tr
   );
 }
 
-export function Slider({ value, min, max, step, onChange, label, format, hardMin }: { value: number; min: number; max: number; step: number; onChange: (v: number) => void; label: string; format: (v: number) => string; hardMin?: number }) {
+/**
+ * Slider con el tramo fuera del límite legal pintado en rojo (legalMax). El mínimo es
+ * siempre el efectivo: no hay tramos muertos donde el tirador quede pegado.
+ */
+export function Slider({ value, min, max, step, onChange, label, format, legalMax }: { value: number; min: number; max: number; step: number; onChange: (v: number) => void; label: string; format: (v: number) => string; legalMax?: number }) {
   const id = useId();
-  const lo = hardMin ?? min;
-  const pct = ((value - lo) / Math.max(1e-6, max - lo)) * 100;
-  const blocked = hardMin !== undefined && min > hardMin ? ((min - hardMin) / (max - hardMin)) * 100 : 0;
-  const ticks = Math.round((max - lo) / step);
+  const span = Math.max(1e-6, max - min);
+  const pct = ((value - min) / span) * 100;
+  const legal = legalMax !== undefined && legalMax < max ? Math.max(0, ((legalMax - min) / span) * 100) : 100;
+  const ACC = 'var(--acento)', TRACK = 'var(--borde-btn)', RED = 'var(--error)', RED_SOFT = 'color-mix(in srgb, var(--error) 35%, transparent)';
+  const track =
+    legal >= 100
+      ? `linear-gradient(90deg, ${ACC} ${pct}%, ${TRACK} ${pct}%)`
+      : pct <= legal
+        ? `linear-gradient(90deg, ${ACC} ${pct}%, ${TRACK} ${pct}% ${legal}%, ${RED_SOFT} ${legal}%)`
+        : `linear-gradient(90deg, ${ACC} ${legal}%, ${RED} ${legal}% ${pct}%, ${RED_SOFT} ${pct}%)`;
+  const ticks = Math.round((max - min) / step);
   return (
     <div className="slider">
-      <div className="slider-track-wrap" style={{ ['--pct' as string]: `${pct}%`, ['--blocked' as string]: `${blocked}%` }}>
-        <input
-          id={id}
-          type="range"
-          min={lo}
-          max={max}
-          step={step}
-          value={value}
-          aria-label={label}
-          aria-valuetext={format(value)}
-          onChange={(e) => onChange(Math.max(min, Number(e.target.value)))}
-        />
+      <div className={`slider-track-wrap ${legal < 100 ? 'has-legal' : ''}`} style={{ ['--track' as string]: track, ['--legal' as string]: `${legal}%` }}>
+        <input id={id} type="range" min={min} max={max} step={step} value={value} aria-label={label} aria-valuetext={format(value)} onChange={(e) => onChange(Number(e.target.value))} />
         {ticks <= 16 ? (
           <div className="slider-ticks" aria-hidden="true">
             {Array.from({ length: ticks + 1 }, (_, i) => (
@@ -93,9 +94,10 @@ export function Slider({ value, min, max, step, onChange, label, format, hardMin
             ))}
           </div>
         ) : null}
+        {legal < 100 ? <span className="slider-legal" aria-hidden="true" /> : null}
       </div>
       <div className="slider-scale" aria-hidden="true">
-        <span>{format(lo)}</span>
+        <span>{format(min)}</span>
         <span>{format(max)}</span>
       </div>
     </div>

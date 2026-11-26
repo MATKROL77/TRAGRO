@@ -9,6 +9,7 @@ import { configHash, shareUrl } from '@/core/serialize';
 import { computeSpecs } from '@/core/specs';
 import type { Config, Lang, Tx, Units } from '@/core/types';
 import { unitFormatters } from '@/core/units';
+import { exceededText } from './quote';
 import { formatMoney, formatNumber, translate, translateTx } from '@/i18n';
 
 export interface Lead {
@@ -131,6 +132,8 @@ export function configSummaryLines(ctx: LeadContext): string[] {
   if (config.logo.data) out.push(t('lead.msg.logo'));
   if (config.texto.valor.trim()) out.push(t('lead.msg.texto', { texto: config.texto.valor.trim() }));
   out.push(`${t('lead.msg.tara', { valor: u.kg(specs.taraKg) })} · ${t('lead.msg.cargaUtil', { valor: u.kg(specs.cargaUtilKg) })}`);
+  const excede = exceededText(config, lang, ctx.units ?? 'metric', specs);
+  if (excede) out.push(t('lead.msg.excede', { lista: excede }));
   if (!ctx.hidePrices) out.push(t('lead.msg.precio', { monto: formatMoney(lang, price.totalUsd, ctx.moneda) }));
   return out;
 }

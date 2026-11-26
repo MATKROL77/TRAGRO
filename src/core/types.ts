@@ -113,6 +113,13 @@ export interface Notice {
   text: Tx;
 }
 
+/** Elección que no se pudo conservar al cambiar de tipo (para avisar con "Deshacer"). */
+export interface AdjustedItem {
+  key: string;
+  from: Value;
+  to: Value;
+}
+
 export interface RangeDef {
   min: number;
   max: number;

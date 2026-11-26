@@ -1,8 +1,8 @@
 import { describe, expect, it } from 'vitest';
-import { TYPE_IDS, groupDef, legal, pricing, rangeFor, typeDef } from '@/core/catalog';
-import { applyChange, changeType, defaultConfig, effectiveRange, optionState, resolve, sanitize } from '@/core/rules';
-import { priceBreakdown, deltaVsCurrent } from '@/core/pricing';
-import { combinationMaxT, computeSpecs, semiAxleCapacityT, tareBreakdown } from '@/core/specs';
+import { TYPE_IDS, groupDef, legal, pricing, rangeFor, typeDef, types } from '@/core/catalog';
+import { applyChange, changeType, defaultConfig, effectiveRange, isGroupVisible, optionState, resolve, sanitize } from '@/core/rules';
+import { priceBreakdown, deltaVsCurrent, priceIfType, startingPriceUsd } from '@/core/pricing';
+import { combinationMaxT, computeSpecs, legalMaxFor, semiAxleCapacityT, tareBreakdown } from '@/core/specs';
 import { computeLayout, SPREAD_MIN } from '@/core/layout';
 import { configHash, decodeConfig, encodeConfig, shareUrl, MAX_LOGO_IN_LINK } from '@/core/serialize';
 import type { Config } from '@/core/types';
@@ -88,16 +88,53 @@ describe('reglas de compatibilidad', () => {
     expect(set(cfg, 'largo', 10.26).config.sel.largo).toBe(10.5);
   });
 
-  it('cambiar de tipo conserva rodado, accesorios y personalización', () => {
-    let cfg = set(defaultConfig(), 'llantas', 'aluminio').config;
-    cfg = { ...cfg, texto: { ...cfg.texto, valor: 'Transportes La Unión' } };
-    const next = changeType(cfg, 'batea').config;
+  it('cambiar de tipo conserva ejes, rodado, medidas, colores y personalización', () => {
+    let cfg = set(set(set(defaultConfig(), 'llantas', 'aluminio').config, 'ejes', 'tandem').config, 'largo', 9).config;
+    cfg = { ...cfg, colores: { chasis: 'RAL 9005', caja: 'RAL 5010' }, texto: { ...cfg.texto, valor: 'Transportes La Unión' } };
+    const { config: next, adjusted } = changeType(cfg, 'batea');
     expect(next.tipo).toBe('batea');
     expect(next.sel.llantas).toBe('aluminio');
+    expect(next.sel.ejes).toBe('tandem');
+    expect(next.sel.largo).toBe(9);
     expect(next.sel.bocas).toBeUndefined();
     expect(next.sel.materialBatea).toBe('acero');
     expect(next.texto.valor).toBe('Transportes La Unión');
-    expect(next.colores).toEqual(typeDef('batea').colores);
+    expect(next.colores).toEqual({ chasis: 'RAL 9005', caja: 'RAL 5010' });
+    expect(adjusted).toEqual([]);
+  });
+
+  it('sin cambios propios, cada tipo arranca en su configuración sugerida (su "desde")', () => {
+    for (const tipo of ['batea', 'plataforma', 'furgon'] as const) {
+      const { config: next, adjusted } = changeType(defaultConfig('tolva'), tipo);
+      expect(next).toEqual(defaultConfig(tipo));
+      expect(adjusted).toEqual([]);
+      expect(priceIfType(defaultConfig('tolva'), tipo)).toBe(startingPriceUsd(tipo));
+    }
+  });
+
+  it('al cambiar de tipo informa lo que no pudo conservar', () => {
+    const cfg = set(defaultConfig('tolva'), 'largo', 9).config;
+    const r = rangeFor('furgon', 'largo')!;
+    const { config: next, adjusted } = changeType(cfg, 'furgon');
+    if (Number(cfg.sel.largo) < r.min) {
+      expect(next.sel.largo).toBe(r.min);
+      expect(adjusted).toContainEqual({ key: 'largo', from: cfg.sel.largo, to: r.min });
+    }
+    // Lo que no aplica al tipo nuevo (bocas de la tolva) no se reporta como ajuste.
+    expect(adjusted.some((a) => a.key === 'bocas')).toBe(false);
+  });
+
+  it('el sider tiene sus opciones propias y el furgón no', () => {
+    const furgon = defaultConfig('furgon');
+    const sider = set(furgon, 'variante', 'sider').config;
+    const vis = (cfg: typeof furgon, id: string) => isGroupVisible(groupDef(id)!, cfg);
+    for (const id of ['parantes', 'tablillas', 'techo', 'tensado']) {
+      expect(vis(furgon, id), id).toBe(false);
+      expect(vis(sider, id), id).toBe(true);
+    }
+    const base = priceBreakdown(sider).totalUsd;
+    const corredizo = priceBreakdown(set(sider, 'techo', 'corredizo').config).totalUsd;
+    expect(corredizo - base).toBe((pricing.opciones.techo as Record<string, number>).corredizo);
   });
 
   it('todas las reglas apuntan a grupos y opciones que existen', async () => {
@@ -144,7 +181,8 @@ describe('precio', () => {
     const cfg = defaultConfig();
     expect(deltaVsCurrent(cfg, groupDef('frenos')!, 'ebs')).toBe(2150);
     expect(deltaVsCurrent(cfg, groupDef('ejes')!, 'tandem')).toBe(-5400);
-    expect(deltaVsCurrent(cfg, groupDef('cajon')!, 2)).toBe(390);
+    // Los accesorios arrancan apagados (salvo el matafuego): dos cajones suman dos veces su precio.
+    expect(deltaVsCurrent(cfg, groupDef('cajon')!, 2)).toBe(2 * 390);
   });
 
   it('logo y texto suman su recargo', () => {
@@ -166,7 +204,8 @@ describe('tara y carga útil', () => {
   it('la tara es la suma de componentes del catálogo', () => {
     const cfg = defaultConfig();
     const t = tareBreakdown(cfg);
-    const manual = 5550 + 470 * 3 + 101 * 12 + 58 + 38 + 42 + 9 + 16;
+    // Base + suspensión mecánica x3 + 12 ruedas duales + lona PVC 650 + matafuego.
+    const manual = 5550 + 470 * 3 + 101 * 12 + 58 + 16;
     expect(t.totalKg).toBe(Math.round(manual / 10) * 10);
     expect(t.totalKg).toBeGreaterThan(7500);
     expect(t.totalKg).toBeLessThan(9500);
@@ -206,6 +245,21 @@ describe('tara y carga útil', () => {
 });
 
 describe('validación legal y dimensiones', () => {
+  it('máximo legal de altura y largo con el resto fijo', () => {
+    const cfg = defaultConfig('tolva');
+    const s = computeSpecs(cfg);
+    const alto = legalMaxFor(s, 'alto', Number(cfg.sel.alto))!;
+    const chk = s.checks.find((c) => c.id === 'alto')!;
+    expect(alto.max).toBeCloseTo(Number(cfg.sel.alto) + chk.limit - chk.value, 2);
+    // En el máximo, el alto total queda justo en el límite; un paso más, lo supera.
+    expect(computeSpecs(set(cfg, 'alto', alto.max).config).checks.find((c) => c.id === 'alto')!.value).toBeLessThanOrEqual(chk.limit + 1e-6);
+    expect(legalMaxFor(s, 'ejes', 1)).toBeNull();
+  });
+
+  it('el "desde" de cada tipo es el precio con el que arranca', () => {
+    for (const t of types) expect(startingPriceUsd(t.id)).toBe(priceBreakdown(defaultConfig(t.id)).totalUsd);
+  });
+
   it('el default es verde', () => {
     for (const tipo of TYPE_IDS) {
       const s = computeSpecs(defaultConfig(tipo));

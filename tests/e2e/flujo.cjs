@@ -7,6 +7,18 @@ const path = require('node:path');
 const fs = require('node:fs');
 const { launch, openApp, state, setUi, sleep, settle, OUT, Report } = require('./lib.cjs');
 
+/** Espera a que la cámara deje de moverse (con SwiftShader las transiciones van a pocos cuadros por segundo). */
+async function camStill(page, maxMs = 15000) {
+  const start = Date.now();
+  let last = null;
+  while (Date.now() - start < maxMs) {
+    await sleep(600);
+    const c = await page.evaluate(() => window.__viewer.camera());
+    if (last && Math.hypot(...c.position.map((v, i) => v - last.position[i])) < 0.02) return;
+    last = c;
+  }
+}
+
 const LOGO = path.join(__dirname, 'fixtures', 'logo.png');
 const dist = (a, b) => Math.hypot(a[0] - b[0], a[1] - b[1], a[2] - b[2]);
 
@@ -33,12 +45,15 @@ async function run() {
   await page.click('[data-paso="dimensiones"]');
   const before = (await state(page)).sel.largo;
   const slider = page.locator('.steps-body input[type="range"]').first();
+  // El rango depende de lo que se trajo del tipo anterior (p. ej. 1+1+1 pide 9,5 m o más): se mueve hacia donde haya lugar.
+  const rng = await slider.evaluate((e) => ({ min: +e.min, max: +e.max, step: +e.step }));
+  const up = before + rng.step <= rng.max;
   await slider.focus();
-  await page.keyboard.press('ArrowRight');
-  await page.keyboard.press('ArrowRight');
+  await page.keyboard.press(up ? 'ArrowRight' : 'ArrowLeft');
   await sleep(500);
   const cfg2 = await state(page);
-  report.ok('medidas: el largo cambia con el teclado', cfg2.sel.largo === before + 1, `${before} → ${cfg2.sel.largo} m`);
+  const esperado = +(before + (up ? rng.step : -rng.step)).toFixed(2);
+  report.ok('medidas: el largo cambia con el teclado', cfg2.sel.largo === esperado, `${before} → ${cfg2.sel.largo} m (rango ${rng.min}–${rng.max})`);
   report.ok('medidas: volumen calculado en vivo', /m³/.test(await page.locator('[data-testid="volumen"]').textContent()));
 
   // --- Paso 3: ejes y rodado + regla de compatibilidad --------------------------------
@@ -69,11 +84,12 @@ async function run() {
 
   // --- Paso 5: accesorios -----------------------------------------------------------
   await page.click('[data-paso="accesorios"]');
+  const cajon0 = (await state(page)).sel.cajon;
   await page.click('[data-opt="cajon"] .stepper button:last-child');
   await page.click('[data-opt="lucesLed"] .switch');
   await sleep(500);
   const cfg5 = await state(page);
-  report.ok('accesorios: segundo cajón y luces LED', cfg5.sel.cajon === 2 && cfg5.sel.lucesLed === true);
+  report.ok('accesorios: arrancan apagados (salvo matafuego); se suma un cajón y luces LED', cajon0 === 0 && cfg5.sel.cajon === 1 && cfg5.sel.lucesLed === true && cfg5.sel.matafuego === true);
 
   // --- Paso 6: personalización -------------------------------------------------------
   await page.click('[data-paso="personalizacion"]');
@@ -116,14 +132,16 @@ async function run() {
   // --- Acercamiento automático al cambiar una opción y regreso -------------------------------
   await sleep(1500);
   await settle(page);
-  const home = await page.evaluate(() => window.__viewer.camera());
+  // Cada paso tiene su cámara: primero se llega a la de "Ejes y rodado" y desde ahí se mide.
   await page.evaluate(() => { window.__fast = false; const s = window.__store.getState(); s.setUi({ autoFoco: true, paso: 'rodado' }); });
+  await camStill(page);
+  const home = await page.evaluate(() => window.__viewer.camera());
   await page.click('[data-opt="llantas:acero"]');
   let near = null;
   for (let i = 0; i < 20 && !near; i++) {
     await sleep(700);
     const c = await page.evaluate(() => window.__viewer.camera());
-    if (dist(c.position, c.target) < dist(home.position, home.target) * 0.6) near = c;
+    if (dist(c.position, home.position) > 1.2 && dist(c.position, c.target) < dist(home.position, home.target) * 0.95) near = c;
   }
   report.ok('la cámara se acerca a la zona afectada', !!near, near ? `distancia ${dist(near.position, near.target).toFixed(1)} m (antes ${dist(home.position, home.target).toFixed(1)} m)` : '');
   let back = false;
@@ -265,6 +283,70 @@ async function run() {
   report.ok('sin errores de consola en todo el flujo', errors.length === 0, errors.slice(0, 3).join(' | '));
   await page.context().close();
 
+  // --- Auditoría: avisos legales, cambio de tipo con Deshacer, Sider y "desde" -------------------
+  const a = await openApp(browser);
+  await setUi(a.page, { autoFoco: false });
+  await a.page.click('[data-paso="dimensiones"]');
+  await a.page.evaluate(() => window.__store.getState().setOption('alto', 2.5));
+  await sleep(600);
+  report.ok('medidas: el alto ilegal avisa en el mismo paso con el máximo', await a.page.locator('[data-testid="aviso-legal-alto"]').isVisible(), ((await a.page.locator('[data-testid="aviso-legal-alto"]').textContent()) || '').trim());
+  report.ok('medidas: el tramo ilegal del slider está marcado', (await a.page.locator('.slider-track-wrap.has-legal').count()) >= 1);
+  await a.page.click('[data-testid="pcard-legal"]');
+  await sleep(400);
+  report.ok('el punto rojo del precio abre Datos técnicos', (await a.page.evaluate(() => window.__store.getState().ui.pestana)) === 'tecnico');
+  await a.page.click('[data-testid="btn-resumen"]');
+  report.ok('resumen: cartel rojo de límite legal', await a.page.waitForSelector('[data-testid="cartel-legal"]', { timeout: 30000 }).then(() => true).catch(() => false));
+  await a.page.keyboard.press('Escape');
+  await sleep(300);
+  const desde = await a.page.evaluate(() => {
+    const s = window.__store.getState();
+    s.setUi({ pestana: 'config', paso: 'tipo' });
+    return null;
+  });
+  void desde;
+  await sleep(400);
+  await a.page.evaluate(() => window.__store.getState().reset());
+  // El total se anima: se espera a que termine de contar.
+  let precioInicial = '';
+  for (let i = 0; i < 12; i++) {
+    await sleep(400);
+    const v = ((await a.page.locator('[data-testid="precio-total"]').textContent()) || '').replace(/\D/g, '');
+    if (v === precioInicial) break;
+    precioInicial = v;
+  }
+  const desdeTexto = ((await a.page.locator('[data-tipo="tolva"] .desde').textContent()) || '').trim();
+  const desdeTolva = desdeTexto.replace(/\D/g, '');
+  report.ok('la tarjeta dice "desde" mientras no se cambió nada', /^desde /.test(desdeTexto), desdeTexto);
+  report.ok('el "desde" coincide con el precio al entrar', desdeTolva.length > 3 && desdeTolva === precioInicial, `${desdeTolva} / ${precioInicial}`);
+  await a.page.evaluate(() => { const s = window.__store.getState(); s.setColor('caja', 'RAL 5010'); s.setOption('ejes', 'tandem'); s.setOption('largo', 9); });
+  await sleep(400);
+  const precioTarjeta = ((await a.page.locator('[data-testid="precio-tipo-furgon"]').textContent()) || '').replace(/\D/g, '');
+  await a.page.click('[data-tipo="furgon"]');
+  let precioFurgon = '';
+  for (let i = 0; i < 12; i++) {
+    await sleep(400);
+    const v = ((await a.page.locator('[data-testid="precio-total"]').textContent()) || '').replace(/\D/g, '');
+    if (v === precioFurgon) break;
+    precioFurgon = v;
+  }
+  report.ok('con opciones cambiadas, la tarjeta muestra el precio que queda al elegirla', precioTarjeta.length > 3 && precioTarjeta === precioFurgon, `${precioTarjeta} / ${precioFurgon}`);
+  const tf = await state(a.page);
+  report.ok('cambiar de tipo conserva ejes y color', tf.tipo === 'furgon' && tf.sel.ejes === 'tandem' && tf.colores.caja === 'RAL 5010', `${tf.sel.ejes} · ${tf.colores.caja}`);
+  const undo = a.page.locator('[data-testid="aviso-deshacer"]');
+  const hayUndo = await undo.count();
+  if (hayUndo) await undo.click();
+  await sleep(600);
+  report.ok('si algo no aplica, el aviso ofrece Deshacer y vuelve atrás', hayUndo > 0 && (await state(a.page)).tipo === 'tolva');
+  await a.page.evaluate(() => { const s = window.__store.getState(); s.setTipo('furgon'); s.setOption('variante', 'sider'); s.setUi({ paso: 'especificos' }); });
+  await sleep(800);
+  const siderOpts = await a.page.evaluate(() => ['parantes', 'tablillas', 'techo', 'tensado'].map((g) => !!document.querySelector(`[data-opt^="${g}:"]`)));
+  report.ok('sider: opciones de parantes, tablillas, techo y tensado', siderOpts.every(Boolean));
+  const orden = await a.page.evaluate(() => [...document.querySelectorAll('.steps-body .group h3')].map((h) => h.textContent));
+  report.ok('sider: "Color de lona" aparece debajo de lo que lo activa', orden.indexOf('Tipo de caja') >= 0 && orden.indexOf('Color de lona') > orden.indexOf('Tipo de caja'), orden.join(' › '));
+  report.ok('sider: la acción se llama "Correr lona"', ((await a.page.locator('[data-testid="tb-accion"]').getAttribute('title')) || '') === 'Correr lona');
+  report.ok('sin errores de consola (auditoría)', a.errors.length === 0, a.errors.slice(0, 3).join(' | '));
+  await a.page.context().close();
+
   // --- Modo vendedor ---------------------------------------------------------------------------
   const v = await openApp(browser, { url: '/?modo=vendedor' });
   report.ok('vendedor: interfaz ampliada', await v.page.evaluate(() => document.querySelector('.app').classList.contains('vendedor') && parseFloat(getComputedStyle(document.documentElement.querySelector('.app')).fontSize) > 16));
@@ -302,15 +384,18 @@ async function run() {
 
   // --- Celular -----------------------------------------------------------------------------------------
   const m = await openApp(browser, { mobile: true });
-  const small = await m.page.evaluate(() => [...document.querySelectorAll('.side button, .topbar button, .header button, .compare-fab')].filter((b) => b.offsetParent && (b.getBoundingClientRect().width < 43.5 || b.getBoundingClientRect().height < 43.5) && !b.classList.contains('hoja-asa') && !b.closest('.seg') && !b.classList.contains('switch')).map((b) => `${b.className} ${Math.round(b.getBoundingClientRect().width)}x${Math.round(b.getBoundingClientRect().height)}`));
+  const small = await m.page.evaluate(() => [...document.querySelectorAll('.side button, .topbar button, .header button, .mbar button')].filter((b) => b.offsetParent && (b.getBoundingClientRect().width < 43.5 || b.getBoundingClientRect().height < 43.5) && !b.classList.contains('hoja-asa') && !b.closest('.seg') && !b.classList.contains('switch')).map((b) => `${b.className} ${Math.round(b.getBoundingClientRect().width)}x${Math.round(b.getBoundingClientRect().height)}`));
   report.ok('celular: controles táctiles de 44 px o más', small.length === 0, small.slice(0, 4).join(' | '));
-  const layout = await m.page.evaluate(() => ({ stage: document.querySelector('.stage').getBoundingClientRect().height, total: innerHeight, over: document.documentElement.scrollWidth > innerWidth + 1 }));
-  report.ok('celular: visor arriba (≈ 50 % del alto) y sin desborde horizontal', layout.stage / layout.total > 0.44 && !layout.over, `${Math.round((layout.stage / layout.total) * 100)} % de alto`);
+  const layout = await m.page.evaluate(() => ({ stage: document.querySelector('.stage').getBoundingClientRect().height, opciones: document.querySelector('.steps-body').getBoundingClientRect().height, bar: !!document.querySelector('.mbar [data-testid="precio-total"]'), total: innerHeight, over: document.documentElement.scrollWidth > innerWidth + 1 }));
+  report.ok('celular: visor al 36 %, opciones a la vista y sin desborde', layout.stage / layout.total < 0.4 && layout.opciones / layout.total > 0.3 && !layout.over, `visor ${Math.round((layout.stage / layout.total) * 100)} % · opciones ${Math.round(layout.opciones)} px`);
+  report.ok('celular: barra fija con precio y "Siguiente"', layout.bar && (await m.page.locator('[data-testid="mbar-siguiente"]').isVisible()));
+  await m.page.tap('[data-testid="mbar-siguiente"]');
+  report.ok('celular: "Siguiente" avanza de paso', (await m.page.evaluate(() => window.__store.getState().ui.paso)) === 'dimensiones');
   await m.page.tap('[data-paso="rodado"]');
   await m.page.tap('[data-opt="frenos:ebs"]');
   report.ok('celular: se configura con el dedo', (await state(m.page)).sel.frenos === 'ebs');
-  await m.page.tap('[data-testid="tec-toggle"]');
-  report.ok('celular: pestaña de datos técnicos', await m.page.waitForSelector('[data-testid="checks"]', { timeout: 10000 }).then(() => true).catch(() => false));
+  await m.page.tap('[data-testid="mbar-tecnico"]');
+  report.ok('celular: el precio abre los datos técnicos', await m.page.waitForSelector('[data-testid="checks"]', { timeout: 10000 }).then(() => true).catch(() => false));
   report.ok('celular: sin errores de consola', m.errors.length === 0, m.errors.slice(0, 2).join(' | '));
   await m.page.context().close();
 

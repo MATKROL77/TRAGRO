@@ -12,7 +12,7 @@ import type { Config, Lang, Level, Units } from '@/core/types';
 import { unitFormatters } from '@/core/units';
 import { formatMoney, formatNumber, translate } from '@/i18n';
 import { formatCuit, leadConfigUrl, type Lead } from '@/lead/message';
-import { checkTexts, formatDate, quoteGroups, quoteSubtitle, techRows, typeName } from '@/lead/quote';
+import { checkTexts, exceededText, formatDate, quoteGroups, quoteSubtitle, techRows, typeName } from '@/lead/quote';
 import type { RenderSet } from '@/three/capture';
 
 export interface QuoteInput {
@@ -238,6 +238,20 @@ export async function buildQuotePdf(input: QuoteInput): Promise<QuotePdf> {
   const sub = wrap(quoteSubtitle(config, lang, units), CW);
   doc.text(sub, M, y + 2);
   y += sub.length * lh(9.5) + 4;
+  const excede = exceededText(config, lang, units, specs);
+  if (excede) {
+    const lines = wrap(t('legal.banner.texto', { lista: excede }), CW - 8);
+    const h = 7 + lines.length * lh(9);
+    doc.setFillColor(253, 234, 234);
+    doc.rect(M, y - 2, CW, h, 'F');
+    doc.setFillColor(LEVEL.bad[0], LEVEL.bad[1], LEVEL.bad[2]);
+    doc.rect(M, y - 2, 1.2, h, 'F');
+    font(9.5, true, LEVEL.bad);
+    doc.text(t('legal.banner.titulo'), M + 4, y + 2.5);
+    font(9, false, INK);
+    doc.text(lines, M + 4, y + 2.5 + lh(9.5));
+    y += h + 3;
+  }
 
   // Renders.
   const r = input.renders;

@@ -1,5 +1,6 @@
-import { useEffect, useRef } from 'react';
-import { groupsForType, pricing, steps, types } from '@/core/catalog';
+import { useEffect, useMemo, useRef } from 'react';
+import { groupsForType, steps, types } from '@/core/catalog';
+import { priceIfType, startingPriceUsd } from '@/core/pricing';
 import { isGroupVisible } from '@/core/rules';
 import { useI18n } from '@/i18n';
 import { useSpecs } from '@/state/derived';
@@ -11,9 +12,12 @@ import { TypeIcon } from './TypeIcon';
 
 function StepTipo() {
   const { tx, money, t } = useI18n();
-  const tipo = useStore((s) => s.config.tipo);
+  const config = useStore((s) => s.config);
+  const tipo = config.tipo;
   const setTipo = useStore((s) => s.setTipo);
   const hidePrices = useStore((s) => s.ui.preciosOcultos);
+  // Cada tarjeta muestra el precio que va a quedar al elegirla, con lo que ya se configuró.
+  const precios = useMemo(() => Object.fromEntries(types.map((ty) => [ty.id, priceIfType(config, ty.id)])), [config]);
   return (
     <div className="tipo-grid" role="radiogroup" aria-label={t('paso.tipo.titulo')}>
       {types.map((ty) => (
@@ -21,8 +25,10 @@ function StepTipo() {
           <span className="nombre">{tx(ty.name)}</span>
           <span className="desc">{tx(ty.desc)}</span>
           {hidePrices ? null : (
-            <span className="desde">
-              {t('tipo.desde')} <strong>{money(pricing.tipos[ty.id].base)}</strong>
+            <span className="desde" title={t('tipo.precioAyuda')}>
+              {/* Sin cambios propios es el precio de partida ("desde"); con cambios, el que va a quedar al elegirlo. */}
+              {Math.abs(precios[ty.id] - startingPriceUsd(ty.id)) < 0.5 ? `${t('tipo.desde')} ` : null}
+              <strong data-testid={`precio-tipo-${ty.id}`}>{money(precios[ty.id])}</strong>
             </span>
           )}
           <TypeIcon tipo={ty.id} />
@@ -70,8 +76,11 @@ export function StepsPanel() {
   const idx = Math.max(0, steps.findIndex((s) => s.id === paso));
   const go = (i: number) => setUi({ paso: steps[Math.min(steps.length - 1, Math.max(0, i))].id });
 
+  const nav = useRef<HTMLElement>(null);
   useEffect(() => {
     body.current?.scrollTo({ top: 0 });
+    // En el celular los pasos van en una fila deslizable: el activo queda a la vista.
+    nav.current?.querySelector<HTMLElement>('.step-tab.is-on')?.scrollIntoView?.({ block: 'nearest', inline: 'center' });
   }, [paso]);
 
   const groups = groupsForType(cfg.tipo).filter((g) => g.paso === paso && isGroupVisible(g, cfg));
@@ -79,11 +88,11 @@ export function StepsPanel() {
 
   return (
     <section className="config" id="panel-config" role="tabpanel" aria-label={t('panel.configurar')}>
-      <nav className="steps-nav" aria-label={t('paso.de', { n: idx + 1, total: steps.length })}>
+      <nav className="steps-nav" ref={nav} aria-label={t('paso.de', { n: idx + 1, total: steps.length })}>
         <ol>
           {steps.map((s, i) => (
             <li key={s.id}>
-              <button type="button" className={`step-tab ${i === idx ? 'is-on' : ''} ${i < idx ? 'is-done' : ''}`} aria-current={i === idx ? 'step' : undefined} data-paso={s.id} onClick={() => go(i)}>
+              <button type="button" className={`step-tab ${i === idx ? 'is-on' : ''} ${i < idx ? 'is-done' : ''}`} aria-current={i === idx ? 'step' : undefined} aria-label={`${t('paso.de', { n: i + 1, total: steps.length })}: ${tx(s.name)}`} data-paso={s.id} onClick={() => go(i)}>
                 <span className="num">{i + 1}</span>
                 <span className="step-name">{tx(s.name)}</span>
               </button>
@@ -103,7 +112,7 @@ export function StepsPanel() {
         {paso === 'dimensiones' ? <DimSummary /> : null}
       </div>
       <div className="steps-foot">
-        <button type="button" className="btn btn-fantasma" disabled={idx === 0} onClick={() => go(idx - 1)} data-testid="paso-anterior">
+        <button type="button" className="btn btn-fantasma" disabled={idx === 0} onClick={() => go(idx - 1)} aria-label={idx > 0 ? `${t('comun.anterior')}: ${tx(steps[idx - 1].name)}` : t('comun.anterior')} data-testid="paso-anterior">
           <Icon name="chevronIzq" size={18} />
           <span>{t('comun.anterior')}</span>
         </button>
@@ -113,7 +122,7 @@ export function StepsPanel() {
             <Icon name="chevronDer" size={18} />
           </button>
         ) : (
-          <button type="button" className="btn btn-next" onClick={() => go(idx + 1)} data-testid="paso-siguiente">
+          <button type="button" className="btn btn-next" onClick={() => go(idx + 1)} aria-label={`${t('comun.siguiente')}: ${tx(steps[idx + 1].name)}`} data-testid="paso-siguiente">
             <span>
               {t('comun.siguiente')}: {tx(steps[idx + 1].name)}
             </span>

@@ -35,6 +35,22 @@ function fitDistance(dir: THREE.Vector3, target: THREE.Vector3, min: THREE.Vecto
   return dist;
 }
 
+/** Cámara de cada paso del configurador. */
+export const STEP_PRESET: Record<string, string> = {
+  tipo: 'tresCuartos',
+  dimensiones: 'paso-dimensiones',
+  rodado: 'paso-rodado',
+  especificos: 'paso-especificos',
+  accesorios: 'paso-accesorios',
+  personalizacion: 'paso-personalizacion',
+};
+
+/** Caja que la cámara nunca atraviesa durante una transición (equipo + margen). */
+export function keepOutBox(model: TrailerModel, tractor: boolean): THREE.Box3 {
+  const L = model.layout;
+  return new THREE.Box3(new THREE.Vector3(L.rearX - 0.35, -1, -L.W / 2 - 0.45), new THREE.Vector3(L.frontX + L.frontExtra + (tractor ? 4.9 : 0.35), L.totalHeight + 0.35, L.W / 2 + 0.45));
+}
+
 export interface Framing {
   /** Relación de aspecto del área visible (ancho / alto). */
   aspect: number;
@@ -111,6 +127,26 @@ export function poseFor(id: string, model: TrailerModel, f: Framing): Pose {
       return close(anchor('reflectivos', [0, 1.4, 1.3]), new THREE.Vector3(-0.35, 0.08, 1), 3.2);
     case 'lona':
       return fit(new THREE.Vector3(0.5, 0.75, 0.75));
+    // Cámaras por paso del configurador: cada una apunta a lo que se está editando.
+    case 'paso-dimensiones':
+      return fit(new THREE.Vector3(0.14, 0.12, 1));
+    case 'paso-rodado':
+      return poseFor('ejes', model, f);
+    case 'paso-especificos':
+      return fit(new THREE.Vector3(0.62, 0.62, 0.72));
+    case 'paso-accesorios':
+      return fit(new THREE.Vector3(0.42, 0.03, 1), new THREE.Vector3(center.x, Math.max(0.95, center.y * 0.55), 0));
+    case 'paso-personalizacion': {
+      const boxY = L.floorY + L.H / 2;
+      return fit(new THREE.Vector3(0.1, 0.02, 1), new THREE.Vector3(center.x, boxY, 0));
+    }
+    case 'cajon':
+    case 'portaauxilio':
+    case 'tanqueAgua':
+    case 'matafuego': {
+      const a = anchor(id, [0, 1, L.W / 2]);
+      return close(a, new THREE.Vector3(0.3, 0.12, Math.sign(a.z) || 1), 2.9);
+    }
     case 'interior': {
       if (L.tipo === 'furgon') {
         const y = L.floorY + Math.min(1.6, L.H * 0.62);

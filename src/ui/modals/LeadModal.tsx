@@ -8,6 +8,7 @@ import { usePrice } from '@/state/derived';
 import { useStore } from '@/state/store';
 import { captureRenderSet } from '@/three/capture';
 import { Icon } from '../Icon';
+import { LegalBanner } from '../TechPanel';
 import { Button, Modal } from '../primitives';
 
 /** Lo que la persona ya escribió se conserva si cierra y vuelve a abrir el formulario. */
@@ -154,6 +155,7 @@ export default function LeadModal() {
       }
     >
       <form ref={form} className="lead" noValidate onSubmit={onSubmit} data-testid="lead-form">
+        <LegalBanner />
         <p className="muted">{t('lead.intro')}</p>
         <div className="lead-equipo">
           <span className="muted">{t('lead.equipo')}</span>

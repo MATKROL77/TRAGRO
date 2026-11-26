@@ -6,7 +6,7 @@ import { create } from 'zustand';
 import { subscribeWithSelector } from 'zustand/middleware';
 import { brand } from '@/core/catalog';
 import { applyChange, changeType, defaultConfig } from '@/core/rules';
-import type { Config, Lang, LogoConfig, Notice, TextConfig, TypeId, Units, Value } from '@/core/types';
+import type { AdjustedItem, Config, Lang, LogoConfig, Notice, TextConfig, TypeId, Units, Value } from '@/core/types';
 
 export type EnvId = 'estudio' | 'exterior';
 export type Quality = 'alta' | 'media' | 'baja';
@@ -39,10 +39,14 @@ export interface UiState {
   cargandoEntorno: boolean;
 }
 
-export type ModalId = null | 'resumen' | 'cotizar' | 'comparar' | 'compartir' | 'atajos';
+export type ModalId = null | 'resumen' | 'cotizar' | 'comparar' | 'compartir' | 'atajos' | 'tecnico';
 
 export interface AppNotice extends Notice {
   key: number;
+  /** Elecciones que cambiaron al pasar de tipo (se listan en el aviso). */
+  items?: AdjustedItem[];
+  /** Configuración anterior: el aviso ofrece "Deshacer". */
+  undo?: Config;
 }
 
 export interface AppState {
@@ -70,6 +74,7 @@ export interface AppState {
   loadConfig: (cfg: Config) => void;
   reset: () => void;
   dismissNotice: (key: number) => void;
+  undoNotice: (key: number) => void;
   setUi: (patch: Partial<UiState>) => void;
   setAnim: (id: string, value: number) => void;
   toggleAnim: (id: string) => void;
@@ -132,10 +137,13 @@ export const useStore = create<AppState>()(
 
     setTipo: (tipo) => {
       if (tipo === get().config.tipo) return;
-      const { config, notices } = changeType(get().config, tipo);
+      const prev = get().config;
+      const { config, notices, adjusted } = changeType(prev, tipo);
+      const list: AppNotice[] = notices.map((n) => ({ ...n, key: noticeKey++ }));
+      if (adjusted.length) list.unshift({ id: 'cambio-tipo', text: { es: '' }, items: adjusted, undo: prev, key: noticeKey++ });
       set({
         config,
-        notices: notices.map((n) => ({ ...n, key: noticeKey++ })),
+        notices: list.slice(0, 3),
         anim: { ...initialAnim },
         activeHotspot: null,
         camera: { preset: 'tresCuartos', nonce: nonce++ },
@@ -157,6 +165,11 @@ export const useStore = create<AppState>()(
         ui: { ...s.ui, paso: 'tipo', pestana: 'config', env: 'estudio', tractor: false, luces: false },
       })),
     dismissNotice: (key) => set((s) => ({ notices: s.notices.filter((n) => n.key !== key) })),
+    undoNotice: (key) => {
+      const n = get().notices.find((x) => x.key === key);
+      if (!n?.undo) return;
+      set({ config: n.undo, notices: [], anim: { ...initialAnim }, activeHotspot: null, camera: { preset: 'tresCuartos', nonce: nonce++ } });
+    },
     setUi: (patch) => set((s) => ({ ui: { ...s.ui, ...patch } })),
     setAnim: (id, value) => set((s) => ({ anim: { ...s.anim, [id]: value } })),
     toggleAnim: (id) => set((s) => ({ anim: { ...s.anim, [id]: (s.anim[id] ?? 0) > 0.5 ? 0 : 1 } })),

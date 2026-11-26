@@ -10,10 +10,11 @@ import { ErrorBoundary } from './ui/ErrorBoundary';
 import { Header, LangUnitControls, openCompare } from './ui/Header';
 import { HotspotCard } from './ui/HotspotCard';
 import { Icon } from './ui/Icon';
+import { MobileBar } from './ui/MobileBar';
 import { LoadingScreen } from './ui/LoadingScreen';
 import { Notices } from './ui/Notices';
 import { PriceHead } from './ui/PriceHead';
-import { Button } from './ui/primitives';
+import { Button, Modal } from './ui/primitives';
 import { ShortcutsModal } from './ui/ShortcutsModal';
 import { StepsPanel } from './ui/StepsPanel';
 import { TechTab } from './ui/TechPanel';
@@ -205,7 +206,7 @@ export function App() {
               </div>
             )}
             <ViewerToolbar />
-            <CompareFab />
+            {mobile ? null : <CompareFab />}
             <Notices />
             <HotspotCard />
             <ViewerHint />
@@ -217,11 +218,16 @@ export function App() {
                 <LangUnitControls />
               </div>
             ) : null}
-            {mobile ? <PriceHead /> : null}
-            <SideTabs />
-            {tab === 'config' ? <StepsPanel /> : <TechTab />}
+            {mobile ? null : <SideTabs />}
+            {mobile || tab === 'config' ? <StepsPanel /> : <TechTab />}
           </aside>
         </main>
+        {mobile ? <MobileBar /> : null}
+        {mobile ? (
+          <Modal open={modal === 'tecnico'} onClose={() => useStore.getState().setUi({ modal: null })} title={t('tec.titulo')}>
+            <TechTab />
+          </Modal>
+        ) : null}
         <ShortcutsModal />
         <Suspense fallback={null}>
           {modal === 'resumen' ? <SummaryModal /> : null}

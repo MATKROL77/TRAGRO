@@ -230,3 +230,14 @@ export function computeSpecs(cfg: Config): Specs {
     level,
   };
 }
+
+/**
+ * Máximo legal de una medida (alto o largo de caja) con el resto de la configuración fija:
+ * la medida total crece 1 a 1 con la de la caja, así que alcanza con el margen del chequeo.
+ */
+export function legalMaxFor(specs: Specs, key: string, current: number): { max: number; check: LegalCheck } | null {
+  if (key !== 'alto' && key !== 'largo') return null;
+  const check = specs.checks.find((c) => c.id === key);
+  if (!check) return null;
+  return { max: Math.floor((current + (check.limit - check.value)) * 100 + 1e-6) / 100, check };
+}

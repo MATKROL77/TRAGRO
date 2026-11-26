@@ -110,7 +110,7 @@ export function StepPersonalizacion() {
         <div className="logo-drop">
           <span className="thumb">{logo.data ? <img src={logo.data} alt="" /> : <Icon name="subir" />}</span>
           <div style={{ display: 'grid', gap: '0.4rem', flex: 1 }}>
-            <input ref={file} type="file" accept="image/png,image/svg+xml,image/jpeg,image/webp" className="sr-only" tabIndex={-1} data-testid="logo-input" onChange={(e) => void onFile(e.target.files?.[0])} />
+            <input ref={file} type="file" accept="image/png,image/svg+xml,image/jpeg,image/webp" className="sr-only" tabIndex={-1} aria-label={t('pers.subirLogo')} data-testid="logo-input" onChange={(e) => void onFile(e.target.files?.[0])} />
             <Button icon="subir" onClick={() => file.current?.click()}>
               {logo.data ? t('pers.cambiarLogo') : t('pers.subirLogo')}
             </Button>

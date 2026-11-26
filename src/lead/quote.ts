@@ -31,7 +31,7 @@ const fmt = (lang: Lang, units: Units): UnitFmt => unitFormatters((v, d = 0) => 
 
 /** Parámetros de los mensajes de validación, con números y unidades en formato local. */
 export function checkParams(c: LegalCheck, u: UnitFmt, producto: string, ejes?: string): Record<string, string | number> {
-  const p: Record<string, string | number> = { ...c.params, tractor: String(c.params.tractor ?? ''), producto };
+  const p: Record<string, string | number> = { ...c.params, tractor: String(c.params.tractor ?? '').replace('x', '×'), producto };
   if (ejes) p.ejes = ejes;
   if (c.id === 'alto') {
     p.margen = u.cm(Number(c.params.margen));
@@ -150,4 +150,12 @@ export function typeName(config: Config, lang: Lang): string {
 
 export function formatDate(lang: Lang, date: Date): string {
   return new Intl.DateTimeFormat(LOCALE[lang], { day: '2-digit', month: '2-digit', year: 'numeric' }).format(date);
+}
+
+/** Límites legales superados, en texto ("Alto total 4,27 m / 4,10 m; ..."). Vacío si cumple todo. */
+export function exceededText(config: Config, lang: Lang, units: Units = 'metric', specs: Specs = computeSpecs(config)): string {
+  return checkTexts(config, lang, specs, units)
+    .filter((c) => c.level === 'bad')
+    .map((c) => `${c.title} ${c.value}`)
+    .join('; ');
 }

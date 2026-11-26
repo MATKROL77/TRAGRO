@@ -79,9 +79,9 @@
         "bocas": "2",
         "lona": "pvc650",
         "accionamientoLona": "manual",
-        "cajon": 1,
-        "portaauxilio": 1,
-        "tanqueAgua": true,
+        "cajon": 0,
+        "portaauxilio": 0,
+        "tanqueAgua": false,
         "matafuego": true,
         "pasarela": false,
         "lucesLed": false,
@@ -129,9 +129,9 @@
         "materialBatea": "acero",
         "porton": "basculante",
         "cobertor": false,
-        "cajon": 1,
-        "portaauxilio": 1,
-        "tanqueAgua": true,
+        "cajon": 0,
+        "portaauxilio": 0,
+        "tanqueAgua": false,
         "matafuego": true,
         "lucesLed": false,
         "faldones": false,
@@ -178,9 +178,9 @@
         "piso": "madera",
         "modulosBaranda": "6",
         "amarre": "ganchos",
-        "cajon": 1,
-        "portaauxilio": 1,
-        "tanqueAgua": true,
+        "cajon": 0,
+        "portaauxilio": 0,
+        "tanqueAgua": false,
         "matafuego": true,
         "lucesLed": false,
         "faldones": false,
@@ -225,14 +225,18 @@
         "variante": "furgon",
         "pisoFurgon": "fenolico",
         "puertas": "dobleHoja",
-        "cajon": 1,
-        "portaauxilio": 1,
-        "tanqueAgua": true,
+        "cajon": 0,
+        "portaauxilio": 0,
+        "tanqueAgua": false,
         "matafuego": true,
         "lucesLed": false,
         "faldones": false,
         "tractor": "6x2",
-        "colorLona": "azul"
+        "colorLona": "azul",
+        "parantes": "desmontables",
+        "tablillas": "sin",
+        "techo": "fijo",
+        "tensado": "hebillas"
       },
       "colores": {
         "chasis": "RAL 7016",
@@ -582,83 +586,6 @@
       ]
     },
     {
-      "id": "colorLona",
-      "paso": "especificos",
-      "tipo": "seleccion",
-      "tipos": [
-        "tolva",
-        "furgon",
-        "batea"
-      ],
-      "foco": "superior",
-      "presentacion": "color",
-      "name": {
-        "es": "Color de lona",
-        "pt": "Cor da lona"
-      },
-      "opciones": [
-        {
-          "id": "negro",
-          "name": {
-            "es": "Negro",
-            "pt": "Preto"
-          },
-          "hex": "#1b1c1e",
-          "pesoKg": 0,
-          "estandar": true
-        },
-        {
-          "id": "gris",
-          "name": {
-            "es": "Gris",
-            "pt": "Cinza"
-          },
-          "hex": "#8a8f96",
-          "pesoKg": 0
-        },
-        {
-          "id": "azul",
-          "name": {
-            "es": "Azul",
-            "pt": "Azul"
-          },
-          "hex": "#1f4e8c",
-          "pesoKg": 0
-        },
-        {
-          "id": "verde",
-          "name": {
-            "es": "Verde",
-            "pt": "Verde"
-          },
-          "hex": "#2f5d3a",
-          "pesoKg": 0
-        },
-        {
-          "id": "blanco",
-          "name": {
-            "es": "Blanco",
-            "pt": "Branco"
-          },
-          "hex": "#e9e9e4",
-          "pesoKg": 0
-        }
-      ],
-      "visibleSi": [
-        {
-          "tipo": "tolva"
-        },
-        {
-          "tipo": "furgon",
-          "variante": "sider"
-        },
-        {
-          "tipo": "batea",
-          "cobertor": true
-        }
-      ]
-    },
-    {
       "id": "accionamientoLona",
       "paso": "especificos",
       "tipo": "seleccion",
@@ -964,6 +891,279 @@
       ]
     },
     {
+      "id": "parantes",
+      "paso": "especificos",
+      "tipo": "seleccion",
+      "tipos": [
+        "furgon"
+      ],
+      "visibleSi": [
+        {
+          "variante": "sider"
+        }
+      ],
+      "foco": "lateral",
+      "name": {
+        "es": "Parantes laterales",
+        "pt": "Colunas laterais"
+      },
+      "ayuda": {
+        "es": "Con la lona corrida, el costado queda libre de punta a punta para el autoelevador.",
+        "pt": "Com a lona aberta, a lateral fica livre de ponta a ponta para a empilhadeira."
+      },
+      "opciones": [
+        {
+          "id": "desmontables",
+          "name": {
+            "es": "Fijos desmontables",
+            "pt": "Fixas removíveis"
+          },
+          "desc": {
+            "es": "Se destraban y se sacan para liberar el costado.",
+            "pt": "Destravam e saem para liberar a lateral."
+          },
+          "pesoKg": 0,
+          "estandar": true
+        },
+        {
+          "id": "corredizos",
+          "name": {
+            "es": "Corredizos sobre riel",
+            "pt": "Corrediças sobre trilho"
+          },
+          "desc": {
+            "es": "Se deslizan por el riel superior hasta el marco trasero.",
+            "pt": "Deslizam pelo trilho superior até o quadro traseiro."
+          },
+          "pesoKg": 60
+        }
+      ]
+    },
+    {
+      "id": "tablillas",
+      "paso": "especificos",
+      "tipo": "seleccion",
+      "tipos": [
+        "furgon"
+      ],
+      "visibleSi": [
+        {
+          "variante": "sider"
+        }
+      ],
+      "foco": "lateral",
+      "name": {
+        "es": "Tablillas laterales",
+        "pt": "Tábuas laterais"
+      },
+      "opciones": [
+        {
+          "id": "sin",
+          "name": {
+            "es": "Sin tablillas",
+            "pt": "Sem tábuas"
+          },
+          "desc": {
+            "es": "Solo lona y parantes: lo más liviano.",
+            "pt": "Só lona e colunas: o mais leve."
+          },
+          "pesoKg": 0,
+          "estandar": true
+        },
+        {
+          "id": "aluminio",
+          "name": {
+            "es": "Tablillas de aluminio",
+            "pt": "Tábuas de alumínio"
+          },
+          "desc": {
+            "es": "Contienen la carga suelta; se sacan para cargar de costado.",
+            "pt": "Contêm a carga solta; saem para carregar pela lateral."
+          },
+          "pesoKg": 140
+        },
+        {
+          "id": "madera",
+          "name": {
+            "es": "Tablillas de madera",
+            "pt": "Tábuas de madeira"
+          },
+          "desc": {
+            "es": "Más económicas; se sacan para cargar de costado.",
+            "pt": "Mais econômicas; saem para carregar pela lateral."
+          },
+          "pesoKg": 210
+        }
+      ]
+    },
+    {
+      "id": "techo",
+      "paso": "especificos",
+      "tipo": "seleccion",
+      "tipos": [
+        "furgon"
+      ],
+      "visibleSi": [
+        {
+          "variante": "sider"
+        }
+      ],
+      "foco": "superior",
+      "name": {
+        "es": "Techo",
+        "pt": "Teto"
+      },
+      "opciones": [
+        {
+          "id": "fijo",
+          "name": {
+            "es": "Techo fijo",
+            "pt": "Teto fixo"
+          },
+          "desc": {
+            "es": "Techo rígido con luz de gálibo.",
+            "pt": "Teto rígido com luz delimitadora."
+          },
+          "pesoKg": 0,
+          "estandar": true
+        },
+        {
+          "id": "corredizo",
+          "name": {
+            "es": "Techo corredizo",
+            "pt": "Teto corrediço"
+          },
+          "desc": {
+            "es": "Se recoge hacia atrás para cargar con grúa desde arriba.",
+            "pt": "Recolhe para trás para carregar com guindaste por cima."
+          },
+          "pesoKg": 150
+        }
+      ]
+    },
+    {
+      "id": "tensado",
+      "paso": "especificos",
+      "tipo": "seleccion",
+      "tipos": [
+        "furgon"
+      ],
+      "visibleSi": [
+        {
+          "variante": "sider"
+        }
+      ],
+      "foco": "lateral",
+      "name": {
+        "es": "Tensado de la lona",
+        "pt": "Tensionamento da lona"
+      },
+      "opciones": [
+        {
+          "id": "hebillas",
+          "name": {
+            "es": "Hebillas",
+            "pt": "Fivelas"
+          },
+          "desc": {
+            "es": "Hebillas de enganche rápido en cada correa.",
+            "pt": "Fivelas de engate rápido em cada correia."
+          },
+          "pesoKg": 0,
+          "estandar": true
+        },
+        {
+          "id": "trinquete",
+          "name": {
+            "es": "Trinquete",
+            "pt": "Catraca"
+          },
+          "desc": {
+            "es": "Tensores a trinquete: lona más firme en ruta.",
+            "pt": "Tensores de catraca: lona mais firme na estrada."
+          },
+          "pesoKg": 18
+        }
+      ]
+    },
+    {
+      "id": "colorLona",
+      "paso": "especificos",
+      "tipo": "seleccion",
+      "tipos": [
+        "tolva",
+        "furgon",
+        "batea"
+      ],
+      "foco": "superior",
+      "presentacion": "color",
+      "name": {
+        "es": "Color de lona",
+        "pt": "Cor da lona"
+      },
+      "opciones": [
+        {
+          "id": "negro",
+          "name": {
+            "es": "Negro",
+            "pt": "Preto"
+          },
+          "hex": "#1b1c1e",
+          "pesoKg": 0,
+          "estandar": true
+        },
+        {
+          "id": "gris",
+          "name": {
+            "es": "Gris",
+            "pt": "Cinza"
+          },
+          "hex": "#8a8f96",
+          "pesoKg": 0
+        },
+        {
+          "id": "azul",
+          "name": {
+            "es": "Azul",
+            "pt": "Azul"
+          },
+          "hex": "#1f4e8c",
+          "pesoKg": 0
+        },
+        {
+          "id": "verde",
+          "name": {
+            "es": "Verde",
+            "pt": "Verde"
+          },
+          "hex": "#2f5d3a",
+          "pesoKg": 0
+        },
+        {
+          "id": "blanco",
+          "name": {
+            "es": "Blanco",
+            "pt": "Branco"
+          },
+          "hex": "#e9e9e4",
+          "pesoKg": 0
+        }
+      ],
+      "visibleSi": [
+        {
+          "tipo": "tolva"
+        },
+        {
+          "tipo": "furgon",
+          "variante": "sider"
+        },
+        {
+          "tipo": "batea",
+          "cobertor": true
+        }
+      ]
+    },
+    {
       "id": "pisoFurgon",
       "paso": "especificos",
       "tipo": "seleccion",
@@ -1049,7 +1249,7 @@
       "paso": "accesorios",
       "tipo": "cantidad",
       "max": 2,
-      "foco": "lateral",
+      "foco": "cajon",
       "name": {
         "es": "Cajón de herramientas",
         "pt": "Caixa de ferramentas"
@@ -1065,7 +1265,7 @@
       "paso": "accesorios",
       "tipo": "cantidad",
       "max": 2,
-      "foco": "lateral",
+      "foco": "portaauxilio",
       "name": {
         "es": "Portaauxilio",
         "pt": "Suporte de estepe"
@@ -1080,7 +1280,7 @@
       "id": "tanqueAgua",
       "paso": "accesorios",
       "tipo": "interruptor",
-      "foco": "lateral",
+      "foco": "tanqueAgua",
       "name": {
         "es": "Tanque de agua lavamanos",
         "pt": "Reservatório de água"
@@ -1095,7 +1295,7 @@
       "id": "matafuego",
       "paso": "accesorios",
       "tipo": "interruptor",
-      "foco": "lateral",
+      "foco": "matafuego",
       "name": {
         "es": "Matafuego con soporte",
         "pt": "Extintor com suporte"
@@ -1171,16 +1371,16 @@
         {
           "id": "4x2",
           "name": {
-            "es": "Tractor 4x2",
-            "pt": "Cavalo 4x2"
+            "es": "Tractor 4×2",
+            "pt": "Cavalo 4×2"
           },
           "pesoKg": 0
         },
         {
           "id": "6x2",
           "name": {
-            "es": "Tractor 6x2",
-            "pt": "Cavalo 6x2"
+            "es": "Tractor 6×2",
+            "pt": "Cavalo 6×2"
           },
           "pesoKg": 0,
           "estandar": true
@@ -1402,6 +1602,23 @@
       "texto": {
         "es": "Largueros de perfil doble T con soldadura continua y travesaños pasantes: menos tara y más rigidez.",
         "pt": "Longarinas em perfil duplo T com solda contínua e travessas passantes: menos tara e mais rigidez."
+      }
+    },
+    {
+      "id": "lateralLibre",
+      "tipos": [
+        "furgon"
+      ],
+      "cuando": {
+        "variante": "sider"
+      },
+      "titulo": {
+        "es": "Costado libre",
+        "pt": "Lateral livre"
+      },
+      "texto": {
+        "es": "Con la lona corrida y los parantes atrás, el autoelevador entra por todo el costado.",
+        "pt": "Com a lona aberta e as colunas atrás, a empilhadeira entra por toda a lateral."
       }
     }
   ]

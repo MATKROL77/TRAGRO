@@ -3,7 +3,8 @@ import type { Specs } from '@/core/specs';
 import { useI18n } from '@/i18n';
 import { useSpecs } from '@/state/derived';
 import { useStore } from '@/state/store';
-import { axleName, checkParams, checkValue } from '@/lead/quote';
+import { axleName, checkParams, checkValue, exceededText } from '@/lead/quote';
+import { Icon } from './Icon';
 import { StatusDot } from './primitives';
 
 const CHECK_TITLE: Record<string, string> = { ancho: 'tec.ancho', alto: 'tec.alto', largo: 'tec.largoConjunto', peso: 'tec.pbt', carga: 'tec.cajaLlena' };
@@ -152,5 +153,22 @@ export function TechTab() {
       </div>
       <TechBody s={s} />
     </section>
+  );
+}
+
+/** Cartel rojo cuando la configuración supera un límite legal (Resumen y consulta). */
+export function LegalBanner() {
+  const { t, lang, units } = useI18n();
+  const cfg = useStore((st) => st.config);
+  const s = useSpecs();
+  if (s.level !== 'bad') return null;
+  return (
+    <div className="legal-banner" role="alert" data-testid="cartel-legal">
+      <Icon name="alerta" size={20} />
+      <div>
+        <strong>{t('legal.banner.titulo')}</strong>
+        <p>{t('legal.banner.texto', { lista: exceededText(cfg, lang, units, s) })}</p>
+      </div>
+    </div>
   );
 }

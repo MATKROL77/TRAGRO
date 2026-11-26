@@ -125,14 +125,20 @@ export interface CurtainOptions {
   /** +1 / -1: lado hacia el que mira la lona. */
   side: 1 | -1;
   strapSpacing: number;
+  /** Tensado a trinquete (tensores más grandes) en lugar de hebillas. */
+  ratchet?: boolean;
 }
 
-/** Lona lateral del sider: se corre hacia el frente plegándose en acordeón. */
+/**
+ * Lona lateral del sider: anclada en el marco trasero, se corre hacia atrás plegándose
+ * en acordeón. El caño tensor viaja con el borde delantero.
+ */
 export class PleatCurtain {
   readonly group = new THREE.Group();
   private mesh: THREE.Mesh;
   private straps: THREE.Mesh;
   private buckles: THREE.InstancedMesh;
+  private pole: THREE.Mesh;
   private o: CurtainOptions;
   private n: number;
   private last = -1;
@@ -194,17 +200,25 @@ export class PleatCurtain {
     this.straps.frustumCulled = false;
     this.straps.name = 'curtainStraps';
 
-    const bgeo = new THREE.BoxGeometry(0.06, 0.1, 0.022);
+    const bgeo = o.ratchet ? new THREE.BoxGeometry(0.075, 0.17, 0.045) : new THREE.BoxGeometry(0.06, 0.1, 0.022);
     this.buckles = new THREE.InstancedMesh(bgeo, mats.galvanized, strapsCount);
     this.buckles.frustumCulled = false;
     this.buckles.castShadow = true;
-    this.group.add(this.mesh, this.straps, this.buckles);
+    // Caño tensor del borde delantero: se mueve con la lona.
+    const pgeo = new THREE.CylinderGeometry(0.028, 0.028, o.y1 - o.y0 + 0.08, 12);
+    this.pole = new THREE.Mesh(pgeo, mats.aluBrushed);
+    this.pole.castShadow = true;
+    this.group.add(this.mesh, this.straps, this.buckles, this.pole);
     this.update(0);
   }
 
-  update(t: number): void {
-    if (Math.abs(t - this.last) < 1e-4) return;
-    this.last = t;
+  /**
+   * t: 0 = cerrada, 1 = recogida atrás. release: 0..1, las hebillas se sueltan (bajan y se separan).
+   */
+  update(t: number, release = t > 0 ? 1 : 0): void {
+    const key = t + release * 10;
+    if (Math.abs(key - this.last) < 1e-4) return;
+    this.last = key;
     const o = this.o;
     const pos = this.mesh.geometry.getAttribute('position') as THREE.BufferAttribute;
     const spos = this.straps.geometry.getAttribute('position') as THREE.BufferAttribute;
@@ -213,8 +227,11 @@ export class PleatCurtain {
     const seg = len / this.n;
     // Profundidad del pliegue: lo que "sobra" de lona en cada tramo.
     const depth = Math.min(0.14, Math.sqrt(Math.max(0, seg * seg - seg * k * (seg * k))) * 0.55) + 0.006;
+    const drop = 0.07 * release;
+    const outB = 0.03 * release;
     for (let i = 0; i <= this.n; i++) {
-      const x = o.x1 - (len - (len * i) / this.n) * k;
+      // Anclada atrás (x0): el borde delantero viaja hacia el marco trasero.
+      const x = o.x0 + ((len * i) / this.n) * k;
       const out = i % 2 === 1 ? 1 : 0;
       const z = o.z + o.side * depth * out;
       pos.setXYZ(i * 2, x, o.y0, z);
@@ -223,14 +240,15 @@ export class PleatCurtain {
         const s = (i - 1) / 2;
         const hw = 0.024;
         const zz = z + o.side * 0.004;
-        spos.setXYZ(s * 4, x - hw, o.y0 - 0.02, zz);
+        spos.setXYZ(s * 4, x - hw, o.y0 - 0.02 - drop, zz + o.side * outB);
         spos.setXYZ(s * 4 + 1, x - hw, o.y1 - 0.04, zz);
-        spos.setXYZ(s * 4 + 2, x + hw, o.y0 - 0.02, zz);
+        spos.setXYZ(s * 4 + 2, x + hw, o.y0 - 0.02 - drop, zz + o.side * outB);
         spos.setXYZ(s * 4 + 3, x + hw, o.y1 - 0.04, zz);
-        this.m.makeTranslation(x, o.y0 + 0.02, zz + o.side * 0.008);
+        this.m.makeTranslation(x, o.y0 + 0.02 - drop, zz + o.side * (0.008 + outB + (o.ratchet ? 0.012 : 0)));
         this.buckles.setMatrixAt(s, this.m);
       }
     }
+    this.pole.position.set(o.x0 + len * k, (o.y0 + o.y1) / 2, o.z + o.side * 0.02);
     pos.needsUpdate = true;
     spos.needsUpdate = true;
     this.buckles.instanceMatrix.needsUpdate = true;
@@ -243,5 +261,6 @@ export class PleatCurtain {
     this.straps.geometry.dispose();
     this.buckles.geometry.dispose();
     this.buckles.dispose();
+    this.pole.geometry.dispose();
   }
 }

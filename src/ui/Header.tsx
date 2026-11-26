@@ -66,6 +66,7 @@ export function Header() {
   const demoWeb = brand.contacto.web.endsWith('.example');
   return (
     <header className="header">
+      <h1 className="sr-only">{`${brand.nombre} · ${t('app.titulo')}`}</h1>
       <a className="brand" href={demoWeb ? './' : `https://${brand.contacto.web}`} aria-label={brand.nombre} onClick={(e) => demoWeb && e.preventDefault()}>
         <img src={brand.marca} alt="" width={34} height={22} />
         <span className="brand-text">
@@ -92,6 +93,10 @@ export function Header() {
               <button type="button" role="menuitem" onClick={item(() => setUi({ modal: 'compartir' }))} data-testid="menu-compartir">
                 <Icon name="compartir" size={16} />
                 {t('top.compartir')}
+              </button>
+              <button type="button" role="menuitem" onClick={item(() => setUi({ modal: 'resumen' }))} data-testid="menu-resumen">
+                <Icon name="pdf" size={16} />
+                {t('barra.resumen')}
               </button>
               <button type="button" role="menuitem" onClick={item(() => openCompare())} data-testid="menu-comparar">
                 <Icon name="comparar" size={16} />

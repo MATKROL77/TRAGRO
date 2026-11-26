@@ -2,15 +2,18 @@ import { optionsFor } from '@/core/catalog';
 import { deltaVsCurrent, optionPriceUsd, rangeHasPrice } from '@/core/pricing';
 import { effectiveRange, optionState } from '@/core/rules';
 import { rangeFor, typeDef } from '@/core/catalog';
+import { legalMaxFor } from '@/core/specs';
 import type { GroupDef } from '@/core/types';
 import { useI18n } from '@/i18n';
+import { useSpecs } from '@/state/derived';
 import { useStore } from '@/state/store';
 import { Icon } from './Icon';
 import { Slider, Stepper, Switch } from './primitives';
 
 /** Dibuja un grupo de opciones del catálogo según su tipo. 100% guiado por datos. */
 export function OptionGroup({ group }: { group: GroupDef }) {
-  const { t, tx, len, money } = useI18n();
+  const { t, tx, len, cm, money } = useI18n();
+  const specs = useSpecs();
   const cfg = useStore((s) => s.config);
   const setOption = useStore((s) => s.setOption);
   const hidePrices = useStore((s) => s.ui.preciosOcultos);
@@ -30,19 +33,38 @@ export function OptionGroup({ group }: { group: GroupDef }) {
     const eff = effectiveRange(cfg, group.id);
     if (!base || !eff) return null;
     const perMeter = rangeHasPrice(cfg, group.id as 'largo' | 'alto');
+    const v = Number(value);
+    const lim = legalMaxFor(specs, group.id, v);
+    const legalMax = lim && lim.max < eff.max ? Math.max(eff.min, lim.max) : undefined;
+    const over = lim ? v > lim.max + 1e-9 : false;
+    const near = lim ? !over && lim.check.level === 'warn' : false;
+    const tractor = String(cfg.sel.tractor ?? '').replace('x', '×');
     return (
       <section className="group" aria-label={name}>
         <div className="group-head">
           <h3>{name}</h3>
-          <span className="valor">{len(Number(value))}</span>
+          <span className={`valor ${over ? 'is-bad' : ''}`}>{len(v)}</span>
         </div>
         {group.ayuda ? <p className="group-help">{tx(group.ayuda)}</p> : null}
-        <Slider value={Number(value)} min={eff.min} max={eff.max} hardMin={base.min} step={base.paso} label={name} format={(v) => len(v)} onChange={(v) => set(v)} />
+        {legalMax !== undefined ? <p className="legal-max">{t('dim.maxLegal', { valor: len(legalMax) })}</p> : null}
+        <Slider value={v} min={eff.min} max={eff.max} step={base.paso} label={name} format={(x) => len(x)} legalMax={legalMax} onChange={(x) => set(x)} />
         {eff.motivo && eff.min > base.min ? (
-          <p className="group-help" style={{ color: 'var(--alerta)', marginTop: '0.4rem' }}>
+          <p className="group-help range-note">
             <Icon name="info" size={14} style={{ verticalAlign: '-2px', marginRight: 4 }} />
             {tx(eff.motivo)}
           </p>
+        ) : null}
+        {over && lim ? (
+          <p className="legal-warn" role="alert" data-testid={`aviso-legal-${group.id}`}>
+            <Icon name="alerta" size={16} />
+            <span>
+              {group.id === 'alto'
+                ? t('dim.excede.alto', { total: len(lim.check.value), exceso: cm((lim.check.value - lim.check.limit) * 100), limite: len(lim.check.limit), max: len(lim.max) })
+                : t('dim.excede.largo', { tractor, total: len(lim.check.value), exceso: len(lim.check.value - lim.check.limit), limite: len(lim.check.limit), max: len(lim.max) })}
+            </span>
+          </p>
+        ) : near && lim ? (
+          <p className="legal-near">{t('dim.cerca', { max: len(lim.max) })}</p>
         ) : null}
         {!hidePrices && perMeter ? <p className="nota" style={{ marginTop: '0.35rem' }}>{t('dim.porMetro', { monto: money(perMeter) })}</p> : null}
       </section>

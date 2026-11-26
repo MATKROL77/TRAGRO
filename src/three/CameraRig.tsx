@@ -5,7 +5,7 @@ import { OrbitControls } from '@react-three/drei';
 import type { OrbitControls as OrbitImpl } from 'three-stdlib';
 import { useStore } from '@/state/store';
 import { markActive } from './activity';
-import { poseFor, type Pose } from './camera';
+import { keepOutBox, poseFor, STEP_PRESET, type Pose } from './camera';
 import { currentModel } from './TrailerObject';
 
 const IDLE_AFTER = 20;
@@ -22,6 +22,7 @@ interface Transition {
 
 /** Bloquea el rig mientras se hacen capturas con otra cámara. */
 export const rigLock = { locked: false };
+const ACCESSORY_FOCUS = new Set(['cajon', 'portaauxilio', 'tanqueAgua', 'matafuego']);
 
 const ease = (x: number) => (x < 0.5 ? 4 * x * x * x : 1 - Math.pow(-2 * x + 2, 3) / 2);
 const sph = new THREE.Spherical();
@@ -96,6 +97,20 @@ export function CameraRig() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [tipo, largo, alto, tractor, aspect]);
 
+  // Cada paso tiene su cámara (apunta a lo que se está editando).
+  const paso = useStore((s) => s.ui.paso);
+  const firstPaso = useRef(true);
+  useEffect(() => {
+    if (firstPaso.current) {
+      firstPaso.current = false;
+      return;
+    }
+    const st = useStore.getState();
+    if (st.activeHotspot) return;
+    home.current = null;
+    st.setPreset(STEP_PRESET[paso] ?? 'tresCuartos');
+  }, [paso]);
+
   // Al cambiar una opción: acercarse a la zona afectada y volver después.
   const lastChange = useStore((s) => s.lastChange);
   useEffect(() => {
@@ -106,6 +121,8 @@ export function CameraRig() {
       const model = currentModel.value;
       const c = controls.current;
       if (!model || !c) return;
+      // Accesorio que se acaba de quitar: no hay nada que mostrar.
+      if (ACCESSORY_FOCUS.has(lastChange.foco) && !model.anchors[lastChange.foco]) return;
       if (!home.current) home.current = { pose: { position: camera.position.clone(), target: c.target.clone() }, until: 0 };
       home.current.until = clock.current + FOCUS_HOLD + 0.9;
       goTo(poseFor(lastChange.foco, model, framing()), 0.9);
@@ -180,7 +197,8 @@ export function CameraRig() {
 
     const tr = transition.current;
     if (tr) {
-      tr.t = Math.min(1, tr.t + dt / tr.dur);
+      // Tiempo real (acotado) para que en equipos lentos la transición no se estire.
+      tr.t = Math.min(1, tr.t + Math.min(wall, 0.1) / tr.dur);
       const k = ease(tr.t);
       c.target.lerpVectors(tr.fromTarget, tr.to.target, k);
       // Interpolación esférica alrededor del objetivo: la cámara orbita, no atraviesa el equipo.
@@ -196,6 +214,17 @@ export function CameraRig() {
       sph.theta += dTheta * k;
       off.setFromSpherical(sph);
       camera.position.copy(c.target).add(off);
+      // Nunca adentro del equipo ni bajo el piso: si el camino lo cruza, se sale por el costado.
+      const m = currentModel.value;
+      if (m) {
+        const box = keepOutBox(m, useStore.getState().ui.tractor);
+        const p = camera.position;
+        if (box.containsPoint(p)) {
+          const side = Math.sign(p.z || tr.to.position.z || 1);
+          p.z = side * box.max.z;
+        }
+        if (p.y < 0.3) p.y = 0.3;
+      }
       camera.lookAt(c.target);
       if (tr.t >= 1) transition.current = null;
       invalidate();

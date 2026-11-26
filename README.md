@@ -8,10 +8,12 @@ El comprador arma su equipo (tolva cerealera, batea volcadora, plataforma con ba
 ## Qué incluye
 
 - Visor 3D fotorrealista (three.js + React Three Fiber) con modelos **100 % generados en código** a escala real: chasis, cuello de ganso, perno rey, ejes, suspensión mecánica o neumática, ruedas duales o súper single, accesorios.
-- 4 tipos de semirremolque con sus animaciones ("Ver en acción"): compuertas y lona de la tolva, vuelco de la batea, barandas de la plataforma, puertas y lona del sider.
+- 4 tipos de semirremolque con sus animaciones ("Ver en acción"): compuertas y lona de la tolva, vuelco de la batea, barandas de la plataforma, puertas del furgón y **lateral libre del sider** (la lona se recoge hacia atrás, los parantes se desmontan o corren y el techo corredizo se pliega). El sider tiene sus propias opciones: parantes, tablillas, techo y tensado.
 - Opciones con reglas de compatibilidad, autoajuste con aviso y precio en vivo (USD / ARS).
 - Colores RAL, logo de flota y texto integrados a la pintura de la caja.
-- Ficha técnica con tara, carga útil y **validación legal** (semáforo verde / amarillo / rojo).
+- Ficha técnica con tara, carga útil y **validación legal** (semáforo verde / amarillo / rojo). Si una medida pasa el máximo legal se avisa en el mismo paso (el slider marca el tramo en rojo y dice el máximo), en la tarjeta de precio, en el resumen, en el PDF y en el mensaje de consulta.
+- Cambiar de tipo conserva lo que se eligió y sea compatible (medidas, ejes, rodado, colores, logo); lo que no entra se ajusta, se lista en el aviso y se puede deshacer. Cada tarjeta de tipo muestra el precio que va a quedar al elegirla.
+- Cada paso mueve la cámara a lo que se está editando. En celular, visor arriba, opciones abajo y una barra fija con el precio y "Siguiente".
 - Estudio y exterior (ruta), cámaras predefinidas, puntos de interés, modo inactivo.
 - Resumen, comparador A/B, link compartible, PDF de cotización, consulta por WhatsApp o mail.
 - Modo vendedor (`?modo=vendedor`) y modo embebido (`/embed`).

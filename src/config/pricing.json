@@ -117,6 +117,23 @@
       "furgon": 0,
       "sider": -1800
     },
+    "parantes": {
+      "desmontables": 0,
+      "corredizos": 1450
+    },
+    "tablillas": {
+      "sin": 0,
+      "aluminio": 1100,
+      "madera": 650
+    },
+    "techo": {
+      "fijo": 0,
+      "corredizo": 2900
+    },
+    "tensado": {
+      "hebillas": 0,
+      "trinquete": 380
+    },
     "pisoFurgon": {
       "fenolico": 0,
       "chapa": 1700

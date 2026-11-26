@@ -11,7 +11,7 @@ import type { MatKey } from '../materials';
 const DOOR_OPEN = (250 * Math.PI) / 180;
 
 export function buildFurgon(ctx: BuildCtx): void {
-  const { asm, L, sel, mats } = ctx;
+  const { asm, L, sel } = ctx;
   const fy = L.floorY;
   const H = L.H;
   const top = fy + H;
@@ -32,7 +32,17 @@ export function buildFurgon(ctx: BuildCtx): void {
   asm.add('bodyPaint', box(0.03, H, L.W - 0.08, x1 - 0.02, fy + H / 2, 0));
   for (const s of [1, -1]) asm.add('aluBrushed', rbox(0.075, H + 0.05, 0.075, x1 - 0.0375, fy + H / 2 + 0.02, s * (hw - 0.0375), 0.02));
   asm.add('aluBrushed', rbox(0.075, 0.075, L.W - 0.1, x1 - 0.0375, top + 0.012, 0, 0.02));
-  asm.add('roof', rbox(L.L - 0.06, 0.035, L.W - 0.06, 0, top + 0.032, 0, 0.012));
+  const slidingRoof = sider && sel.techo === 'corredizo';
+  if (slidingRoof) {
+    // Techo de lona sobre arcos: se recoge hacia el marco trasero (pivote atrás).
+    asm.node('roofSlide', 'sprung', [x0 + 0.06, top + 0.03, 0]);
+    asm.into('roofSlide');
+    asm.add('lona', boxUV(box(L.L - 0.12, 0.02, L.W - 0.08, 0, top + 0.05, 0), 0.6));
+    for (let x = x0 + 0.5; x < x1 - 0.3; x += 0.62) asm.add('galvanized', rbox(0.035, 0.03, L.W - 0.1, x, top + 0.03, 0, 0.008));
+    asm.into('sprung');
+  } else {
+    asm.add('roof', rbox(L.L - 0.06, 0.035, L.W - 0.06, 0, top + 0.032, 0, 0.012));
+  }
   for (const s of [1, -1]) asm.add('aluBrushed', rbox(L.L - 0.02, 0.12, 0.055, 0, top - 0.01, s * (hw - 0.0275), 0.012));
   // Luces de gálibo.
   for (const s of [1, -1]) {
@@ -47,22 +57,7 @@ export function buildFurgon(ctx: BuildCtx): void {
       for (let x = x0 + 1.25; x < x1 - 0.6; x += 1.22) asm.add('bodyPaint', rbox(0.016, H - 0.16, 0.006, x, fy + H / 2 - 0.02, s * (hw - 0.004), 0.002));
     }
   } else {
-    const curtains: PleatCurtain[] = [];
-    const bays = Math.max(3, Math.round(L.L / 3.5));
-    for (const s of [1, -1]) {
-      for (let i = 1; i < bays; i++) {
-        const x = x0 + (L.L * i) / bays;
-        asm.add('galvanized', rbox(0.1, H - 0.1, 0.085, x, fy + H / 2 - 0.04, s * (hw - 0.1), 0.012));
-      }
-      for (const dy of [0.45, 1.0, 1.55]) if (dy < H - 0.4) asm.add('aluBrushed', rbox(L.L - 0.2, 0.12, 0.022, 0, fy + dy, s * (hw - 0.16), 0.006));
-      const c = new PleatCurtain({ x0: x0 + 0.1, x1: x1 - 0.085, y0: fy - 0.11, y1: top - 0.07, z: s * (hw - 0.014), side: s as 1 | -1, strapSpacing: 0.62 }, mats);
-      asm.attach(c.group, 'sprung');
-      curtains.push(c);
-      // Tensor delantero de la lona.
-      asm.add('aluBrushed', cyl(0.03, H - 0.05, 'y', x1 - 0.1, fy + H / 2 - 0.05, s * (hw - 0.03), 12));
-    }
-    ctx.disposers.push(() => curtains.forEach((c) => c.dispose()));
-    ctx.updaters.push((a) => curtains.forEach((c) => c.update(stage(a.accion, 0.3, 1))));
+    buildSiderSides(ctx);
   }
 
   // --- Marco trasero y puertas --------------------------------------------------------
@@ -92,15 +87,117 @@ export function buildFurgon(ctx: BuildCtx): void {
     }
     for (let k = 0; k < 4; k++) asm.add(hardware, rbox(0.014, 0.055, 0.16, x0 - 0.034, dy - dh / 2 + 0.2 + ((dh - 0.4) * k) / 3, s * (hingeZ - 0.05), 0.004), cyl(0.014, 0.075, 'y', x0 - 0.03, dy - dh / 2 + 0.2 + ((dh - 0.4) * k) / 3, s * (hingeZ + 0.012), 8));
   }
-  ctx.updaters.push((a, nodes) => {
-    const open = stage(a.accion, 0, sider ? 0.5 : 1) * DOOR_OPEN;
-    if (nodes.doorR) nodes.doorR.rotation.y = open;
-    if (nodes.doorL) nodes.doorL.rotation.y = -open;
-  });
+  // En el sider la acción es "Correr lona": las puertas traseras quedan cerradas.
+  if (!sider) {
+    ctx.updaters.push((a, nodes) => {
+      const open = stage(a.accion, 0, 1) * DOOR_OPEN;
+      if (nodes.doorR) nodes.doorR.rotation.y = open;
+      if (nodes.doorL) nodes.doorL.rotation.y = -open;
+    });
+  }
+  if (slidingRoof) {
+    ctx.updaters.push((a, nodes) => {
+      const k = stage(a.accion, 0.62, 1);
+      if (nodes.roofSlide) nodes.roofSlide.scale.x = 1 - 0.82 * k;
+    });
+  }
 
   ctx.anchors.puertas = [x0 - 0.08, fy + H * 0.45, 0.35];
   ctx.anchors.caja = [0, fy + H / 2, hw];
   ctx.anchors.interior = [0, fy + H * 0.5, 0];
+  if (sider) ctx.anchors.lateralLibre = [x0 + L.L * 0.55, fy + H * 0.55, hw + 0.05];
   ctx.livery = { side: [0, fy + H / 2 + 0.02, Math.min(L.L - 2.2, 9.5), H - 0.75], front: [0, fy + H / 2, 1.9, H - 0.9] };
   ctx.marking = { y: fy - 0.075, z: hw, x0: x0 + 0.1, x1: x1 - 0.1 };
+}
+
+/**
+ * Laterales del sider: riel superior (los largueros del techo), parantes corredizos o
+ * desmontables, tablillas opcionales y una lona por lado anclada atrás.
+ * "Correr lona": se sueltan las hebillas, salen las tablillas, la lona se recoge hacia
+ * atrás y los parantes se van al marco trasero (o se sacan si son desmontables).
+ */
+function buildSiderSides(ctx: BuildCtx): void {
+  const { asm, L, sel, mats } = ctx;
+  const fy = L.floorY;
+  const H = L.H;
+  const top = fy + H;
+  const hw = L.W / 2;
+  const x0 = L.rearX;
+  const x1 = L.frontX;
+  const sliding = sel.parantes === 'corredizos';
+  const slats = sel.tablillas === 'aluminio' || sel.tablillas === 'madera';
+  const slatMat: MatKey = sel.tablillas === 'madera' ? 'wood' : 'aluBrushed';
+  const nPosts = L.L > 12 ? 3 : 2;
+  const postZ = hw - 0.1;
+  const posts: { name: string; x: number; i: number; s: number }[] = [];
+
+  for (const s of [1, -1]) {
+    // Parantes: un nodo cada uno para poder moverlos.
+    for (let i = 0; i < nPosts; i++) {
+      const x = x0 + (L.L * (i + 1)) / (nPosts + 1);
+      const name = `post${s > 0 ? 'R' : 'L'}${i}`;
+      asm.node(name, 'sprung', [x, fy, s * postZ]);
+      asm.into(name);
+      asm.add('galvanized', rbox(0.1, H - 0.06, 0.085, x, fy + H / 2 - 0.03, s * postZ, 0.012));
+      if (sliding) {
+        // Carro con ruedas sobre el riel superior.
+        asm.add('chassisPaint', rbox(0.22, 0.06, 0.07, x, top - 0.06, s * (hw - 0.06), 0.01));
+        for (const dx of [-0.07, 0.07]) asm.add('rubber', cyl(0.025, 0.03, 'z', x + dx, top - 0.03, s * (hw - 0.06), 10));
+      } else {
+        // Encastre con traba: el parante se levanta y sale.
+        for (const yy of [fy + 0.05, top - 0.08]) asm.add('chassisPaint', rbox(0.14, 0.05, 0.1, x, yy, s * postZ, 0.01));
+      }
+      asm.into('sprung');
+      posts.push({ name, x, i, s });
+    }
+    // Tablillas: un nodo por lado que se saca entero.
+    if (slats) {
+      const name = s > 0 ? 'slatsR' : 'slatsL';
+      asm.node(name, 'sprung', [0, fy, s * (hw - 0.16)]);
+      asm.into(name);
+      for (const dy of [0.35, 0.85, 1.35]) if (dy < H - 0.5) asm.add(slatMat, boxUV(box(L.L - 0.25, 0.16, 0.024, 0, fy + dy, s * (hw - 0.16)), 0.5));
+      asm.into('sprung');
+    }
+  }
+
+  const curtains: PleatCurtain[] = [];
+  for (const s of [1, -1]) {
+    const c = new PleatCurtain({ x0: x0 + 0.1, x1: x1 - 0.085, y0: fy - 0.11, y1: top - 0.07, z: s * (hw - 0.014), side: s as 1 | -1, strapSpacing: 0.62, ratchet: sel.tensado === 'trinquete' }, mats);
+    asm.attach(c.group, 'sprung');
+    curtains.push(c);
+  }
+  ctx.disposers.push(() => curtains.forEach((c) => c.dispose()));
+
+  ctx.updaters.push((a, nodes) => {
+    const release = stage(a.accion, 0, 0.14);
+    const slatsOut = stage(a.accion, 0.1, 0.32);
+    const gather = stage(a.accion, 0.22, 0.7);
+    const postsK = stage(a.accion, 0.55, 1);
+    curtains.forEach((c) => c.update(gather, release));
+    for (const name of ['slatsR', 'slatsL']) {
+      const n = nodes[name];
+      if (!n) continue;
+      const rest = n.userData.rest as { x: number; y: number; z: number };
+      const s = name === 'slatsR' ? 1 : -1;
+      n.position.set(rest.x, rest.y - 0.25 * slatsOut, rest.z + s * 0.9 * slatsOut);
+      n.visible = slatsOut < 0.999;
+    }
+    for (const p of posts) {
+      const n = nodes[p.name];
+      if (!n) continue;
+      const rest = n.userData.rest as { x: number; y: number; z: number };
+      if (sliding) {
+        // Se apilan contra el marco trasero, uno detrás del otro.
+        const target = x0 + 0.3 + p.i * 0.14;
+        n.position.set(rest.x + (target - p.x) * postsK, rest.y, rest.z);
+        n.visible = true;
+      } else {
+        // Se levantan del encastre y salen hacia afuera.
+        const lift = Math.min(1, postsK / 0.4);
+        const out = Math.max(0, (postsK - 0.4) / 0.6);
+        n.position.set(rest.x, rest.y + 0.12 * lift, rest.z + p.s * 0.8 * out);
+        n.visible = postsK < 0.999;
+      }
+    }
+  });
 }
