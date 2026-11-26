@@ -7,6 +7,7 @@ import { useStore } from '@/state/store';
 import { markActive } from './activity';
 import { keepOutBox, poseFor, STEP_PRESET, type Pose } from './camera';
 import { currentModel } from './TrailerObject';
+import { loadingPose, matchesLoadingImage } from '@/ui/loadingMatch';
 
 const IDLE_AFTER = 20;
 const FOCUS_HOLD = 3.4;
@@ -63,8 +64,20 @@ export function CameraRig() {
     home.current = null;
     if (first.current) {
       first.current = false;
-      camera.position.copy(pose.position);
-      c.target.copy(pose.target);
+      // Arranque calzado con la imagen de espera: misma cámara y zoom equivalente a su recorte.
+      const st = useStore.getState();
+      const lp = preset.preset === 'tresCuartos' && matchesLoadingImage(st.config, st.ui.env, st.ui.tractor) ? loadingPose(st.config.tipo) : null;
+      const cam = camera as THREE.PerspectiveCamera;
+      if (lp) {
+        camera.position.fromArray(lp.position);
+        c.target.fromArray(lp.target);
+        cam.zoom = Math.max(1, aspect / lp.aspect);
+        cam.updateProjectionMatrix();
+        settle.current = pose;
+      } else {
+        camera.position.copy(pose.position);
+        c.target.copy(pose.target);
+      }
       c.update();
       invalidate();
     } else {
@@ -72,6 +85,27 @@ export function CameraRig() {
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [preset, hasModel]);
+
+  // Después del fundido de la imagen de espera, la cámara se acomoda al encuadre normal.
+  const settle = useRef<Pose | null>(null);
+  const zoomTw = useRef<{ from: number; t: number; dur: number } | null>(null);
+  const ready = useStore((s) => s.ready);
+  useEffect(() => {
+    if (!ready || !settle.current) return;
+    const id = window.setTimeout(() => {
+      const pose = settle.current;
+      settle.current = null;
+      const cam = camera as THREE.PerspectiveCamera;
+      if (!pose) return;
+      const far = pose.position.distanceTo(camera.position) > 0.05 || Math.abs(cam.zoom - 1) > 0.005;
+      if (!far) return;
+      if (!dragging.current) goTo(pose, 1.3);
+      zoomTw.current = { from: cam.zoom, t: 0, dur: 1.3 };
+      invalidate();
+    }, 720);
+    return () => window.clearTimeout(id);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [ready]);
 
   // Reencuadre al cambiar el tamaño del visor o el tipo/largo del equipo.
   const tipo = useStore((s) => s.config.tipo);
@@ -194,6 +228,16 @@ export function CameraRig() {
     clock.current += wall;
 
     if (dragging.current || rotating.current || transition.current) markActive();
+
+    const zt = zoomTw.current;
+    if (zt) {
+      const cam = camera as THREE.PerspectiveCamera;
+      zt.t = Math.min(1, zt.t + Math.min(wall, 0.1) / zt.dur);
+      cam.zoom = zt.from + (1 - zt.from) * ease(zt.t);
+      cam.updateProjectionMatrix();
+      if (zt.t >= 1) zoomTw.current = null;
+      invalidate();
+    }
 
     const tr = transition.current;
     if (tr) {

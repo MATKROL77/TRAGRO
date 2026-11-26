@@ -1,5 +1,5 @@
-/** Corre todas las pruebas de punta a punta. Uso: node tests/e2e/run.cjs [flujo] [capturas] [rendimiento] */
-const suites = { flujo: './flujo.cjs', capturas: './capturas.cjs', rendimiento: './rendimiento.cjs' };
+/** Corre todas las pruebas de punta a punta. Uso: node tests/e2e/run.cjs [flujo] [capturas] [rendimiento] [espera] */
+const suites = { flujo: './flujo.cjs', capturas: './capturas.cjs', rendimiento: './rendimiento.cjs', espera: './espera.cjs' };
 (async () => {
   const wanted = process.argv.slice(2).filter((a) => suites[a]);
   const list = wanted.length ? wanted : Object.keys(suites);

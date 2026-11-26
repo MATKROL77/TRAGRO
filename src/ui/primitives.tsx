@@ -151,9 +151,10 @@ export function Modal({ open, onClose, title, children, wide, footer, labelledBy
             aria-modal="true"
             aria-labelledby={labelledBy ?? titleId}
             tabIndex={-1}
-            initial={{ opacity: 0, y: 24, scale: 0.98 }}
-            animate={{ opacity: 1, y: 0, scale: 1 }}
-            exit={{ opacity: 0, y: 16, scale: 0.98 }}
+            // Solo se desliza: el panel es siempre opaco (si la animación se demora no deja ver lo de atrás).
+            initial={{ y: 28 }}
+            animate={{ y: 0 }}
+            exit={{ y: 20 }}
             transition={{ type: 'spring', stiffness: 380, damping: 32 }}
           >
             <header className="modal-head">

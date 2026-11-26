@@ -170,7 +170,15 @@ export const useStore = create<AppState>()(
       if (!n?.undo) return;
       set({ config: n.undo, notices: [], anim: { ...initialAnim }, activeHotspot: null, camera: { preset: 'tresCuartos', nonce: nonce++ } });
     },
-    setUi: (patch) => set((s) => ({ ui: { ...s.ui, ...patch } })),
+    setUi: (patch) =>
+      set((s) => {
+        const ui = { ...s.ui, ...patch };
+        // En "Tu marca" se cierra todo (lona, compuertas, puertas) con la animación inversa: el lateral tiene que verse.
+        if (patch.paso === 'personalizacion' && s.ui.paso !== 'personalizacion' && ((s.anim.accion ?? 0) > 0 || (s.anim.lona ?? 0) > 0)) {
+          return { ui, anim: { ...s.anim, accion: 0, lona: 0 } };
+        }
+        return { ui };
+      }),
     setAnim: (id, value) => set((s) => ({ anim: { ...s.anim, [id]: value } })),
     toggleAnim: (id) => set((s) => ({ anim: { ...s.anim, [id]: (s.anim[id] ?? 0) > 0.5 ? 0 : 1 } })),
     // La vista interior destapa la lona para que se vea adentro.
