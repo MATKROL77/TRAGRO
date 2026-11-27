@@ -1,5 +1,7 @@
 # Informe · Fase 7 (cierre)
 
+Publicado en https://configurador-semirremolques.matiascolimodio.workers.dev · verificación: tipos, lint, 93 pruebas unitarias, 86 de punta a punta (flujo y ruta).
+
 Resumen de todo el trabajo de render (fases 0 a 7), medición final contra la línea de base
 de la Fase 0, capturas finales, video de la secuencia en la ruta y qué queda en cada nivel
 de calidad.
