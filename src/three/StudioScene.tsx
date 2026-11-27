@@ -123,6 +123,7 @@ export function StudioScene() {
   useExposure(1.0);
   const quality = useStore((s) => s.quality);
   const contact = quality !== 'low';
+  const detail = useStore((s) => s.detail);
   const base = import.meta.env.BASE_URL;
   const formers = (
     <>
@@ -149,7 +150,8 @@ export function StudioScene() {
       {/* luz de contorno: separa la silueta de la máquina del fondo */}
       <directionalLight position={[7, 6, -10]} intensity={0.85} color="#eef3ff" />
       <StudioFloor />
-      {contact && <StudioContactShadows />}
+      {/* en el detalle del cuerpo la máquina está oculta: su sombra de contacto también */}
+      {contact && !detail && <StudioContactShadows />}
     </>
   );
 }
