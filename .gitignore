@@ -6,3 +6,7 @@ playwright-report
 .DS_Store
 .wrangler
 scripts/.tmp/
+models/src/*.glb
+!models/src/.gitkeep
+public/models/*-sample*
+tests/.tmp/

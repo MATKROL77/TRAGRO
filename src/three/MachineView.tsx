@@ -11,6 +11,10 @@ import brand from '../config/brand.json';
 import { translate } from '../i18n';
 import { prefersReducedMotion } from './motion';
 import { captureState } from './capture';
+import { refineState } from '../render-kit/refine';
+
+/** distancia (m) hasta la que un cuerpo de siembra usa el detalle completo, por calidad */
+const LOD_DIST = { high: 12, medium: 8, low: 5 } as const;
 
 function isLight(hex: string): boolean {
   const c = new THREE.Color(hex);
@@ -153,14 +157,20 @@ export function MachineView() {
   // sin `sig`: reconstruir la máquina no regenera la calcomanía (el modelo nuevo recibe la actual)
   }, [logoUrl, config.text, config.colors.accent, config.colors.main, modelName, invalidate]);
 
-  useFrame((_, dt) => {
+  useFrame((state, dt) => {
     const m = runtime.model;
-    if (!m || captureState.lock) return;
+    if (!m) return;
     const st = useStore.getState();
     const target = st.pose === 'transport' ? 1 : 0;
     // plegado/desplegado en 3,5 s de tiempo real (cada fase con easing); dt hasta 0,25 s para que
     // con pocos FPS no se estire la animación
     const speed = prefersReducedMotion() ? 1 : 1 / 3.5;
+    // nivel de detalle de los cuerpos de siembra según la distancia (todos completos al refinar/capturar)
+    if (m.updateLod(state.camera.position, LOD_DIST[st.quality], refineState.pending || refineState.force)) {
+      refineState.restart = true;
+      invalidate();
+    }
+    if (captureState.lock) return;
     const moving = m.update(Math.min(dt, 0.25) * runtime.timeScale, target, runtime.distance, speed);
     if (moving) {
       runtime.animTick++;

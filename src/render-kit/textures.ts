@@ -35,6 +35,11 @@ export function initTextures(renderer: THREE.WebGLRenderer, transcoderPath = `${
   pending.splice(0).forEach((fn) => fn());
 }
 
+/** Cargador KTX2 compartido (para GLTFLoader.setKTX2Loader); null hasta `initTextures`. */
+export function getKTX2Loader(): KTX2Loader | null {
+  return ktx2Failed ? null : ktx2;
+}
+
 export interface TexOpts {
   srgb?: boolean;
   repeat?: boolean;

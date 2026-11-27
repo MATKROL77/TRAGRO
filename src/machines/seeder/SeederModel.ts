@@ -4,7 +4,7 @@ import type { MaterialSet } from '../../three/materials';
 import { DIM, computeLayout, type SeederLayout } from './layout';
 import { ROW, ROW_HOTSPOTS, buildRowUnitSteps, type MatKey, type RowUnitOptions } from './rowUnit';
 import {
-  barBetween, cylinderX, cylinderZ, frustumGeo, hexBolt, mergeAll, roundedBox, sagHose, tube, wheelSet, updateTube } from './parts';
+  barBetween, cylinderX, cylinderZ, frustumGeo, hexBolt, mergeAll, roundedBox, sagHose, tube, wheelSet, updateTube, withDetail } from './parts';
 import { warningStripes } from '../../three/textures';
 
 const V = (x: number, y: number, z: number) => new THREE.Vector3(x, y, z);
@@ -39,12 +39,14 @@ interface SpinMesh { mesh: THREE.InstancedMesh; part: THREE.Matrix4; radius: num
  * material + piezas que giran. Se cachean (LRU): volver a una opción ya vista no crea geometría.
  */
 interface RowKit { key: string; statics: { mat: MatKey; geometry: THREE.BufferGeometry }[]; spins: { mat: MatKey; geometry: THREE.BufferGeometry; matrix: THREE.Matrix4; radius: number }[] }
-const KIT_LRU = 6;
+const KIT_LRU = 10;
+/** factor de detalle del nivel liviano del cuerpo de siembra */
+const LOD_DETAIL = 0.32;
 const kitCache = new Map<string, RowKit>();
 const kitsInUse = new Map<string, number>();
 /** Kit del cuerpo de siembra (de la caché, o construido por pasos si es una combinación nueva). */
-function* getRowKitSteps(opts: RowUnitOptions): Generator<void, RowKit, void> {
-  const key = JSON.stringify(opts);
+function* getRowKitSteps(opts: RowUnitOptions, detail: number): Generator<void, RowKit, void> {
+  const key = `${JSON.stringify(opts)}|${detail}`;
   const hit = kitCache.get(key);
   if (hit) {
     kitCache.delete(key);
@@ -83,23 +85,18 @@ function* getRowKitSteps(opts: RowUnitOptions): Generator<void, RowKit, void> {
   return kit;
 }
 
-class RowUnitBatch {
-  group = new THREE.Group();
+/** Juego de InstancedMesh de un nivel de detalle del cuerpo de siembra. */
+class RowUnitSet {
   statics: THREE.InstancedMesh[] = [];
   spins: SpinMesh[] = [];
-  private tmp = new THREE.Matrix4();
-  private tmp2 = new THREE.Matrix4();
-  private rot = new THREE.Matrix4();
-
-  constructor(kit: RowKit, mats: MaterialSet, count: number) {
-    const n = Math.max(1, count);
+  constructor(kit: RowKit, mats: MaterialSet, n: number, group: THREE.Group) {
     for (const st of kit.statics) {
       const im = new THREE.InstancedMesh(st.geometry, mats[st.mat], n);
       im.castShadow = true;
       im.receiveShadow = true;
       im.frustumCulled = false;
       this.statics.push(im);
-      this.group.add(im);
+      group.add(im);
     }
     for (const p of kit.spins) {
       const im = new THREE.InstancedMesh(p.geometry, mats[p.mat], n);
@@ -107,31 +104,66 @@ class RowUnitBatch {
       im.receiveShadow = true;
       im.frustumCulled = false;
       this.spins.push({ mesh: im, part: p.matrix, radius: p.radius });
-      this.group.add(im);
+      group.add(im);
     }
-    this.setCount(count);
   }
+  setCount(c: number) {
+    // sin instancias: invisible (si no, igual cuesta una llamada de dibujo por malla)
+    for (const m of this.statics) {
+      m.count = c;
+      m.visible = c > 0;
+    }
+    for (const s of this.spins) {
+      s.mesh.count = c;
+      s.mesh.visible = c > 0;
+    }
+  }
+}
 
-  setCount(count: number) {
-    for (const m of this.statics) m.count = count;
-    for (const s of this.spins) s.mesh.count = count;
+/**
+ * Todos los cuerpos de siembra en dos juegos de instancias: detalle completo (cerca de la cámara) y
+ * liviano (lejos). `lod[i]` = 1 si el surco i usa el completo. Cambiar el nivel sólo reescribe matrices.
+ */
+class RowUnitBatch {
+  group = new THREE.Group();
+  hi: RowUnitSet;
+  lo: RowUnitSet;
+  lod: Uint8Array;
+  private tmp = new THREE.Matrix4();
+  private tmp2 = new THREE.Matrix4();
+  private rot = new THREE.Matrix4();
+
+  constructor(kitHi: RowKit, kitLo: RowKit, mats: MaterialSet, count: number) {
+    const n = Math.max(1, count);
+    this.hi = new RowUnitSet(kitHi, mats, n, this.group);
+    this.lo = new RowUnitSet(kitLo, mats, n, this.group);
+    this.lod = new Uint8Array(n).fill(1);
   }
 
   /** `bases[i]`: transformación de la sección del surco i (ala plegándose) o null para el centro. */
   update(xs: number[], dist: number, staticsToo: boolean, bases?: (THREE.Matrix4 | null)[]) {
+    let nh = 0;
+    let nl = 0;
     for (let i = 0; i < xs.length; i++) {
       this.tmp.makeTranslation(xs[i], 0, 0);
       const base = bases?.[i];
       if (base) this.tmp.premultiply(base);
-      if (staticsToo) for (const m of this.statics) m.setMatrixAt(i, this.tmp);
-      for (const s of this.spins) {
+      const hi = this.lod[i] === 1;
+      const set = hi ? this.hi : this.lo;
+      const k = hi ? nh++ : nl++;
+      if (staticsToo) for (const m of set.statics) m.setMatrixAt(k, this.tmp);
+      for (const s of set.spins) {
         this.rot.makeRotationX(dist / s.radius);
         this.tmp2.multiplyMatrices(this.tmp, s.part).multiply(this.rot);
-        s.mesh.setMatrixAt(i, this.tmp2);
+        s.mesh.setMatrixAt(k, this.tmp2);
       }
     }
-    if (staticsToo) for (const m of this.statics) m.instanceMatrix.needsUpdate = true;
-    for (const s of this.spins) s.mesh.instanceMatrix.needsUpdate = true;
+    this.hi.setCount(nh);
+    this.lo.setCount(nl);
+    for (const set of [this.hi, this.lo]) {
+      if (staticsToo) for (const m of set.statics) m.instanceMatrix.needsUpdate = true;
+      for (const s of set.spins) s.mesh.instanceMatrix.needsUpdate = true;
+    }
   }
 }
 
@@ -311,9 +343,11 @@ export class SeederModel {
       hopper: L.hasCentralSeed ? 'central' : 'individual',
       hopperL: L.individualHopperL,
     };
-    const kit = yield* getRowKitSteps(opts);
-    this.kitKey = kit.key;
-    kitsInUse.set(kit.key, (kitsInUse.get(kit.key) ?? 0) + 1);
+    const kit = yield* getRowKitSteps(opts, 1);
+    // nivel de detalle liviano: ~8 k triángulos por cuerpo (contra ~42 k del completo)
+    const kitLo = yield* withDetail(LOD_DETAIL, getRowKitSteps(opts, LOD_DETAIL));
+    this.kitKeys = [kit.key, kitLo.key];
+    for (const k of this.kitKeys) kitsInUse.set(k, (kitsInUse.get(k) ?? 0) + 1);
     yield;
 
     // Secciones: centro + alas
@@ -336,7 +370,7 @@ export class SeederModel {
     }
     // un solo juego de InstancedMesh para todos los surcos (centro y alas): las alas se aplican como
     // transformación por instancia, así los draw calls no se multiplican por sección
-    this.rowBatch = new RowUnitBatch(kit, mats, L.rowX.length);
+    this.rowBatch = new RowUnitBatch(kit, kitLo, mats, L.rowX.length);
     this.chassis.add(this.rowBatch.group);
     yield;
     this.buildDrawbar();
@@ -356,7 +390,41 @@ export class SeederModel {
     yield* this.mergeStatics();
     this.trimShadowCasters();
   }
-  private kitKey = '';
+  private kitKeys: string[] = [];
+  private lodCam = new THREE.Vector3(Infinity, 0, 0);
+  private lodAll = false;
+  private lodV = new THREE.Vector3();
+
+  /**
+   * Nivel de detalle por surco según la distancia a la cámara (`all`: todos completos, por ejemplo
+   * mientras se refina la imagen). Devuelve true si cambió algún surco.
+   */
+  updateLod(camWorld: THREE.Vector3, dist: number, all: boolean): boolean {
+    if (!this.rowBatch) return false;
+    if (all === this.lodAll && camWorld.distanceToSquared(this.lodCam) < 0.04) return false;
+    this.lodCam.copy(camWorld);
+    this.lodAll = all;
+    const g = this.rowBatch.group;
+    g.updateWorldMatrix(true, false);
+    const lod = this.rowBatch.lod;
+    let changed = false;
+    for (let i = 0; i < this.curX.length; i++) {
+      let v = 1;
+      if (!all) {
+        this.lodV.set(this.curX[i], 0.5, -0.3);
+        const b = this.rowBases[i];
+        if (b) this.lodV.applyMatrix4(b);
+        this.lodV.applyMatrix4(g.matrixWorld);
+        v = this.lodV.distanceTo(camWorld) < dist ? 1 : 0;
+      }
+      if (lod[i] !== v) {
+        lod[i] = v;
+        changed = true;
+      }
+    }
+    if (changed) this.rowBatch.update(this.curX, this.state.distance, true, this.rowBases);
+    return changed;
+  }
 
   /**
    * Las piezas chicas (bulones, cromados, caños finos, mangueras, cables, luces, vidrio) no proyectan
@@ -1001,7 +1069,7 @@ export class SeederModel {
 
   dispose() {
     this.root.removeFromParent();
-    if (this.kitKey) kitsInUse.set(this.kitKey, Math.max(0, (kitsInUse.get(this.kitKey) ?? 1) - 1));
+    for (const k of this.kitKeys) kitsInUse.set(k, Math.max(0, (kitsInUse.get(k) ?? 1) - 1));
     for (const g of this.geoms) g.dispose();
     for (const h of this.bridgeHoses) h.mesh.geometry.dispose();
     for (const m of this.ownedMaterials) m.dispose();

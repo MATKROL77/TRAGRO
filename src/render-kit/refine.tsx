@@ -27,6 +27,10 @@ export const refineState = {
   force: false,
   /** ms desde la última vez que algo cambió */
   stillSince: 0,
+  /** la escena está quieta y se va a refinar (o se está refinando): usar el máximo detalle */
+  pending: false,
+  /** pedir que la acumulación empiece de cero sin contar como "movimiento" (p. ej. cambio de LOD) */
+  restart: false,
 };
 
 const halton = (i: number, b: number) => {
@@ -122,7 +126,10 @@ export function ProgressiveRefine({ enabled, target, delay = 800, lightJitter = 
     const s = st.current;
     const now = performance.now();
     refineState.target = target;
-    if (!enabled) return;
+    if (!enabled) {
+      refineState.pending = false;
+      return;
+    }
     // ¿cambió algo? (posición de cámara, fov/aspecto, o la firma de la escena)
     const cam = camera as THREE.PerspectiveCamera;
     const sig = `${signature()}|${cam.fov}|${cam.aspect}|${size.width}x${size.height}|${gl.getPixelRatio()}`;
@@ -131,12 +138,23 @@ export function ProgressiveRefine({ enabled, target, delay = 800, lightJitter = 
       s.lastCam.copy(camera.matrixWorld);
       s.lastSig = sig;
       reset(now);
+      refineState.pending = false;
       if (refineState.force) invalidate();
       else window.setTimeout(() => invalidate(), delay + 20);
       return;
     }
     refineState.stillSince = now - s.lastChange;
-    if (!refineState.force && now - s.lastChange < delay) return;
+    if (!refineState.force && now - s.lastChange < delay) {
+      refineState.pending = false;
+      return;
+    }
+    refineState.pending = true;
+    if (refineState.restart) {
+      // la escena cambió de detalle (no de encuadre): se re-acumula desde cero
+      refineState.restart = false;
+      s.samples = 0;
+      refineState.samples = 0;
+    }
 
     // buffers del tamaño del canvas
     const dbs = gl.getDrawingBufferSize(new THREE.Vector2());

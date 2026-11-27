@@ -5,6 +5,10 @@
 import { useEffect, useRef } from 'react';
 import { useThree } from '@react-three/fiber';
 import { Perf } from 'r3f-perf';
+import { ProgressiveModel } from '../ProgressiveModel';
+
+/** ?debug=1&glb=<nombre>: vista previa de public/models/<nombre>.glb (pipeline de modelos), a 6 m detrás. */
+const GLB = new URLSearchParams(window.location.search).get('glb');
 
 /** Cuadro máximo y cuadros largos (>50 ms) de los últimos 5 s, medidos con requestAnimationFrame. */
 function FrameHud() {
@@ -50,6 +54,7 @@ export default function DebugTools() {
     <>
       <Perf position="top-right" deepAnalyze matrixUpdate overClock antialias={false} />
       <FrameHud />
+      {GLB && <ProgressiveModel name={GLB} position={[0, 0, -6]} />}
     </>
   );
 }

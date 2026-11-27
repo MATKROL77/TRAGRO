@@ -2,8 +2,7 @@ import * as THREE from 'three';
 import type { MaterialSet } from '../../three/materials';
 import {
   airbagGeo, barBetween, castWheelGeo, cylinderX, discGeo, frustumGeo, hexBolt, rimGeo, roundedBox,
-  spikedWheelGeo, springGeo, tireGeo, tube,
-} from './parts';
+  spikedWheelGeo, springGeo, tireGeo, tube, seg } from './parts';
 import { DIM } from './layout';
 
 /**
@@ -166,7 +165,7 @@ export function* buildRowUnitSteps(o: RowUnitOptions): Generator<void, Part[], v
     add('meter', tube([V(mp.x + 0.12, mp.y + 0.08, mp.z + 0.05), V(0.1, by + 0.1, -0.35), V(0.08, by + 0.12, -0.08)], 0.006, 20, 5), 'cable', I, V(0.45, 0.2, 0));
   } else {
     // eje hexagonal de mando + piñón
-    add('meter', new THREE.CylinderGeometry(0.075, 0.075, 0.012, 22).rotateZ(Math.PI / 2), 'steel', M(V(-0.07, mp.y, mp.z)), V(0.38, 0.2, 0));
+    add('meter', new THREE.CylinderGeometry(0.075, 0.075, 0.012, seg(22, 8)).rotateZ(Math.PI / 2), 'steel', M(V(-0.07, mp.y, mp.z)), V(0.38, 0.2, 0));
     add('meter', cylinderX(0.011, 0.3, 6), 'steel', M(V(-0.12, mp.y, mp.z)), V(0.38, 0.2, 0));
     if (o.metering === 'chain') {
       add('meter', tube([V(-0.08, mp.y + 0.075, mp.z), V(-0.08, by + 0.02, -0.4), V(-0.08, by - 0.08, -0.38), V(-0.08, mp.y - 0.075, mp.z)], 0.006, 24, 4), 'castIron', I, V(0.38, 0.2, 0));
@@ -241,8 +240,8 @@ export function* buildRowUnitSteps(o: RowUnitOptions): Generator<void, Part[], v
     const g = airbagGeo(0.07, len * 0.7);
     const q = new THREE.Quaternion().setFromUnitVectors(V(0, 1, 0), a.clone().sub(b).normalize());
     add('downforce', g, 'rubber', new THREE.Matrix4().compose(b.clone().lerp(a, 0.15), q, V(1, 1, 1)), V(0, 0.32, 0));
-    add('downforce', new THREE.CylinderGeometry(0.075, 0.075, 0.014, 20).applyQuaternion(q), 'steel', M(b.clone().lerp(a, 0.15)), V(0, 0.32, 0));
-    add('downforce', new THREE.CylinderGeometry(0.075, 0.075, 0.014, 20).applyQuaternion(q), 'steel', M(b.clone().lerp(a, 0.86)), V(0, 0.32, 0));
+    add('downforce', new THREE.CylinderGeometry(0.075, 0.075, 0.014, seg(20, 8)).applyQuaternion(q), 'steel', M(b.clone().lerp(a, 0.15)), V(0, 0.32, 0));
+    add('downforce', new THREE.CylinderGeometry(0.075, 0.075, 0.014, seg(20, 8)).applyQuaternion(q), 'steel', M(b.clone().lerp(a, 0.86)), V(0, 0.32, 0));
     add('downforce', tube([a.clone().add(V(0.05, 0.02, 0)), V(0.09, by + 0.16, -0.1), V(0.1, by + 0.12, 0.05)], 0.006, 16, 5), 'hose', I, V(0, 0.32, 0));
   }
   return parts;

@@ -4,9 +4,35 @@ import { mergeGeometries } from 'three/examples/jsm/utils/BufferGeometryUtils.js
 
 /** Constructores de geometría paramétrica reutilizables (eje de giro de discos y ruedas = X). */
 
+/**
+ * Factor de detalle (nivel de detalle, LOD): 1 = completo; menor = menos segmentos en piezas curvas
+ * (discos, resortes, ruedas, mangueras). Lo fija el que construye un nivel de detalle bajo y lo vuelve
+ * a 1 enseguida (ver `withDetail`).
+ */
+let DETAIL = 1;
+export function setDetail(d: number) {
+  DETAIL = d;
+}
+/** Segmentos escalados por el factor de detalle (con mínimo). */
+export const seg = (n: number, min = 3) => Math.max(min, Math.round(n * DETAIL));
+/** Ejecuta un generador con un factor de detalle aplicado sólo mientras corre cada paso. */
+export function* withDetail<T>(d: number, gen: Generator<void, T, void>): Generator<void, T, void> {
+  for (;;) {
+    setDetail(d);
+    let r: IteratorResult<void, T>;
+    try {
+      r = gen.next();
+    } finally {
+      setDetail(1);
+    }
+    if (r.done) return r.value;
+    yield;
+  }
+}
+
 export function roundedBox(w: number, h: number, d: number, r = 0.012, seg = 2): THREE.BufferGeometry {
   const rr = Math.min(r, w / 2 - 1e-4, h / 2 - 1e-4, d / 2 - 1e-4);
-  return new RoundedBoxGeometry(w, h, d, seg, rr);
+  return new RoundedBoxGeometry(w, h, d, DETAIL < 1 ? 1 : seg, rr);
 }
 
 export type DiscStyle = 'plain' | 'turbo' | 'wavy' | 'concave';
@@ -17,8 +43,8 @@ export function discGeo(R: number, opts: { style?: DiscStyle; thickness?: number
   const t = opts.thickness ?? 0.005;
   const r0 = opts.hole ?? R * 0.18;
   const dish = opts.dish ?? R * 0.06;
-  const rings = 14;
-  const segs = style === 'plain' || style === 'concave' ? 56 : 96;
+  const rings = seg(14, 4);
+  const segs = seg(style === 'plain' || style === 'concave' ? 56 : 96, 20);
   const pos: number[] = [];
   const uv: number[] = [];
   const idx: number[] = [];
@@ -67,11 +93,11 @@ export function discGeo(R: number, opts: { style?: DiscStyle; thickness?: number
 
 /** Neumático por revolución. Eje = X. U alrededor, V a lo ancho (sirve para el normal map de tacos). */
 export function tireGeo(R: number, width: number, rimR: number, opts: { segs?: number; squareness?: number } = {}): THREE.BufferGeometry {
-  const segs = opts.segs ?? 48;
+  const segs = seg(opts.segs ?? 48, 14);
   const p = opts.squareness ?? 0.6;
   const hw = width / 2;
   const pts: THREE.Vector2[] = [];
-  const n = 20;
+  const n = seg(20, 8);
   for (let i = 0; i <= n; i++) {
     const th = -Math.PI / 2 + (i / n) * Math.PI;
     const c = Math.pow(Math.abs(Math.cos(th)), p);
@@ -85,12 +111,12 @@ export function tireGeo(R: number, width: number, rimR: number, opts: { segs?: n
 
 /** Llanta: tambor + disco central con agujeros sugeridos. Eje = X. */
 export function rimGeo(rimR: number, width: number, dishDepth = 0.04): THREE.BufferGeometry {
-  const drum = new THREE.CylinderGeometry(rimR, rimR, width * 0.8, 40, 1, true);
-  const flange1 = new THREE.TorusGeometry(rimR, 0.008, 6, 40);
+  const drum = new THREE.CylinderGeometry(rimR, rimR, width * 0.8, seg(40, 12), 1, true);
+  const flange1 = new THREE.TorusGeometry(rimR, 0.008, seg(6, 3), seg(40, 12));
   flange1.rotateY(Math.PI / 2);
   flange1.translate(0, 0, 0);
-  const center = new THREE.CylinderGeometry(rimR * 0.98, rimR * 0.98, 0.012, 40);
-  const hub = new THREE.CylinderGeometry(rimR * 0.28, rimR * 0.32, 0.08, 16);
+  const center = new THREE.CylinderGeometry(rimR * 0.98, rimR * 0.98, 0.012, seg(40, 12));
+  const hub = new THREE.CylinderGeometry(rimR * 0.28, rimR * 0.32, 0.08, seg(16, 6));
   center.translate(0, -dishDepth * 0.2, 0);
   hub.translate(0, dishDepth * 0.6, 0);
   const parts = [drum, center, hub];
@@ -146,7 +172,7 @@ export function barBetween(a: THREE.Vector3, b: THREE.Vector3, r: number, segs =
 
 export function tube(points: THREE.Vector3[], r: number, tubular = 40, radial = 8): THREE.BufferGeometry {
   const curve = new THREE.CatmullRomCurve3(points, false, 'centripetal');
-  return new THREE.TubeGeometry(curve, tubular, r, radial, false);
+  return new THREE.TubeGeometry(curve, seg(tubular, 4), r, seg(radial, 4), false);
 }
 
 /** Manguera colgante entre dos puntos, con comba. */
@@ -161,26 +187,26 @@ export function sagHose(a: THREE.Vector3, b: THREE.Vector3, r: number, sag = 0.1
 /** Resorte helicoidal a lo largo de Y, de y=0 a y=len. */
 export function springGeo(radius: number, wire: number, turns: number, len: number): THREE.BufferGeometry {
   const pts: THREE.Vector3[] = [];
-  const n = Math.round(turns * 16);
+  const n = Math.round(turns * seg(16, 6));
   for (let i = 0; i <= n; i++) {
     const t = i / n;
     const a = t * turns * Math.PI * 2;
     pts.push(new THREE.Vector3(Math.cos(a) * radius, t * len, Math.sin(a) * radius));
   }
   const curve = new THREE.CatmullRomCurve3(pts);
-  return new THREE.TubeGeometry(curve, n * 2, wire, 6, false);
+  return new THREE.TubeGeometry(curve, DETAIL < 1 ? n : n * 2, wire, seg(6, 3), false);
 }
 
 /** Bolsa de aire (fuelle) a lo largo de Y. */
 export function airbagGeo(r: number, len: number): THREE.BufferGeometry {
   const pts: THREE.Vector2[] = [];
-  const n = 24;
+  const n = seg(24, 8);
   for (let i = 0; i <= n; i++) {
     const t = i / n;
     const bulge = Math.abs(Math.sin(t * Math.PI * 2)) * 0.22 + 0.78;
     pts.push(new THREE.Vector2(r * bulge * (t === 0 || t === 1 ? 0.75 : 1), t * len));
   }
-  return new THREE.LatheGeometry(pts, 24);
+  return new THREE.LatheGeometry(pts, seg(24, 8));
 }
 
 /** Tronco de pirámide rectangular (tolva inferior). Base superior wT×dT, inferior wB×dB, alto h. Centro en la base superior. */
@@ -226,10 +252,10 @@ export function hexBolt(size = 0.018, len = 0.012): THREE.BufferGeometry {
 /** Rueda tapadora con dientes (estrella). Eje = X. */
 export function spikedWheelGeo(R: number, teeth = 12): THREE.BufferGeometry {
   const geos: THREE.BufferGeometry[] = [];
-  const hub = new THREE.CylinderGeometry(R * 0.42, R * 0.42, 0.03, 20);
+  const hub = new THREE.CylinderGeometry(R * 0.42, R * 0.42, 0.03, seg(20, 8));
   hub.rotateZ(Math.PI / 2);
   geos.push(hub.toNonIndexed());
-  const plate = new THREE.CylinderGeometry(R * 0.6, R * 0.6, 0.012, 24);
+  const plate = new THREE.CylinderGeometry(R * 0.6, R * 0.6, 0.012, seg(24, 8));
   plate.rotateZ(Math.PI / 2);
   geos.push(plate.toNonIndexed());
   for (let i = 0; i < teeth; i++) {
@@ -256,7 +282,7 @@ export function castWheelGeo(R: number, width: number): THREE.BufferGeometry {
     new THREE.Vector2(R * 0.75, width / 2),
     new THREE.Vector2(0.03, width / 2),
   ];
-  const g = new THREE.LatheGeometry(pts, 36);
+  const g = new THREE.LatheGeometry(pts, seg(36, 12));
   g.rotateZ(-Math.PI / 2);
   return g;
 }
