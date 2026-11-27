@@ -160,8 +160,9 @@ export function presetShot(p: CamPreset, aspect: number, scene: string, opts: Sh
     case 'rowUnit': {
       const t = new THREE.Vector3(midRowX, 0.48, -0.42);
       if (useStore.getState().detail) {
-        const k = narrow ? 1.45 : 1;
-        return { pos: new THREE.Vector3(3.3 * k, 1.5 * k, 1.9 * k), target: new THREE.Vector3(0, 0.55, -0.35) };
+        // cuerpo de siembra aislado: encuadre exacto de su caja (con aire para las etiquetas)
+        const box = new THREE.Box3(new THREE.Vector3(-0.45, 0, -1.6), new THREE.Vector3(0.45, 1.35, 0.75));
+        return fitShot(box, new THREE.Vector3(3.3, 1.5, 1.9), aspect, pads, narrow ? 1.35 : 1.2, 2);
       }
       return { pos: t.clone().add(new THREE.Vector3(1.9, 0.55, 1.2)), target: t };
     }

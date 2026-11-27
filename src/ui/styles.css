@@ -785,3 +785,11 @@ input[type='range'] { accent-color: var(--primary); }
 .capture-progress { position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%); z-index: 30; background: rgba(27, 39, 71, 0.9); color: #fff; padding: 10px 16px; border-radius: 12px; font-size: 13px; font-weight: 700; display: grid; gap: 8px; min-width: 200px; text-align: center; pointer-events: none; box-shadow: var(--shadow); }
 .capture-progress-bar { height: 4px; border-radius: 4px; background: rgba(255, 255, 255, 0.25); overflow: hidden; }
 .capture-progress-bar i { display: block; height: 100%; background: #fff; transition: width 0.12s linear; }
+
+/* detalle del cuerpo en celular: etiquetas y leyenda compactas (el visor es la mitad de la pantalla) */
+@media (max-width: 900px) {
+  .part-label { font-size: 9.5px; padding: 1px 6px 1px 1px; gap: 3px; }
+  .part-label .part-num { width: 15px; height: 15px; font-size: 9px; }
+  .detail-legend { padding: 6px 10px; gap: 3px; }
+  .detail-legend .muted { display: none; }
+}
