@@ -65,12 +65,14 @@ export default function RouteController() {
       tractorFrontWheelR: tractor?.info.frontWheelR ?? L.wheelR,
       airSuspension: L.suspension === 'neumatica',
     });
-    const open = (animState.current.accion ?? 0) > 0.01 || (st.anim.accion ?? 0) > 0.01;
+    // Abierto (o abriéndose) según el pedido; si se estaba cerrando, todavía no puede circular.
+    const open = (st.anim.accion ?? 0) > 0.01;
+    const closing = !open && (animState.current.accion ?? 0) > 0.01;
     // La primera vez llega circulando. Al volver: aparece detenido y arranca solo si está cerrado.
     // Con "movimiento reducido" (o en "Tu marca") queda detenido hasta que el usuario lo ponga en marcha.
     const hold = st.ui.reducedMotion || st.ui.paso === 'personalizacion';
     const first = routeVisits.count++ === 0;
-    const initial: VehiculoEstado = open ? 'ABIERTO' : first && !hold ? 'CIRCULANDO' : 'DETENIDO';
+    const initial: VehiculoEstado = open ? 'ABIERTO' : first && !hold && !closing ? 'CIRCULANDO' : 'DETENIDO';
     if (initial === 'CIRCULANDO') kin.current.setTargetSpeed(kin.current.opt.cruise);
     else kin.current.placeStopped(true);
     machine.current = new ActionMachine(
