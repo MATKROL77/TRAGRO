@@ -277,7 +277,7 @@ function Bridge({ overlay }: { overlay: React.RefObject<HTMLCanvasElement> }) {
         st.advance(st.clock.elapsedTime + dt);
       }, __frameloop: (m: 'always' | 'demand' | 'never') => get().setFrameloop(m), __canvas: () => get().gl.domElement });
     if (DEBUG || BENCH) (window as unknown as { __progKeys: unknown }).__progKeys = () => (get().gl.info.programs ?? []).map((pr) => `${pr.name}|${pr.cacheKey}`);
-    (window as unknown as { __viewer: unknown }).__viewer = { stats: () => ({ ...get().gl.info.memory, ...lastInfo.current, fps: fps.current.value, frames: fps.current.total, programs: get().gl.info.programs?.length ?? 0, buildMs: buildTimes.slice(), modelTriangles: currentModel.value?.stats.triangles ?? 0, modelMeshes: currentModel.value?.stats.meshes ?? 0, modelKey: currentModel.value?.key ?? '', worker: { ...workerStats } }), camera: () => ({ position: get().camera.position.toArray(), target: (get().controls as unknown as OrbitImpl | null)?.target.toArray() }) };
+    (window as unknown as { __viewer: unknown }).__viewer = { stats: () => ({ ...get().gl.info.memory, ...lastInfo.current, fps: fps.current.value, frames: fps.current.total, programs: get().gl.info.programs?.length ?? 0, buildMs: buildTimes.slice(), modelTriangles: currentModel.value?.stats.triangles ?? 0, modelMeshes: currentModel.value?.stats.meshes ?? 0, modelKey: currentModel.value?.key ?? '', worker: { ...workerStats } }), camera: () => { const c = get().controls as unknown as OrbitImpl | null; return { position: get().camera.position.toArray(), target: c?.target.toArray(), autoRotate: c?.autoRotate ?? false, autoRotateSpeed: c?.autoRotateSpeed ?? 0, enabled: c?.enabled ?? false }; } };
     return () => registerViewer(null);
   }, [overlay]);
   return null;

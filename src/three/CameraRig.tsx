@@ -345,6 +345,9 @@ export function CameraRig() {
       onChange={() => {
         const c = controls.current;
         if (!c) return;
+        // En la ruta la cámara la maneja RouteController (el camión se va a la banquina, más allá
+        // de estos límites): limitar acá peleaba con el seguimiento y la cámara temblaba.
+        if (inRoute()) return;
         // El objetivo no puede irse lejos del equipo ni bajo el piso.
         c.target.x = THREE.MathUtils.clamp(c.target.x, -9, 12);
         c.target.y = THREE.MathUtils.clamp(c.target.y, 0.2, 4.2);
