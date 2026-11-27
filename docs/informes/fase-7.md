@@ -135,6 +135,16 @@ haciendo de GPU). Lo que importa acá es que frenar, abrir, cerrar y arrancar no
 shaders, no suben texturas ni arman geometría: lo que se mueve son nodos ya armados y
 uniforms.
 
+## Ajustes hechos durante el cierre
+
+| Qué se encontró | Corrección |
+|---|---|
+| La precarga en segundo plano (shaders del Exterior y la Ruta, cuadros de calentamiento) podía caer en medio de la primera interacción | Cada tarea de la precarga espera a que el usuario no esté girando la cámara ni haya una transición (`whenCalm` en `render-kit/scheduling/idle.ts`, como mucho 10 s). El benchmark ahora espera el fin de la precarga y lo informa aparte. |
+| Entrar a la Ruta mientras la acción se estaba cerrando (Exterior → "Volver a cerrar" → Ruta enseguida) la tomaba como abierta | Si se está cerrando, aparece detenido y arranca solo al terminar de cerrar. |
+| Con el panel derecho abierto en pantallas de 1100–1500 px, la barra del visor se partía en dos renglones | Los rótulos secundarios (Cámaras, Manejar) quedan solo para lectores de pantalla en ese rango; "Ver en acción" conserva el texto. |
+| En visores angostos (panel abierto, celular) la cámara lateral de la Ruta quedaba demasiado cerca | Las tres cámaras de la Ruta se alejan según la proporción del visor. |
+| Avance manual del render (`?debug=1`, para grabar cuadro a cuadro) dejaba la cámara en NaN | El avance es relativo al reloj actual. |
+
 ## Capturas finales
 
 Calidad alta en escritorio (1440×900) y media en celular (375×812), render por software.
