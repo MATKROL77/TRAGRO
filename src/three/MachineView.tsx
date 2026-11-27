@@ -162,7 +162,10 @@ export function MachineView() {
     // con pocos FPS no se estire la animación
     const speed = prefersReducedMotion() ? 1 : 1 / 3.5;
     const moving = m.update(Math.min(dt, 0.25) * runtime.timeScale, target, runtime.distance, speed);
-    if (moving) invalidate();
+    if (moving) {
+      runtime.animTick++;
+      invalidate();
+    }
   });
 
   return <group ref={group} visible={!detail} />;

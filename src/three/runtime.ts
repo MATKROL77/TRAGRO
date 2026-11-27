@@ -22,6 +22,8 @@ export const runtime = {
   lastRebuildMs: 0,
   /** sube cada vez que se reemplaza el modelo (sombras de contacto, refinado) */
   modelVersion: 0,
+  /** se incrementa en cada cuadro de una animación que no mueve la cámara (reinicia el refinado) */
+  animTick: 0,
   /** paso más largo de la última reconstrucción por pasos (ms) */
   lastRebuildMaxSliceMs: 0,
   /** resultado de la precompilación de escenas (diagnóstico) */

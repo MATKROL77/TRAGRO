@@ -2,6 +2,7 @@ import { useFrame, useThree } from '@react-three/fiber';
 import * as THREE from 'three';
 import type { OrbitControls as OrbitControlsImpl } from 'three-stdlib';
 import { runtime } from './runtime';
+import { refineState } from '../render-kit/refine';
 import { presetShot, type Pads } from './CameraRig';
 import type { CamPreset } from '../state/store';
 
@@ -12,6 +13,7 @@ interface Req {
   scale?: number;
   wait: number;
   started: boolean;
+  t0?: number;
   restore?: () => void;
   resolve: (url: string) => void;
   maxWidth: number;
@@ -20,7 +22,10 @@ interface Req {
 }
 
 const queue: Req[] = [];
-export const captureState = { lock: false };
+/** `busy`: hay una captura en curso (la UI muestra la barra de progreso del refinado). */
+export const captureState = { lock: false, busy: false };
+/** Tope de espera del refinado antes de leer la imagen (ms). */
+const REFINE_MAX_MS = 4000;
 
 /** Captura PNG en alta resolución de la vista actual. */
 export function captureHiRes(scale = 2): Promise<string> {
@@ -78,9 +83,13 @@ export function CaptureController() {
   const { gl, camera, controls, setDpr, viewport, size, invalidate } = useThree();
   useFrame(() => {
     const r = queue[0];
+    captureState.busy = !!r;
     if (!r) return;
     if (!r.started) {
       r.started = true;
+      // la captura usa siempre la imagen refinada: arranca el refinado sin esperar
+      refineState.force = true;
+      r.t0 = performance.now();
       const ctl = controls as unknown as OrbitControlsImpl | null;
       if (r.kind === 'hires') {
         const prev = viewport.dpr;
@@ -111,6 +120,13 @@ export function CaptureController() {
       return;
     }
     if (r.wait-- > 0) {
+      refineState.force = true;
+      invalidate();
+      return;
+    }
+    // esperar a que converja (o el tope de 4 s); sin refinado activo (Campo/Ruta) sigue enseguida
+    const refining = refineState.active || refineState.force;
+    if (refining && refineState.samples < refineState.target && performance.now() - (r.t0 ?? 0) < REFINE_MAX_MS) {
       invalidate();
       return;
     }
@@ -119,6 +135,6 @@ export function CaptureController() {
     r.restore?.();
     r.resolve(url);
     invalidate();
-  }, 2);
+  }, 4);
   return null;
 }

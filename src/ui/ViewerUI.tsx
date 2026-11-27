@@ -5,7 +5,8 @@ import { useStore, type CamPreset, type SceneId } from '../state/store';
 import { useT } from '../i18n/useT';
 import { useFmt } from './format';
 import { runtime, touchInteraction } from '../three/runtime';
-import { captureHiRes } from '../three/capture';
+import { captureHiRes, captureState } from '../three/capture';
+import { refineState } from '../render-kit/refine';
 import { configNumber } from '../domain/url';
 import { IconCamera, IconClose, IconFold, IconFull, IconInfo, IconMore, IconPause, IconPlay, IconShot, IconUnit } from './icons';
 import { usePerformance } from './hooks';
@@ -318,6 +319,25 @@ function StableLabel({ current, all, className }: { current: string; all: string
       ))}
       <span className="stable-cur">{current}</span>
     </span>
+  );
+}
+
+/** Barra de progreso mientras una captura espera la imagen refinada (tope 4 s). */
+export function CaptureProgress() {
+  const t = useT();
+  const [p, setP] = useState<number | null>(null);
+  useEffect(() => {
+    const id = window.setInterval(() => {
+      setP(captureState.busy && (refineState.active || refineState.force) ? Math.min(1, refineState.samples / Math.max(1, refineState.target)) : null);
+    }, 120);
+    return () => window.clearInterval(id);
+  }, []);
+  if (p === null) return null;
+  return (
+    <div className="capture-progress" role="progressbar" aria-label={t('toolbar.refining')} aria-valuemin={0} aria-valuemax={100} aria-valuenow={Math.round(p * 100)}>
+      <span>{t('toolbar.refining')}</span>
+      <div className="capture-progress-bar"><i style={{ width: `${p * 100}%` }} /></div>
+    </div>
   );
 }
 

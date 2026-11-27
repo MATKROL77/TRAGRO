@@ -13,6 +13,7 @@ import { Hotspots } from './Hotspots';
 import { TransportDims } from './TransportDims';
 import { setWear } from './materials';
 import { initTextures } from '../render-kit/textures';
+import { ProgressiveRefine, refineState } from '../render-kit/refine';
 import { QUALITY_PRESETS, detectQuality, fpsBounds, higher, isMobileDevice, lower } from '../render-kit/quality';
 import { SceneWarmup, type WarmupStats } from '../render-kit/warmup';
 import { Line } from '@react-three/drei';
@@ -35,6 +36,7 @@ function StoreInvalidator() {
       dbg.scene = scene;
       dbg.gl = gl;
       dbg.THREE = THREE;
+      dbg.refine = refineState;
     }
     const unsub = useStore.subscribe(() => invalidate());
     const lost = (e: Event) => {
@@ -161,6 +163,28 @@ function AdaptiveQuality() {
   );
 }
 
+/** Refinado progresivo en Estudio (muestras según calidad: alto 64, medio 32, bajo 16). */
+const REFINE_SAMPLES = { high: 64, medium: 32, low: 16 } as const;
+function Refine() {
+  const scene = useStore((s) => s.scene);
+  const override = useStore((s) => s.studioOverride);
+  const quality = useStore((s) => s.quality);
+  const sowing = useStore((s) => s.sowing);
+  const enabled = (scene === 'studio' || override) && !(sowing && scene !== 'studio');
+  return (
+    <ProgressiveRefine
+      enabled={enabled}
+      target={REFINE_SAMPLES[quality]}
+      signature={() => {
+        const st = useStore.getState();
+        const m = runtime.model;
+        const c = st.config.colors;
+        return `${runtime.modelVersion}|${runtime.animTick}|${m?.state.poseT.toFixed(4)}|${runtime.distance.toFixed(3)}|${c.main}|${c.accent}|${st.config.text}|${st.logoUrl ? 1 : 0}|${st.detail}|${st.exploded}|${st.showTractor}|${st.quality}|${st.scene}|${st.studioOverride}`;
+      }}
+    />
+  );
+}
+
 export default function Viewer() {
   const quality = useStore((s) => s.quality);
   const scene = useStore((s) => s.scene);
@@ -188,8 +212,9 @@ export default function Viewer() {
         <Warmup />
       </Suspense>
       <CameraRig />
-      <CaptureController />
       <PostFX />
+      <Refine />
+      <CaptureController />
       {DebugTools && (
         <Suspense fallback={null}>
           <DebugTools />

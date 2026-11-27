@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useRef } from 'react';
 import { useFrame } from '@react-three/fiber';
+import { runtime } from './runtime';
 import { Html } from '@react-three/drei';
 import * as THREE from 'three';
 import { useStore } from '../state/store';
@@ -78,7 +79,10 @@ export default function RowUnitDetail() {
       const lab = labelRefs.current[id];
       if (lab) lab.position.copy(g.center).addScaledVector(g.explode, k.current * 1.1);
     }
-    if (prev !== k.current) state.invalidate();
+    if (prev !== k.current) {
+      runtime.animTick++; // el refinado se reinicia mientras algo se anima
+      state.invalidate();
+    }
   });
 
   const present = ORDER.filter((id) => data.groups.has(id) && id !== 'coulterSpring');
