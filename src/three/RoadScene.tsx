@@ -9,6 +9,7 @@ import { createGroundMaterial, loadTex } from './ground';
 import { Tractor, TRACTOR } from './Tractor';
 import { computeLayout, DIM } from '../machines/seeder/layout';
 import { useWarmup, useWarmupObject } from '../render-kit/warmup';
+import { roadSign, roadVerge } from './fieldDetail';
 
 const ROAD_W = 7.3;
 const SHOULDER = 1.6;
@@ -53,11 +54,55 @@ function buildRoadMaterials() {
     for (const t of [ac, an, ar]) t.repeat.set(ROAD_W / 3, 200);
     // envMapIntensity bajo: el asfalto no es espejo (a contraluz reflejaba el cielo y se veía lavado)
     const asphalt = new THREE.MeshStandardMaterial({ map: ac, normalMap: an, roughnessMap: ar, roughness: 1, color: '#9a9a9a', envMapIntensity: 0.45 });
+    asphalt.name = 'asphalt';
+    // huellas de rodado: más oscuras y pulidas (menos rugosas) en las dos sendas de cada carril
+    asphalt.onBeforeCompile = (sh) => {
+      sh.fragmentShader = sh.fragmentShader
+        .replace(
+          '#include <roughnessmap_fragment>',
+          `#include <roughnessmap_fragment>
+          {
+            float u = vMapUv.x / ${(ROAD_W / 3).toFixed(4)};
+            float tr = 0.0;
+            tr += 1.0 - smoothstep(0.02, 0.07, abs(u - 0.16));
+            tr += 1.0 - smoothstep(0.02, 0.07, abs(u - 0.36));
+            tr += 1.0 - smoothstep(0.02, 0.07, abs(u - 0.64));
+            tr += 1.0 - smoothstep(0.02, 0.07, abs(u - 0.84));
+            tr = clamp(tr, 0.0, 1.0);
+            roughnessFactor = mix(roughnessFactor, roughnessFactor * 0.55, tr);
+            diffuseColor.rgb *= 1.0 - tr * 0.18;
+          }`,
+        );
+    };
+    asphalt.customProgramCacheKey = () => 'asphalt-tracks';
     const gc = loadTex('textures/gravel_color.webp', true);
     const gn = loadTex('textures/gravel_normal.webp');
     for (const t of [gc, gn]) t.repeat.set(SHOULDER / 1.5, 400);
-    const gravel = new THREE.MeshStandardMaterial({ map: gc, normalMap: gn, roughness: 0.95, color: '#b8b0a2', envMapIntensity: 0.6 });
+    // banquina de tierra (ripio tirando a marrón)
+    const gravel = new THREE.MeshStandardMaterial({ map: gc, normalMap: gn, roughness: 0.95, color: '#b09a7e', envMapIntensity: 0.6 });
     const paint = new THREE.MeshStandardMaterial({ color: '#f2f2ee', roughness: 0.6 });
+    paint.name = 'roadPaint';
+    // pintura gastada: ruido en coordenadas de mundo oscurece y "come" la línea
+    paint.onBeforeCompile = (sh) => {
+      sh.vertexShader = sh.vertexShader
+        .replace('#include <common>', '#include <common>\nvarying vec3 vWp;')
+        .replace('#include <project_vertex>', `#include <project_vertex>
+          vec4 wpp = vec4(transformed, 1.0);
+          #ifdef USE_INSTANCING
+            wpp = instanceMatrix * wpp;
+          #endif
+          vWp = (modelMatrix * wpp).xyz;`);
+      sh.fragmentShader = sh.fragmentShader
+        .replace('#include <common>', `#include <common>
+          varying vec3 vWp;
+          float ph(vec2 p){ return fract(sin(dot(p, vec2(127.1, 311.7))) * 43758.5453); }
+          float pn(vec2 p){ vec2 i = floor(p); vec2 f = fract(p); f = f*f*(3.0-2.0*f);
+            return mix(mix(ph(i), ph(i+vec2(1,0)), f.x), mix(ph(i+vec2(0,1)), ph(i+vec2(1,1)), f.x), f.y); }`)
+        .replace('#include <color_fragment>', `#include <color_fragment>
+          float wear = pn(vWp.xz * vec2(18.0, 3.0)) * 0.6 + pn(vWp.xz * 60.0) * 0.4;
+          diffuseColor.rgb = mix(diffuseColor.rgb, vec3(0.32, 0.32, 0.31), smoothstep(0.55, 0.8, wear) * 0.75);`);
+    };
+    paint.customProgramCacheKey = () => 'road-paint-wear';
     const yellow = new THREE.MeshStandardMaterial({ color: '#e8b923', roughness: 0.6 });
     return { asphalt, gravel, paint, yellow };
   }
@@ -95,6 +140,7 @@ export default function RoadScene() {
   const road = useRef({ d: 0, v: 0 });
   const dashGroup = useRef<THREE.Group>(null);
   const signGroup = useRef<THREE.Group>(null);
+  const grassGroup = useRef<THREE.Group>(null);
   const warm = useWarmup();
   useExposure(0.95);
   useFrame((_, dt) => {
@@ -116,6 +162,7 @@ export default function RoadScene() {
     for (const t of [mats.gravel.map, mats.gravel.normalMap]) if (t) t.offset.y = -r.d / 1.5;
     ground.uniforms.uOffset.value = r.d;
     if (dashGroup.current) dashGroup.current.position.z = -(r.d % 12);
+    if (grassGroup.current) grassGroup.current.position.z = -(r.d % 70);
     if (signGroup.current) signGroup.current.position.z = 60 - (r.d % 140);
     m?.spinTransportWheels(r.d);
     runtime.invalidate();
@@ -125,6 +172,12 @@ export default function RoadScene() {
   const roadX = machineX - ROAD_W / 4;
   const G = getRoadGeo(mats.paint);
   const warmDashes = useWarmupObject(G.dashes);
+  const signObj = useMemo(() => roadSign(), []);
+  const warmSign = useWarmupObject(signObj);
+  // pasto a ambos lados (más allá de cada banquina); se mueve con las líneas
+  const grass = useMemo(() => roadVerge([-(ROAD_W / 2 + SHOULDER + 1.4), ROAD_W / 2 + SHOULDER + 1.4], 2.6), []);
+  const warmGrass = useWarmupObject(grass);
+  const quality = useStore((s) => s.quality);
   const base = import.meta.env.BASE_URL;
   return (
     // dispose={null}: geometrías/materiales/texturas compartidos (cacheados); R3F no debe liberarlos al desmontar
@@ -142,6 +195,11 @@ export default function RoadScene() {
       {[-1, 1].map((s) => (
         <mesh key={`e${s}`} rotation-x={-Math.PI / 2} position={[roadX + s * (ROAD_W / 2 - 0.2), 0.004, 0]} material={mats.paint} geometry={G.edge} />
       ))}
+      {quality !== 'low' && !warmGrass && (
+        <group ref={grassGroup} position={[roadX, 0, 0]}>
+          <primitive object={grass} dispose={null} />
+        </group>
+      )}
       <group ref={dashGroup}>
         <group position={[roadX, 0, 0]}>
           {!warmDashes && <primitive object={G.dashes} dispose={null} />}
@@ -149,8 +207,7 @@ export default function RoadScene() {
       </group>
       {/* cartel de advertencia genérico */}
       <group ref={signGroup} position={[roadX + ROAD_W / 2 + SHOULDER + 0.8, 0, 14]}>
-        <mesh position={[0, 1.2, 0]} material={mats.gravel} geometry={G.post} />
-        <mesh position={[0, 2.3, 0]} rotation={[0, -0.4, Math.PI / 4]} material={mats.yellow} geometry={G.sign} />
+        {!warmSign && <primitive object={signObj} rotation-y={-0.4} dispose={null} />}
       </group>
       <RoadTractor />
     </group>

@@ -81,12 +81,12 @@ function FieldDetail() {
     st.update(runtime.distance, true);
   }, [quality, st]);
   useEffect(() => () => du.clear(), [du]);
-  useFrame((_, dt) => {
+  useFrame(({ camera }, dt) => {
     if (warmA) return;
     st.update(runtime.distance);
     if (quality !== 'low') {
       const step = Math.min(dt, 0.05) * runtime.timeScale;
-      if (du.update(step, runtime.speed, lay.rowX, ROW.closing.z - 0.2)) runtime.invalidate();
+      if (du.update(step, runtime.speed, lay.rowX, ROW.closing.z - 0.2, camera.quaternion)) runtime.invalidate();
     }
   });
   if (warmA || warmB) return null;

@@ -16,10 +16,10 @@ const rnd = (() => {
 
 /* ------------------------------ rastrojo ------------------------------ */
 
-const STRAW_MAX = 9000;
-/** franja de rastrojo: ancho (x) y largo (z) alrededor de la máquina */
-const AREA_X = 46;
-const AREA_Z = 60;
+const STRAW_MAX = 16000;
+/** franja de rastrojo: ancho (x) y largo (z) alrededor de la máquina (≈13 pajas/m² en calidad alta) */
+const AREA_X = 34;
+const AREA_Z = 36;
 
 export class StrawField {
   mesh: THREE.InstancedMesh;
@@ -33,7 +33,7 @@ export class StrawField {
 
   constructor() {
     // paja: prisma triangular finito (6 caras visibles), con un leve doblez
-    const g = new THREE.CylinderGeometry(0.006, 0.007, 1, 3, 2, false);
+    const g = new THREE.CylinderGeometry(0.0035, 0.0045, 1, 3, 2, false);
     g.rotateZ(Math.PI / 2);
     const pos = g.getAttribute('position') as THREE.BufferAttribute;
     for (let i = 0; i < pos.count; i++) pos.setY(i, pos.getY(i) + Math.abs(pos.getX(i)) * 0.06);
@@ -51,9 +51,10 @@ export class StrawField {
       this.base[i * 5] = (rnd() - 0.5) * AREA_X;
       this.base[i * 5 + 1] = rnd() * AREA_Z;
       this.base[i * 5 + 2] = rnd() * Math.PI * 2;
-      this.base[i * 5 + 3] = 0.12 + rnd() * 0.32;
-      this.base[i * 5 + 4] = (rnd() - 0.5) * 0.25;
-      c.setHSL(0.1 + rnd() * 0.03, 0.28 + rnd() * 0.15, 0.45 + rnd() * 0.25);
+      this.base[i * 5 + 3] = 0.05 + rnd() * rnd() * 0.22;
+      this.base[i * 5 + 4] = (rnd() - 0.5) * 0.12;
+      // tonos de paja seca, algo grisácea (como la textura del suelo)
+      c.setHSL(0.1 + rnd() * 0.035, 0.18 + rnd() * 0.14, 0.5 + rnd() * 0.22);
       c.toArray(colors, i * 3);
     }
     this.mesh.instanceColor = new THREE.InstancedBufferAttribute(colors, 3);
@@ -77,7 +78,7 @@ export class StrawField {
       let z = ((this.base[i * 5 + 1] - offset) % AREA_Z + AREA_Z) % AREA_Z;
       z = z - AREA_Z * 0.45;
       const len = this.base[i * 5 + 3];
-      this.p.set(x, 0.012, z);
+      this.p.set(x, 0.006, z);
       this.e.set(0, this.base[i * 5 + 2], this.base[i * 5 + 4]);
       this.q.setFromEuler(this.e);
       this.s.set(len, 1, 1);
@@ -90,19 +91,38 @@ export class StrawField {
 
 /* ------------------------------ polvo ------------------------------ */
 
-const DUST_MAX = 420;
+const DUST_MAX = 260;
+let puffTex: THREE.Texture | null = null;
+/** Mancha suave (degradé radial con ruido) para las partículas de polvo. */
+function puffTexture(): THREE.Texture {
+  if (puffTex) return puffTex;
+  const S = 64;
+  const c = document.createElement('canvas');
+  c.width = c.height = S;
+  const ctx = c.getContext('2d')!;
+  const g = ctx.createRadialGradient(S / 2, S / 2, 0, S / 2, S / 2, S / 2);
+  g.addColorStop(0, 'rgba(255,255,255,0.9)');
+  g.addColorStop(0.45, 'rgba(255,255,255,0.45)');
+  g.addColorStop(1, 'rgba(255,255,255,0)');
+  ctx.fillStyle = g;
+  ctx.fillRect(0, 0, S, S);
+  puffTex = new THREE.CanvasTexture(c);
+  puffTex.colorSpace = THREE.SRGBColorSpace;
+  return puffTex;
+}
+
 export class DustEmitter {
   mesh: THREE.InstancedMesh;
   private parts: { x: number; y: number; z: number; vx: number; vy: number; vz: number; age: number; life: number; s: number }[] = [];
   private m = new THREE.Matrix4();
-  private q = new THREE.Quaternion();
   private v = new THREE.Vector3();
   private sc = new THREE.Vector3();
   private acc = 0;
 
   constructor() {
-    const g = new THREE.IcosahedronGeometry(0.5, 0);
-    const mat = new THREE.MeshStandardMaterial({ color: '#b39c7a', roughness: 1, transparent: true, opacity: 0.16, depthWrite: false });
+    // cuadrados que miran a la cámara (la orientación se copia de la cámara en cada cuadro)
+    const g = new THREE.PlaneGeometry(1, 1);
+    const mat = new THREE.MeshBasicMaterial({ color: '#b8a383', map: puffTexture(), transparent: true, opacity: 0.22, depthWrite: false, fog: true });
     mat.name = 'dust';
     this.mesh = new THREE.InstancedMesh(g, mat, DUST_MAX);
     this.mesh.frustumCulled = false;
@@ -111,13 +131,13 @@ export class DustEmitter {
   }
 
   /** Emite detrás de las tapadoras (`rowX`, z = `zBack`) proporcional a la velocidad. */
-  update(dt: number, speed: number, rowX: number[], zBack: number) {
+  update(dt: number, speed: number, rowX: number[], zBack: number, camQ: THREE.Quaternion) {
     if (speed > 0.3 && rowX.length) {
-      this.acc += dt * speed * 9;
+      this.acc += dt * speed * 4;
       while (this.acc > 1 && this.parts.length < DUST_MAX) {
         this.acc -= 1;
         const x = rowX[Math.floor(rnd() * rowX.length)] + (rnd() - 0.5) * 0.3;
-        this.parts.push({ x, y: 0.15, z: zBack - rnd() * 0.3, vx: (rnd() - 0.5) * 0.3, vy: 0.25 + rnd() * 0.35, vz: -speed * (0.75 + rnd() * 0.2), age: 0, life: 1.6 + rnd() * 1.6, s: 0.15 + rnd() * 0.2 });
+        this.parts.push({ x, y: 0.08, z: zBack - rnd() * 0.3, vx: (rnd() - 0.5) * 0.25, vy: 0.12 + rnd() * 0.2, vz: -speed * (0.8 + rnd() * 0.15), age: 0, life: 1.2 + rnd() * 1.4, s: 0.25 + rnd() * 0.25 });
       }
     }
     let n = 0;
@@ -127,12 +147,13 @@ export class DustEmitter {
       p.x += p.vx * dt;
       p.y += p.vy * dt;
       p.z += p.vz * dt;
-      p.vy *= 0.97;
+      p.vy *= 0.96;
       const k = p.age / p.life;
-      const size = p.s * (1 + k * 3.5) * Math.sin(Math.min(1, k * 3) * Math.PI * 0.5) * (1 - k * 0.4);
+      // crece y se desvanece (la opacidad se simula con el tamaño: al final es grande y muy tenue)
+      const size = p.s * (0.6 + k * 2.2) * Math.sin(Math.min(1, (1 - k) * 2.5) * Math.PI * 0.5);
       this.sc.setScalar(Math.max(0.001, size));
-      this.v.set(p.x, p.y, p.z);
-      this.m.compose(this.v, this.q, this.sc);
+      this.v.set(p.x, p.y + size * 0.3, p.z);
+      this.m.compose(this.v, camQ, this.sc);
       this.parts[n++] = p;
       this.mesh.setMatrixAt(n - 1, this.m);
     }
@@ -277,5 +298,137 @@ export function fieldHorizon(): THREE.Group {
     }
   });
   horizon = g;
+  return g;
+}
+
+/* ------------------------------ ruta ------------------------------ */
+
+let verge: THREE.InstancedMesh | null = null;
+/**
+ * Matas de pasto a los costados de la ruta (franjas a la izquierda y derecha de las banquinas),
+ * instanciadas; `xs` = centros de cada franja. Se desplazan con el avance como la ruta.
+ */
+export function roadVerge(xs: number[], width: number, tile = 70, count = 5400): THREE.InstancedMesh {
+  if (verge) return verge;
+  // mata: tres hojas cruzadas (planos finos), pocas caras
+  const blade = new THREE.PlaneGeometry(0.05, 0.32, 1, 2);
+  blade.translate(0, 0.16, 0);
+  const pos = blade.getAttribute('position') as THREE.BufferAttribute;
+  for (let i = 0; i < pos.count; i++) pos.setX(i, pos.getX(i) * (1 - pos.getY(i) / 0.34));
+  const parts: THREE.BufferGeometry[] = [];
+  for (let k = 0; k < 3; k++) {
+    const b = blade.clone();
+    b.rotateZ((k - 1) * 0.35);
+    b.rotateY((k * Math.PI) / 3);
+    parts.push(b);
+  }
+  const geo = mergeTufts(parts);
+  const mat = new THREE.MeshStandardMaterial({ color: '#ffffff', roughness: 0.9, side: THREE.DoubleSide });
+  mat.name = 'grassTuft';
+  const mesh = new THREE.InstancedMesh(geo, mat, count);
+  const m = new THREE.Matrix4();
+  const q = new THREE.Quaternion();
+  const c = new THREE.Color();
+  // patrón periódico de `tile` metros repetido 3 veces: al desplazarlo módulo `tile` no hay saltos
+  const per = Math.floor(count / 3);
+  for (let i = 0; i < per; i++) {
+    const x = xs[i % xs.length] + (rnd() - 0.5) * width;
+    const z = rnd() * tile;
+    const sc = 0.6 + rnd() * 0.9;
+    const rotY = rnd() * 6.28;
+    const sy = sc * (0.7 + rnd() * 0.8);
+    // pasto pampeano a fin de invierno: verde apagado con puntas secas
+    c.setHSL(0.17 + rnd() * 0.08, 0.3 + rnd() * 0.2, 0.3 + rnd() * 0.15);
+    for (let k = -1; k <= 1; k++) {
+      m.compose(new THREE.Vector3(x, 0, z + k * tile), q.setFromEuler(new THREE.Euler(0, rotY, 0)), new THREE.Vector3(sc, sy, sc));
+      mesh.setMatrixAt(i * 3 + k + 1, m);
+      mesh.setColorAt(i * 3 + k + 1, c);
+    }
+  }
+  mesh.count = per * 3;
+  mesh.frustumCulled = false;
+  mesh.receiveShadow = true;
+  verge = mesh;
+  return mesh;
+}
+
+function mergeTufts(parts: THREE.BufferGeometry[]): THREE.BufferGeometry {
+  let n = 0;
+  for (const p of parts) n += p.getAttribute('position').count;
+  const pos = new Float32Array(n * 3);
+  const nor = new Float32Array(n * 3);
+  const idx: number[] = [];
+  let off = 0;
+  for (const p of parts) {
+    pos.set(p.getAttribute('position').array as Float32Array, off * 3);
+    nor.set(p.getAttribute('normal').array as Float32Array, off * 3);
+    const ix = p.index!.array;
+    for (let k = 0; k < ix.length; k++) idx.push(ix[k] + off);
+    off += p.getAttribute('position').count;
+  }
+  const g = new THREE.BufferGeometry();
+  g.setAttribute('position', new THREE.BufferAttribute(pos, 3));
+  g.setAttribute('normal', new THREE.BufferAttribute(nor, 3));
+  g.setIndex(idx);
+  return g;
+}
+
+let sign: THREE.Group | null = null;
+/** Cartel vial de advertencia en 3D: poste galvanizado, chapa con borde plegado y frente con símbolo. */
+export function roadSign(): THREE.Group {
+  if (sign) return sign;
+  const mats = getMaterials();
+  const g = new THREE.Group();
+  const post = new THREE.Mesh(new THREE.CylinderGeometry(0.035, 0.035, 2.6, 10), mats.galvanized);
+  post.position.y = 1.3;
+  // frente: canvas con fondo amarillo, borde negro y símbolo de maquinaria agrícola (genérico)
+  const S = 256;
+  const c = document.createElement('canvas');
+  c.width = c.height = S;
+  const ctx = c.getContext('2d')!;
+  ctx.fillStyle = '#e8b923';
+  ctx.fillRect(0, 0, S, S);
+  ctx.strokeStyle = '#151515';
+  ctx.lineWidth = 16;
+  ctx.strokeRect(14, 14, S - 28, S - 28);
+  ctx.save();
+  ctx.translate(S / 2, S / 2);
+  ctx.rotate(-Math.PI / 4); // el cartel se gira 45°: el símbolo queda derecho
+  ctx.fillStyle = '#151515';
+  ctx.fillRect(-46, -8, 70, 30); // cuerpo del tractor
+  ctx.fillRect(-10, -40, 30, 34); // cabina
+  ctx.beginPath();
+  ctx.arc(-30, 32, 22, 0, Math.PI * 2);
+  ctx.arc(34, 38, 14, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.restore();
+  const tex = new THREE.CanvasTexture(c);
+  tex.colorSpace = THREE.SRGBColorSpace;
+  tex.anisotropy = 4;
+  const face = new THREE.MeshStandardMaterial({ map: tex, roughness: 0.35, metalness: 0 });
+  face.name = 'signFace';
+  const board = new THREE.Group();
+  const plate = new THREE.Mesh(new THREE.BoxGeometry(0.72, 0.72, 0.012), mats.galvanized);
+  const front = new THREE.Mesh(new THREE.PlaneGeometry(0.7, 0.7), face);
+  front.position.z = 0.0065;
+  // borde plegado de la chapa
+  const rim = new THREE.Mesh(new THREE.TorusGeometry(0.5, 0.01, 4, 4), mats.galvanized);
+  rim.rotation.z = Math.PI / 4;
+  rim.scale.set(0.72, 0.72, 1);
+  board.add(plate, front, rim);
+  board.rotation.z = Math.PI / 4;
+  board.position.set(0, 2.35, 0.05);
+  // abrazaderas
+  const clamp = new THREE.Mesh(new THREE.CylinderGeometry(0.045, 0.045, 0.05, 10), mats.steel);
+  const c1 = clamp.clone();
+  c1.position.y = 2.15;
+  const c2 = clamp.clone();
+  c2.position.y = 2.55;
+  g.add(post, board, c1, c2);
+  g.traverse((o) => {
+    const mesh = o as THREE.Mesh;
+    if (mesh.isMesh) mesh.castShadow = true;
+  });
+  sign = g;
   return g;
 }
