@@ -171,11 +171,15 @@ Calidad alta en escritorio (1440×900) y media en celular (375×812), render por
 
 ## Video de la secuencia
 
-`docs/informes/video/ruta-secuencia.mp4` ({{VIDEO_INFO}}): Sider circulando → "Ver en acción"
+`docs/informes/video/ruta-secuencia.mp4` (15 s, 1280×720, H.264): Sider circulando → "Ver en acción"
 → frena y se va a la banquina → corre la lona → "Volver a cerrar" → cierra → arranca y vuelve
 al carril. Grabado cuadro a cuadro (30 cuadros por segundo de tiempo simulado) con
 `?debug=1`, que permite avanzar el render manualmente; así el video sale fluido aunque acá
-el dibujo sea por software. Es la cámara de seguimiento por defecto, sin retoques.
+el dibujo sea por software. Es la cámara de seguimiento por defecto, sin retoques. Los
+555 cuadros grabados (18,5 s de tiempo simulado) se reproducen a 37 cuadros por segundo
+para entrar en 15 s.
+
+![](img/fase7-video-cuadros.jpg)
 
 ## Peso de la primera carga
 
