@@ -33,7 +33,107 @@ software eso se ve como cuadros algo más largos en algunas acciones, aunque en 
 una fracción de milisegundo. Por eso el cuadro más largo en SwiftShader no es comparable
 entre fases: la comparación válida es la de las causas.
 
-{{MEDICIONES}}
+## Medición final contra la Fase 0
+
+Pasada corta (`--rapido`: Tolva y Furgón/Sider, una opción por paso, Ver en acción en
+Estudio y Exterior, Estudio → Exterior → Ruta → Estudio y la secuencia de la Ruta),
+render por software. Resultados en `bench/results-2026-11-26-fase7-escritorio.json` y
+`bench/results-2026-11-27-fase7-celular.json`. La corrida de escritorio coincidió en parte
+con la grabación del video (con prioridad baja), así que sus tiempos pueden estar algo
+inflados.
+
+#### Perfil escritorio
+
+| Medida | Antes | Después |
+| --- | --- | --- |
+| Primer cuadro con el modelo (ms) | 6246 | 5618 |
+| Transferido hasta el primer cuadro (KB) | 993 | 1011 |
+| Precarga en segundo plano terminada (ms) | – | 55228 |
+| Transferido con la precarga (Exterior y Ruta incluidas, KB) | – | 4727 |
+| Cuadro más largo (ms) | 3599.9 | 1899.9 |
+| Cuadros > 50 ms | 658 | 1535 |
+| Acciones con algún cuadro > 50 ms | 35/35 | 39/39 |
+| Tarea larga más larga (ms) | 2047 | 1882 |
+| Shaders compilados durante las acciones | 2 | 0 |
+| Reconstrucciones en el hilo principal | 9 | 7 |
+| Tiempo de reconstrucción en el hilo principal (ms) | 683.3 | 125.1 |
+| fps órbita estudio | – | – |
+| fps órbita exterior | – | – |
+| Draw calls máx. por cuadro | 176 | 138 |
+
+Acciones más pesadas (cuadro más largo, tarea larga, shaders compilados, reconstrucción en el hilo principal):
+
+| Acción | Antes | Después |
+| --- | --- | --- |
+| escena → estudio | 3600 ms · TL 1941 · -1 sh · 0 ms | 1900 ms · TL 1882 · 0 sh · 0 ms |
+| tipo → furgon | 2083 ms · TL 1085 · 0 sh · 73 ms | 1133 ms · TL 1107 · 0 sh · 11 ms |
+| furgon exterior: volver a cerrar | 2050 ms · TL 2047 · 0 sh · 0 ms | 917 ms · TL 911 · 0 sh · 0 ms |
+| escena → exterior | 1983 ms · TL 1935 · 1 sh · 0 ms | 1250 ms · TL 1252 · 0 sh · 0 ms |
+| tolva: paso personalizacion | 1817 ms · TL 1817 · 0 sh · 0 ms | 517 ms · TL 514 · 0 sh · 0 ms |
+| tolva/accesorios: cajon (interruptor/cantidad) | 1817 ms · TL 1821 · 0 sh · 102 ms | 967 ms · TL 918 · 0 sh · 36 ms |
+| tolva/rodado: ejes=tridem | 1767 ms · TL 1754 · 0 sh · 110 ms | 1183 ms · TL 1163 · 0 sh · 26 ms |
+| tolva exterior: volver a cerrar | 1767 ms · TL 1766 · 0 sh · 0 ms | 933 ms · TL 924 · 0 sh · 0 ms |
+| exterior: órbita de cámara 3 s | 1750 ms · TL 1749 · 0 sh · 0 ms | 967 ms · TL 952 · 0 sh · 0 ms |
+| tolva exterior: Ver en acción | 1700 ms · TL 1705 · 0 sh · 0 ms | 1067 ms · TL 1063 · 0 sh · 0 ms |
+| tolva: paso especificos | 1667 ms · TL 1669 · 0 sh · 0 ms | 633 ms · TL 636 · 0 sh · 0 ms |
+| furgon exterior: Ver en acción | 1650 ms · TL 1640 · 0 sh · 0 ms | 1067 ms · TL 1071 · 0 sh · 0 ms |
+
+#### Perfil celular
+
+| Medida | Antes | Después |
+| --- | --- | --- |
+| Primer cuadro con el modelo (ms) | 8329 | 8966 |
+| Transferido hasta el primer cuadro (KB) | 776 | 794 |
+| Precarga en segundo plano terminada (ms) | – | 35582 |
+| Transferido con la precarga (Exterior y Ruta incluidas, KB) | – | 4510 |
+| Cuadro más largo (ms) | 1233.3 | 366.8 |
+| Cuadros > 50 ms | 1432 | 4919 |
+| Acciones con algún cuadro > 50 ms | 35/35 | 41/41 |
+| Tarea larga más larga (ms) | 1070 | 342 |
+| Shaders compilados durante las acciones | 2 | 0 |
+| Reconstrucciones en el hilo principal | 9 | 8 |
+| Tiempo de reconstrucción en el hilo principal (ms) | 2264.4 | 243.3 |
+| fps órbita estudio | 7.3 | 11.8 |
+| fps órbita exterior | 4.3 | 8.9 |
+| Draw calls máx. por cuadro | 263 | 138 |
+
+Acciones más pesadas (cuadro más largo, tarea larga, shaders compilados, reconstrucción en el hilo principal):
+
+| Acción | Antes | Después |
+| --- | --- | --- |
+| escena → exterior | 1233 ms · TL 1070 · 1 sh · 0 ms | 217 ms · TL 207 · 0 sh · 0 ms |
+| furgon: variante sider | 650 ms · TL 378 · 1 sh · 228 ms | 367 ms · TL 342 · 0 sh · 23 ms |
+| tolva/dimensiones: medida Largo de caja + | 633 ms · TL 379 · 0 sh · 359 ms | 250 ms · TL 201 · 0 sh · 41 ms |
+| tolva/accesorios: cajon (interruptor/cantidad) | 550 ms · TL 343 · 0 sh · 329 ms | 283 ms · TL 230 · 0 sh · 48 ms |
+| tolva/rodado: ejes=tridem | 533 ms · TL 274 · 0 sh · 261 ms | 283 ms · TL 220 · 0 sh · 0 ms |
+| tipo → furgon | 517 ms · TL 284 · 0 sh · 250 ms | 283 ms · TL 272 · 0 sh · 22 ms |
+| furgon/accesorios: cajon (interruptor/cantidad) | 467 ms · TL 259 · 0 sh · 248 ms | 183 ms · TL 161 · 0 sh · 33 ms |
+| furgon/rodado: ejes=1+1+1 | 467 ms · TL 240 · 0 sh · 199 ms | 283 ms · TL 223 · 0 sh · 21 ms |
+| furgon/dimensiones: medida Largo de caja + | 433 ms · TL 213 · 0 sh · 198 ms | 250 ms · TL 234 · 0 sh · 34 ms |
+| furgon/especificos: variante=furgon | 433 ms · TL 229 · 0 sh · 194 ms | 200 ms · TL 192 · 0 sh · 21 ms |
+| escena → estudio | 433 ms · TL 383 · -1 sh · 0 ms | 283 ms · TL 271 · 0 sh · 0 ms |
+| tolva exterior: Ver en acción | 317 ms · TL 312 · 0 sh · 0 ms | 183 ms · TL 186 · 0 sh · 0 ms |
+
+Las acciones nuevas (la Ruta) suman cuadros: la ruta dibuja de forma continua mientras el
+camión circula, y con dibujo por software cada uno de esos cuadros pasa los 50 ms. Por eso
+"Cuadros > 50 ms" sube aunque la causa de tirones de la CPU haya bajado.
+
+### Secuencia de la Ruta (sin shaders compilados en ningún paso)
+
+| Acción | Escritorio: cuadro más largo | Celular (CPU 4×): fps · 1 % · cuadro más largo |
+|---|---|---|
+| escena → ruta | 1683.2 ms | 5.4 · 4.1 · 283.4 ms |
+| ruta: órbita de cámara 3 s | 1466.7 ms | 6.7 · 4.8 · 233.4 ms |
+| ruta: 20 s circulando | 1516.6 ms | 5.4 · 4 · 283.3 ms |
+| ruta: Ver en acción (frena + abre) | 1599.9 ms | 6.8 · 4.4 · 216.6 ms |
+| ruta: volver a cerrar (cierra + arranca) | 1683.3 ms | 5.5 · 4.1 · 266.7 ms |
+| ruta: 10 s circulando | 1683.3 ms | 5.4 · 4.3 · 316.7 ms |
+| escena → estudio | 1899.9 ms | 16.8 · 9.3 · 283.4 ms |
+
+Con dibujo por software, casi todo el tiempo de esos cuadros es el dibujo en sí (la CPU
+haciendo de GPU). Lo que importa acá es que frenar, abrir, cerrar y arrancar no compilan
+shaders, no suben texturas ni arman geometría: lo que se mueve son nodos ya armados y
+uniforms.
 
 ## Capturas finales
 
@@ -79,7 +179,15 @@ el dibujo sea por software. Es la cámara de seguimiento por defecto, sin retoqu
 
 ## Peso de la primera carga
 
-{{PESO}}
+| | Escritorio | Celular |
+|---|---|---|
+| Hasta el primer cuadro con el modelo | 1011 KB | 794 KB |
+| Con la precarga en segundo plano (Exterior y Ruta incluidas) | 4727 KB | 4510 KB |
+
+Objetivo: ≤ 6 MB en la primera carga. La precarga de Exterior y Ruta se hace en momentos
+ociosos después del primer cuadro (y no se hace con "ahorro de datos"); desde esta fase,
+además, cada tarea de la precarga espera a que el usuario no esté girando la cámara ni haya
+una transición en curso.
 
 ## Qué queda en cada nivel de calidad
 
