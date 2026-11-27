@@ -290,6 +290,7 @@ export default function RouteController() {
 
     // --- Cámara ---
     const c = state.controls as unknown as OrbitImpl | null;
+    let settling = false;
     if (c) {
       const preset = CAMS[st.ui.rutaCam];
       const axle = model.layout.axles.reduce((s0, a0) => s0 + a0.x, 0) / model.layout.axles.length;
@@ -324,12 +325,14 @@ export default function RouteController() {
         const kk = 1 - Math.exp(-dt * 2.4);
         c.target.lerp(_t, kk);
         camera.position.lerp(_v, kk);
+        // Sigue dibujando hasta que la cámara llegue (si no, queda a mitad de camino y salta después).
+        settling = camera.position.distanceToSquared(_v) > 1e-4 || c.target.distanceToSquared(_t) > 1e-4;
       }
       camera.lookAt(c.target);
     }
 
     // --- Render continuo solo cuando algo se mueve ---
-    const busy = p.v > 0.01 || m.state !== 'DETENIDO' && m.state !== 'ABIERTO' || cam.current.dragging || cam.current.time - cam.current.releasedAt < 4 || k.changingLane;
+    const busy = p.v > 0.01 || m.state !== 'DETENIDO' && m.state !== 'ABIERTO' || cam.current.dragging || cam.current.time - cam.current.releasedAt < 4 || k.changingLane || settling;
     const loop = busy ? 'always' : 'demand';
     if (state.frameloop !== loop && !vehicleClock.manualFrames) setFrameloop(loop);
     if (busy) markActive(400);

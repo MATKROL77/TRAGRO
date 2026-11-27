@@ -60,6 +60,61 @@ describe('cinemática del camión', () => {
   });
 });
 
+describe('rumbo sin saltos (la cámara sigue al semi)', () => {
+  /** Recorre `secs` a `fps` y devuelve el mayor salto de rumbo por cuadro y el corrimiento lateral estando parado. */
+  const run = (k: TruckKinematics, secs: number, fps: number, onStep?: (t: number) => void) => {
+    let prev = k.step(0);
+    let maxDPsi = 0;
+    let slideStill = 0;
+    for (let i = 0; i < secs * fps; i++) {
+      onStep?.(i / fps);
+      const p = k.step(1 / fps);
+      maxDPsi = Math.max(maxDPsi, Math.abs(p.psiTractor - prev.psiTractor), Math.abs(p.psiTrailer - prev.psiTrailer));
+      if (p.v < 0.05 && prev.v < 0.05) slideStill = Math.max(slideStill, Math.abs(p.lateral - prev.lateral));
+      prev = p;
+    }
+    return { maxDPsi, slideStill, last: prev };
+  };
+
+  for (const fps of [60, 30]) {
+    it(`frenar a la banquina y volver a arrancar, a ${fps} fps`, () => {
+      const k = new TruckKinematics(geo);
+      run(k, 5, fps);
+      k.moveTo('shoulder');
+      k.brakeToStop();
+      const a = run(k, 12, fps);
+      expect(k.stopped).toBe(true);
+      expect(a.last.lateral).toBeCloseTo(k.opt.shoulderOffset, 2);
+      k.moveTo('lane');
+      k.setTargetSpeed(k.opt.cruise);
+      const b = run(k, 25, fps);
+      expect(b.last.lateral).toBeCloseTo(k.opt.laneOffset, 2);
+      // A 60 fps, menos de 0,3° por cuadro (antes: 12,8° de golpe al arrancar).
+      expect(Math.max(a.maxDPsi, b.maxDPsi)).toBeLessThan(0.005 * (60 / fps));
+      expect(Math.max(a.slideStill, b.slideStill)).toBeLessThan(1e-5);
+    });
+  }
+
+  it('frenar mientras arranca (casi parado y a medio cambio de carril): termina en la banquina sin saltos', () => {
+    const k = new TruckKinematics(geo, {}, undefined, false);
+    k.placeStopped(true);
+    k.moveTo('lane');
+    k.setTargetSpeed(k.opt.cruise);
+    let asked = false;
+    const r = run(k, 30, 60, (t) => {
+      if (!asked && t > 1.5) {
+        asked = true;
+        k.moveTo('shoulder');
+        k.brakeToStop();
+      }
+    });
+    expect(k.stopped).toBe(true);
+    expect(r.last.lateral).toBeCloseTo(k.opt.shoulderOffset, 2);
+    expect(r.maxDPsi).toBeLessThan(0.005);
+    expect(r.slideStill).toBeLessThan(1e-5);
+  });
+});
+
 describe('máquina de estados', () => {
   it('frena, se detiene y recién ahí abre; ignora toques repetidos', () => {
     const cmds: Command[] = [];

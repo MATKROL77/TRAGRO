@@ -38,8 +38,15 @@ export interface KinematicsOptions {
   laneOffset: number;
   /** Desplazamiento lateral sobre la banquina (m). */
   shoulderOffset: number;
-  /** Tiempo para cambiar de carril / irse a la banquina (s). */
-  laneChangeTime: number;
+  /**
+   * Distancia recorrida para cambiar de carril (m): mín. y máx. Un vehículo no se puede correr
+   * de costado sin avanzar, así que el cambio de carril avanza con la distancia, no con el reloj.
+   */
+  laneChangeDistance: [number, number];
+  /** Curvatura máxima del rumbo (rad por metro recorrido): el volante no gira de golpe. */
+  maxYawPerMeter: number;
+  /** Velocidad lenta para terminar de irse a la banquina cuando se pide frenar casi parado (m/s). */
+  creepSpeed: number;
 }
 
 export const DEFAULT_KINEMATICS: KinematicsOptions = {
@@ -49,7 +56,9 @@ export const DEFAULT_KINEMATICS: KinematicsOptions = {
   jerk: 3.2,
   laneOffset: 1.825,
   shoulderOffset: 4.15,
-  laneChangeTime: 3.2,
+  laneChangeDistance: [24, 64],
+  maxYawPerMeter: 0.12,
+  creepSpeed: 3.5,
 };
 
 export interface TruckPose {
@@ -89,6 +98,12 @@ export class TruckKinematics {
   private lateralFrom: number;
   private lateralTo: number;
   private lateralT = 1;
+  /** Distancia del cambio de carril en curso (m). */
+  private laneDist = 60;
+  /** Rumbo del tractor respecto del eje de la ruta por el cambio de carril (rad), suavizado. */
+  private latPsi = 0;
+  /** Se pidió detenerse en la banquina pero todavía no alcanza la distancia para frenar. */
+  private pendingStop = false;
   /** Rumbo absoluto del tractor y del semi (rad, en el marco de la ruta). */
   private psiT = 0;
   private psiS = 0;
@@ -132,7 +147,10 @@ export class TruckKinematics {
   /** Velocidad objetivo (m/s). */
   setTargetSpeed(v: number): void {
     this.targetV = Math.max(0, v);
-    if (v > 0) this.brakePlan = null;
+    if (v > 0) {
+      this.brakePlan = null;
+      this.pendingStop = false;
+    }
   }
 
   /**
@@ -141,16 +159,37 @@ export class TruckKinematics {
    * Desaceleración media 4 m/s²: de 80 km/h tarda ≈5,5 s.
    */
   brakeToStop(): void {
-    this.targetV = 0;
+    this.pendingStop = false;
+    if (!this.tryStartBraking()) {
+      // Casi parado y con el cambio de carril a medio hacer: avanza despacio hasta que la
+      // frenada alcance para terminarlo (si no, se correría de costado sin avanzar).
+      this.pendingStop = true;
+      this.brakePlan = null;
+      this.targetV = Math.max(this.v, this.opt.creepSpeed);
+    }
+  }
+
+  /** Distancia de frenado con el perfil suave desde la velocidad actual (m). */
+  private brakeDistance(v0: number): number {
+    return (v0 * Math.max(1.2, v0 / 4)) / 2;
+  }
+
+  /** Arranca el frenado si la distancia alcanza para terminar el cambio de carril. */
+  private tryStartBraking(): boolean {
     const v0 = this.v;
+    const remaining = this.lateralT < 1 ? 1 - this.lateralT : 0;
+    const db = this.brakeDistance(v0);
+    if (remaining > 0 && remaining * this.opt.laneChangeDistance[0] > 0.8 * db) return false;
+    this.targetV = 0;
+    if (remaining > 0) this.laneDist = Math.min(this.laneDist, (0.8 * db) / remaining);
     if (v0 < 0.05) {
       this.v = 0;
       this.a = 0;
       this.brakePlan = null;
-      return;
+      return true;
     }
-    const T = Math.max(1.2, v0 / 4);
-    this.brakePlan = { v0, T, t: 0 };
+    this.brakePlan = { v0, T: Math.max(1.2, v0 / 4), t: 0 };
+    return true;
   }
 
   /** Lleva el vehículo al carril (lane) o a la banquina (shoulder). */
@@ -160,6 +199,8 @@ export class TruckKinematics {
     this.lateralFrom = this.lateral;
     this.lateralTo = to;
     this.lateralT = 0;
+    const [dMin, dMax] = this.opt.laneChangeDistance;
+    this.laneDist = Math.min(dMax, Math.max(dMin, this.v * 2.6));
   }
 
   /**
@@ -169,10 +210,12 @@ export class TruckKinematics {
   setManual(input: { throttle: number; steer: number } | null): void {
     if (input && !this.manual) {
       this.brakePlan = null;
+      this.pendingStop = false;
       this.lateralT = 1;
       this.lateralFrom = this.lateralTo = this.lateral;
     }
     if (!input && this.manual) {
+      this.latPsi = this.relHeading;
       this.relHeading = 0;
       this.moveTo('lane');
       this.setTargetSpeed(this.opt.cruise);
@@ -192,6 +235,8 @@ export class TruckKinematics {
     this.brakePlan = null;
     this.lateral = this.lateralFrom = this.lateralTo = onShoulder ? this.opt.shoulderOffset : this.opt.laneOffset;
     this.lateralT = 1;
+    this.latPsi = 0;
+    this.pendingStop = false;
   }
 
   step(dtIn: number): TruckPose {
@@ -200,6 +245,7 @@ export class TruckKinematics {
     const o = this.opt;
 
     // --- Velocidad ---
+    if (this.pendingStop && this.tryStartBraking()) this.pendingStop = false;
     let ds: number;
     const bp = this.brakePlan;
     if (this.manual) {
@@ -248,33 +294,36 @@ export class TruckKinematics {
     this.odo += ds;
 
     // --- Lateral: cambio de carril con perfil suave (seno), o volante en modo manual ---
-    let latRate = 0;
     if (this.manual) {
       const lim = this.manualLimits;
       const delta = this.manual.steer * lim.maxSteer;
       this.relHeading += (this.v / lim.wheelbase) * Math.tan(delta) * dt;
       this.relHeading = Math.max(-0.35, Math.min(0.35, this.relHeading));
-      latRate = this.v * Math.sin(this.relHeading);
+      const latRate = this.v * Math.sin(this.relHeading);
       const prev = this.lateral;
       this.lateral = Math.max(lim.lateral[0], Math.min(lim.lateral[1], this.lateral + latRate * dt));
       if (this.lateral !== prev + latRate * dt) this.relHeading *= 0.9;
-      latRate = dt > 0 ? (this.lateral - prev) / dt : 0;
       this.lateralFrom = this.lateralTo = this.lateral;
     } else if (this.lateralT < 1) {
-      // Más lento si va despacio (no se cruza el carril de golpe parado).
-      const speedK = Math.max(0.35, Math.min(1, this.v / 8));
-      this.lateralT = Math.min(1, this.lateralT + (dt / o.laneChangeTime) * speedK);
+      // Avanza con la distancia recorrida (parado no se corre de costado).
+      this.lateralT = Math.min(1, this.lateralT + Math.max(0, ds) / this.laneDist);
       const e = 0.5 - 0.5 * Math.cos(Math.PI * this.lateralT);
-      const prev = this.lateral;
       this.lateral = this.lateralFrom + (this.lateralTo - this.lateralFrom) * e;
-      latRate = dt > 0 ? (this.lateral - prev) / dt : 0;
     }
 
     // --- Rumbo del tractor: tangente del eje de la ruta + componente del cambio lateral ---
     const roadPsi = this.road.heading(this.s);
-    const latPsi = this.manual ? this.relHeading : this.v > 0.3 ? Math.atan2(latRate, this.v) : 0;
+    if (this.manual) this.latPsi = this.relHeading;
+    else {
+      // Pendiente del perfil del cambio de carril (dLateral / ds): no depende de la velocidad.
+      const slope = this.lateralT < 1 ? ((this.lateralTo - this.lateralFrom) * 0.5 * Math.PI * Math.sin(Math.PI * this.lateralT)) / this.laneDist : 0;
+      const want = Math.atan(slope);
+      // El rumbo cambia, como mucho, `maxYawPerMeter` por metro recorrido (sin saltos).
+      const maxStep = Math.abs(ds) * o.maxYawPerMeter;
+      this.latPsi += Math.max(-maxStep, Math.min(maxStep, want - this.latPsi));
+    }
     this.prevPsiT = this.psiT;
-    this.psiT = roadPsi + latPsi;
+    this.psiT = roadPsi + this.latPsi;
     const psiTRate = dt > 0 ? (this.psiT - this.prevPsiT) / dt : 0;
 
     // --- Semi: modelo de remolque (nunca se cruza: la articulación queda acotada) ---
