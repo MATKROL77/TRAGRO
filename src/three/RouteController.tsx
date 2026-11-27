@@ -304,6 +304,9 @@ export default function RouteController() {
       };
       rot(preset.target, _t);
       rot(preset.pos, _v);
+      // Visor angosto (panel abierto o celular): la cámara se aleja para que entre el conjunto.
+      const fit = THREE.MathUtils.clamp(1.7 / ((camera as THREE.PerspectiveCamera).aspect || 1.7), 1, 2.4);
+      if (fit > 1) _v.sub(_t).multiplyScalar(fit).add(_t);
       const free = cam.current.dragging || cam.current.time - cam.current.releasedAt < 1.5;
       if (!cam.current.init) {
         camera.position.copy(_v);
