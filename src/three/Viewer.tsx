@@ -271,7 +271,11 @@ function Bridge({ overlay }: { overlay: React.RefObject<HTMLCanvasElement> }) {
     };
     (window as unknown as { __captura: unknown }).__captura = snapshot;
     // Avance manual del render (video cuadro a cuadro, determinístico): solo con ?debug o en el benchmark.
-    if (DEBUG || BENCH) Object.assign(window as unknown as Record<string, unknown>, { __advance: (t: number) => get().advance(t), __frameloop: (m: 'always' | 'demand' | 'never') => get().setFrameloop(m), __canvas: () => get().gl.domElement });
+    if (DEBUG || BENCH) Object.assign(window as unknown as Record<string, unknown>, { __advance: (dt: number) => {
+        // Relativo al reloj actual: al pasar a 'never', R3F puede dejar el reloj en ms (cuadro pendiente con la marca de requestAnimationFrame).
+        const st = get();
+        st.advance(st.clock.elapsedTime + dt);
+      }, __frameloop: (m: 'always' | 'demand' | 'never') => get().setFrameloop(m), __canvas: () => get().gl.domElement });
     if (DEBUG || BENCH) (window as unknown as { __progKeys: unknown }).__progKeys = () => (get().gl.info.programs ?? []).map((pr) => `${pr.name}|${pr.cacheKey}`);
     (window as unknown as { __viewer: unknown }).__viewer = { stats: () => ({ ...get().gl.info.memory, ...lastInfo.current, fps: fps.current.value, frames: fps.current.total, programs: get().gl.info.programs?.length ?? 0, buildMs: buildTimes.slice(), modelTriangles: currentModel.value?.stats.triangles ?? 0, modelMeshes: currentModel.value?.stats.meshes ?? 0, modelKey: currentModel.value?.key ?? '', worker: { ...workerStats } }), camera: () => ({ position: get().camera.position.toArray(), target: (get().controls as unknown as OrbitImpl | null)?.target.toArray() }) };
     return () => registerViewer(null);
